@@ -1,0 +1,7 @@
+config = {               'tokens': {   'Instance1':'BOT_TOKEN_1'
+                                     , 'Instance2':'BOT_TOKEN_2'
+                                   }
+           ,           'prefixes': ['!']
+           ,         'create_url': 'https://my_website.com/handle_invitation.php'
+           , 'invitation_channel': 1234567890123456790 # Id of the channel listened
+         }
