@@ -11,6 +11,7 @@ def get_prefix(bot, message):
 
 # Define all of our cogs
 initial_extensions = [   'cogs.loader'
+                       , 'cogs.invitation'
                      ]
 
 bot = commands.Bot(command_prefix=get_prefix)
