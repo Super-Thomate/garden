@@ -2,6 +2,7 @@ import discord
 import botconfig
 from discord.ext import commands
 from datetime import datetime
+from ..logs import Logs
 try: # check if BeautifulSoup4 is installed
 	from bs4 import BeautifulSoup
 	soupAvailable = True
@@ -12,10 +13,11 @@ import aiohttp
 class Invitation(commands.Cog):
   def __init__(self, bot):
     self.bot = bot
+    self.logger = Logs(self.bot)
     self.log_channel = None
   
   @commands.command(name='invite')
-  @commands.has_any_role('ModoBot', 'Bénévoles', 'Modos du discord', 'Fondateur-admin', 'Pèse dans le game', 'Modos stagiaires', 'Touristes bienveillant.e.s', 'Equipe de la plateforme')
+  @commands.has_any_role(*botconfig.config['invite_roles'])
   async def invite(self, ctx, member: discord.Member = None):
     """Send the invitation's link in a DM"""
     member = member or ctx.author
@@ -24,7 +26,7 @@ class Invitation(commands.Cog):
       url = await self.get_link()
       await member.send (url)
     except Exception as e:
-      await ctx.message.channel.send (f'Oups je ne peux pas envoyer le DM !{type(e).__name__} - {e}')
+      await ctx.message.channel.send (f'Oups je ne peux pas envoyer le DM ! {type(e).__name__} - {e}')
       error = True
     await self.log(member, ctx.message, error)
   
@@ -46,7 +48,7 @@ class Invitation(commands.Cog):
       url = await self.get_link()
       await member.send (url)
     except Exception as e:
-      await message.channel.send (f'Oups je ne peux pas envoyer le DM !{type(e).__name__} - {e}')
+      await message.channel.send (f'Oups je ne peux pas envoyer le DM ! {type(e).__name__} - {e}')
       error = True
     await self.log(member, message, error)
 
