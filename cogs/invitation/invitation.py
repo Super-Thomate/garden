@@ -1,5 +1,6 @@
 import discord
 import botconfig
+import urllib
 from discord.ext import commands
 from datetime import datetime
 from ..logs import Logs
@@ -39,37 +40,31 @@ class Invitation(commands.Cog):
     """
     if (    (message.guild == None)
          or (not message.channel.id == botconfig.config['invitation_channel'])
-         or (not "invitation" in message.content.lower())
+         or (     (not "invitation" in message.content.lower())
+              and (not "compte" in message.content.lower())
+            )
        ):
       return
     member = message.author
     error = False
     try:
-      url = await self.get_link()
+      url = await self.get_invitation_link()
       await member.send (url)
     except Exception as e:
       await message.channel.send (f'Oups je ne peux pas envoyer le DM ! {type(e).__name__} - {e}')
       error = True
     await self.log(member, message, error)
 
-  async def get_link (self):
-    url = botconfig.config['create_url'] #build the web adress
+  async def get_invitation_link (self):
+    url = botconfig.config['create_url']['invitation'] #build the web adress
+    return await self.get_text(url)
+
+  async def get_galerie_link (self, author):
+    url = botconfig.config['create_url']['galerie'] + urllib.parse.urlencode({ 'user' : author.display_name}) #build the web adress
+    return await self.get_text(url)
+   
+   async def get_text(self, url):
     async with aiohttp.ClientSession() as session:
       response = await session.get(url)
       soupObject = BeautifulSoup(await response.text(), "html.parser")
       return soupObject.p.get_text()
-  
-  async def log(self, member, message, error):
-    if not self.log_channel:
-      log_channel = await self.bot.fetch_channel(botconfig.config['invitation_logs'])
-      self.log_channel = log_channel
-    colour = discord.Colour(0)
-    colour = colour.from_rgb(176, 255, 176)
-    if error:
-      colour = colour.from_rgb(255, 125, 125)
-    embed = discord.Embed(colour=colour)
-    embed.set_author(icon_url=member.avatar_url, name=str(member))
-    embed.description = message.content
-    embed.timestamp = datetime.today()
-    embed.set_footer(text=f"ID: {message.id}")
-    await self.log_channel.send(content=None, embed=embed)

@@ -18,3 +18,13 @@ class Logs(commands.Cog):
     print (sql)
     self.db.execute_order(sql)
     await log_channel.send ("Logs for invite will be put here")
+    
+  @commands.command(name='setgalerielog', aliases=['setgalerie', 'sgl', 'galerielog'])
+  @commands.has_any_role(*botconfig.config['invite_roles'])
+  async def set_galerie_log(self, ctx, channel: discord.TextChannel = None):
+    log_channel = channel or ctx.message.channel
+    guild_id = ctx.message.guild.id
+    sql = "INSERT INTO galerie_log VALUES ('{0}', '{1}') ON CONFLICT(channel_id) DO UPDATE SET channel_id='{0}'".format(log_channel.id, guild_id)
+    print (sql)
+    self.db.execute_order(sql)
+    await log_channel.send ("Logs for galerie will be put here")
