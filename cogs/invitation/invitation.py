@@ -32,6 +32,19 @@ class Invitation(commands.Cog):
       error = True
     await self.logger.log('invite_log', member, ctx.message, error)
 
+  @commands.command(name='setinvitechannel', aliases=['sic'])
+  @commands.has_any_role(*botconfig.config['invite_roles'])
+  async def invite(self, ctx):
+    """Set the invitation channel"""
+    error = False
+    try:
+      url = await self.get_link()
+      await member.send (url)
+    except Exception as e:
+      await ctx.message.channel.send (f'Oups je ne peux pas envoyer le DM ! {type(e).__name__} - {e}')
+      error = True
+    await self.logger.log('invite_log', member, ctx.message, error)
+
   @commands.Cog.listener('on_message')
   @commands.guild_only()
   async def invitation(self, message):
@@ -53,12 +66,20 @@ class Invitation(commands.Cog):
     member = message.author
     error = False
     try:
-      url = await self.get_invitation_link()
+      if "invitation" in message.content.lower():
+        url = await self.get_invitation_link()
+      else:
+        url = await self.get_galerie_link(member)
+
       await member.send (url)
     except Exception as e:
       await message.channel.send (f'Oups je ne peux pas envoyer le DM ! {type(e).__name__} - {e}')
       error = True
-    await self.logger.log('invite_log', member, message, error)
+    if "invitation" in message.content.lower():
+      await self.logger.log('invite_log', member, message, error)
+    else:
+      await self.logger.log('galerie_log', member, message, error)
+
 
   async def get_invitation_link (self):
     url = botconfig.config['create_url']['invitation'] #build the web adress
