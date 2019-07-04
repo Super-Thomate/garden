@@ -39,9 +39,12 @@ class Invitation(commands.Cog):
         if the word 'invitation' is found
         and the message was sent on a guild_channel
     """
-    invite_channel = self.db.
+    invite_channel = self.db.fetch_one("select * from invite_channel where guild_id='{message.channel.guild.id}'")
+    galerie_channel = self.db.fetch_one("select * from galerie_channel where guild_id='{message.channel.guild.id}'")
     if (    (message.guild == None)
-         or (not message.channel.id == botconfig.config['invitation_channel'])
+         or (     (not message.channel.id == invite_channel)
+              and (not message.channel.id == galerie_channel)
+            )
          or (     (not "invitation" in message.content.lower())
               and (not "compte" in message.content.lower())
             )
