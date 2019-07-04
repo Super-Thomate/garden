@@ -14,8 +14,9 @@ class Logs(commands.Cog):
   async def set_invitation_log(self, ctx, channel: discord.TextChannel = None):
     log_channel = channel or ctx.message.channel
     guild_id = ctx.message.guild.id
-    log_channel = self.db.fetch_one (f"select * from invite_log where guild_id='{guild_id}'")
-    if not log_channel:
+    sql = f"select * from invite_log where guild_id='{guild_id}'"
+    prev_log_channel = self.db.fetch_one_line (sql)
+    if not prev_log_channel:
       sql = "INSERT INTO invite_log VALUES ('{0}', '{1}')".format(log_channel.id, guild_id)
     else:
       sql = "update invite_log set channel_id='{log_channel.id}' where guild_id='{guild_id}'"
@@ -27,8 +28,9 @@ class Logs(commands.Cog):
   async def set_galerie_log(self, ctx, channel: discord.TextChannel = None):
     log_channel = channel or ctx.message.channel
     guild_id = ctx.message.guild.id
-    log_channel = self.db.fetch_one (f"select * from galerie_log where guild_id='{guild_id}'")
-    if not log_channel:
+    sql = f"select * from galerie_log where guild_id='{guild_id}'"
+    prev_log_channel = self.db.fetch_one_line (sql)
+    if not prev_log_channel:
       sql = "INSERT INTO galerie_log VALUES ('{0}', '{1}')".format(log_channel.id, guild_id)
     else:
       sql = "update galerie_log set channel_id='{log_channel.id}' where guild_id='{guild_id}'"
@@ -36,10 +38,17 @@ class Logs(commands.Cog):
     await log_channel.send ("Logs for galerie will be put here")
 
   async def log(self, db, member, message, error):
-    guild_id = message.guild.id
-    log_channel = self.db.fetch_one (f"select * from {db} where guild_id='{guild_id}'")
-    if not log_channel:
+    guild_id = message.channel.guild.id
+    sql = f"select * from {db} where guild_id='{guild_id}'"
+    db_log_channel = self.db.fetch_one_line (sql)
+    if not db_log_channel:
       log_channel = message.channel
+    else:
+      log_channel = await self.bot.fetch_channel (int (db_log_channel[0]))
+    colour = discord.Colour(0)
+    colour = colour.from_rgb(176, 255, 176)
+    if error:
+      colour = colour.from_rgb(255, 125, 125)
     embed = discord.Embed(colour=colour)
     embed.set_author(icon_url=member.avatar_url, name=str(member))
     embed.description = message.content

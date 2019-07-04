@@ -5,7 +5,8 @@ class Database:
   def __init__ (self):
     self.cnx = sqlite3.connect('garden.db')
     self.create_table()
-
+  def test(self, mot):
+    print ("You said : "+mot)
   def create_table(self):
     cursor = self.cnx.cursor()
     try:
@@ -31,12 +32,12 @@ class Database:
       cursor.close()
       print (f'ERROR: {type(e).__name__} - {e}')
 
-  def fetch_one (self, sql):
+  def fetch_one_line (self, sql):
     cursor = self.cnx.cursor()
     line = None
     try:
       cursor.execute(sql)
-      line = self.fetch_one()
+      line = cursor.fetchone()
       cursor.close()
     except Exception as e:
       cursor.close()

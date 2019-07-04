@@ -17,6 +17,7 @@ class Invitation(commands.Cog):
     self.bot = bot
     self.logger = Logs(self.bot)
     self.db = Database()
+    self.db.test ("un test")
 
   @commands.command(name='invite')
   @commands.has_any_role(*botconfig.config['invite_roles'])
@@ -25,7 +26,7 @@ class Invitation(commands.Cog):
     member = member or ctx.author
     error = False
     try:
-      url = await self.get_link()
+      url = await self.get_invitation_link()
       await member.send (url)
     except Exception as e:
       await ctx.message.channel.send (f'Oups je ne peux pas envoyer le DM ! {type(e).__name__} - {e}')
@@ -34,16 +35,18 @@ class Invitation(commands.Cog):
 
   @commands.command(name='setinvitechannel', aliases=['sic'])
   @commands.has_any_role(*botconfig.config['invite_roles'])
-  async def invite(self, ctx):
-    """Set the invitation channel"""
-    error = False
-    try:
-      url = await self.get_link()
-      await member.send (url)
-    except Exception as e:
-      await ctx.message.channel.send (f'Oups je ne peux pas envoyer le DM ! {type(e).__name__} - {e}')
-      error = True
-    await self.logger.log('invite_log', member, ctx.message, error)
+  async def set_invite_channel(self, ctx, channel: discord.TextChannel = None):
+    invite_channel = channel or ctx.message.channel
+    guild_id = ctx.message.guild.id
+    sql = f"select * from invite_channel where guild_id='{guild_id}'"
+    prev_invite_channel = self.db.fetch_one_line (sql)
+    if not prev_invite_channel:
+      sql = "INSERT INTO invite_channel VALUES ('{0}', '{1}')".format(invite_channel.id, guild_id)
+    else:
+      sql = "update invite_channel set channel_id='{invite_channel.id}' where guild_id='{guild_id}'"
+    self.db.execute_order(sql)
+    await invite_channel.send ("Request for invite will be put here")
+
 
   @commands.Cog.listener('on_message')
   @commands.guild_only()
@@ -52,16 +55,29 @@ class Invitation(commands.Cog):
         if the word 'invitation' is found
         and the message was sent on a guild_channel
     """
-    invite_channel = self.db.fetch_one("select * from invite_channel where guild_id='{message.channel.guild.id}'")
-    galerie_channel = self.db.fetch_one("select * from galerie_channel where guild_id='{message.channel.guild.id}'")
-    if (    (message.guild == None)
-         or (     (not message.channel.id == invite_channel)
+    if (message.guild == None):
+      return
+    sql = f"select * from invite_channel where guild_id='{message.channel.guild.id}'"
+    invite_channel = self.db.fetch_one_line (sql)
+    if invite_channel:
+      invite_channel = int (invite_channel [0])
+    sql = f"select * from galerie_channel where guild_id='{message.channel.guild.id}'"
+    galerie_channel = self.db.fetch_one_line (sql)
+    if galerie_channel:
+      galerie_channel = int (galerie_channel [0])
+    if (    (     (not message.channel.id == invite_channel)
               and (not message.channel.id == galerie_channel)
             )
          or (     (not "invitation" in message.content.lower())
               and (not "compte" in message.content.lower())
             )
        ):
+      print ("FALSE !")
+      print (message.guild == None)
+      print ((not message.channel.id == invite_channel))
+      print (message.channel.id)
+      print (invite_channel)
+      print ((not "invitation" in message.content.lower()) and (not "compte" in message.content.lower()))
       return
     member = message.author
     error = False
@@ -89,7 +105,7 @@ class Invitation(commands.Cog):
     url = botconfig.config['create_url']['galerie'] + urllib.parse.urlencode({ 'user' : author.display_name}) #build the web adress
     return await self.get_text(url)
 
-   async def get_text(self, url):
+  async def get_text(self, url):
     async with aiohttp.ClientSession() as session:
       response = await session.get(url)
       soupObject = BeautifulSoup(await response.text(), "html.parser")
