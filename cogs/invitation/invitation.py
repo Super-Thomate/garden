@@ -110,10 +110,9 @@ class Invitation(commands.Cog):
         last = last_invite[0]
         last_datetime = datetime.strptime (last, '%Y-%m-%d %H:%M:%S')
         duree = last_datetime - datetime.now()
-        print (duree)
-        print (duree.seconds)
         if duree.seconds > 1:
           total_seconds = duree.days*86400+duree.seconds
+          await message.add_reaction('❌')
           await message.channel.send(f"Vous avez déjà demandé une invitation récemment.\nIl vous faut attendre encore {self.format_time(total_seconds)}")
           return
     try:
@@ -158,6 +157,10 @@ class Invitation(commands.Cog):
            and (message.channel.id == galerie_channel)
          ):
       await self.logger.log('galerie_log', member, message, error)
+    if error:
+      await message.add_reaction('❌')
+    else:
+      await message.add_reaction('✅')
 
 
   async def get_invitation_link (self):
