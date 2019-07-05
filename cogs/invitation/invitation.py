@@ -36,16 +36,30 @@ class Invitation(commands.Cog):
   @commands.command(name='setinvitechannel', aliases=['sic'])
   @commands.has_any_role(*botconfig.config['invite_roles'])
   async def set_invite_channel(self, ctx, channel: discord.TextChannel = None):
-    invite_channel = channel or ctx.message.channel
+    invite_channel = channel or ctx.channel
     guild_id = ctx.message.guild.id
     sql = f"select * from invite_channel where guild_id='{guild_id}'"
     prev_invite_channel = self.db.fetch_one_line (sql)
     if not prev_invite_channel:
-      sql = "INSERT INTO invite_channel VALUES ('{0}', '{1}')".format(invite_channel.id, guild_id)
+      sql = f"INSERT INTO galerie_channel VALUES ('{invite_channel.id}', '{guild_id}')"
     else:
-      sql = "update invite_channel set channel_id='{invite_channel.id}' where guild_id='{guild_id}'"
+      sql = f"update invite_channel set channel_id='{invite_channel.id}' where guild_id='{guild_id}'"
     self.db.execute_order(sql)
     await invite_channel.send ("Request for invite will be put here")
+
+  @commands.command(name='setgaleriechannel', aliases=['sgc'])
+  @commands.has_any_role(*botconfig.config['galerie_roles'])
+  async def set_galerie_channel(self, ctx, channel: discord.TextChannel = None):
+    galerie_channel = channel or ctx.channel
+    guild_id = ctx.message.guild.id
+    sql = f"select * from galerie_channel where guild_id='{guild_id}'"
+    prev_galerie_channel = self.db.fetch_one_line (sql)
+    if not prev_galerie_channel:
+      sql = f"INSERT INTO galerie_channel VALUES ('{galerie_channel.id}', '{guild_id}')"
+    else:
+      sql = f"update galerie_channel set channel_id='{galerie_channel.id}' where guild_id='{guild_id}'"
+    self.db.execute_order(sql)
+    await galerie_channel.send ("Request for galerie will be put here")
 
 
   @commands.Cog.listener('on_message')
@@ -57,6 +71,8 @@ class Invitation(commands.Cog):
     """
     if (message.guild == None):
       return
+    if message.author == self.bot.user:
+      return
     sql = f"select * from invite_channel where guild_id='{message.channel.guild.id}'"
     invite_channel = self.db.fetch_one_line (sql)
     if invite_channel:
@@ -65,35 +81,50 @@ class Invitation(commands.Cog):
     galerie_channel = self.db.fetch_one_line (sql)
     if galerie_channel:
       galerie_channel = int (galerie_channel [0])
-    if (    (     (not message.channel.id == invite_channel)
-              and (not message.channel.id == galerie_channel)
-            )
-         or (     (not "invitation" in message.content.lower())
-              and (not "compte" in message.content.lower())
-            )
-       ):
+    if not (    (     (    ("invitation" in message.content.lower())
+                        or ("compte" in message.content.lower())
+                      )
+                  and (message.channel.id == invite_channel)
+                )
+             or (     (    ("galerie" in message.content.lower())
+                        or ("jeton" in message.content.lower())
+                      )
+                  and (message.channel.id == galerie_channel)
+                )
+           ):
       print ("FALSE !")
-      print (message.guild == None)
-      print ((not message.channel.id == invite_channel))
-      print (message.channel.id)
-      print (invite_channel)
-      print ((not "invitation" in message.content.lower()) and (not "compte" in message.content.lower()))
       return
     member = message.author
     error = False
     try:
-      if "invitation" in message.content.lower():
+      if (     (    ("invitation" in message.content.lower())
+                 or ("compte" in message.content.lower())
+               )
+           and (message.channel.id == invite_channel)
+         ):
         url = await self.get_invitation_link()
-      else:
+      elif (     (    ("galerie" in message.content.lower())
+                   or ("jeton" in message.content.lower())
+                 )
+             and (message.channel.id == galerie_channel)
+           ):
         url = await self.get_galerie_link(member)
 
       await member.send (url)
     except Exception as e:
       await message.channel.send (f'Oups je ne peux pas envoyer le DM ! {type(e).__name__} - {e}')
       error = True
-    if "invitation" in message.content.lower():
+    if (     (    ("invitation" in message.content.lower())
+               or ("compte" in message.content.lower())
+             )
+         and (message.channel.id == invite_channel)
+       ):
       await self.logger.log('invite_log', member, message, error)
-    else:
+    elif (     (    ("galerie" in message.content.lower())
+                 or ("jeton" in message.content.lower())
+               )
+           and (message.channel.id == galerie_channel)
+         ):
       await self.logger.log('galerie_log', member, message, error)
 
 
