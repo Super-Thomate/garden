@@ -29,8 +29,10 @@ class Invitation(commands.Cog):
     try:
       url = await self.get_invitation_link()
       await member.send (url)
+      await message.add_reaction('✅')
     except Exception as e:
       await ctx.message.channel.send (f'Oups je ne peux pas envoyer le DM ! {type(e).__name__} - {e}')
+      await message.add_reaction('❌')
       error = True
     await self.logger.log('invite_log', member, ctx.message, error)
 
