@@ -1,5 +1,6 @@
 import discord
 import botconfig
+import math
 import urllib
 from discord.ext import commands
 from datetime import datetime
@@ -96,6 +97,24 @@ class Invitation(commands.Cog):
       return
     member = message.author
     error = False
+    # If I ask for invite, we check for the last time i asked for it
+    if (     (    ("invitation" in message.content.lower())
+               or ("compte" in message.content.lower())
+             )
+         and (message.channel.id == invite_channel)
+       ):
+      sql = f"select last from last_invite where guild_id='{message.guild.id}' and member_id='{member.id}'"
+      sql = f"select datetime(last, '6 months') from last_invite where guild_id='{message.guild.id}' and member_id='{member.id}'"
+      last_invite = self.db.fetch_one_line (sql)
+      if last_invite:
+        last = last_invite[0]
+        last_datetime = datetime.strptime (last, '%Y-%m-%d %H:%M:%S')
+        duree = last_datetime - datetime.now()
+        print (duree)
+        print (duree.seconds)
+        if duree.seconds > 1:
+          await message.channel.send(f"Vous avez déjà demandé une invitation récemment.\nIl vous faut attendre encore {self.format_time(duree.seconds)}")
+          return
     try:
       if (     (    ("invitation" in message.content.lower())
                  or ("compte" in message.content.lower())
@@ -119,6 +138,18 @@ class Invitation(commands.Cog):
              )
          and (message.channel.id == invite_channel)
        ):
+      # LOG LAST INVITE
+      sql = f"select * from last_invite where guild_id='{message.guild.id}' and member_id='{member.id}'"
+      last_invite = self.db.fetch_one_line (sql)
+      if not last_invite:
+        sql = f"insert into last_invite values ('{member.id}', '{message.guild.id}', datetime('now'))"
+      else:
+        sql = f"update last_invite set last=datetime('now') where member_id='{member.id}' and guild_id='{message.guild.id}'"
+      try:
+        self.db.execute_order (sql)
+      except Exception as e:
+        await message.channel.send (f'Inscription en db fail ! {type(e).__name__} - {e}')
+        error = True
       await self.logger.log('invite_log', member, message, error)
     elif (     (    ("galerie" in message.content.lower())
                  or ("jeton" in message.content.lower())
@@ -141,3 +172,17 @@ class Invitation(commands.Cog):
       response = await session.get(url)
       soupObject = BeautifulSoup(await response.text(), "html.parser")
       return soupObject.p.get_text()
+      
+  def format_time(self, timestamp):
+    timer = [   ["j", 86400]
+              , ["h", 3600]
+              , ["m", 60]
+              , ["s", 1]
+            ]
+    current = timestamp
+    to_ret = ""
+    for obj_time in timer:
+      if math.floor (current/obj_time [1]) > 0:
+        to_ret += str(math.floor (current/obj_time [1]))+obj_time[0]+" "
+        current = current%obj_time [1]
+    return to_ret
