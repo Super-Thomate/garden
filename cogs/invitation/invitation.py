@@ -113,7 +113,8 @@ class Invitation(commands.Cog):
         print (duree)
         print (duree.seconds)
         if duree.seconds > 1:
-          await message.channel.send(f"Vous avez déjà demandé une invitation récemment.\nIl vous faut attendre encore {self.format_time(duree.seconds)}")
+          total_seconds = duree.days*86400+duree.seconds
+          await message.channel.send(f"Vous avez déjà demandé une invitation récemment.\nIl vous faut attendre encore {self.format_time(total_seconds)}")
           return
     try:
       if (     (    ("invitation" in message.content.lower())
