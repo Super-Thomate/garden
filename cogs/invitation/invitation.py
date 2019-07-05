@@ -36,6 +36,23 @@ class Invitation(commands.Cog):
       error = True
     await self.logger.log('invite_log', member, ctx.message, error)
 
+
+  @commands.command(name='token')
+  @commands.has_any_role(*botconfig.config['invite_roles'])
+  async def token(self, ctx, member: discord.Member = None):
+    """Send the token's link in a DM"""
+    member = member or ctx.author
+    error = False
+    try:
+      url = await self.get_galerie_link(member)
+      await member.send (url)
+      await message.add_reaction('✅')
+    except Exception as e:
+      await ctx.message.channel.send (f'Oups je ne peux pas envoyer le DM ! {type(e).__name__} - {e}')
+      await message.add_reaction('❌')
+      error = True
+    await self.logger.log('galerie_log', member, ctx.message, error)
+
   @commands.command(name='setinvitechannel', aliases=['sic'])
   @commands.has_any_role(*botconfig.config['invite_roles'])
   async def set_invite_channel(self, ctx, channel: discord.TextChannel = None):
