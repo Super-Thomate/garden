@@ -19,8 +19,9 @@ class Invitation(commands.Cog):
     self.logger = Logs(self.bot)
     self.db = Database()
     self.db.test ("un test")
+    self.invite_delay = botconfig.config['invite_delay']
 
-  @commands.command(name='invite')
+  @commands.command(name='inviteuser', aliases=['iu'])
   @commands.has_any_role(*botconfig.config['invite_roles'])
   async def invite(self, ctx, member: discord.Member = None):
     """Send the invitation's link in a DM"""
@@ -31,7 +32,8 @@ class Invitation(commands.Cog):
       await member.send (url)
       await ctx.message.add_reaction('✅')
     except Exception as e:
-      await ctx.message.channel.send (f'Oups je ne peux pas envoyer le DM ! {type(e).__name__} - {e}')
+      await ctx.message.channel.send (f"Oups il semblerait que {member.display_name} n'ai pas activé l'envoi de message privé.")
+      print (f" {type(e).__name__} - {e}")
       await ctx.message.add_reaction('❌')
       error = True
     await self.logger.log('invite_log', member, ctx.message, error)
@@ -48,7 +50,8 @@ class Invitation(commands.Cog):
       await member.send (url)
       await ctx.message.add_reaction('✅')
     except Exception as e:
-      await ctx.message.channel.send (f'Oups je ne peux pas envoyer le DM ! {type(e).__name__} - {e}')
+      await ctx.message.channel.send (f"Oups il semblerait que {member.display_name} n'ai pas activé l'envoi de message privé.")
+      print (f" {type(e).__name__} - {e}")
       await ctx.message.add_reaction('❌')
       error = True
     await self.logger.log('galerie_log', member, ctx.message, error)
@@ -59,11 +62,14 @@ class Invitation(commands.Cog):
     invite_channel = channel or ctx.channel
     guild_id = ctx.message.guild.id
     sql = f"select * from invite_channel where guild_id='{guild_id}'"
+    print (sql)
     prev_invite_channel = self.db.fetch_one_line (sql)
+    print (prev_invite_channel)
     if not prev_invite_channel:
-      sql = f"INSERT INTO galerie_channel VALUES ('{invite_channel.id}', '{guild_id}')"
+      sql = f"INSERT INTO invite_channel VALUES ('{invite_channel.id}', '{guild_id}')"
     else:
       sql = f"update invite_channel set channel_id='{invite_channel.id}' where guild_id='{guild_id}'"
+    print (sql)
     self.db.execute_order(sql)
     await invite_channel.send ("Request for invite will be put here")
 
@@ -112,7 +118,12 @@ class Invitation(commands.Cog):
                   and (message.channel.id == galerie_channel)
                 )
            ):
-      print ("FALSE !")
+      print (f"content: {message.content.lower()}")
+      print (("invitation" in message.content.lower()) or ("compte" in message.content.lower()) or ("galerie" in message.content.lower()) or ("jeton" in message.content.lower()))
+      print (f"message.channel.id: {message.channel.id}")
+      print (f"invite_channel: {invite_channel}")
+      print ((message.channel.id == invite_channel) or (message.channel.id == galerie_channel))
+      print ((((("invitation" in message.content.lower())or ("compte" in message.content.lower()))and (message.channel.id == invite_channel)) or ((("galerie" in message.content.lower())or ("jeton" in message.content.lower())) and (message.channel.id == galerie_channel))))
       return
     member = message.author
     error = False
@@ -122,9 +133,11 @@ class Invitation(commands.Cog):
              )
          and (message.channel.id == invite_channel)
        ):
-      sql = f"select last from last_invite where guild_id='{message.guild.id}' and member_id='{member.id}'"
-      sql = f"select datetime(last, '6 months') from last_invite where guild_id='{message.guild.id}' and member_id='{member.id}'"
+      #sql = f"select last from last_invite where guild_id='{message.guild.id}' and member_id='{member.id}'"
+      sql = f"select datetime(last, '{self.invite_delay}') from last_invite where guild_id='{message.guild.id}' and member_id='{member.id}'"
       last_invite = self.db.fetch_one_line (sql)
+      print (sql)
+      print (last_invite)
       if last_invite:
         last = last_invite[0]
         last_datetime = datetime.strptime (last, '%Y-%m-%d %H:%M:%S')
@@ -150,7 +163,8 @@ class Invitation(commands.Cog):
 
       await member.send (url)
     except Exception as e:
-      await message.channel.send (f'Oups je ne peux pas envoyer le DM ! {type(e).__name__} - {e}')
+      await message.channel.send (f"Oups il semblerait que tu n'ais pas activé l'envoi de message privé.")
+      print (f" {type(e).__name__} - {e}")
       error = True
     if (     (    ("invitation" in message.content.lower())
                or ("compte" in message.content.lower())
@@ -195,7 +209,7 @@ class Invitation(commands.Cog):
       response = await session.get(url)
       soupObject = BeautifulSoup(await response.text(), "html.parser")
       return soupObject.p.get_text()
-      
+
   def format_time(self, timestamp):
     timer = [   ["j", 86400]
               , ["h", 3600]

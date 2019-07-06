@@ -12,30 +12,36 @@ class Logs(commands.Cog):
   @commands.command(name='setinvitelog', aliases=['setinvite', 'sil', 'invitelog'])
   @commands.has_any_role(*botconfig.config['invite_roles'])
   async def set_invitation_log(self, ctx, channel: discord.TextChannel = None):
-    log_channel = channel or ctx.message.channel
-    guild_id = ctx.message.guild.id
-    sql = f"select * from invite_log where guild_id='{guild_id}'"
-    prev_log_channel = self.db.fetch_one_line (sql)
-    if not prev_log_channel:
-      sql = "INSERT INTO invite_log VALUES ('{0}', '{1}')".format(log_channel.id, guild_id)
-    else:
-      sql = "update invite_log set channel_id='{log_channel.id}' where guild_id='{guild_id}'"
-    self.db.execute_order(sql)
-    await log_channel.send ("Logs for invite will be put here")
+    try:
+      log_channel = channel or ctx.message.channel
+      guild_id = ctx.message.guild.id
+      sql = f"select * from invite_log where guild_id='{guild_id}'"
+      prev_log_channel = self.db.fetch_one_line (sql)
+      if not prev_log_channel:
+        sql = "INSERT INTO invite_log VALUES ('{0}', '{1}')".format(log_channel.id, guild_id)
+      else:
+        sql = "update invite_log set channel_id='{log_channel.id}' where guild_id='{guild_id}'"
+      self.db.execute_order(sql)
+      await log_channel.send ("Logs for invite will be put here")
+    except Exception as e:
+      print (f" {type(e).__name__} - {e}")
 
   @commands.command(name='setgalerielog', aliases=['setgalerie', 'sgl', 'galerielog'])
   @commands.has_any_role(*botconfig.config['invite_roles'])
   async def set_galerie_log(self, ctx, channel: discord.TextChannel = None):
-    log_channel = channel or ctx.message.channel
-    guild_id = ctx.message.guild.id
-    sql = f"select * from galerie_log where guild_id='{guild_id}'"
-    prev_log_channel = self.db.fetch_one_line (sql)
-    if not prev_log_channel:
-      sql = "INSERT INTO galerie_log VALUES ('{0}', '{1}')".format(log_channel.id, guild_id)
-    else:
-      sql = "update galerie_log set channel_id='{log_channel.id}' where guild_id='{guild_id}'"
-    self.db.execute_order(sql)
-    await log_channel.send ("Logs for galerie will be put here")
+    try:
+      log_channel = channel or ctx.message.channel
+      guild_id = ctx.message.guild.id
+      sql = f"select * from galerie_log where guild_id='{guild_id}'"
+      prev_log_channel = self.db.fetch_one_line (sql)
+      if not prev_log_channel:
+        sql = "INSERT INTO galerie_log VALUES ('{0}', '{1}')".format(log_channel.id, guild_id)
+      else:
+        sql = "update galerie_log set channel_id='{log_channel.id}' where guild_id='{guild_id}'"
+      self.db.execute_order(sql)
+      await log_channel.send ("Logs for galerie will be put here")
+    except Exception as e:
+      print (f" {type(e).__name__} - {e}")
 
   async def log(self, db, member, message, error):
     guild_id = message.channel.guild.id
@@ -54,4 +60,7 @@ class Logs(commands.Cog):
     embed.description = message.content
     embed.timestamp = datetime.today()
     embed.set_footer(text=f"ID: {message.id}")
-    await log_channel.send(content=None, embed=embed)
+    try:
+      await log_channel.send(content=None, embed=embed)
+    except Exception as e:
+      print (f" {type(e).__name__} - {e}")
