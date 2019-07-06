@@ -2,6 +2,7 @@ import discord
 import botconfig
 import math
 import urllib
+import re
 from discord.ext import commands
 from datetime import datetime
 from ..logs import Logs
@@ -26,10 +27,23 @@ class Invitation(commands.Cog):
   async def invite(self, ctx, member: discord.Member = None):
     """Send the invitation's link in a DM"""
     member = member or ctx.author
+    guild_id = ctx.guild.id
     error = False
+    colour = discord.Colour(0)
     try:
       url = await self.get_invitation_link()
-      await member.send (url)
+      sql = f"select message from invite_message where guild_id='{guild_id}'"
+      invite_message = self.db.fetch_one_line (sql)
+      if invite_message:
+        url = invite_message [0]+"\n"+url
+      colour = colour.from_rgb(255, 51, 124)
+      icon_url="https://cdn.discordapp.com/attachments/597091535242395649/597091654847037514/Plan_de_travail_18x.png"
+      name="Lion"
+      embed =  discord.Embed(colour=colour)
+      embed.set_author(icon_url=icon_url, name=name)
+      embed.description = url
+      embed.timestamp = datetime.today()
+      await member.send (content=None, embed=embed)
       await ctx.message.add_reaction('✅')
     except Exception as e:
       await ctx.message.channel.send (f"Oups il semblerait que {member.display_name} n'ait pas activé l'envoi de messages privés.")
@@ -70,7 +84,7 @@ class Invitation(commands.Cog):
     else:
       sql = f"update invite_channel set channel_id='{invite_channel.id}' where guild_id='{guild_id}'"
     print (sql)
-    self.db.execute_order(sql)
+    self.db.execute_order(sql, [])
     await invite_channel.send ("Request for invite will be put here")
 
   @commands.command(name='setgaleriechannel', aliases=['sgc'])
@@ -84,21 +98,26 @@ class Invitation(commands.Cog):
       sql = f"INSERT INTO galerie_channel VALUES ('{galerie_channel.id}', '{guild_id}')"
     else:
       sql = f"update galerie_channel set channel_id='{galerie_channel.id}' where guild_id='{guild_id}'"
-    self.db.execute_order(sql)
+    self.db.execute_order(sql, [])
     await galerie_channel.send ("Request for galerie will be put here")
 
   @commands.command(name='invitemessage', aliases=['im'])
-  @commands.has_any_role(*botconfig.config['galerie_roles'])
-  async def invite_message(self, ctx, *args):
+  @commands.has_any_role(*botconfig.config['invite_roles'])
+  async def set_invite_message(self, ctx, *args):
     guild_id = ctx.message.guild.id
     message = ' '.join(arg for arg in args)
+    # message = re.escape(message)
     sql = f"select message from invite_message where guild_id='{guild_id}'"
     prev_invite_message = self.db.fetch_one_line (sql)
     if not prev_invite_message:
-      sql = f"INSERT INTO invite_message VALUES ('{message}', '{guild_id}')"
+      sql = f"INSERT INTO invite_message VALUES (?, '{guild_id}')"
     else:
-      sql = f"update invite_message set channel_id='{message}' where guild_id='{guild_id}'"
-    self.db.execute_order(sql)
+      sql = f"update invite_message set message=? where guild_id='{guild_id}'"
+    print (sql)
+    try:
+      self.db.execute_order(sql, [message])
+    except Exception as e:
+      print (f"{type(e).__name__} - {e}")
     await ctx.channel.send (f"Nouveau message : `{message}`")
 
 
@@ -113,6 +132,7 @@ class Invitation(commands.Cog):
       return
     if message.author == self.bot.user:
       return
+    guild_id = message.channel.guild.id
     sql = f"select * from invite_channel where guild_id='{message.channel.guild.id}'"
     invite_channel = self.db.fetch_one_line (sql)
     if invite_channel:
@@ -162,6 +182,7 @@ class Invitation(commands.Cog):
           await message.channel.send(f"Vous avez déjà demandé une invitation récemment.\nIl vous faut attendre encore {self.format_time(total_seconds)}")
           return
     try:
+      colour = discord.Colour(0)
       if (     (    ("invitation" in message.content.lower())
                  or ("compte" in message.content.lower())
                )
@@ -171,15 +192,24 @@ class Invitation(commands.Cog):
         sql = f"select message from invite_message where guild_id='{guild_id}'"
         invite_message = self.db.fetch_one_line (sql)
         if invite_message:
-          url = galerie_channel [0]+"\n"+url
+          url = invite_message [0]+"\n"+url
+        colour = colour.from_rgb(255, 51, 124)
+        icon_url="https://cdn.discordapp.com/attachments/597091535242395649/597091654847037514/Plan_de_travail_18x.png"
+        name="Lion"
+        #embed.set_footer(text=f"ID: {message.id}")
       elif (     (    ("galerie" in message.content.lower())
                    or ("jeton" in message.content.lower())
                  )
              and (message.channel.id == galerie_channel)
            ):
         url = await self.get_galerie_link(member)
-
-      await member.send (url)
+        icon_url="https://cdn.discordapp.com/attachments/494812564086194177/597037745344348172/LotusBlanc.png"
+        name="LotusBlanc"
+      embed =  discord.Embed(colour=colour)
+      embed.set_author(icon_url=icon_url, name=name)
+      embed.description = url
+      embed.timestamp = datetime.today()
+      await member.send (content=None, embed=embed)
     except Exception as e:
       await message.channel.send (f"Oups il semblerait que tu n'aies pas activé l'envoi de messages privés.")
       print (f" {type(e).__name__} - {e}")
@@ -198,9 +228,10 @@ class Invitation(commands.Cog):
       else:
         sql = f"update last_invite set last=datetime('now') where member_id='{member.id}' and guild_id='{message.guild.id}'"
       try:
-        self.db.execute_order (sql)
+        self.db.execute_order (sql, [])
       except Exception as e:
-        await message.channel.send (f'Inscription en db fail ! {type(e).__name__} - {e}')
+        await message.channel.send (f'Inscription en db fail !')
+        print (f'{type(e).__name__} - {e}')
         error = True
       await self.logger.log('invite_log', member, message, error)
     elif (     (    ("galerie" in message.content.lower())

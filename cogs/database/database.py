@@ -23,10 +23,11 @@ class Database:
       cursor.close()
       print (f'ERROR: {type(e).__name__} - {e}')
 
-  def execute_order (self, sql):
+  def execute_order (self, sql, params):
     cursor = self.cnx.cursor()
+    print (params)
     try:
-      cursor.execute(sql)
+      cursor.execute(sql, (params))
       self.cnx.commit()
       cursor.close()
     except Exception as e:
