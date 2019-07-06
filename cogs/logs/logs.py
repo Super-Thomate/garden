@@ -27,7 +27,7 @@ class Logs(commands.Cog):
       print (f" {type(e).__name__} - {e}")
 
   @commands.command(name='setgalerielog', aliases=['setgalerie', 'sgl', 'galerielog'])
-  @commands.has_any_role(*botconfig.config['invite_roles'])
+  @commands.has_any_role(*botconfig.config['galerie_roles'])
   async def set_galerie_log(self, ctx, channel: discord.TextChannel = None):
     try:
       log_channel = channel or ctx.message.channel

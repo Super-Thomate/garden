@@ -32,7 +32,7 @@ class Invitation(commands.Cog):
       await member.send (url)
       await ctx.message.add_reaction('✅')
     except Exception as e:
-      await ctx.message.channel.send (f"Oups il semblerait que {member.display_name} n'ai pas activé l'envoi de message privé.")
+      await ctx.message.channel.send (f"Oups il semblerait que {member.display_name} n'ait pas activé l'envoi de messages privés.")
       print (f" {type(e).__name__} - {e}")
       await ctx.message.add_reaction('❌')
       error = True
@@ -50,7 +50,7 @@ class Invitation(commands.Cog):
       await member.send (url)
       await ctx.message.add_reaction('✅')
     except Exception as e:
-      await ctx.message.channel.send (f"Oups il semblerait que {member.display_name} n'ai pas activé l'envoi de message privé.")
+      await ctx.message.channel.send (f"Oups il semblerait que {member.display_name} n'ait pas activé l'envoi de messages privés.")
       print (f" {type(e).__name__} - {e}")
       await ctx.message.add_reaction('❌')
       error = True
@@ -86,6 +86,20 @@ class Invitation(commands.Cog):
       sql = f"update galerie_channel set channel_id='{galerie_channel.id}' where guild_id='{guild_id}'"
     self.db.execute_order(sql)
     await galerie_channel.send ("Request for galerie will be put here")
+
+  @commands.command(name='invitemessage', aliases=['im'])
+  @commands.has_any_role(*botconfig.config['galerie_roles'])
+  async def invite_message(self, ctx, *args):
+    guild_id = ctx.message.guild.id
+    message = ' '.join(arg for arg in args)
+    sql = f"select message from invite_message where guild_id='{guild_id}'"
+    prev_invite_message = self.db.fetch_one_line (sql)
+    if not prev_invite_message:
+      sql = f"INSERT INTO invite_message VALUES ('{message}', '{guild_id}')"
+    else:
+      sql = f"update invite_message set channel_id='{message}' where guild_id='{guild_id}'"
+    self.db.execute_order(sql)
+    await ctx.channel.send (f"Nouveau message : `{message}`")
 
 
   @commands.Cog.listener('on_message')
@@ -154,6 +168,10 @@ class Invitation(commands.Cog):
            and (message.channel.id == invite_channel)
          ):
         url = await self.get_invitation_link()
+        sql = f"select message from invite_message where guild_id='{guild_id}'"
+        invite_message = self.db.fetch_one_line (sql)
+        if invite_message:
+          url = galerie_channel [0]+"\n"+url
       elif (     (    ("galerie" in message.content.lower())
                    or ("jeton" in message.content.lower())
                  )
@@ -163,13 +181,14 @@ class Invitation(commands.Cog):
 
       await member.send (url)
     except Exception as e:
-      await message.channel.send (f"Oups il semblerait que tu n'ais pas activé l'envoi de message privé.")
+      await message.channel.send (f"Oups il semblerait que tu n'aies pas activé l'envoi de messages privés.")
       print (f" {type(e).__name__} - {e}")
       error = True
     if (     (    ("invitation" in message.content.lower())
                or ("compte" in message.content.lower())
              )
          and (message.channel.id == invite_channel)
+         and not error
        ):
       # LOG LAST INVITE
       sql = f"select * from last_invite where guild_id='{message.guild.id}' and member_id='{member.id}'"
@@ -208,7 +227,7 @@ class Invitation(commands.Cog):
     async with aiohttp.ClientSession() as session:
       response = await session.get(url)
       soupObject = BeautifulSoup(await response.text(), "html.parser")
-      return soupObject.p.get_text()
+      return soupObject.p.get_text().replace(";","")
 
   def format_time(self, timestamp):
     timer = [   ["j", 86400]
