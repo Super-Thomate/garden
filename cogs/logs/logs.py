@@ -21,7 +21,7 @@ class Logs(commands.Cog):
         sql = "INSERT INTO invite_log VALUES ('{0}', '{1}')".format(log_channel.id, guild_id)
       else:
         sql = "update invite_log set channel_id='{log_channel.id}' where guild_id='{guild_id}'"
-      self.db.execute_order(sql)
+      self.db.execute_order(sql, [])
       await log_channel.send ("Logs for invite will be put here")
     except Exception as e:
       print (f" {type(e).__name__} - {e}")
@@ -38,7 +38,7 @@ class Logs(commands.Cog):
         sql = "INSERT INTO galerie_log VALUES ('{0}', '{1}')".format(log_channel.id, guild_id)
       else:
         sql = "update galerie_log set channel_id='{log_channel.id}' where guild_id='{guild_id}'"
-      self.db.execute_order(sql)
+      self.db.execute_order(sql, [])
       await log_channel.send ("Logs for galerie will be put here")
     except Exception as e:
       print (f" {type(e).__name__} - {e}")
