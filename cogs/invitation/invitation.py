@@ -47,11 +47,27 @@ class Invitation(commands.Cog):
       await ctx.message.add_reaction('✅')
     except Exception as e:
       await ctx.message.channel.send (f"Oups il semblerait que {member.display_name} n'ait pas activé l'envoi de messages privés.")
-      print (f" {type(e).__name__} - {e}")
+      print (f"{type(e).__name__} - {e}")
       await ctx.message.add_reaction('❌')
       error = True
     await self.logger.log('invite_log', member, ctx.message, error)
 
+
+  @commands.command(name='resetinvite', aliases=['ri'])
+  @commands.has_any_role(*botconfig.config['invite_roles'])
+  async def reset_invite(self, ctx, member: discord.Member = None):
+    member = member or ctx.author
+    guild_id = ctx.guild.id
+    sql = f"delete from last_invite where guild_id='{guild_id}' && member_id='{member.id}'"
+    error = False
+    try:
+      self.db.execute_order(sql, [])
+      await ctx.message.add_reaction('✅')
+    except Exception as e:
+      print (f"{type(e).__name__} - {e}")
+      await ctx.message.add_reaction('❌')
+      error = True
+    await self.logger.log('invite_log', member, ctx.message, error)
 
   @commands.command(name='token')
   @commands.has_any_role(*botconfig.config['invite_roles'])
