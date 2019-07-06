@@ -31,11 +31,11 @@ class Invitation(commands.Cog):
     error = False
     colour = discord.Colour(0)
     try:
-      url = await self.get_invitation_link()
+      url = "Votre lien d'invitation:\n"+await self.get_invitation_link()
       sql = f"select message from invite_message where guild_id='{guild_id}'"
       invite_message = self.db.fetch_one_line (sql)
       if invite_message:
-        url = "Votre lien d'invitation:\n"+url+"\n"+invite_message [0]
+        url = url+"\n"+invite_message [0]
       colour = colour.from_rgb(255, 51, 124)
       icon_url="https://cdn.discordapp.com/attachments/597091535242395649/597091654847037514/Plan_de_travail_18x.png"
       name="Lion"
@@ -188,11 +188,11 @@ class Invitation(commands.Cog):
                )
            and (message.channel.id == invite_channel)
          ):
-        url = await self.get_invitation_link()
+        url = "Votre lien d'invitation:\n"+await self.get_invitation_link()
         sql = f"select message from invite_message where guild_id='{guild_id}'"
         invite_message = self.db.fetch_one_line (sql)
         if invite_message:
-          url = "Votre lien d'invitation:\n"+url+"\n\n"+invite_message [0]
+          url = url+"\n\n"+invite_message [0]
         colour = colour.from_rgb(255, 51, 124)
         icon_url="https://cdn.discordapp.com/attachments/597091535242395649/597091654847037514/Plan_de_travail_18x.png"
         name="Lion"
