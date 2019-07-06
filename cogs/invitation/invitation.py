@@ -58,7 +58,7 @@ class Invitation(commands.Cog):
   async def reset_invite(self, ctx, member: discord.Member = None):
     member = member or ctx.author
     guild_id = ctx.guild.id
-    sql = f"delete from last_invite where guild_id='{guild_id}' && member_id='{member.id}'"
+    sql = f"delete from last_invite where guild_id='{guild_id}' and member_id='{member.id}'"
     error = False
     try:
       self.db.execute_order(sql, [])
