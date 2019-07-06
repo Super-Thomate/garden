@@ -2,10 +2,10 @@
        _____               _            
       / ____|             | |           
      | |  __  __ _ _ __ __| | ___ _ __  
-     | | |_ |/ _` | '__/ _` |/ _ \ '_ \ 
+     | | |_ |/ _` | '__/ _` |/ _ \ '_ \
      | |__| | (_| | | | (_| |  __/ | | |
       \_____|\__,_|_|  \__,_|\___|_| |_|
-                                        
+
 
 
 Garden is a multifunction bot designed for Realms of Fantasy.
@@ -75,10 +75,10 @@ To start the bot, run the service and add the instance name after the **@**:
 `sudo systemctl start red@instancename`
 
 To set the bot to start on boot, you must enable the service, again adding the instance name after the **@**:
-`sudo systemctl enable red@instancename`
+`sudo systemctl enable garden@instancename`
 
 To stop the bot, run the following command still by adding the instance name after the **@**:
-`sudo systemctl stop red@instancename`
+`sudo systemctl stop garden@instancename`
 
 To view Garden's log, you can acccess through journalctl:
-`sudo journalctl -u red@instancename`
+`sudo journalctl -u garden@instancename`
