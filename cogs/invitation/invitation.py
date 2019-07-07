@@ -81,7 +81,6 @@ class Invitation(commands.Cog):
       url = "Votre jeton:\n"+await self.get_galerie_link(member)
       sql = f"select message from galerie_message where guild_id='{guild_id}'"
       galerie_message = self.db.fetch_one_line (sql)
-      print (galerie_message)
       if galerie_message:
         url = url+"\n\n"+galerie_message [0]
       colour = colour.from_rgb(170, 117, 79)
