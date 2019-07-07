@@ -38,7 +38,7 @@ class Invitation(commands.Cog):
         url = url+"\n"+invite_message [0]
       colour = colour.from_rgb(255, 51, 124)
       icon_url="https://cdn.discordapp.com/attachments/597091535242395649/597091654847037514/Plan_de_travail_18x.png"
-      name="Lion"
+      name="Steven Universe Fantasy"
       embed =  discord.Embed(colour=colour)
       embed.set_author(icon_url=icon_url, name=name)
       embed.description = url
@@ -76,8 +76,20 @@ class Invitation(commands.Cog):
     member = member or ctx.author
     error = False
     try:
-      url = await self.get_galerie_link(member)
-      await member.send (url)
+      colour = discord.Colour(0)
+      url = "Votre jeton:\n"+await self.get_galerie_link(member)
+      sql = f"select message from galerie_message where guild_id='{guild_id}'"
+      galerie_message = self.db.fetch_one_line (sql)
+      if galerie_message:
+        url = url+"\n\n"+galerie_message [0]
+      colour = colour.from_rgb(170, 117, 79)
+      icon_url="https://cdn.discordapp.com/attachments/494812564086194177/597037745344348172/LotusBlanc.png"
+      name="LotusBlanc"
+      embed =  discord.Embed(colour=colour)
+      embed.set_author(icon_url=icon_url, name=name)
+      embed.description = url
+      embed.timestamp = datetime.today()
+      await member.send (content=None, embed=embed)
       await ctx.message.add_reaction('✅')
     except Exception as e:
       await ctx.message.channel.send (f"Oups il semblerait que {member.display_name} n'ait pas activé l'envoi de messages privés.")
@@ -129,6 +141,25 @@ class Invitation(commands.Cog):
       sql = f"INSERT INTO invite_message VALUES (?, '{guild_id}')"
     else:
       sql = f"update invite_message set message=? where guild_id='{guild_id}'"
+    print (sql)
+    try:
+      self.db.execute_order(sql, [message])
+    except Exception as e:
+      print (f"{type(e).__name__} - {e}")
+    await ctx.channel.send (f"Nouveau message : `{message}`")
+
+  @commands.command(name='galeriemessage', aliases=['im'])
+  @commands.has_any_role(*botconfig.config['galerie_roles'])
+  async def set_galerie_message(self, ctx, *args):
+    guild_id = ctx.message.guild.id
+    message = ' '.join(arg for arg in args)
+    # message = re.escape(message)
+    sql = f"select message from galerie_message where guild_id='{guild_id}'"
+    prev_galerie_message = self.db.fetch_one_line (sql)
+    if not prev_galerie_message:
+      sql = f"INSERT INTO galerie_message VALUES (?, '{guild_id}')"
+    else:
+      sql = f"update galerie_message set message=? where guild_id='{guild_id}'"
     print (sql)
     try:
       self.db.execute_order(sql, [message])
@@ -211,14 +242,19 @@ class Invitation(commands.Cog):
           url = url+"\n\n"+invite_message [0]
         colour = colour.from_rgb(255, 51, 124)
         icon_url="https://cdn.discordapp.com/attachments/597091535242395649/597091654847037514/Plan_de_travail_18x.png"
-        name="Lion"
+        name="Steven Universe Fantasy"
         #embed.set_footer(text=f"ID: {message.id}")
       elif (     (    ("galerie" in message.content.lower())
                    or ("jeton" in message.content.lower())
                  )
              and (message.channel.id == galerie_channel)
            ):
-        url = await self.get_galerie_link(member)
+        url = "Votre jeton:\n"+await self.get_galerie_link(member)
+        sql = f"select message from galerie_message where guild_id='{guild_id}'"
+        galerie_message = self.db.fetch_one_line (sql)
+        if galerie_message:
+          url = url+"\n\n"+galerie_message [0]
+        colour = colour.from_rgb(170, 117, 79)
         icon_url="https://cdn.discordapp.com/attachments/494812564086194177/597037745344348172/LotusBlanc.png"
         name="LotusBlanc"
       embed =  discord.Embed(colour=colour)
