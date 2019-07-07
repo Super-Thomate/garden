@@ -148,7 +148,7 @@ class Invitation(commands.Cog):
       print (f"{type(e).__name__} - {e}")
     await ctx.channel.send (f"Nouveau message : `{message}`")
 
-  @commands.command(name='galeriemessage', aliases=['im'])
+  @commands.command(name='galeriemessage', aliases=['gm'])
   @commands.has_any_role(*botconfig.config['galerie_roles'])
   async def set_galerie_message(self, ctx, *args):
     guild_id = ctx.message.guild.id
