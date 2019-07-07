@@ -74,6 +74,7 @@ class Invitation(commands.Cog):
   async def token(self, ctx, member: discord.Member = None):
     """Send the token's link in a DM"""
     member = member or ctx.author
+    guild_id = ctx.guild.id
     error = False
     try:
       colour = discord.Colour(0)
