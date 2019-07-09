@@ -340,10 +340,14 @@ class Invitation(commands.Cog):
            and (botconfig.config[str(guild_id)]["do_token"])
          ):
       await self.logger.log('galerie_log', member, message, error)
-    if error:
-      await message.add_reaction('❌')
-    else:
-      await message.add_reaction('✅')
+    try:
+      if error:
+        await message.add_reaction('❌')
+      else:
+        await message.add_reaction('✅')
+    except Exception as e:
+        print (f'{type(e).__name__} - {e}')
+      
 
 
   async def get_invitation_link (self, guild_id):
