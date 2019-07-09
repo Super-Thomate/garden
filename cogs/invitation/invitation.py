@@ -20,14 +20,25 @@ class Invitation(commands.Cog):
     self.logger = Logs(self.bot)
     self.db = Database()
     self.db.test ("un test")
-    self.invite_delay = botconfig.config['invite_delay']
+  
+  def has_role (self, member, guild_id):
+    for obj_role in member.roles:
+      if (    (obj_role.name in botconfig.config[str(guild_id)]['roles'])
+           or (obj_role.id in botconfig.config[str(guild_id)]['roles'])
+         ):
+        return True
+    return False
 
   @commands.command(name='inviteuser', aliases=['iu'])
-  @commands.has_any_role(*botconfig.config['invite_roles'])
   async def invite(self, ctx, member: discord.Member = None):
     """Send the invitation's link in a DM"""
-    member = member or ctx.author
+    member = member or ctx.author 
     guild_id = ctx.guild.id
+    if not self.has_role (member, guild_id):
+      print ("Missing permissions")
+      return
+    if not botconfig.config[str(guild_id)]["do_invite"]:
+      return
     error = False
     colour = discord.Colour(0)
     try:
@@ -54,10 +65,14 @@ class Invitation(commands.Cog):
 
 
   @commands.command(name='resetinvite', aliases=['ri'])
-  @commands.has_any_role(*botconfig.config['invite_roles'])
   async def reset_invite(self, ctx, member: discord.Member = None):
     member = member or ctx.author
     guild_id = ctx.guild.id
+    if not self.has_role (member, guild_id):
+      print ("Missing permissions")
+      return
+    if not botconfig.config[str(guild_id)]["do_invite"]:
+      return
     sql = f"delete from last_invite where guild_id='{guild_id}' and member_id='{member.id}'"
     error = False
     try:
@@ -70,11 +85,15 @@ class Invitation(commands.Cog):
     await self.logger.log('invite_log', member, ctx.message, error)
 
   @commands.command(name='token')
-  @commands.has_any_role(*botconfig.config['invite_roles'])
   async def token(self, ctx, member: discord.Member = None):
     """Send the token's link in a DM"""
     member = member or ctx.author
     guild_id = ctx.guild.id
+    if not self.has_role (member, guild_id):
+      print ("Missing permissions")
+      return
+    if not botconfig.config[str(guild_id)]["do_token"]:
+      return
     error = False
     try:
       colour = discord.Colour(0)
@@ -100,10 +119,15 @@ class Invitation(commands.Cog):
     await self.logger.log('galerie_log', member, ctx.message, error)
 
   @commands.command(name='setinvitechannel', aliases=['sic'])
-  @commands.has_any_role(*botconfig.config['invite_roles'])
   async def set_invite_channel(self, ctx, channel: discord.TextChannel = None):
     invite_channel = channel or ctx.channel
+    member = ctx.author
     guild_id = ctx.message.guild.id
+    if not self.has_role (member, guild_id):
+      print ("Missing permissions")
+      return
+    if not botconfig.config[str(guild_id)]["do_invite"]:
+      return
     sql = f"select * from invite_channel where guild_id='{guild_id}'"
     print (sql)
     prev_invite_channel = self.db.fetch_one_line (sql)
@@ -117,10 +141,15 @@ class Invitation(commands.Cog):
     await invite_channel.send ("Request for invite will be put here")
 
   @commands.command(name='setgaleriechannel', aliases=['sgc'])
-  @commands.has_any_role(*botconfig.config['galerie_roles'])
   async def set_galerie_channel(self, ctx, channel: discord.TextChannel = None):
     galerie_channel = channel or ctx.channel
+    member = ctx.author
     guild_id = ctx.message.guild.id
+    if not self.has_role (member, guild_id):
+      print ("Missing permissions")
+      return
+    if not botconfig.config[str(guild_id)]["do_token"]:
+      return
     sql = f"select * from galerie_channel where guild_id='{guild_id}'"
     prev_galerie_channel = self.db.fetch_one_line (sql)
     if not prev_galerie_channel:
@@ -131,9 +160,14 @@ class Invitation(commands.Cog):
     await galerie_channel.send ("Request for galerie will be put here")
 
   @commands.command(name='invitemessage', aliases=['im'])
-  @commands.has_any_role(*botconfig.config['invite_roles'])
   async def set_invite_message(self, ctx, *args):
     guild_id = ctx.message.guild.id
+    member = ctx.author
+    if not self.has_role (member, guild_id):
+      print ("Missing permissions")
+      return
+    if not botconfig.config[str(guild_id)]["do_invite"]:
+      return
     message = ' '.join(arg for arg in args)
     # message = re.escape(message)
     sql = f"select message from invite_message where guild_id='{guild_id}'"
@@ -150,9 +184,14 @@ class Invitation(commands.Cog):
     await ctx.channel.send (f"Nouveau message : `{message}`")
 
   @commands.command(name='galeriemessage', aliases=['gm'])
-  @commands.has_any_role(*botconfig.config['galerie_roles'])
   async def set_galerie_message(self, ctx, *args):
     guild_id = ctx.message.guild.id
+    member = ctx.author
+    if not self.has_role (member, guild_id):
+      print ("Missing permissions")
+      return
+    if not botconfig.config[str(guild_id)]["do_token"]:
+      return
     message = ' '.join(arg for arg in args)
     # message = re.escape(message)
     sql = f"select message from galerie_message where guild_id='{guild_id}'"
@@ -193,11 +232,13 @@ class Invitation(commands.Cog):
                         or ("compte" in message.content.lower())
                       )
                   and (message.channel.id == invite_channel)
+                  and (botconfig.config[str(guild_id)]["do_invite"])
                 )
              or (     (    ("galerie" in message.content.lower())
                         or ("jeton" in message.content.lower())
                       )
                   and (message.channel.id == galerie_channel)
+                  and (botconfig.config[str(guild_id)]["do_token"])
                 )
            ):
       print (f"content: {message.content.lower()}")
@@ -214,9 +255,11 @@ class Invitation(commands.Cog):
                or ("compte" in message.content.lower())
              )
          and (message.channel.id == invite_channel)
+         and (botconfig.config[str(guild_id)]["do_invite"])
        ):
       #sql = f"select last from last_invite where guild_id='{message.guild.id}' and member_id='{member.id}'"
-      sql = f"select datetime(last, '{self.invite_delay}') from last_invite where guild_id='{message.guild.id}' and member_id='{member.id}'"
+      invite_delay = botconfig.config[str(guild_id)]['invite_delay']
+      sql = f"select datetime(last, '{invite_delay}') from last_invite where guild_id='{message.guild.id}' and member_id='{member.id}'"
       last_invite = self.db.fetch_one_line (sql)
       print (sql)
       print (last_invite)
@@ -235,6 +278,7 @@ class Invitation(commands.Cog):
                  or ("compte" in message.content.lower())
                )
            and (message.channel.id == invite_channel)
+           and (botconfig.config[str(guild_id)]["do_invite"])
          ):
         url = "Votre lien d'invitation:\n"+await self.get_invitation_link()
         sql = f"select message from invite_message where guild_id='{guild_id}'"
@@ -249,6 +293,7 @@ class Invitation(commands.Cog):
                    or ("jeton" in message.content.lower())
                  )
              and (message.channel.id == galerie_channel)
+           and (botconfig.config[str(guild_id)]["do_token"])
            ):
         url = "Votre jeton:\n"+await self.get_galerie_link(member)
         sql = f"select message from galerie_message where guild_id='{guild_id}'"
@@ -271,6 +316,7 @@ class Invitation(commands.Cog):
                or ("compte" in message.content.lower())
              )
          and (message.channel.id == invite_channel)
+         and (botconfig.config[str(guild_id)]["do_invite"])
          and not error
        ):
       # LOG LAST INVITE
@@ -291,6 +337,7 @@ class Invitation(commands.Cog):
                  or ("jeton" in message.content.lower())
                )
            and (message.channel.id == galerie_channel)
+           and (botconfig.config[str(guild_id)]["do_token"])
          ):
       await self.logger.log('galerie_log', member, message, error)
     if error:

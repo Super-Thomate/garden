@@ -8,13 +8,26 @@ class Logs(commands.Cog):
   def __init__ (self, bot):
     self.bot = bot
     self.db = Database()
+  
+  def has_role (self, member, guild_id):
+    for obj_role in member.roles:
+      if (    (obj_role.name in botconfig.config[str(guild_id)]['roles'])
+           or (obj_role.id in botconfig.config[str(guild_id)]['roles'])
+         ):
+        return True
+    return False
 
   @commands.command(name='setinvitelog', aliases=['setinvite', 'sil', 'invitelog'])
-  @commands.has_any_role(*botconfig.config['invite_roles'])
   async def set_invitation_log(self, ctx, channel: discord.TextChannel = None):
+    guild_id = ctx.message.guild.id
+    member = ctx.author
+    if not self.has_role (member, guild_id):
+      print ("Missing permissions")
+      return
+    if not botconfig.config[str(guild_id)]["do_invite"]:
+      return
     try:
       log_channel = channel or ctx.message.channel
-      guild_id = ctx.message.guild.id
       sql = f"select * from invite_log where guild_id='{guild_id}'"
       prev_log_channel = self.db.fetch_one_line (sql)
       if not prev_log_channel:
@@ -27,8 +40,14 @@ class Logs(commands.Cog):
       print (f" {type(e).__name__} - {e}")
 
   @commands.command(name='setgalerielog', aliases=['setgalerie', 'sgl', 'galerielog'])
-  @commands.has_any_role(*botconfig.config['galerie_roles'])
   async def set_galerie_log(self, ctx, channel: discord.TextChannel = None):
+    guild_id = ctx.message.guild.id
+    member = ctx.author
+    if not self.has_role (member, guild_id):
+      print ("Missing permissions")
+      return
+    if not botconfig.config[str(guild_id)]["do_token"]:
+      return
     try:
       log_channel = channel or ctx.message.channel
       guild_id = ctx.message.guild.id

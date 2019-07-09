@@ -4,10 +4,13 @@ import os
 from discord.ext import commands
 import botconfig
 
+
 def get_prefix(bot, message):
-    """A callable Prefix for our bot. This could be edited to allow per server prefixes."""
-    prefixes = botconfig.config['prefixes']
+    """A callable Prefix for our bot."""
+    prefixes = botconfig.config[str(message.guild.id)]['prefixes']
     return commands.when_mentioned_or(*prefixes)(bot, message)
+
+initial_extensions = []
 
 # Define all of our cogs
 initial_extensions = [   'cogs.loader'
@@ -34,14 +37,12 @@ async def on_ready():
   print(discord.__version__)
   print('------')
   try:
-    await bot.change_presence(activity=discord.Game(name=" gardening"))
+    await bot.change_presence(activity=discord.Game(name=botconfig.config['activity']))
   except TypeError as type_err:
     print ("Error TypeError : {}".format(type_err))
     sys.exit(0)
-  except :
-    print ("Error {}".format(sys.exc_info()[0]))
+  except Exception as e:
+    print (f"{type(e).__name__} - {e}")
     sys.exit(0)
 
-# instance = sys.argv[1]
-
-bot.run(botconfig.config['tokens'][sys.argv[1]])
+bot.run(botconfig.config['token'])
