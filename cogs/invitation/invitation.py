@@ -347,11 +347,11 @@ class Invitation(commands.Cog):
 
 
   async def get_invitation_link (self):
-    url = botconfig.config['create_url']['invitation'] #build the web adress
+    url = botconfig.config[str(guild_id)]['create_url']['invitation'] #build the web adress
     return await self.get_text(url)
 
   async def get_galerie_link (self, author):
-    url = botconfig.config['create_url']['galerie'] + urllib.parse.urlencode({ 'user' : author.display_name}) #build the web adress
+    url = botconfig.config[str(guild_id)]['create_url']['gallery'] + urllib.parse.urlencode({ 'user' : author.display_name}) #build the web adress
     return await self.get_text(url)
 
   async def get_text(self, url):
