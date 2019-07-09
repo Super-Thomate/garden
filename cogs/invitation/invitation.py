@@ -42,7 +42,7 @@ class Invitation(commands.Cog):
     error = False
     colour = discord.Colour(0)
     try:
-      url = "Votre lien d'invitation:\n"+await self.get_invitation_link()
+      url = "Votre lien d'invitation:\n"+await self.get_invitation_link(guild_id)
       sql = f"select message from invite_message where guild_id='{guild_id}'"
       invite_message = self.db.fetch_one_line (sql)
       if invite_message:
@@ -97,7 +97,7 @@ class Invitation(commands.Cog):
     error = False
     try:
       colour = discord.Colour(0)
-      url = "Votre jeton:\n"+await self.get_galerie_link(member)
+      url = "Votre jeton:\n"+await self.get_galerie_link(guild_id, member)
       sql = f"select message from galerie_message where guild_id='{guild_id}'"
       galerie_message = self.db.fetch_one_line (sql)
       if galerie_message:
@@ -280,7 +280,7 @@ class Invitation(commands.Cog):
            and (message.channel.id == invite_channel)
            and (botconfig.config[str(guild_id)]["do_invite"])
          ):
-        url = "Votre lien d'invitation:\n"+await self.get_invitation_link()
+        url = "Votre lien d'invitation:\n"+await self.get_invitation_link(guild_id)
         sql = f"select message from invite_message where guild_id='{guild_id}'"
         invite_message = self.db.fetch_one_line (sql)
         if invite_message:
@@ -295,7 +295,7 @@ class Invitation(commands.Cog):
              and (message.channel.id == galerie_channel)
            and (botconfig.config[str(guild_id)]["do_token"])
            ):
-        url = "Votre jeton:\n"+await self.get_galerie_link(member)
+        url = "Votre jeton:\n"+await self.get_galerie_link(guild_id, member)
         sql = f"select message from galerie_message where guild_id='{guild_id}'"
         galerie_message = self.db.fetch_one_line (sql)
         if galerie_message:
@@ -346,11 +346,11 @@ class Invitation(commands.Cog):
       await message.add_reaction('✅')
 
 
-  async def get_invitation_link (self):
+  async def get_invitation_link (self, guild_id):
     url = botconfig.config[str(guild_id)]['create_url']['invitation'] #build the web adress
     return await self.get_text(url)
 
-  async def get_galerie_link (self, author):
+  async def get_galerie_link (self, guild_id, author):
     url = botconfig.config[str(guild_id)]['create_url']['gallery'] + urllib.parse.urlencode({ 'user' : author.display_name}) #build the web adress
     return await self.get_text(url)
 
