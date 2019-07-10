@@ -5,8 +5,7 @@ class Database:
   def __init__ (self):
     self.cnx = sqlite3.connect('garden.db')
     self.create_table()
-  def test(self, mot):
-    print ("You said : "+mot)
+
   def create_table(self):
     cursor = self.cnx.cursor()
     try:

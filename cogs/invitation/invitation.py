@@ -8,10 +8,10 @@ from datetime import datetime
 from ..logs import Logs
 from ..database import Database
 try: # check if BeautifulSoup4 is installed
-	 from bs4 import BeautifulSoup
-	 soupAvailable = True
+  from bs4 import BeautifulSoup
+  soupAvailable = True
 except:
-	 soupAvailable = False
+  soupAvailable = False
 import aiohttp
 
 class Invitation(commands.Cog):
@@ -19,7 +19,6 @@ class Invitation(commands.Cog):
     self.bot = bot
     self.logger = Logs(self.bot)
     self.db = Database()
-    self.db.test ("un test")
   
   def has_role (self, member, guild_id):
     for obj_role in member.roles:
@@ -28,6 +27,47 @@ class Invitation(commands.Cog):
          ):
         return True
     return False
+
+  
+  @commands.command(name='cleanchannel', aliases=['cc'])
+  @commands.guild_only()
+  async def cleanchannel(self, ctx):
+    channel = ctx.channel
+    member = ctx.author
+    guild_id = ctx.guild.id
+    if not self.has_role (member, guild_id):
+      print ("Missing permissions")
+      return
+    if not ((botconfig.config[str(guild_id)]['do_invite']) or (botconfig.config[str(guild_id)]['do_invite'])):
+      return
+    invite_channel = None
+    galerie_channel = None
+    sql = f"select channel_id from invite_channel where guild_id='{guild_id}'"
+    res = self.db.fetch_one_line (sql)
+    if not res == None:
+      invite_channel = int(res [0])
+    sql = f"select channel_id from galerie_channel where guild_id='{guild_id}'"
+    res = self.db.fetch_one_line (sql)
+    if not res == None:
+      galerie_channel = int(res [0])
+    print (f"invite_channel: {invite_channel}")
+    print (f"galerie_channel : {galerie_channel}")
+    print (f"channel.id : {channel.id}")
+    
+    def not_is_pin (message):
+      return not message.pinned
+    
+    if (    (     (channel.id == invite_channel)
+              and (botconfig.config[str(guild_id)]['do_invite'])
+            )
+         or (     (channel.id == galerie_channel)
+              and (botconfig.config[str(guild_id)]['do_token'])
+            )
+       ):
+      # delete all messages except ping
+      deleted = await channel.purge(limit=1000, check=not_is_pin)
+      feedback = await channel.send (f"Deleted {len (deleted)} messages")
+      await feedback.delete (delay=2)
 
   @commands.command(name='inviteuser', aliases=['iu'])
   async def invite(self, ctx, member: discord.Member = None):
@@ -344,6 +384,7 @@ class Invitation(commands.Cog):
       if error:
         await message.add_reaction('❌')
       else:
+        await message.delete (delay=2)
         await message.add_reaction('✅')
     except Exception as e:
         print (f'{type(e).__name__} - {e}')
