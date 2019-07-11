@@ -9,7 +9,7 @@ class Database:
   def __init__ (self):
     # get the path to project root
     dir_path = os.path.dirname(os.path.realpath(__file__))+'/'
-    self.cnx = sqlite3.connect(dir_path+'garden.db')
+    self.cnx = sqlite3.connect(dir_path+'../../garden.db')
     self.create_table()
 
   def create_table(self):
