@@ -51,7 +51,7 @@ class Invitation(commands.Cog):
     if not self.has_role (member, guild_id):
       print ("Missing permissions")
       return
-    if not ((botconfig.config[str(guild_id)]['do_invite']) or (botconfig.config[str(guild_id)]['do_invite'])):
+    if not ((botconfig.config[str(guild_id)]['do_invite']) or (botconfig.config[str(guild_id)]['do_token'])):
       print ("Dont do it")
       return
     print ("Let's go !")
