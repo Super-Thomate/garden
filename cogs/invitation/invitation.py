@@ -19,16 +19,19 @@ class Invitation(commands.Cog):
     self.bot = bot
     self.logger = Logs(self.bot)
     self.db = Database()
-  
+
   def has_role (self, member, guild_id):
+    print (botconfig.config[str(guild_id)]['roles'])
     for obj_role in member.roles:
+      print (obj_role.name)
+      print (obj_role.id)
       if (    (obj_role.name in botconfig.config[str(guild_id)]['roles'])
            or (obj_role.id in botconfig.config[str(guild_id)]['roles'])
          ):
         return True
     return False
 
-  
+
   @commands.command(name='cleanchannel', aliases=['cc'])
   @commands.guild_only()
   async def cleanchannel(self, ctx):
@@ -57,7 +60,7 @@ class Invitation(commands.Cog):
     print ("Let's go !")
     def not_is_pin (message):
       return not message.pinned
-    
+
     if (    (     (channel.id == invite_channel)
               and (botconfig.config[str(guild_id)]['do_invite'])
             )
@@ -73,7 +76,7 @@ class Invitation(commands.Cog):
   @commands.command(name='inviteuser', aliases=['iu'])
   async def invite(self, ctx, member: discord.Member = None):
     """Send the invitation's link in a DM"""
-    member = member or ctx.author 
+    member = member or ctx.author
     guild_id = ctx.guild.id
     if not self.has_role (member, guild_id):
       print ("Missing permissions")
@@ -391,7 +394,7 @@ class Invitation(commands.Cog):
         await message.add_reaction('✅')
     except Exception as e:
         print (f'{type(e).__name__} - {e}')
-      
+
 
 
   async def get_invitation_link (self, guild_id):
