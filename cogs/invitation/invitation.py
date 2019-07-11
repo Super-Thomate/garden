@@ -35,6 +35,8 @@ class Invitation(commands.Cog):
     channel = ctx.channel
     member = ctx.author
     guild_id = ctx.guild.id
+    print (f"invite_channel: {invite_channel}")
+    print (f"galerie_channel : {galerie_channel}")
     if not self.has_role (member, guild_id):
       print ("Missing permissions")
       return
