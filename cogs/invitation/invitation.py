@@ -362,7 +362,8 @@ class Invitation(commands.Cog):
       # LOG LAST INVITE
       sql = f"select * from last_invite where guild_id='{message.guild.id}' and member_id='{member.id}'"
       last_invite = self.db.fetch_one_line (sql)
-      if not (last_invite or last_invite[0]):
+      print (last_invite)
+      if not last_invite:
         sql = f"insert into last_invite values ('{member.id}', '{message.guild.id}', datetime('now'))"
       else:
         sql = f"update last_invite set last=datetime('now') where member_id='{member.id}' and guild_id='{message.guild.id}'"
