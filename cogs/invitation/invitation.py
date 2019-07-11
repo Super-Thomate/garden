@@ -21,10 +21,7 @@ class Invitation(commands.Cog):
     self.db = Database()
 
   def has_role (self, member, guild_id):
-    print (botconfig.config[str(guild_id)]['roles'])
     for obj_role in member.roles:
-      print (obj_role.name)
-      print (obj_role.id)
       if (    (obj_role.name in botconfig.config[str(guild_id)]['roles'])
            or (obj_role.id in botconfig.config[str(guild_id)]['roles'])
          ):
@@ -78,7 +75,7 @@ class Invitation(commands.Cog):
     """Send the invitation's link in a DM"""
     member = member or ctx.author
     guild_id = ctx.guild.id
-    if not self.has_role (member, guild_id):
+    if not self.has_role (ctx.author, guild_id):
       print ("Missing permissions")
       return
     if not botconfig.config[str(guild_id)]["do_invite"]:
@@ -112,7 +109,7 @@ class Invitation(commands.Cog):
   async def reset_invite(self, ctx, member: discord.Member = None):
     member = member or ctx.author
     guild_id = ctx.guild.id
-    if not self.has_role (member, guild_id):
+    if not self.has_role (ctx.author, guild_id):
       print ("Missing permissions")
       return
     if not botconfig.config[str(guild_id)]["do_invite"]:
@@ -133,7 +130,7 @@ class Invitation(commands.Cog):
     """Send the token's link in a DM"""
     member = member or ctx.author
     guild_id = ctx.guild.id
-    if not self.has_role (member, guild_id):
+    if not self.has_role (ctx.author, guild_id):
       print ("Missing permissions")
       return
     if not botconfig.config[str(guild_id)]["do_token"]:
