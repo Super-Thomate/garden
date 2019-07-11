@@ -39,7 +39,7 @@ class Logs(commands.Cog):
     except Exception as e:
       print (f" {type(e).__name__} - {e}")
 
-  @commands.command(name='setgalerielog', aliases=['setgalerie', 'sgl', 'galerielog'])
+  @commands.command(name='setgallerylog', aliases=['setgallery', 'sgl', 'gallerylog'])
   async def set_galerie_log(self, ctx, channel: discord.TextChannel = None):
     guild_id = ctx.message.guild.id
     member = ctx.author

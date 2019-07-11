@@ -25,7 +25,7 @@ class Database:
 
   def execute_order (self, sql, params):
     cursor = self.cnx.cursor()
-    print (params)
+    print (f"params: {params}")
     try:
       cursor.execute(sql, (params))
       self.cnx.commit()

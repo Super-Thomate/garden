@@ -180,7 +180,7 @@ class Invitation(commands.Cog):
     self.db.execute_order(sql, [])
     await invite_channel.send ("Request for invite will be put here")
 
-  @commands.command(name='setgaleriechannel', aliases=['sgc'])
+  @commands.command(name='setgallerychannel', aliases=['sgc'])
   async def set_galerie_channel(self, ctx, channel: discord.TextChannel = None):
     galerie_channel = channel or ctx.channel
     member = ctx.author
@@ -223,7 +223,7 @@ class Invitation(commands.Cog):
       print (f"{type(e).__name__} - {e}")
     await ctx.channel.send (f"Nouveau message : `{message}`")
 
-  @commands.command(name='galeriemessage', aliases=['gm'])
+  @commands.command(name='gallerymessage', aliases=['gm'])
   async def set_galerie_message(self, ctx, *args):
     guild_id = ctx.message.guild.id
     member = ctx.author
