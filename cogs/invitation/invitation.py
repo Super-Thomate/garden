@@ -303,7 +303,7 @@ class Invitation(commands.Cog):
       last_invite = self.db.fetch_one_line (sql)
       print (sql)
       print (last_invite)
-      if last_invite:
+      if last_invite[0]:
         last = last_invite[0]
         last_datetime = datetime.strptime (last, '%Y-%m-%d %H:%M:%S')
         duree = last_datetime - datetime.now()
