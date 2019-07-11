@@ -366,6 +366,7 @@ class Invitation(commands.Cog):
         sql = f"insert into last_invite values ('{member.id}', '{message.guild.id}', datetime('now'))"
       else:
         sql = f"update last_invite set last=datetime('now') where member_id='{member.id}' and guild_id='{message.guild.id}'"
+      print (sql)
       try:
         self.db.execute_order (sql, [])
       except Exception as e:
