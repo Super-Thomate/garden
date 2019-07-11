@@ -52,8 +52,9 @@ class Invitation(commands.Cog):
       print ("Missing permissions")
       return
     if not ((botconfig.config[str(guild_id)]['do_invite']) or (botconfig.config[str(guild_id)]['do_invite'])):
+      print ("Dont do it")
       return
-    
+    print ("Let's go !")
     def not_is_pin (message):
       return not message.pinned
     
