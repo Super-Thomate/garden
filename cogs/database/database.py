@@ -1,9 +1,15 @@
 import os
 import sqlite3
+import sys
+import os
+
+
 
 class Database:
   def __init__ (self):
-    self.cnx = sqlite3.connect('garden.db')
+    # get the path to project root
+    dir_path = os.path.dirname(os.path.realpath(__file__))+'/'
+    self.cnx = sqlite3.connect(dir_path+'garden.db')
     self.create_table()
 
   def create_table(self):
