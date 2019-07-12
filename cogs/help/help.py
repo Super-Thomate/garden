@@ -27,9 +27,9 @@ class Help(commands.Cog):
     colour = colour.from_rgb(176, 255, 176)
     embed = discord.Embed(colour=colour, title="**INVITATION COG HELP**")
     embed.description = "*Les commandes de ce cog ne sont utilisables que par les admins ou modérateurs spécifiés au bot.*"
-    embed.add_field (name="**SUF :**", value="- `!setinvitechannel (!sic)` - définir le channel actuel pour la demande d'invitation des utilisateurs\n- `!setinvitelog (!sil)` - définir le channel actuel pour les logs des invitations\n- `!inviteuser (!iu) <UserID>` - envoie une invitation à l'utilisateur mentionné (ou a l'auteur si aucun ID n'est noté)\n- `!resetinvite (!ri) <UserID>` - reset le timer entre 2 messages à 0 pour l'utilisateur mentionné (ou a l'auteur si aucun ID n'est noté)", inline=False)
-    embed.add_field (name="**AR :**", value="- `!setgallerychannel (!sgc)` - définir le channel actuel pour la demande de jeton des utilisateurs\n- `!setgallerylog (!sgl)` - définir le channel actuel pour les logs des jetons\n- `!token  <UserID>` - envoie un jeton à l'utilisateur mentionné (ou a l'auteur si aucun ID n'est noté)", inline=False)
-    embed.add_field (name="**Général :**", value="- `!setgallerychannel (!sgc)` - définir le channel actuel pour la demande de jeton des utilisateurs\n- `!cleanchannel (!cc)` - *à effectuer dans le channel défini de demande d'invitation/jeton* - efface tous les massages du channel or messages pin\n- `!help invitation` - montre ce message - *à ne pas utiliser dans les channels publics*", inline=False)
+    embed.add_field (name="**SUF :**", value="- `-setinvitechannel (-sic)` - définir le channel actuel pour la demande d'invitation des utilisateurs\n- `-setinvitelog (-sil)` - définir le channel actuel pour les logs des invitations\n- `-inviteuser (-iu) <UserID>` - envoie une invitation à l'utilisateur mentionné (ou a l'auteur si aucun ID n'est noté)\n- `-resetinvite (-ri) <UserID>` - reset le timer entre 2 messages à 0 pour l'utilisateur mentionné (ou a l'auteur si aucun ID n'est noté)", inline=False)
+    embed.add_field (name="**AR :**", value="- `-setgallerychannel (-sgc)` - définir le channel actuel pour la demande de jeton des utilisateurs\n- `-setgallerylog (-sgl)` - définir le channel actuel pour les logs des jetons\n- `-token  <UserID>` - envoie un jeton à l'utilisateur mentionné (ou a l'auteur si aucun ID n'est noté)", inline=False)
+    embed.add_field (name="**Général :**", value="- `-setgallerychannel (-sgc)` - définir le channel actuel pour la demande de jeton des utilisateurs\n- `-cleanchannel (-cc)` - *à effectuer dans le channel défini de demande d'invitation/jeton* - efface tous les massages du channel or messages pin\n- `-help invitation` - montre ce message - *à ne pas utiliser dans les channels publics*", inline=False)
     embed.set_author(icon_url=infos.avatar_url, name=str(infos))
     embed.timestamp = datetime.today()
     return embed
@@ -40,8 +40,8 @@ class Help(commands.Cog):
     colour = colour.from_rgb(176, 255, 176)
     embed = discord.Embed(colour=colour, title="**LOGS COG HELP**")
     embed.description = "*Les commandes de ce cog ne sont utilisables que par les admins ou modérateurs spécifiés au bot.*"
-    embed.add_field (name="**SUF :**", value="- `!setinvitelog (!sil)` - définir le channel actuel pour les logs des invitations\n", inline=False)
-    embed.add_field (name="**AR :**", value="- `!setgallerylog (!sgl)` - définir le channel actuel pour les logs des jetons\n", inline=False)
+    embed.add_field (name="**SUF :**", value="- `-setinvitelog (-sil)` - définir le channel actuel pour les logs des invitations\n", inline=False)
+    embed.add_field (name="**AR :**", value="- `-setgallerylog (-sgl)` - définir le channel actuel pour les logs des jetons\n", inline=False)
     embed.set_author(icon_url=infos.avatar_url, name=str(infos))
     embed.timestamp = datetime.today()
     return embed
@@ -72,7 +72,7 @@ class Help(commands.Cog):
     colour = colour.from_rgb(176, 255, 176)
     embed = discord.Embed(colour=colour, title="**GARDEN HELP**")
     embed.description = "*Ce bot est séparé en différents **cogs**. Choisissez quelle aide vous souhaitez afficher.*"
-    embed.add_field (name="__**Général**__", value="- `!help <NomDuCog>` - Montre l'aide du cog spécifié\n- `!load <NomDuCog>` - Charge le cog spécifié ( :white_check_mark: )\n- `!unload <NomDuCog>` - Décharge le cog spécifié ( :x: )", inline=False)
+    embed.add_field (name="__**Général**__", value="- `-help <NomDuCog>` - Montre l'aide du cog spécifié\n- `-load <NomDuCog>` - Charge le cog spécifié ( :white_check_mark: )\n- `-unload <NomDuCog>` - Décharge le cog spécifié ( :x: )", inline=False)
     embed.add_field (name="__**Cogs Disponibles**__", value=line_cogs, inline=False)
     embed.set_author(icon_url=infos.avatar_url, name=str(infos))
     embed.timestamp = datetime.today()
