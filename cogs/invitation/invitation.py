@@ -32,6 +32,7 @@ class Invitation(commands.Cog):
   @commands.command(name='cleanchannel', aliases=['cc'])
   @commands.guild_only()
   async def cleanchannel(self, ctx):
+    """Clean the current channel if it's an invite or token channel"""
     channel = ctx.channel
     member = ctx.author
     guild_id = ctx.guild.id

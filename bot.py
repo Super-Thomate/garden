@@ -20,7 +20,7 @@ initial_extensions = [   'cogs.loader'
                      ]
 
 bot = commands.Bot(command_prefix=get_prefix)
-bot.remove_command("help")
+bot.remove_command("help") # we used our own help command
 
 # Here we load our extensions(cogs) listed above in [initial_extensions].
 if __name__ == '__main__':
