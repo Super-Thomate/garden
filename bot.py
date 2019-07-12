@@ -16,9 +16,11 @@ initial_extensions = []
 initial_extensions = [   'cogs.loader'
                        , 'cogs.logs'
                        , 'cogs.invitation'
+                       , 'cogs.help'
                      ]
 
 bot = commands.Bot(command_prefix=get_prefix)
+bot.remove_command("help")
 
 # Here we load our extensions(cogs) listed above in [initial_extensions].
 if __name__ == '__main__':
