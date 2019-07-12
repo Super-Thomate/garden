@@ -44,7 +44,8 @@ class Help(commands.Cog):
     embed.add_field (name="**AR :**", value="- `!setgallerylog (!sgl)` - définir le channel actuel pour les logs des jetons\n", inline=False)
     embed.set_author(icon_url=infos.avatar_url, name=str(infos))
     embed.timestamp = datetime.today()
-    return embed  
+    return embed
+
   def help_global (self):
     print (self.bot.cogs)
     line_cogs = ""
@@ -64,7 +65,7 @@ class Help(commands.Cog):
       all_cogs [name]["status"] = 1
     for cog, dicog in all_cogs.items():
       emoji = ":white_check_mark:" if dicog["status"] else ":x:"
-      line_cogs += f"-  **{cog.lower()}** {emoji}  - *{dicog ['desc']}*\n"
+      line_cogs += f"-  **{cog}** {emoji}  - *{dicog ['desc']}*\n"
     
     infos = self.bot.user
     colour = discord.Colour(0)
