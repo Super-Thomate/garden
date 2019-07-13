@@ -75,7 +75,7 @@ class Logs(commands.Cog):
       sql = f"select * from nickname_log where guild_id='{guild_id}'"
       prev_log_channel = self.db.fetch_one_line (sql)
       if not prev_log_channel:
-        sql = "INSERT INTO galerie_log VALUES ('{0}', '{1}')".format(log_channel.id, guild_id)
+        sql = "INSERT INTO nickname_log VALUES ('{0}', '{1}')".format(log_channel.id, guild_id)
       else:
         sql = "update nickname_log set channel_id='{log_channel.id}' where guild_id='{guild_id}'"
       self.db.execute_order(sql, [])
