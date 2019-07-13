@@ -62,6 +62,27 @@ class Logs(commands.Cog):
     except Exception as e:
       print (f" {type(e).__name__} - {e}")
 
+  @commands.command(name='setnicknamelog', aliases=['setnickname', 'snl', 'nicknamelog'])
+  async def set_nickname_log(self, ctx, channel: discord.TextChannel = None):
+    guild_id = ctx.message.guild.id
+    member = ctx.author
+    if not self.has_role (member, guild_id):
+      print ("Missing permissions")
+      return
+    try:
+      log_channel = channel or ctx.message.channel
+      guild_id = ctx.message.guild.id
+      sql = f"select * from nickname_log where guild_id='{guild_id}'"
+      prev_log_channel = self.db.fetch_one_line (sql)
+      if not prev_log_channel:
+        sql = "INSERT INTO galerie_log VALUES ('{0}', '{1}')".format(log_channel.id, guild_id)
+      else:
+        sql = "update nickname_log set channel_id='{log_channel.id}' where guild_id='{guild_id}'"
+      self.db.execute_order(sql, [])
+      await log_channel.send ("Logs for nickname will be put here")
+    except Exception as e:
+      print (f" {type(e).__name__} - {e}")
+
   async def log(self, db, member, message, error):
     guild_id = message.channel.guild.id
     sql = f"select * from {db} where guild_id='{guild_id}'"
