@@ -8,7 +8,7 @@ class Logs(commands.Cog):
   def __init__ (self, bot):
     self.bot = bot
     self.db = Database()
-  
+
   def has_role (self, member, guild_id):
     for obj_role in member.roles:
       if (    (obj_role.name in botconfig.config[str(guild_id)]['roles'])
@@ -66,6 +66,7 @@ class Logs(commands.Cog):
     guild_id = message.channel.guild.id
     sql = f"select * from {db} where guild_id='{guild_id}'"
     db_log_channel = self.db.fetch_one_line (sql)
+    print (db_log_channel)
     if not db_log_channel:
       log_channel = message.channel
     else:
