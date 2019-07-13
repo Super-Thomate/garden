@@ -54,10 +54,10 @@ class Help(commands.Cog):
       , "Help": {"status":0, "desc": "Affiche l'aide de Garden"}
       , "Highlight": {"status":0, "desc": "Gère les mises en valeurs de message"}
       , "Invitation": {"status":0, "desc": "Gère les invitations/jetons"}
-      , "Koh": {"status":0, "desc": "Gère le changement de surnom (nickname)"}
       , "Link": {"status":0, "desc": "Gère les liens entre rôles"}
       , "Loader": {"status":0, "desc": "Chargement des différents cogs"}
       , "Logs": {"status":0, "desc": "Gère les logs des différents cogs"}
+      , "Nickname": {"status":0, "desc": "Gère le changement de surnom (nickname)"}
       , "Utip": {"status":0, "desc": "Gère le rôle pour les backers Utip"}
     }
     for name in self.bot.cogs.keys():
