@@ -13,6 +13,7 @@ class Nickname(commands.Cog):
 
   @commands.command(name='nickname', aliases=['pseudo'])
   async def set_nickname(self, ctx, *, nickname: str = None):
+    message = ctx.message
     # Check if there is a nickname
     if not nickname:
       await self.logger.log('nickname_log', member, message, True)
