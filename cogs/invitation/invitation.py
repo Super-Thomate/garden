@@ -311,6 +311,7 @@ class Invitation(commands.Cog):
         duree = last_datetime - datetime.now()
         if duree.seconds > 1:
           total_seconds = duree.days*86400+duree.seconds
+          await self.logger.log('galerie_log', member, message, True)
           await message.add_reaction('❌')
           await message.channel.send(f"Vous avez déjà demandé une invitation récemment.\nIl vous faut attendre encore {self.format_time(total_seconds)}")
           return
@@ -359,23 +360,23 @@ class Invitation(commands.Cog):
              )
          and (message.channel.id == invite_channel)
          and (botconfig.config[str(guild_id)]["do_invite"])
-         and not error
        ):
-      # LOG LAST INVITE
-      sql = f"select * from last_invite where guild_id='{message.guild.id}' and member_id='{member.id}'"
-      last_invite = self.db.fetch_one_line (sql)
-      print (last_invite)
-      if not last_invite:
-        sql = f"insert into last_invite values ('{member.id}', '{message.guild.id}', datetime('now'))"
-      else:
-        sql = f"update last_invite set last=datetime('now') where member_id='{member.id}' and guild_id='{message.guild.id}'"
-      print (sql)
-      try:
-        self.db.execute_order (sql, [])
-      except Exception as e:
-        await message.channel.send (f'Inscription en db fail !')
-        print (f'{type(e).__name__} - {e}')
-        error = True
+      if not error:
+        # LOG LAST INVITE
+        sql = f"select * from last_invite where guild_id='{message.guild.id}' and member_id='{member.id}'"
+        last_invite = self.db.fetch_one_line (sql)
+        print (last_invite)
+        if not last_invite:
+          sql = f"insert into last_invite values ('{member.id}', '{message.guild.id}', datetime('now'))"
+        else:
+          sql = f"update last_invite set last=datetime('now') where member_id='{member.id}' and guild_id='{message.guild.id}'"
+        print (sql)
+        try:
+          self.db.execute_order (sql, [])
+        except Exception as e:
+          await message.channel.send (f'Inscription en db fail !')
+          print (f'{type(e).__name__} - {e}')
+          error = True
       await self.logger.log('invite_log', member, message, error)
     elif (     (    ("galerie" in message.content.lower())
                  or ("jeton" in message.content.lower())
