@@ -17,7 +17,7 @@ initial_extensions = [   'cogs.loader'
                        , 'cogs.logs'
                        , 'cogs.invitation'
                        , 'cogs.help'
-                       , 'cogs.nickname'
+                       # , 'cogs.nickname'
                      ]
 
 bot = commands.Bot(command_prefix=get_prefix)
