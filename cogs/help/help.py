@@ -19,8 +19,8 @@ class Help(commands.Cog):
       print (f"{type(e).__name__} - {e}")
     except Exception as e:
       await ctx.channel.send (f"An error occured: {type(e).__name__} - {e}")
-      
-      
+
+
   def help_invitation (self):
     infos = self.bot.user
     colour = discord.Colour(0)
@@ -33,7 +33,7 @@ class Help(commands.Cog):
     embed.set_author(icon_url=infos.avatar_url, name=str(infos))
     embed.timestamp = datetime.today()
     return embed
-      
+
   def help_logs (self):
     infos = self.bot.user
     colour = discord.Colour(0)
@@ -58,7 +58,6 @@ class Help(commands.Cog):
       , "Link": {"status":0, "desc": "Gère les liens entre rôles"}
       , "Loader": {"status":0, "desc": "Chargement des différents cogs"}
       , "Logs": {"status":0, "desc": "Gère les logs des différents cogs"}
-      , "Trivia": {"status":0, "desc": "Trivia"}
       , "Utip": {"status":0, "desc": "Gère le rôle pour les backers Utip"}
     }
     for name in self.bot.cogs.keys():
@@ -66,7 +65,7 @@ class Help(commands.Cog):
     for cog, dicog in all_cogs.items():
       emoji = ":white_check_mark:" if dicog["status"] else ":x:"
       line_cogs += f"-  **{cog}** {emoji}  - *{dicog ['desc']}*\n"
-    
+
     infos = self.bot.user
     colour = discord.Colour(0)
     colour = colour.from_rgb(176, 255, 176)
