@@ -311,7 +311,7 @@ class Invitation(commands.Cog):
         duree = last_datetime - datetime.now()
         if duree.seconds > 1:
           total_seconds = duree.days*86400+duree.seconds
-          await self.logger.log('galerie_log', member, message, True)
+          await self.logger.log('invite_log', member, message, True)
           await message.add_reaction('❌')
           await message.channel.send(f"Vous avez déjà demandé une invitation récemment.\nIl vous faut attendre encore {self.format_time(total_seconds)}")
           return
