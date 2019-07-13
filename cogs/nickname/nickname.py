@@ -40,7 +40,7 @@ class Nickname(commands.Cog):
       member.nick = str
     except Exception as e:
       error = True
-      print (f"{type(e).__name__} - {e}"})
+      print (f"{type(e).__name__} - {e}")
     # Log my change
     if error:
       await ctx.message.add_reaction('❌')
