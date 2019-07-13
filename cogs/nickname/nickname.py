@@ -39,7 +39,8 @@ class Nickname(commands.Cog):
     # Change my Nickname
     error = False
     try:
-      member.nick = str
+      # member.nick = str
+      await member.edit(nick = str)
     except Exception as e:
       error = True
       print (f"{type(e).__name__} - {e}")
