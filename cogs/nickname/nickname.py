@@ -22,6 +22,7 @@ class Nickname(commands.Cog):
     # Check if I can change my nickname
     member = ctx.author
     guild_id = ctx.guild.id
+    nickname_delay = botconfig.config[str(guild_id)]['nickname_delay']
     sql = f'select  datetime(last_change, \'{nickname_delay}\') from last_nickname where guild_id=\'{guild_id}\' and member_id=\'{member.id}\''
     fetched = self.db.fetch_one_line (sql)
     if fetched:
