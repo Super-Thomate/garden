@@ -43,6 +43,20 @@ class Nickname(commands.Cog):
     except Exception as e:
       error = True
       print (f"{type(e).__name__} - {e}")
+    if not error:
+      # write in db
+      select = f"select * from from last_nickname where guild_id='{guild_id}' and member_id='{member.id}'"
+      fetched = self.db.fetch_one_line (select)
+      if fetched:
+        sql = f"insert into last_nickname values ('{member.id}', '{guild_id}', datetime('now'))"
+      else:
+        sql = f"update last_nickname set last_change=datetime('now') where member_id='{member.id}' and guild_id='{guild_id}'"
+      try:
+        self.db.execute_order (sql, [])
+      except Exception as e:
+        await message.channel.send (f'Inscription en db fail !')
+        print (f'{type(e).__name__} - {e}')
+        error = True
     # Log my change
     if error:
       await ctx.message.add_reaction('❌')
