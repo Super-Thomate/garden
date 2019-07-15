@@ -67,6 +67,26 @@ class Nickname(commands.Cog):
       await ctx.message.add_reaction('✅')
     await self.logger.log('nickname_log', member, message, error)
 
+
+  @commands.command(name='resetnickname', aliases=['rn'])
+  async def reset_nickname(self, ctx, member: discord.Member = None):
+    member = member or ctx.author
+    guild_id = ctx.guild.id
+    if not self.has_role (ctx.author, guild_id):
+      print ("Missing permissions")
+      return
+    sql = f"delete from last_nickname where guild_id='{guild_id}' and member_id='{member.id}'"
+    error = False
+    try:
+      self.db.execute_order(sql, [])
+      await ctx.message.add_reaction('✅')
+    except Exception as e:
+      print (f"{type(e).__name__} - {e}")
+      await ctx.message.add_reaction('❌')
+      error = True
+    await self.logger.log('nickname_log', member, ctx.message, error)
+
+
   def format_time(self, timestamp):
     timer = [   ["j", 86400]
               , ["h", 3600]
