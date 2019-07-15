@@ -32,7 +32,8 @@ class Nickname(commands.Cog):
       last_change_datetime = datetime.strptime (last_change, '%Y-%m-%d %H:%M:%S')
       duree = last_change_datetime - datetime.now()
       if duree.seconds > 1:
-        # I can'ttotal_seconds = duree.days*86400+duree.seconds
+        # I can't
+        total_seconds = duree.days*86400+duree.seconds
         await self.logger.log('nickname_log', member, message, True)
         await ctx.message.add_reaction('❌')
         await ctx.channel.send (f"Vous avez changé de pseudo récemment.\nIl vous faut attendre encore {self.format_time(total_seconds)}")
