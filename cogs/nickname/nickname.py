@@ -100,3 +100,12 @@ class Nickname(commands.Cog):
         to_ret += str(math.floor (current/obj_time [1]))+obj_time[0]+" "
         current = current%obj_time [1]
     return to_ret
+    
+
+  def has_role (self, member, guild_id):
+    for obj_role in member.roles:
+      if (    (obj_role.name in botconfig.config[str(guild_id)]['roles'])
+           or (obj_role.id in botconfig.config[str(guild_id)]['roles'])
+         ):
+        return True
+    return False
