@@ -47,7 +47,7 @@ class Nickname(commands.Cog):
       # write in db
       select = f"select * from last_nickname where guild_id='{guild_id}' and member_id='{member.id}'"
       fetched = self.db.fetch_one_line (select)
-      if fetched:
+      if not fetched:
         sql = f"insert into last_nickname values ('{member.id}', '{guild_id}', datetime('now'))"
       else:
         sql = f"update last_nickname set last_change=datetime('now') where member_id='{member.id}' and guild_id='{guild_id}'"
