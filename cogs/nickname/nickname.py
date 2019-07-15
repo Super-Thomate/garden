@@ -26,6 +26,7 @@ class Nickname(commands.Cog):
     nickname_delay = botconfig.config[str(guild_id)]['nickname_delay']
     sql = f'select  datetime(last_change, \'{nickname_delay}\') from last_nickname where guild_id=\'{guild_id}\' and member_id=\'{member.id}\''
     fetched = self.db.fetch_one_line (sql)
+    print (f"for {sql}\nget {fetched}")
     if fetched:
       last_change = fetched [0]
       last_change_datetime = datetime.strptime (last_change, '%Y-%m-%d %H:%M:%S')
