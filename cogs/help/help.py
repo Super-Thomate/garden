@@ -42,6 +42,7 @@ class Help(commands.Cog):
     embed.description = "*Les commandes de ce cog ne sont utilisables que par les admins ou modérateurs spécifiés au bot.*"
     embed.add_field (name="**SUF :**", value="- `-setinvitelog (-sil)` - définir le channel actuel pour les logs des invitations\n", inline=False)
     embed.add_field (name="**AR :**", value="- `-setgallerylog (-sgl)` - définir le channel actuel pour les logs des jetons\n", inline=False)
+    embed.add_field (name="**Général :**", value="- `-setnicknamelog (-snl)` - définir le channel actuel pour les logs des pseudos\n", inline=False)
     embed.set_author(icon_url=infos.avatar_url, name=str(infos))
     embed.timestamp = datetime.today()
     return embed
