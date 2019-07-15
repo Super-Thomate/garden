@@ -45,7 +45,7 @@ class Nickname(commands.Cog):
       print (f"{type(e).__name__} - {e}")
     if not error:
       # write in db
-      select = f"select * from from last_nickname where guild_id='{guild_id}' and member_id='{member.id}'"
+      select = f"select * from last_nickname where guild_id='{guild_id}' and member_id='{member.id}'"
       fetched = self.db.fetch_one_line (select)
       if fetched:
         sql = f"insert into last_nickname values ('{member.id}', '{guild_id}', datetime('now'))"
