@@ -1,5 +1,6 @@
 import discord
 import botconfig
+import math
 from discord.ext import commands
 from datetime import datetime
 from ..logs import Logs
