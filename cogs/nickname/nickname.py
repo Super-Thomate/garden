@@ -95,6 +95,7 @@ class Nickname(commands.Cog):
     sql = f'select  datetime(last_change, \'{nickname_delay}\') from last_nickname where guild_id=\'{guild_id}\' and member_id=\'{member.id}\''
     fetched = self.db.fetch_one_line (sql)
     print (f"for {sql}\nget {fetched}")
+    await self.logger.log('nickname_log', member, ctx.message, False)
     if fetched:
       last_change = fetched [0]
       last_change_datetime = datetime.strptime (last_change, '%Y-%m-%d %H:%M:%S')
@@ -102,9 +103,8 @@ class Nickname(commands.Cog):
       if duree.seconds > 1:
         total_seconds = duree.days*86400+duree.seconds
         await ctx.send (f"Il vous faut attendre encore {self.format_time(total_seconds)}")
-      else:
-        await ctx.send (f"Vous pouvez changer de pseudo dès maintenant")
-    await self.logger.log('nickname_log', member, ctx.message, False)
+        return
+    await ctx.send (f"Vous pouvez changer de pseudo dès maintenant")
 
   def format_time(self, timestamp):
     timer = [   ["j", 86400]
