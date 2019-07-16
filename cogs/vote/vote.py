@@ -1,6 +1,7 @@
 import discord
 from discord.ext import commands
 from Utils import Utils
+from ..logs import logs
 from database import Database
 from datetime import date
 
@@ -8,6 +9,8 @@ class Vote(commands.Cog):
   def __init__(self, bot):
     self.bot = bot
     self.utils = Utils()
+    self.logger = Logs(self.bot)
+    self.db = Database()
   
   @commands.command(name='createvote', aliases=['vote'])
   @commands.guild_only()
@@ -17,7 +20,7 @@ class Vote(commands.Cog):
     author = ctx.author
     guild_id = ctx.guild.id
     if not self.utils.has_role (author, guild_id):
-      pritn ("No permissions")
+      print ("No permissions")
       await ctx.message.add_reaction ('❌')
       return
     # date
@@ -26,16 +29,28 @@ class Vote(commands.Cog):
     year = str(today.year)
     # reason
     reason = ' '.join(arg for arg in args)
+    reason = reason or "Vote pour le changement de nom du rôle des membres"
+    # description
+    description = "Test description"
+    error = False
     # Embed capturing our vote 
+    embed = self.create_embed(reason, description, month, year)
+    poll = await ctx.send(content=None, embed=embed)
+    # insert into vote_message values ('message_id', 'channel_id', 'month', 'year', 'guild_id')
+    sql = f"insert into vote_message values ({poll.id}', '{ctx.channel.id}', '{month}', '{year}', '{guild_id}')"
+    ctx.send (f"`{sql}`")
+    await self.logger.log('vote_log', author, ctx.message, error)
+  
+  def create_embed(self, reason, description, month, year):
     colour = discord.Colour(0)
     colour = colour.from_rgb(231, 184, 255)
     embed = discord.Embed(colour=colour)
     embed.set_author(icon_url=self.bot.user.avatar_url, name=self.bot.user.display_name)
-    embed.description = reason or "Vote pour le changement de nom du rôle des membres"
+    embed.title = reason
+    embed.description = description
     embed.set_footer(text=f"{month}/{year}")
-    poll = await ctx.send(content=None, embed=embed)
-    # insert into vote_message values ('message_id', 'channel_id', 'month', 'year', 'guild_id')
-    sql = f"insert into vote_message values ('', '', '', '', '')"
+    return embed
+    
 """
 cursor.execute('CREATE TABLE IF NOT EXISTS `vote_propositions` (`proposition` VARCHAR(512) NOT NULL,`emoji` VARCHAR(256) NOT NULL, `month` VARCHAR(2) NOT NULL, `year` VARCHAR(4) NOT NULL, `author_id` VARCHAR(256) NOT NULL, `message_id` VARCHAR(256) NOT NULL, `guild_id` VARCHAR(256) NOT NULL, PRIMARY KEY (`author_id`, `month`, `year`)) ;')
 cursor.execute('CREATE TABLE IF NOT EXISTS `vote_colors` (`color` VARCHAR(6) NOT NULL,`emoji` VARCHAR(256) NOT NULL, `month` VARCHAR(2) NOT NULL, `year` VARCHAR(4) NOT NULL, `author_id` VARCHAR(256) NOT NULL, `message_id` VARCHAR(256) NOT NULL, `guild_id` VARCHAR(256) NOT NULL, PRIMARY KEY (`author_id`, `month`, `year`)) ;')
