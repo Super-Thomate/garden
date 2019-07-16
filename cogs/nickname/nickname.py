@@ -87,7 +87,7 @@ class Nickname(commands.Cog):
     await self.logger.log('nickname_log', member, ctx.message, error)
 
 
-  @commands.command(name='next')
+  @commands.command(name='next', aliases=['nextnickname'])
   async def next_nickname(self, ctx):
     member = ctx.author
     guild_id = ctx.guild.id
