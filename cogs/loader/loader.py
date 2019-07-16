@@ -46,3 +46,18 @@ class Loader(commands.Cog):
       await ctx.send(f'**`ERROR:`** {type(e).__name__} - {e}')
     else:
       await ctx.send('**`SUCCESS`**')
+  
+  @commands.command(name='listcogs', hidden=True, aliases=['lc'])
+  @commands.is_owner()
+  async def list_load(self, ctx):
+    """Command which lists all loaded cogs
+    """
+    all_loaded = ""
+    for name in self.bot.cogs.keys():
+      all_loaded += f"- **{name}**\n"
+    if not len (all_loaded):
+      all_loaded = "**NONE**"
+    try:
+      await ctx.send (all_loaded)
+    except Exception as e:
+      print(f'{type(e).__name__} - {e}')
