@@ -40,9 +40,20 @@ class Help(commands.Cog):
     colour = colour.from_rgb(176, 255, 176)
     embed = discord.Embed(colour=colour, title="**LOGS COG HELP**")
     embed.description = "*Les commandes de ce cog ne sont utilisables que par les admins ou modérateurs spécifiés au bot.*"
-    embed.add_field (name="**SUF :**", value="- `-setinvitelog (-sil)` - définir le channel actuel pour les logs des invitations\n", inline=False)
-    embed.add_field (name="**AR :**", value="- `-setgallerylog (-sgl)` - définir le channel actuel pour les logs des jetons\n", inline=False)
-    embed.add_field (name="**Général :**", value="- `-setnicknamelog (-snl)` - définir le channel actuel pour les logs des pseudos\n", inline=False)
+    embed.add_field (name="**SUF :**", value="- `-setinvitelog (-sil)` - définir le channel actuel pour les logs des invitations", inline=False)
+    embed.add_field (name="**AR :**", value="- `-setgallerylog (-sgl)` - définir le channel actuel pour les logs des jetons", inline=False)
+    embed.add_field (name="**Général :**", value="- `-setnicknamelog (-snl)` - définir le channel actuel pour les logs des pseudos", inline=False)
+    embed.set_author(icon_url=infos.avatar_url, name=str(infos))
+    embed.timestamp = datetime.today()
+    return embed
+
+  def help_nickname (self):
+    infos = self.bot.user
+    colour = discord.Colour(0)
+    colour = colour.from_rgb(176, 255, 176)
+    embed = discord.Embed(colour=colour, title="**NICKNAME COG HELP**")
+    embed.add_field (name="**Commandes utilisateur :**", value="- `nickname/pseudo <pseudo voulu> ` - définir le pseudo de l'utilisateur pour ce serveur\n- `next ` - montre le temps restant avant le prochain changement disponible\n- `help nickname ` - montre ce message", inline=False)
+    embed.add_field (name="**Commandes admin/modérateur :**", value="- `resetnickname (rn) <UserID>` - remet à 0 le timer pour l'utilisateur défini\n- `setnickcd (ncd) <time>` - définir le temps entre chaque changement de pseudo (en jours)\n- `setnicknamelog (snl)` - définir le channel actuel pour les logs des changements de pseudo", inline=False)
     embed.set_author(icon_url=infos.avatar_url, name=str(infos))
     embed.timestamp = datetime.today()
     return embed
