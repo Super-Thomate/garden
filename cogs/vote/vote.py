@@ -1,7 +1,7 @@
 import discord
 from discord.ext import commands
 from Utils import Utils
-from ..logs import logs
+from ..logs import Logs
 from database import Database
 from datetime import date
 
