@@ -33,7 +33,7 @@ class Logs(commands.Cog):
       if not prev_log_channel:
         sql = "INSERT INTO invite_log VALUES ('{0}', '{1}')".format(log_channel.id, guild_id)
       else:
-        sql = "update invite_log set channel_id='{log_channel.id}' where guild_id='{guild_id}'"
+        sql = f"update invite_log set channel_id='{log_channel.id}' where guild_id='{guild_id}'"
       self.db.execute_order(sql, [])
       await log_channel.send ("Logs for invite will be put here")
     except Exception as e:
@@ -56,7 +56,7 @@ class Logs(commands.Cog):
       if not prev_log_channel:
         sql = "INSERT INTO galerie_log VALUES ('{0}', '{1}')".format(log_channel.id, guild_id)
       else:
-        sql = "update galerie_log set channel_id='{log_channel.id}' where guild_id='{guild_id}'"
+        sql = f"update galerie_log set channel_id='{log_channel.id}' where guild_id='{guild_id}'"
       self.db.execute_order(sql, [])
       await log_channel.send ("Logs for galerie will be put here")
     except Exception as e:
@@ -77,7 +77,7 @@ class Logs(commands.Cog):
       if not prev_log_channel:
         sql = "INSERT INTO nickname_log VALUES ('{0}', '{1}')".format(log_channel.id, guild_id)
       else:
-        sql = "update nickname_log set channel_id='{log_channel.id}' where guild_id='{guild_id}'"
+        sql = f"update nickname_log set channel_id='{log_channel.id}' where guild_id='{guild_id}'"
       self.db.execute_order(sql, [])
       await log_channel.send ("Logs for nickname will be put here")
     except Exception as e:
