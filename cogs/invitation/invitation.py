@@ -6,7 +6,8 @@ import re
 from discord.ext import commands
 from datetime import datetime
 from ..logs import Logs
-from ..database import Database
+from database import Database
+from Utils import Utils
 try: # check if BeautifulSoup4 is installed
   from bs4 import BeautifulSoup
   soupAvailable = True
@@ -17,17 +18,9 @@ import aiohttp
 class Invitation(commands.Cog):
   def __init__(self, bot):
     self.bot = bot
+    self.utils = Utils()
     self.logger = Logs(self.bot)
     self.db = Database()
-
-  def has_role (self, member, guild_id):
-    for obj_role in member.roles:
-      if (    (obj_role.name in botconfig.config[str(guild_id)]['roles'])
-           or (obj_role.id in botconfig.config[str(guild_id)]['roles'])
-         ):
-        return True
-    return False
-
 
   @commands.command(name='cleanchannel', aliases=['cc'])
   @commands.guild_only()
@@ -49,7 +42,7 @@ class Invitation(commands.Cog):
     print (f"invite_channel: {invite_channel}")
     print (f"galerie_channel : {galerie_channel}")
     print (f"channel.id : {channel.id}")
-    if not self.has_role (member, guild_id):
+    if not self.utils.has_role (member, guild_id):
       print ("Missing permissions")
       return
     if not ((botconfig.config[str(guild_id)]['do_invite']) or (botconfig.config[str(guild_id)]['do_token'])):
@@ -76,7 +69,7 @@ class Invitation(commands.Cog):
     """Send the invitation's link in a DM"""
     member = member or ctx.author
     guild_id = ctx.guild.id
-    if not self.has_role (ctx.author, guild_id):
+    if not self.utils.has_role (ctx.author, guild_id):
       print ("Missing permissions")
       return
     if not botconfig.config[str(guild_id)]["do_invite"]:
@@ -110,7 +103,7 @@ class Invitation(commands.Cog):
   async def reset_invite(self, ctx, member: discord.Member = None):
     member = member or ctx.author
     guild_id = ctx.guild.id
-    if not self.has_role (ctx.author, guild_id):
+    if not self.utils.has_role (ctx.author, guild_id):
       print ("Missing permissions")
       return
     if not botconfig.config[str(guild_id)]["do_invite"]:
@@ -131,7 +124,7 @@ class Invitation(commands.Cog):
     """Send the token's link in a DM"""
     member = member or ctx.author
     guild_id = ctx.guild.id
-    if not self.has_role (ctx.author, guild_id):
+    if not self.utils.has_role (ctx.author, guild_id):
       print ("Missing permissions")
       return
     if not botconfig.config[str(guild_id)]["do_token"]:
@@ -165,7 +158,7 @@ class Invitation(commands.Cog):
     invite_channel = channel or ctx.channel
     member = ctx.author
     guild_id = ctx.message.guild.id
-    if not self.has_role (member, guild_id):
+    if not self.utils.has_role (member, guild_id):
       print ("Missing permissions")
       return
     if not botconfig.config[str(guild_id)]["do_invite"]:
@@ -187,7 +180,7 @@ class Invitation(commands.Cog):
     galerie_channel = channel or ctx.channel
     member = ctx.author
     guild_id = ctx.message.guild.id
-    if not self.has_role (member, guild_id):
+    if not self.utils.has_role (member, guild_id):
       print ("Missing permissions")
       return
     if not botconfig.config[str(guild_id)]["do_token"]:
@@ -205,7 +198,7 @@ class Invitation(commands.Cog):
   async def set_invite_message(self, ctx, *args):
     guild_id = ctx.message.guild.id
     member = ctx.author
-    if not self.has_role (member, guild_id):
+    if not self.utils.has_role (member, guild_id):
       print ("Missing permissions")
       return
     if not botconfig.config[str(guild_id)]["do_invite"]:
@@ -229,7 +222,7 @@ class Invitation(commands.Cog):
   async def set_galerie_message(self, ctx, *args):
     guild_id = ctx.message.guild.id
     member = ctx.author
-    if not self.has_role (member, guild_id):
+    if not self.utils.has_role (member, guild_id):
       print ("Missing permissions")
       return
     if not botconfig.config[str(guild_id)]["do_token"]:
@@ -313,7 +306,7 @@ class Invitation(commands.Cog):
           total_seconds = duree.days*86400+duree.seconds
           await self.logger.log('invite_log', member, message, True)
           await message.add_reaction('❌')
-          await message.channel.send(f"Vous avez déjà demandé une invitation récemment.\nIl vous faut attendre encore {self.format_time(total_seconds)}")
+          await message.channel.send(f"Vous avez déjà demandé une invitation récemment.\nIl vous faut attendre encore {self.utils.format_time(total_seconds)}")
           return
     try:
       colour = discord.Colour(0)
@@ -409,17 +402,3 @@ class Invitation(commands.Cog):
       response = await session.get(url)
       soupObject = BeautifulSoup(await response.text(), "html.parser")
       return soupObject.p.get_text().replace(";","")
-
-  def format_time(self, timestamp):
-    timer = [   ["j", 86400]
-              , ["h", 3600]
-              , ["m", 60]
-              , ["s", 1]
-            ]
-    current = timestamp
-    to_ret = ""
-    for obj_time in timer:
-      if math.floor (current/obj_time [1]) > 0:
-        to_ret += str(math.floor (current/obj_time [1]))+obj_time[0]+" "
-        current = current%obj_time [1]
-    return to_ret

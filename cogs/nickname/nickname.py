@@ -4,11 +4,13 @@ import math
 from discord.ext import commands
 from datetime import datetime
 from ..logs import Logs
-from ..database import Database
+from database import Database
+from Utils import Utils
 
 class Nickname(commands.Cog):
   def __init__(self, bot):
     self.bot = bot
+    self.utils = Utils()
     self.logger = Logs(self.bot)
     self.db = Database()
 
@@ -37,7 +39,7 @@ class Nickname(commands.Cog):
         total_seconds = duree.days*86400+duree.seconds
         await self.logger.log('nickname_log', member, message, True)
         await ctx.message.add_reaction('❌')
-        await ctx.channel.send (f"Vous avez changé de pseudo récemment.\nIl vous faut attendre encore {self.format_time(total_seconds)}")
+        await ctx.channel.send (f"Vous avez changé de pseudo récemment.\nIl vous faut attendre encore {self.utils.format_time(total_seconds)}")
         return
     # Change my Nickname
     error = False
@@ -72,7 +74,7 @@ class Nickname(commands.Cog):
   async def reset_nickname(self, ctx, member: discord.Member = None):
     member = member or ctx.author
     guild_id = ctx.guild.id
-    if not self.has_role (ctx.author, guild_id):
+    if not self.utils.has_role (ctx.author, guild_id):
       print ("Missing permissions")
       return
     sql = f"delete from last_nickname where guild_id='{guild_id}' and member_id='{member.id}'"
@@ -102,29 +104,6 @@ class Nickname(commands.Cog):
       duree = last_change_datetime - datetime.now()
       if duree.seconds > 1:
         total_seconds = duree.days*86400+duree.seconds
-        await ctx.send (f"Il vous faut attendre encore {self.format_time(total_seconds)}")
+        await ctx.send (f"Il vous faut attendre encore {self.utils.format_time(total_seconds)}")
         return
     await ctx.send (f"Vous pouvez changer de pseudo dès maintenant")
-
-  def format_time(self, timestamp):
-    timer = [   ["j", 86400]
-              , ["h", 3600]
-              , ["m", 60]
-              , ["s", 1]
-            ]
-    current = timestamp
-    to_ret = ""
-    for obj_time in timer:
-      if math.floor (current/obj_time [1]) > 0:
-        to_ret += str(math.floor (current/obj_time [1]))+obj_time[0]+" "
-        current = current%obj_time [1]
-    return to_ret
-    
-
-  def has_role (self, member, guild_id):
-    for obj_role in member.roles:
-      if (    (obj_role.name in botconfig.config[str(guild_id)]['roles'])
-           or (obj_role.id in botconfig.config[str(guild_id)]['roles'])
-         ):
-        return True
-    return False

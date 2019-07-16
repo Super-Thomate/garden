@@ -2,26 +2,20 @@ import discord
 import botconfig
 from discord.ext import commands
 from datetime import datetime
-from ..database import Database
+from database import Database
+from Utils import Utils
 
 class Logs(commands.Cog):
   def __init__ (self, bot):
     self.bot = bot
     self.db = Database()
-
-  def has_role (self, member, guild_id):
-    for obj_role in member.roles:
-      if (    (obj_role.name in botconfig.config[str(guild_id)]['roles'])
-           or (obj_role.id in botconfig.config[str(guild_id)]['roles'])
-         ):
-        return True
-    return False
+    self.utils = Utils()
 
   @commands.command(name='setinvitelog', aliases=['setinvite', 'sil', 'invitelog'])
   async def set_invitation_log(self, ctx, channel: discord.TextChannel = None):
     guild_id = ctx.message.guild.id
     member = ctx.author
-    if not self.has_role (member, guild_id):
+    if not self.utils.has_role (member, guild_id):
       print ("Missing permissions")
       return
     if not botconfig.config[str(guild_id)]["do_invite"]:
@@ -43,7 +37,7 @@ class Logs(commands.Cog):
   async def set_galerie_log(self, ctx, channel: discord.TextChannel = None):
     guild_id = ctx.message.guild.id
     member = ctx.author
-    if not self.has_role (member, guild_id):
+    if not self.utils.has_role (member, guild_id):
       print ("Missing permissions")
       return
     if not botconfig.config[str(guild_id)]["do_token"]:
@@ -66,7 +60,7 @@ class Logs(commands.Cog):
   async def set_nickname_log(self, ctx, channel: discord.TextChannel = None):
     guild_id = ctx.message.guild.id
     member = ctx.author
-    if not self.has_role (member, guild_id):
+    if not self.utils.has_role (member, guild_id):
       print ("Missing permissions")
       return
     try:
