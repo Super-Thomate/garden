@@ -87,6 +87,24 @@ class Nickname(commands.Cog):
     await self.logger.log('nickname_log', member, ctx.message, error)
 
 
+  @commands.command(name='next')
+  async def next_nickname(self, ctx):
+    member = ctx.author
+    guild_id = ctx.guild.id
+    sql = f'select  datetime(last_change, \'{nickname_delay}\') from last_nickname where guild_id=\'{guild_id}\' and member_id=\'{member.id}\''
+    fetched = self.db.fetch_one_line (sql)
+    print (f"for {sql}\nget {fetched}")
+    if fetched:
+      last_change = fetched [0]
+      last_change_datetime = datetime.strptime (last_change, '%Y-%m-%d %H:%M:%S')
+      duree = last_change_datetime - datetime.now()
+      if duree.seconds > 1:
+        total_seconds = duree.days*86400+duree.seconds
+        await ctx.send (f"Il vous faut attendre encore {self.format_time(total_seconds)}")
+      else:
+        await ctx.send (f"Vous pouvez changer de pseudo dès maintenant")
+    await self.logger.log('nickname_log', member, ctx.message, False)
+
   def format_time(self, timestamp):
     timer = [   ["j", 86400]
               , ["h", 3600]
