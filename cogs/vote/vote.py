@@ -38,7 +38,7 @@ class Vote(commands.Cog):
     poll = await ctx.send(content=None, embed=embed)
     # insert into vote_message values ('message_id', 'channel_id', 'month', 'year', 'guild_id')
     sql = f"insert into vote_message values ({poll.id}', '{ctx.channel.id}', '{month}', '{year}', '{guild_id}')"
-    ctx.send (f"`{sql}`")
+    await ctx.send (f"`{sql}`")
     await self.logger.log('vote_log', author, ctx.message, error)
   
   def create_embed(self, reason, description, month, year):
