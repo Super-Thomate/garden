@@ -53,9 +53,9 @@ class Nickname(commands.Cog):
       select = f"select * from last_nickname where guild_id='{guild_id}' and member_id='{member.id}'"
       fetched = self.db.fetch_one_line (select)
       if not fetched:
-        sql = f"insert into last_nickname values ('{member.id}', '{guild_id}', datetime('now'))"
+        sql = f"insert into last_nickname values ('{member.id}', '{guild_id}', datetime('{datetime.now()}'))"
       else:
-        sql = f"update last_nickname set last_change=datetime('now') where member_id='{member.id}' and guild_id='{guild_id}'"
+        sql = f"update last_nickname set last_change=datetime('{datetime.now()}') where member_id='{member.id}' and guild_id='{guild_id}'"
       try:
         self.db.execute_order (sql, [])
       except Exception as e:
