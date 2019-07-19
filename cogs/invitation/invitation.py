@@ -296,14 +296,13 @@ class Invitation(commands.Cog):
       invite_delay = botconfig.config[str(guild_id)]['invite_delay']
       sql = f"select datetime(last, '{invite_delay}') from last_invite where guild_id='{message.guild.id}' and member_id='{member.id}'"
       last_invite = self.db.fetch_one_line (sql)
-      print (sql)
-      print (last_invite)
       if last_invite and last_invite[0]:
         last = last_invite[0]
         last_datetime = datetime.strptime (last, '%Y-%m-%d %H:%M:%S')
         duree = last_datetime - datetime.now()
         if duree.seconds > 1:
           total_seconds = duree.days*86400+duree.seconds
+          print (total_seconds)
           await self.logger.log('invite_log', member, message, True)
           await message.add_reaction('❌')
           await message.channel.send(f"Vous avez déjà demandé une invitation récemment.\nIl vous faut attendre encore {self.utils.format_time(total_seconds)}")
@@ -358,12 +357,10 @@ class Invitation(commands.Cog):
         # LOG LAST INVITE
         sql = f"select * from last_invite where guild_id='{message.guild.id}' and member_id='{member.id}'"
         last_invite = self.db.fetch_one_line (sql)
-        print (last_invite)
         if not last_invite:
-          sql = f"insert into last_invite values ('{member.id}', '{message.guild.id}', datetime('now'))"
+          sql = f"insert into last_invite values ('{member.id}', '{message.guild.id}', datetime('{datetime.now()}'))"
         else:
-          sql = f"update last_invite set last=datetime('now') where member_id='{member.id}' and guild_id='{message.guild.id}'"
-        print (sql)
+          sql = f"update last_invite set last=datetime('{datetime.now()}') where member_id='{member.id}' and guild_id='{message.guild.id}'"
         try:
           self.db.execute_order (sql, [])
         except Exception as e:

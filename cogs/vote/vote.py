@@ -126,9 +126,9 @@ class Vote(commands.Cog):
   @commands.command(name='addproposition', aliases=['add'])
   @commands.guild_only()
   async def add_proposition(self, ctx, message_id: str = None):
-    """ Set a title for a vote message
+    """ Add a proposition
     """
-    await self.handle_result (ctx, message_id, "title")
+    
 
 
   def create_embed(self, reason, description, month, year):
