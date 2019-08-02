@@ -29,5 +29,7 @@ class Utils():
       if math.floor (current/obj_time [1]) > 0:
         to_ret += str(math.floor (current/obj_time [1]))+obj_time[0]+" "
         current = current%obj_time [1]
+    if not len(to_ret):
+      print ("to ret is empty")
     return to_ret
 
