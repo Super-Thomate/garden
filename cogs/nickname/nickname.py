@@ -102,7 +102,7 @@ class Nickname(commands.Cog):
       last_change = fetched [0]
       last_change_datetime = datetime.strptime (last_change, '%Y-%m-%d %H:%M:%S')
       duree = last_change_datetime - datetime.now()
-      if duree.seconds > 1:
+      if duree.seconds > 1 and duree.days >= 0:
         total_seconds = duree.days*86400+duree.seconds
         print (f"duree.days: {duree.days}")
         print (f"total_seconds: {total_seconds}")
