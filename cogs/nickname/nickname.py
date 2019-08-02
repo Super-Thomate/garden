@@ -104,6 +104,7 @@ class Nickname(commands.Cog):
       duree = last_change_datetime - datetime.now()
       if duree.seconds > 1:
         total_seconds = duree.days*86400+duree.seconds
+        print (f"total_seconds: {total_seconds}")
         await ctx.send (f"Il vous faut attendre encore {self.utils.format_time(total_seconds)}")
         return
     await ctx.send (f"Vous pouvez changer de pseudo dès maintenant")

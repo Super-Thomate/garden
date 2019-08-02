@@ -24,6 +24,7 @@ class Utils():
               , ["s", 1]
             ]
     current = timestamp
+    print (f"current: {current}")
     to_ret = ""
     for obj_time in timer:
       if math.floor (current/obj_time [1]) > 0:
