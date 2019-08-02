@@ -300,7 +300,7 @@ class Invitation(commands.Cog):
         last = last_invite[0]
         last_datetime = datetime.strptime (last, '%Y-%m-%d %H:%M:%S')
         duree = last_datetime - datetime.now()
-        if duree.seconds > 1:
+        if duree.seconds > 1 and duree.days >= 0:
           total_seconds = duree.days*86400+duree.seconds
           print (total_seconds)
           await self.logger.log('invite_log', member, message, True)
