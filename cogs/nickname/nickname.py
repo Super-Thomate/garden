@@ -34,7 +34,7 @@ class Nickname(commands.Cog):
       last_change = fetched [0]
       last_change_datetime = datetime.strptime (last_change, '%Y-%m-%d %H:%M:%S')
       duree = last_change_datetime - datetime.now()
-      if duree.seconds > 1 and duree.days >= 0::
+      if duree.seconds > 1 and duree.days >= 0:
         # I can't
         total_seconds = duree.days*86400+duree.seconds
         await self.logger.log('nickname_log', member, message, True)
