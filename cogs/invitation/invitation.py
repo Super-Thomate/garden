@@ -42,7 +42,7 @@ class Invitation(commands.Cog):
     print (f"invite_channel: {invite_channel}")
     print (f"galerie_channel : {galerie_channel}")
     print (f"channel.id : {channel.id}")
-    if not self.utils.has_role (member, guild_id):
+    if not self.utils.is_authorized (member, guild_id):
       print ("Missing permissions")
       return
     if not ((botconfig.config[str(guild_id)]['do_invite']) or (botconfig.config[str(guild_id)]['do_token'])):
@@ -69,7 +69,7 @@ class Invitation(commands.Cog):
     """Send the invitation's link in a DM"""
     member = member or ctx.author
     guild_id = ctx.guild.id
-    if not self.utils.has_role (ctx.author, guild_id):
+    if not self.utils.is_authorized (ctx.author, guild_id):
       print ("Missing permissions")
       return
     if not botconfig.config[str(guild_id)]["do_invite"]:
@@ -103,7 +103,7 @@ class Invitation(commands.Cog):
   async def reset_invite(self, ctx, member: discord.Member = None):
     member = member or ctx.author
     guild_id = ctx.guild.id
-    if not self.utils.has_role (ctx.author, guild_id):
+    if not self.utils.is_authorized (ctx.author, guild_id):
       print ("Missing permissions")
       return
     if not botconfig.config[str(guild_id)]["do_invite"]:
@@ -124,7 +124,7 @@ class Invitation(commands.Cog):
     """Send the token's link in a DM"""
     member = member or ctx.author
     guild_id = ctx.guild.id
-    if not self.utils.has_role (ctx.author, guild_id):
+    if not self.utils.is_authorized (ctx.author, guild_id):
       print ("Missing permissions")
       return
     if not botconfig.config[str(guild_id)]["do_token"]:
@@ -158,7 +158,7 @@ class Invitation(commands.Cog):
     invite_channel = channel or ctx.channel
     member = ctx.author
     guild_id = ctx.message.guild.id
-    if not self.utils.has_role (member, guild_id):
+    if not self.utils.is_authorized (member, guild_id):
       print ("Missing permissions")
       return
     if not botconfig.config[str(guild_id)]["do_invite"]:
@@ -180,7 +180,7 @@ class Invitation(commands.Cog):
     galerie_channel = channel or ctx.channel
     member = ctx.author
     guild_id = ctx.message.guild.id
-    if not self.utils.has_role (member, guild_id):
+    if not self.utils.is_authorized (member, guild_id):
       print ("Missing permissions")
       return
     if not botconfig.config[str(guild_id)]["do_token"]:
@@ -198,7 +198,7 @@ class Invitation(commands.Cog):
   async def set_invite_message(self, ctx, *args):
     guild_id = ctx.message.guild.id
     member = ctx.author
-    if not self.utils.has_role (member, guild_id):
+    if not self.utils.is_authorized (member, guild_id):
       print ("Missing permissions")
       return
     if not botconfig.config[str(guild_id)]["do_invite"]:
@@ -222,7 +222,7 @@ class Invitation(commands.Cog):
   async def set_galerie_message(self, ctx, *args):
     guild_id = ctx.message.guild.id
     member = ctx.author
-    if not self.utils.has_role (member, guild_id):
+    if not self.utils.is_authorized (member, guild_id):
       print ("Missing permissions")
       return
     if not botconfig.config[str(guild_id)]["do_token"]:

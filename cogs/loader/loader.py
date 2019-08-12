@@ -12,7 +12,7 @@ class Loader(commands.Cog):
   async def do_load(self, ctx, *, cog: str):
     """Command which Loads a Module.
     Remember to use dot path. e.g: cogs.greetings"""
-    if not self.utils.has_role (ctx.author, ctx.guild.id):
+    if not self.utils.is_authorized (ctx.author, ctx.guild.id):
       print ("Missing permissions")
       return
     try:
@@ -26,7 +26,7 @@ class Loader(commands.Cog):
   async def do_unload(self, ctx, *, cog: str):
     """Command which Unloads a Module.
     Remember to use dot path. e.g: cogs.greetings"""
-    if not self.utils.has_role (ctx.author, ctx.guild.id):
+    if not self.utils.is_authorized (ctx.author, ctx.guild.id):
       print ("Missing permissions")
       return
     try:
@@ -40,7 +40,7 @@ class Loader(commands.Cog):
   async def do_reload(self, ctx, *, cog: str):
     """Command which Reloads a Module.
     Remember to use dot path. e.g: cogs.greetings"""
-    if not self.utils.has_role (ctx.author, ctx.guild.id):
+    if not self.utils.is_authorized (ctx.author, ctx.guild.id):
       print ("Missing permissions")
       return
     try:
@@ -55,7 +55,7 @@ class Loader(commands.Cog):
   async def list_load(self, ctx):
     """Command which lists all loaded cogs
     """
-    if not self.utils.has_role (ctx.author, ctx.guild.id):
+    if not self.utils.is_authorized (ctx.author, ctx.guild.id):
       print ("Missing permissions")
       return
     all_loaded = ""

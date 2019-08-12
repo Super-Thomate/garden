@@ -15,7 +15,7 @@ class Logs(commands.Cog):
   async def set_invitation_log(self, ctx, channel: discord.TextChannel = None):
     guild_id = ctx.message.guild.id
     member = ctx.author
-    if not self.utils.has_role (member, guild_id):
+    if not self.utils.is_authorized (member, guild_id):
       print ("Missing permissions")
       return
     if not botconfig.config[str(guild_id)]["do_invite"]:
@@ -37,7 +37,7 @@ class Logs(commands.Cog):
   async def set_galerie_log(self, ctx, channel: discord.TextChannel = None):
     guild_id = ctx.message.guild.id
     member = ctx.author
-    if not self.utils.has_role (member, guild_id):
+    if not self.utils.is_authorized (member, guild_id):
       print ("Missing permissions")
       return
     if not botconfig.config[str(guild_id)]["do_token"]:
@@ -60,7 +60,7 @@ class Logs(commands.Cog):
   async def set_nickname_log(self, ctx, channel: discord.TextChannel = None):
     guild_id = ctx.message.guild.id
     member = ctx.author
-    if not self.utils.has_role (member, guild_id):
+    if not self.utils.is_authorized (member, guild_id):
       print ("Missing permissions")
       return
     try:
@@ -81,7 +81,7 @@ class Logs(commands.Cog):
   async def set_vote_log(self, ctx, channel: discord.TextChannel = None):
     guild_id = ctx.message.guild.id
     member = ctx.author
-    if not self.utils.has_role (member, guild_id):
+    if not self.utils.is_authorized (member, guild_id):
       print ("Missing permissions")
       return
     try:
@@ -95,6 +95,29 @@ class Logs(commands.Cog):
         sql = f"update vote_log set channel_id='{log_channel.id}' where guild_id='{guild_id}'"
       self.db.execute_order(sql, [])
       await log_channel.send ("Logs for vote will be put here")
+    except Exception as e:
+      print (f" {type(e).__name__} - {e}")
+
+  @commands.command(name='setwelcomelog', aliases=['swl', 'welcomelog'])
+  async def set_welcome_log(self, ctx, channel: discord.TextChannel = None):
+    # useless
+    return 
+    guild_id = ctx.message.guild.id
+    member = ctx.author
+    if not self.utils.is_authorized (member, guild_id):
+      print ("Missing permissions")
+      return
+    try:
+      log_channel = channel or ctx.message.channel
+      guild_id = ctx.message.guild.id
+      sql = f"select * from welcome_log where guild_id='{guild_id}'"
+      prev_log_channel = self.db.fetch_one_line (sql)
+      if not prev_log_channel:
+        sql = "INSERT INTO welcome_log VALUES ('{0}', '{1}')".format(log_channel.id, guild_id)
+      else:
+        sql = f"update welcome_log set channel_id='{log_channel.id}' where guild_id='{guild_id}'"
+      self.db.execute_order(sql, [])
+      await log_channel.send ("Logs for welcome will be put here")
     except Exception as e:
       print (f" {type(e).__name__} - {e}")
 

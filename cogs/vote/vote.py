@@ -20,7 +20,7 @@ class Vote(commands.Cog):
     """
     author = ctx.author
     guild_id = ctx.guild.id
-    if not self.utils.has_role (author, guild_id):
+    if not self.utils.is_authorized (author, guild_id):
       print ("No permissions")
       await ctx.message.add_reaction ('❌')
       return
@@ -61,7 +61,7 @@ class Vote(commands.Cog):
   async def handle_result (self, ctx, message_id, handle):
     author = ctx.author
     guild_id = ctx.guild.id
-    if not self.utils.has_role (author, guild_id):
+    if not self.utils.is_authorized (author, guild_id):
       print ("No permissions")
       await ctx.message.add_reaction ('❌')
       return

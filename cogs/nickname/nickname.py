@@ -74,7 +74,7 @@ class Nickname(commands.Cog):
   async def reset_nickname(self, ctx, member: discord.Member = None):
     member = member or ctx.author
     guild_id = ctx.guild.id
-    if not self.utils.has_role (ctx.author, guild_id):
+    if not self.utils.is_authorized (ctx.author, guild_id):
       print ("Missing permissions")
       return
     sql = f"delete from last_nickname where guild_id='{guild_id}' and member_id='{member.id}'"

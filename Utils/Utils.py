@@ -3,7 +3,7 @@ import botconfig
 
 
 class Utils():
-  def has_role (self, member, guild_id):
+  def is_authorized (self, member, guild_id):
     # if perm administrator => True
     for perm, value in member.guild_permissions:
       if perm == "administrator" and value:
@@ -33,4 +33,10 @@ class Utils():
     if not len(to_ret):
       print ("to ret is empty")
     return to_ret
+
+  def has_role (self, member, role_id):
+    for obj_role in member.roles:
+      if obj_role.id == int(role_id):
+        return True
+    return False
 
