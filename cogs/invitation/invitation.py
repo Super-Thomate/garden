@@ -276,14 +276,14 @@ class Invitation(commands.Cog):
                   and (botconfig.config[str(guild_id)]["do_token"])
                 )
            ):
-"""
+      """
       print (f"content: {message.content.lower()}")
       print (("invitation" in message.content.lower()) or ("compte" in message.content.lower()) or ("galerie" in message.content.lower()) or ("jeton" in message.content.lower()))
       print (f"message.channel.id: {message.channel.id}")
       print (f"invite_channel: {invite_channel}")
       print ((message.channel.id == invite_channel) or (message.channel.id == galerie_channel))
       print ((((("invitation" in message.content.lower())or ("compte" in message.content.lower()))and (message.channel.id == invite_channel)) or ((("galerie" in message.content.lower())or ("jeton" in message.content.lower())) and (message.channel.id == galerie_channel))))
-"""
+      """
       return
     member = message.author
     error = False
