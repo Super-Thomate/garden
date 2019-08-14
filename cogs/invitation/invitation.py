@@ -96,7 +96,7 @@ class Invitation(commands.Cog):
       print (f"{type(e).__name__} - {e}")
       await ctx.message.add_reaction('❌')
       error = True
-    await self.logger.log('invite_log', member, ctx.message, error)
+    await self.logger.log('invite_log', ctx.author, ctx.message, error)
 
 
   @commands.command(name='resetinvite', aliases=['ri'])
@@ -117,7 +117,7 @@ class Invitation(commands.Cog):
       print (f"{type(e).__name__} - {e}")
       await ctx.message.add_reaction('❌')
       error = True
-    await self.logger.log('invite_log', member, ctx.message, error)
+    await self.logger.log('invite_log', ctx.author, ctx.message, error)
 
   @commands.command(name='token')
   async def token(self, ctx, member: discord.Member = None):
@@ -151,7 +151,7 @@ class Invitation(commands.Cog):
       print (f" {type(e).__name__} - {e}")
       await ctx.message.add_reaction('❌')
       error = True
-    await self.logger.log('galerie_log', member, ctx.message, error)
+    await self.logger.log('galerie_log', ctx.author, ctx.message, error)
 
   @commands.command(name='setinvitechannel', aliases=['sic'])
   async def set_invite_channel(self, ctx, channel: discord.TextChannel = None):
@@ -276,12 +276,14 @@ class Invitation(commands.Cog):
                   and (botconfig.config[str(guild_id)]["do_token"])
                 )
            ):
+"""
       print (f"content: {message.content.lower()}")
       print (("invitation" in message.content.lower()) or ("compte" in message.content.lower()) or ("galerie" in message.content.lower()) or ("jeton" in message.content.lower()))
       print (f"message.channel.id: {message.channel.id}")
       print (f"invite_channel: {invite_channel}")
       print ((message.channel.id == invite_channel) or (message.channel.id == galerie_channel))
       print ((((("invitation" in message.content.lower())or ("compte" in message.content.lower()))and (message.channel.id == invite_channel)) or ((("galerie" in message.content.lower())or ("jeton" in message.content.lower())) and (message.channel.id == galerie_channel))))
+"""
       return
     member = message.author
     error = False
