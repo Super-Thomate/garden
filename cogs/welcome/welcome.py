@@ -4,10 +4,11 @@ from datetime import datetime
 from ..logs import Logs
 from database import Database
 from Utils import Utils
+import random
 
 
 class Welcome(commands.Cog):
- 
+
   """
   PublicWelcome:
   setwelcomechannel [channel_id]
@@ -48,10 +49,33 @@ class Welcome(commands.Cog):
         select = f"select message from welcome_message where guild_id='{guild_id}'"
         fetched = self.db.fetch_one_line (select)
         if fetched:
-           message = (fetched [0]).replace("$member", before.mention)
+           text = ""
+           # split around '{'
+           text_rand = (fetched [0]).split ('{')
+           print (f"text_rand: {text_rand}")
+           for current in text_rand:
+             parts = current.split ('}')
+             print (f"parts: {parts}")
+             for part in parts:
+               all_rand = part.split ("|")
+               print (f"all_rand: {all_rand}")
+               current_part = all_rand [random.randint(0,len(all_rand)-1)]
+               print (f"current_part: {current_part}")
+               text = text + current_part
+           """
+           if text.startswith('{') and text.endswith('}'):
+             # random
+             text = text [1:len(text)-1]
+             all_rand = text.split ("|")
+             index = random.randint(0,len(all_rand)-1)
+             text = all_rand [index]
+           """
+           message = text.replace("$member", before.mention).replace("$role", f"<@&{role_id}>")
         else:
            message = f"Welcome {before.mention} !"
         # send
+        if not len(message):
+          message = "TEST"
         await channel.send (message)
 
   @commands.command(name='setwelcomerole', aliases=['swr', 'welcomerole'])
@@ -87,7 +111,7 @@ class Welcome(commands.Cog):
       await ctx.message.add_reaction('❌')
     else:
       await ctx.message.add_reaction('✅')
-    # await self.logger.log('welcome_log', ctx.author, ctx.message, error) # no logs    
+    # await self.logger.log('welcome_log', ctx.author, ctx.message, error) # no logs
 
   @commands.command(name='setwelcomechannel', aliases=['swc', 'welcomechannel', 'wc'])
   async def set_welcome(self, ctx, *, channel: discord.TextChannel = None):
@@ -120,7 +144,7 @@ class Welcome(commands.Cog):
       await ctx.message.add_reaction('❌')
     else:
       await ctx.message.add_reaction('✅')
-    # await self.logger.log('welcome_log', ctx.author, ctx.message, error) # no logs    
+    # await self.logger.log('welcome_log', ctx.author, ctx.message, error) # no logs
 
   @commands.command(name='setwelcomemessage', aliases=['welcomemessage', 'swm'])
   async def set_welcome_message(self, ctx, *args):
