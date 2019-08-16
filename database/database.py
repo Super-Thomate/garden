@@ -4,11 +4,14 @@ import os
 
 
 class Database:
-  def __init__ (self):
+  def __init__ (self, instance=None):
     # get the path to project root
     dir_path = os.path.dirname(os.path.realpath(__file__))+'/'
     print (dir_path)
-    self.cnx = sqlite3.connect(dir_path+'../garden.db')
+    if not instance:
+      self.cnx = sqlite3.connect(dir_path+'../garden.db')
+    else:
+      self.cnx = sqlite3.connect(dir_path+'../garden_'+instance+'.db')
     self.create_table()
 
   def create_table(self):
