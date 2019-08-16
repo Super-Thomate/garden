@@ -58,6 +58,30 @@ class Help(commands.Cog):
     embed.timestamp = datetime.today()
     return embed
 
+  def help_vote (self):
+    infos = self.bot.user
+    colour = discord.Colour(0)
+    colour = colour.from_rgb(176, 255, 176)
+    embed = discord.Embed(colour=colour, title="**VOTE COG HELP**")
+    embed.description = ":warning: MessageID fait référence à l'identifiant du message embed de vote"
+    embed.add_field (   name="**Commandes utilisateur :**"
+                      , value="- `!addproposition ` - ajouter une proposition au vote en cours\n"+
+                              ""
+                      , inline=False)
+    embed.add_field (   name="**Commandes admin/modérateur :**"
+                      , value="- `!createvote (vote) [<titre>]` - créer un embed de vote avec un titres\n"+
+                              "- `!setdescription (setdesc) <MessageID>` - définir la description du vote\n"+
+                              "- `!settitle (title) <MessageID>` - définir le titre du vote\n"+
+                              "- `!closeproposition (cp) <MessageID>` - fermer la phase de proposition. Plus aucun `addproposition` ne sera accepté.\n"+
+                              "- `!closevote (cv) <MessageID>` - fermer la phase de vote. Plus aucun vote ne sera accepté.\n"+
+                              ""
+                      , inline=False)
+    embed.set_author(icon_url=infos.avatar_url, name=str(infos))
+    embed.timestamp = datetime.today()
+    return embed
+
+
+
   def help_global (self):
     print (self.bot.cogs)
     line_cogs = ""
