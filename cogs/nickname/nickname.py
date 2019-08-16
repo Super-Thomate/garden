@@ -86,7 +86,7 @@ class Nickname(commands.Cog):
       print (f"{type(e).__name__} - {e}")
       await ctx.message.add_reaction('❌')
       error = True
-    await self.logger.log('nickname_log', member, ctx.message, error)
+    await self.logger.log('nickname_log', ctx.author, ctx.message, error)
 
 
   @commands.command(name='next', aliases=['nextnickname'])
