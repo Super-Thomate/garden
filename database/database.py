@@ -4,10 +4,11 @@ import os
 
 
 class Database:
-  def __init__ (self, instance=None):
+  def __init__ (self):
     # get the path to project root
     dir_path = os.path.dirname(os.path.realpath(__file__))+'/'
     print (dir_path)
+    instance = sys.argv[1]
     if not instance:
       self.cnx = sqlite3.connect(dir_path+'../garden.db')
     else:
