@@ -41,6 +41,9 @@ class Database:
       cursor.execute('CREATE TABLE IF NOT EXISTS `welcome_message` (`message` TEXT NOT NULL, `guild_id` VARCHAR(256) NOT NULL, PRIMARY KEY (`guild_id`)) ;')
       cursor.execute('CREATE TABLE IF NOT EXISTS `welcome_role` (`role_id` VARCHAR(256) NOT NULL, `guild_id` VARCHAR(256) NOT NULL, PRIMARY KEY (`guild_id`)) ;')
       cursor.execute('CREATE TABLE IF NOT EXISTS `welcome_user` (`user_id` VARCHAR(256) NOT NULL, `guild_id` VARCHAR(256) NOT NULL, `welcomed_at` INTEGER NOT NULL, PRIMARY KEY (`user_id`, `guild_id`)) ;')
+      # alter table welcome_user rename to welcome_user_old ;
+      # CREATE TABLE IF NOT EXISTS `welcome_user` (`user_id` VARCHAR(256) NOT NULL, `guild_id` VARCHAR(256) NOT NULL, `welcomed_at` INTEGER NOT NULL, PRIMARY KEY (`user_id`, `guild_id`)) ;
+      # INSERT INTO welcome_user SELECT * FROM welcome_user_old;
 
       # Save modifications
       self.cnx.commit()
