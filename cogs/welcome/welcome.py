@@ -136,7 +136,7 @@ class Welcome(commands.Cog):
     try:
       self.db.execute_order (sql, [])
     except Exception as e:
-      await message.channel.send (f'Inscription en db fail !')
+      await ctx.channel.send (f'Inscription en db fail !')
       print (f'{type(e).__name__} - {e}')
       error = True
     # Log my change
@@ -162,6 +162,7 @@ class Welcome(commands.Cog):
     else:
       sql = f"update welcome_message set message=? where guild_id='{guild_id}'"
     print (sql)
+    return
     try:
       self.db.execute_order(sql, [message])
     except Exception as e:
