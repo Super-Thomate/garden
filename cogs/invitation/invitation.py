@@ -195,7 +195,7 @@ class Invitation(commands.Cog):
     await galerie_channel.send ("Request for galerie will be put here")
 
   @commands.command(name='invitemessage', aliases=['im'])
-  async def set_invite_message(self, ctx, *args):
+  async def set_invite_message(self, ctx):
     guild_id = ctx.message.guild.id
     member = ctx.author
     if not self.utils.is_authorized (member, guild_id):
@@ -203,7 +203,11 @@ class Invitation(commands.Cog):
       return
     if not botconfig.config[str(guild_id)]["do_invite"]:
       return
-    message = ' '.join(arg for arg in args)
+    await ctx.send ("Entrez le message d'invitation : ")
+    def check(m):
+      return m.channel == ctx.channel and m.author == ctx.author
+    msg = await self.bot.wait_for('message', check=check)
+    message = msg.content
     # message = re.escape(message)
     sql = f"select message from invite_message where guild_id='{guild_id}'"
     prev_invite_message = self.db.fetch_one_line (sql)
@@ -219,7 +223,7 @@ class Invitation(commands.Cog):
     await ctx.channel.send (f"Nouveau message : `{message}`")
 
   @commands.command(name='gallerymessage', aliases=['gm'])
-  async def set_galerie_message(self, ctx, *args):
+  async def set_galerie_message(self, ctx):
     guild_id = ctx.message.guild.id
     member = ctx.author
     if not self.utils.is_authorized (member, guild_id):
@@ -227,7 +231,11 @@ class Invitation(commands.Cog):
       return
     if not botconfig.config[str(guild_id)]["do_token"]:
       return
-    message = ' '.join(arg for arg in args)
+    await ctx.send ("Entrez le message de gallerie : ")
+    def check(m):
+      return m.channel == ctx.channel and m.author == ctx.author
+    msg = await self.bot.wait_for('message', check=check)
+    message = msg.content
     # message = re.escape(message)
     sql = f"select message from galerie_message where guild_id='{guild_id}'"
     prev_galerie_message = self.db.fetch_one_line (sql)

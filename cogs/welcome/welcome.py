@@ -5,6 +5,8 @@ from ..logs import Logs
 from database import Database
 from Utils import Utils
 import random
+import time
+import math
 
 
 class Welcome(commands.Cog):
@@ -74,9 +76,12 @@ class Welcome(commands.Cog):
         else:
            message = f"Welcome {before.mention} !"
         # send
-        if not len(message):
-          message = "TEST"
         await channel.send (message)
+        # save welcome
+        unique_welcome = True # to put on config later
+        if unique_welcome:
+          sql = f"insert into welcome_user values ('{before.id}', '{guild_id}', {math.floor (time.time())}) ;"
+          self.db.execute_order (sql)
 
   @commands.command(name='setwelcomerole', aliases=['swr', 'welcomerole'])
   async def set_welcome_role(self, ctx, *, role: discord.Role = None):
@@ -90,7 +95,7 @@ class Welcome(commands.Cog):
       return
     if not role:
       # error
-      await cx.send ("A role is required.")
+      await ctx.send ("A role is required.")
       await self.logger.log('nickname_log', ctx.author, ctx.message, True)
       return
     role_id = role.id
@@ -147,14 +152,17 @@ class Welcome(commands.Cog):
     # await self.logger.log('welcome_log', ctx.author, ctx.message, error) # no logs
 
   @commands.command(name='setwelcomemessage', aliases=['welcomemessage', 'swm'])
-  async def set_welcome_message(self, ctx, *args):
+  async def set_welcome_message(self, ctx):
     guild_id = ctx.message.guild.id
     member = ctx.author
     if not self.utils.is_authorized (member, guild_id):
       print ("Missing permissions")
       return
-    message = ' '.join(arg for arg in args)
-    # message = re.escape(message)
+    await ctx.send ("Entrez le message de bienvenue : ")
+    def check(m):
+      return m.channel == ctx.channel and m.author == ctx.author
+    msg = await self.bot.wait_for('message', check=check)
+    message = msg.content
     sql = f"select message from welcome_message where guild_id='{guild_id}'"
     prev_galerie_message = self.db.fetch_one_line (sql)
     if not prev_galerie_message:
@@ -162,7 +170,6 @@ class Welcome(commands.Cog):
     else:
       sql = f"update welcome_message set message=? where guild_id='{guild_id}'"
     print (sql)
-
     try:
       self.db.execute_order(sql, [message])
     except Exception as e:

@@ -40,6 +40,7 @@ class Database:
       cursor.execute('CREATE TABLE IF NOT EXISTS `welcome_log` (`channel_id` VARCHAR(256) NOT NULL, `guild_id` VARCHAR(256) NOT NULL, PRIMARY KEY (`guild_id`)) ;')
       cursor.execute('CREATE TABLE IF NOT EXISTS `welcome_message` (`message` TEXT NOT NULL, `guild_id` VARCHAR(256) NOT NULL, PRIMARY KEY (`guild_id`)) ;')
       cursor.execute('CREATE TABLE IF NOT EXISTS `welcome_role` (`role_id` VARCHAR(256) NOT NULL, `guild_id` VARCHAR(256) NOT NULL, PRIMARY KEY (`guild_id`)) ;')
+      cursor.execute('CREATE TABLE IF NOT EXISTS `welcome_user` (`user_id` VARCHAR(256) NOT NULL, `guild_id` VARCHAR(256) NOT NULL, `welcomed_at` INTEGER NOT NULL) ;')
 
       # Save modifications
       self.cnx.commit()
@@ -48,7 +49,7 @@ class Database:
       cursor.close()
       print (f'ERROR: {type(e).__name__} - {e}')
 
-  def execute_order (self, sql, params):
+  def execute_order (self, sql, params=[]):
     cursor = self.cnx.cursor()
     print (f"params: {params}")
     try:
