@@ -27,6 +27,7 @@ class Welcome(commands.Cog):
   async def on_member_update(self, before, after):
     # guild id
     guild_id = before.guild.id
+    unique_welcome = True # to put on config later
     # all roles to listen
     select = f"select role_id from welcome_role where guild_id='{guild_id}'"
     fetched = self.db.fetch_all_line (select)
@@ -37,6 +38,13 @@ class Welcome(commands.Cog):
          ):
         # The member obtained the role
         print ('The member obtained the role')
+        # already welcomed ?
+        if unique_welcome:
+          select = f"select * from welcome_user where user_id='{before.id}' and guild_id='{guild_id}' ;"
+          fetched = self.db.fetch_one_line (select)
+          if fetched:
+            # already welcomed !
+            return
         # get the channel
         channel = None
         select = f"select channel_id from welcome_channel where guild_id='{guild_id}'"
@@ -78,7 +86,6 @@ class Welcome(commands.Cog):
         # send
         await channel.send (message)
         # save welcome
-        unique_welcome = True # to put on config later
         if unique_welcome:
           sql = f"insert into welcome_user values ('{before.id}', '{guild_id}', {math.floor (time.time())}) ;"
           self.db.execute_order (sql)
