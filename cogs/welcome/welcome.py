@@ -162,7 +162,7 @@ class Welcome(commands.Cog):
     else:
       sql = f"update welcome_message set message=? where guild_id='{guild_id}'"
     print (sql)
-    return
+
     try:
       self.db.execute_order(sql, [message])
     except Exception as e:
