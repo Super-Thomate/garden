@@ -183,3 +183,25 @@ class Welcome(commands.Cog):
       print (f"{type(e).__name__} - {e}")
     await ctx.channel.send (f"Nouveau message : `{message}`")
     # await self.logger.log('welcome_log', ctx.author, ctx.message, error) # no logs
+
+  @commands.command(name='updatewelcome', aliases=['uw'])
+  async def update_welcomeuser(self, ctx):
+    guild_id = ctx.message.guild.id
+    member = ctx.author
+    if not self.utils.is_authorized (member, guild_id):
+      print ("Missing permissions")
+      return
+    select = f"select role_id from welcome_role where guild_id='{guild_id}'"
+    fetched = self.db.fetch_one_line (select)
+    if not fetched:
+      await ctx.send ("Aucun rôle n'est défini !")
+      return
+    role_id = int (fetched [0])
+    #get the role
+    role = ctx.guild.get_role (role_id)
+    # write every member
+    for member in role.members:
+      # sql
+      insert = f"insert into welcome_user values ('{member.id}', '{guild_id}', {math.floor (time.time())}) ;"
+      self.db.execute_order (insert)
+    # await self.logger.log('welcome_log', ctx.author, ctx.message, error) # no logs
