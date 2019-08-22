@@ -49,7 +49,7 @@ class Nickname(commands.Cog):
       error = True
       print (f"{type(e).__name__} - {e}")
     if not error:
-      # write in db
+      # write in db last_time
       select = f"select * from last_nickname where guild_id='{guild_id}' and member_id='{member.id}'"
       fetched = self.db.fetch_one_line (select)
       if not fetched:
@@ -58,6 +58,21 @@ class Nickname(commands.Cog):
         sql = f"update last_nickname set last_change=datetime('{datetime.now()}') where member_id='{member.id}' and guild_id='{guild_id}'"
       try:
         self.db.execute_order (sql, [])
+      except Exception as e:
+        await message.channel.send (f'Inscription en db fail !')
+        print (f'{type(e).__name__} - {e}')
+        error = True
+    if not error:
+      # write in db current nickanme
+      select = f"select * from nickname_current where guild_id='{guild_id}' and member_id='{member.id}' ;"
+      fetched = self.db.fetch_one_line (select)
+      print (f"fetched: {fetched}")
+      if not fetched:
+        sql = f"insert into nickname_current values ('{member.id}', '{guild_id}', ?) ;"
+      else:
+        sql = f"update nickname_current set nickname=? where member_id='{member.id}' and guild_id='{guild_id}' ;"
+      try:
+        self.db.execute_order (sql, [nickname])
       except Exception as e:
         await message.channel.send (f'Inscription en db fail !')
         print (f'{type(e).__name__} - {e}')
@@ -109,3 +124,16 @@ class Nickname(commands.Cog):
         await ctx.send (f"Il vous faut attendre encore {self.utils.format_time(total_seconds)}")
         return
     await ctx.send (f"Vous pouvez changer de pseudo dès maintenant")
+    
+    
+  @commands.Cog.listener()
+  async def on_member_join(self, member):
+    select = f"select nickname from nickname_current where guild_id='{member.guild.id}' and member_id='{member.id}' ;"
+    fetched = self.db.fetch_one_line (select)
+    if fetched:
+      nickname = fetched [0]
+      try:
+        await member.edit(nick = nickname)
+      except Exception as e:
+        print (f'{type(e).__name__} - {e}')
+    return
