@@ -137,3 +137,34 @@ class Nickname(commands.Cog):
       except Exception as e:
         print (f'{type(e).__name__} - {e}')
     return
+
+  @commands.command(name='updatenickname')
+  async def update_nickname(self, ctx):
+    author = ctx.author
+    guild_id = ctx.guild.id
+    if not self.utils.is_authorized (author, guild_id):
+      print ("Missing permissions")
+      return
+    try:
+      for member in ctx.guild.members:
+        if member.nick:
+          select = (   f"select nickname from nickname_current"+
+                       f" where guild_id='{guild_id}' and member_id='{member.id}' ;"
+                   )
+          fetched = self.db.fetch_one_line (select)
+          sql = ""
+          if not fetched:
+            sql = (   f"insert into nickname_current values ('{member.id}', "+
+                      f" '{guild_id}' , '{member.nick}') ;"
+                  )
+          elif not member.nick == fetched [0]:
+            # Impossibru
+            sql = (   f"update nickname_current set nickname='{member.nick}'"+
+                      f" where guild_id='{guild_id}' and member_id='{member.id}' ;"
+                  )
+          if len (sql):
+            self.db.execute_order (sql)
+      await ctx.send ("Nickname updated")
+    except Exception as e:
+      await ctx.send ("An error occured")
+      print (f"{type(e).__name__} - {e}")
