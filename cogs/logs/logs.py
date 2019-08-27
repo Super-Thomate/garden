@@ -144,3 +144,22 @@ class Logs(commands.Cog):
       await log_channel.send(content=None, embed=embed)
     except Exception as e:
       print (f" {type(e).__name__} - {e}")
+
+  @commands.command(name='cleanchannel', aliases=['cc'])
+  @commands.guild_only()
+  async def cleanchannel(self, ctx, length: int = None):
+    """Clean the current channel"""
+    channel = ctx.channel
+    member = ctx.author
+    guild_id = ctx.guild.id
+    length = (length or 10)
+    await ctx.message.delete ()
+    if not self.utils.is_authorized (member, guild_id):
+      print ("Missing permissions")
+      return
+    print ("Let's go !")
+    not_is_pin = lambda message : not message.pinned
+    # delete all messages except ping
+    deleted = await channel.purge(limit=length, check=not_is_pin)
+    feedback = await channel.send (f"Deleted {len (deleted)} messages")
+    await feedback.delete (delay=2)

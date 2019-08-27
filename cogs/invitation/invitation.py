@@ -22,48 +22,6 @@ class Invitation(commands.Cog):
     self.logger = Logs(self.bot)
     self.db = Database()
 
-  @commands.command(name='cleanchannel', aliases=['cc'])
-  @commands.guild_only()
-  async def cleanchannel(self, ctx):
-    """Clean the current channel if it's an invite or token channel"""
-    channel = ctx.channel
-    member = ctx.author
-    guild_id = ctx.guild.id
-    invite_channel = None
-    galerie_channel = None
-    sql = f"select channel_id from invite_channel where guild_id='{guild_id}'"
-    res = self.db.fetch_one_line (sql)
-    if not res == None:
-      invite_channel = int(res [0])
-    sql = f"select channel_id from galerie_channel where guild_id='{guild_id}'"
-    res = self.db.fetch_one_line (sql)
-    if not res == None:
-      galerie_channel = int(res [0])
-    print (f"invite_channel: {invite_channel}")
-    print (f"galerie_channel : {galerie_channel}")
-    print (f"channel.id : {channel.id}")
-    if not self.utils.is_authorized (member, guild_id):
-      print ("Missing permissions")
-      return
-    if not ((botconfig.config[str(guild_id)]['do_invite']) or (botconfig.config[str(guild_id)]['do_token'])):
-      print ("Dont do it")
-      return
-    print ("Let's go !")
-    def not_is_pin (message):
-      return not message.pinned
-
-    if (    (     (channel.id == invite_channel)
-              and (botconfig.config[str(guild_id)]['do_invite'])
-            )
-         or (     (channel.id == galerie_channel)
-              and (botconfig.config[str(guild_id)]['do_token'])
-            )
-       ):
-      # delete all messages except ping
-      deleted = await channel.purge(limit=1000, check=not_is_pin)
-      feedback = await channel.send (f"Deleted {len (deleted)} messages")
-      await feedback.delete (delay=2)
-
   @commands.command(name='inviteuser', aliases=['iu'])
   async def invite(self, ctx, member: discord.Member = None):
     """Send the invitation's link in a DM"""
