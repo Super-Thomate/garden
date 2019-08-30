@@ -53,7 +53,10 @@ class Database:
       cursor.execute('CREATE TABLE IF NOT EXISTS `ban_command_user` (`command` VARCHAR(256) NOT NULL, `until` INTEGER, `user_id` VARCHAR(256) NOT NULL, `guild_id` VARCHAR(256) NOT NULL, PRIMARY KEY (`command`, `user_id`, `guild_id`)) ;')
       cursor.execute('CREATE TABLE IF NOT EXISTS `ban_command_role_log` (`channel_id` VARCHAR(256) NOT NULL, `guild_id` VARCHAR(256) NOT NULL, PRIMARY KEY (`guild_id`))  ;')
       cursor.execute('CREATE TABLE IF NOT EXISTS `ban_command_role` (`command` VARCHAR(256) NOT NULL, `until` INTEGER, `role_id` VARCHAR(256) NOT NULL, `guild_id` VARCHAR(256) NOT NULL, PRIMARY KEY (`command`, `role_id`, `guild_id`)) ;')
-
+      ### ROLEDM COG
+      cursor.execute('CREATE TABLE IF NOT EXISTS `roledm_role` (`role_id` VARCHAR(256) NOT NULL, `guild_id` VARCHAR(256) NOT NULL, PRIMARY KEY (`role_id`, `guild_id`)) ;')
+      cursor.execute('CREATE TABLE IF NOT EXISTS `roledm_message` (`message` TEXT NOT NULL,`role_id` VARCHAR(256) NOT NULL, `guild_id` VARCHAR(256) NOT NULL, PRIMARY KEY (`role_id`, `guild_id`)) ;')
+      
       # Save modifications
       cnx.commit()
       cursor.close()

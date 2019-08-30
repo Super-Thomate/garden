@@ -121,7 +121,29 @@ class Help(commands.Cog):
     embed.timestamp = datetime.today()
     return embed
 
-
+  def help_roledm (self):
+    infos = self.bot.user
+    colour = discord.Colour(0)
+    colour = colour.from_rgb(176, 255, 176)
+    embed = discord.Embed(colour=colour, title="**ROLEDM COG HELP**")
+    embed.description = "Ce cog n'est disponible que pour les rôles autorisés"
+    """
+    * setroledm role
+    * unsetroledm role
+    * setroledmmessage role
+    * displayroledmmessage role
+    """
+    embed.add_field (   name="**Commandes admin/modérateur :**"
+                      , value= ("- `!setroledm <role>` - définit un rôle a écouté pour Garden.\n"+
+                                "- `!unsetroledm <role>` - retire le rôle de la liste de Garden.\n"+
+                                "- `!setroledmmessage <role>` - définit le message à envoyer pour à la prise du rôle.\n"+
+                                "- `!displayroledmmessage <role>` - affiche le message courant du rôle s'il existe.\n"+
+                                "- `!help roledm` - montre ce message"
+                               )
+                      , inline=False)
+    embed.set_author(icon_url=infos.avatar_url, name=str(infos))
+    embed.timestamp = datetime.today()
+    return embed
   def help_global (self):
     print (self.bot.cogs)
     line_cogs = ""
