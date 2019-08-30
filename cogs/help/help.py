@@ -1,15 +1,23 @@
 import discord
 from datetime import datetime
 from discord.ext import commands
+from Utils import Utils
 
 class Help(commands.Cog):
   def __init__(self, bot):
     self.bot = bot
+    self.utils = Utils()
 
   @commands.command(name='help')
   async def help(self, ctx, *, cog: str = None):
     """Display help"""
     cog = cog or "global"
+    if (    self.utils.is_banned_user ("help", ctx.author, ctx.guild.id)
+         or self.utils.is_banned_role ("help", ctx.author, ctx.guild.id)
+       ):
+      await ctx.message.add_reaction('❌')
+      await ctx.author.send ("Vous n'êtes pas autorisé à utilisez cette commande pour le moment.")
+      return
     try:
       method = getattr(self, "help_"+cog.lower())
       embed = method()
@@ -80,6 +88,38 @@ class Help(commands.Cog):
     embed.timestamp = datetime.today()
     return embed
 
+
+  def help_bancommand (self):
+    infos = self.bot.user
+    colour = discord.Colour(0)
+    colour = colour.from_rgb(176, 255, 176)
+    embed = discord.Embed(colour=colour, title="**BANCOMMAND COG HELP**")
+    embed.description = "Ce cog n'est disponible que pour les rôles autorisés"
+    """
+      * bancommanduser command user [time]
+      * unbancommanduser command user
+      * isbanuser user
+      * listbanuser [command]
+      * bancommandrole command role [time]
+      * unbancommandrole command role
+      * listbanrole [command]
+      * isbanrole role
+    """
+    embed.add_field (   name="**Commandes admin/modérateur :**"
+                      , value= ("- `!bancommanduser <command> <user> [<time>]` - empêche l'utilisateur d'utiliser une commande pendant la période `time` ou de façon permanente si pas préciser.\n"+
+                                "- `!unbancommanduser <command> <user>` - réinstaure immédiatement à l'utilisateur le droit d'utiliser une commande.\n"+
+                                "- `!isbanuser <user>` - affiche les commandes pour lesquelles l'utilisateur est banni.\n"+
+                                "- `!listbanuser [<command>]` - liste les utilisateurs bannis par commandes ou pour la commande si elle est précisée.\n"+
+                                "- `!bancommandrole <command> <role> [<time>]` - empêche le rôle d'utiliser une commande pendant la période `time` ou de façon permanente si pas préciser.\n"+
+                                "- `!unbancommandrole <command> <role>` - réinstaure immédiatement au rôle le droit d'utiliser une commande.\n"+
+                                "- `!isbanrole <role>` - affiche les commandes pour lesquelles le rôle est banni.\n"+
+                                "- `!listbanrole [<command>]` - liste les rôles bannis par commandes ou pour la commande si elle est précisée.\n"+
+                                "- `!help bancommand ` - montre ce message"
+                               )
+                      , inline=False)
+    embed.set_author(icon_url=infos.avatar_url, name=str(infos))
+    embed.timestamp = datetime.today()
+    return embed
 
 
   def help_global (self):

@@ -207,8 +207,7 @@ class Vote(commands.Cog):
       await vote_msg.edit (embed=embed)
       return
 
-    def check(m):
-      return m.channel == ctx.channel and m.author == ctx.author
+    check = lambda m: m.channel == ctx.channel and m.author == ctx.author
     msg = await self.bot.wait_for('message', check=check)
 
     if handle == "description":

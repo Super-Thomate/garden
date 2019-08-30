@@ -20,6 +20,12 @@ class Logs(commands.Cog):
       return
     if not botconfig.config[str(guild_id)]["do_invite"]:
       return
+    if (    self.utils.is_banned_user (ctx.command, ctx.author, ctx.guild.id)
+         or self.utils.is_banned_role (ctx.command, ctx.author, ctx.guild.id)
+       ):
+      await ctx.message.add_reaction('❌')
+      await ctx.author.send ("Vous n'êtes pas autorisé à utilisez cette commande pour le moment.")
+      return
     try:
       log_channel = channel or ctx.message.channel
       sql = f"select * from invite_log where guild_id='{guild_id}'"
@@ -42,6 +48,12 @@ class Logs(commands.Cog):
       return
     if not botconfig.config[str(guild_id)]["do_token"]:
       return
+    if (    self.utils.is_banned_user (ctx.command, ctx.author, ctx.guild.id)
+         or self.utils.is_banned_role (ctx.command, ctx.author, ctx.guild.id)
+       ):
+      await ctx.message.add_reaction('❌')
+      await ctx.author.send ("Vous n'êtes pas autorisé à utilisez cette commande pour le moment.")
+      return
     try:
       log_channel = channel or ctx.message.channel
       guild_id = ctx.message.guild.id
@@ -63,6 +75,12 @@ class Logs(commands.Cog):
     if not self.utils.is_authorized (member, guild_id):
       print ("Missing permissions")
       return
+    if (    self.utils.is_banned_user (ctx.command, ctx.author, ctx.guild.id)
+         or self.utils.is_banned_role (ctx.command, ctx.author, ctx.guild.id)
+       ):
+      await ctx.message.add_reaction('❌')
+      await ctx.author.send ("Vous n'êtes pas autorisé à utilisez cette commande pour le moment.")
+      return
     try:
       log_channel = channel or ctx.message.channel
       guild_id = ctx.message.guild.id
@@ -83,6 +101,12 @@ class Logs(commands.Cog):
     member = ctx.author
     if not self.utils.is_authorized (member, guild_id):
       print ("Missing permissions")
+      return
+    if (    self.utils.is_banned_user (ctx.command, ctx.author, ctx.guild.id)
+         or self.utils.is_banned_role (ctx.command, ctx.author, ctx.guild.id)
+       ):
+      await ctx.message.add_reaction('❌')
+      await ctx.author.send ("Vous n'êtes pas autorisé à utilisez cette commande pour le moment.")
       return
     try:
       log_channel = channel or ctx.message.channel
@@ -106,6 +130,12 @@ class Logs(commands.Cog):
     member = ctx.author
     if not self.utils.is_authorized (member, guild_id):
       print ("Missing permissions")
+      return
+    if (    self.utils.is_banned_user (ctx.command, ctx.author, ctx.guild.id)
+         or self.utils.is_banned_role (ctx.command, ctx.author, ctx.guild.id)
+       ):
+      await ctx.message.add_reaction('❌')
+      await ctx.author.send ("Vous n'êtes pas autorisé à utilisez cette commande pour le moment.")
       return
     try:
       log_channel = channel or ctx.message.channel
@@ -156,6 +186,12 @@ class Logs(commands.Cog):
     await ctx.message.delete ()
     if not self.utils.is_authorized (member, guild_id):
       print ("Missing permissions")
+      return
+    if (    self.utils.is_banned_user (ctx.command, ctx.author, ctx.guild.id)
+         or self.utils.is_banned_role (ctx.command, ctx.author, ctx.guild.id)
+       ):
+      await ctx.message.add_reaction('❌')
+      await ctx.author.send ("Vous n'êtes pas autorisé à utilisez cette commande pour le moment.")
       return
     print ("Let's go !")
     not_is_pin = lambda message : not message.pinned

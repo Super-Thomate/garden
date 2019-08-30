@@ -1,5 +1,7 @@
 import math
 import botconfig
+from database import Database
+import time
 
 
 class Utils():
@@ -16,7 +18,38 @@ class Utils():
         return True
     return False
 
+  def is_banned_user (self, command, member, guild_id):
+    db = Database()
+    select = f"select until from ban_command_user where guild_id='{guild_id}' and user_id='{member.id}' and command='{command}' ;"
+    fetched = db.fetch_one_line (select)
+    if fetched:
+      try:
+        until = int (fetched [0])
+      except Exception as e:
+        print (f"{type(e).__name__} - {e}")
+        return True
+      return until > math.floor (time.time()) # still ban
+    return False
 
+  def is_banned_role (self, command, member, guild_id):
+    db = Database()
+    select = f"select until,role_id from ban_command_role where guild_id='{guild_id}' and command='{command}' ;"
+    fetched = db.fetch_one_line (select)
+    if fetched:
+      try:
+        role_id = int (fetched [1])
+      except Exception as e:
+        print (f"{type(e).__name__} - {e}")
+        return True
+      if self.has_role(role_id, member):
+        try:
+          until = int (fetched [0])
+        except Exception as e:
+          print (f"{type(e).__name__} - {e}")
+          return True
+        return until > math.floor (time.time()) # still ban
+    return False
+    
   def format_time(self, timestamp):
     timer = [   ["j", 86400]
               , ["h", 3600]
@@ -32,7 +65,7 @@ class Utils():
         current = current%obj_time [1]
     if not len(to_ret):
       print ("to ret is empty")
-    return to_ret
+    return to_ret.strip()
 
   def has_role (self, member, role_id):
     for obj_role in member.roles:
@@ -40,3 +73,24 @@ class Utils():
         return True
     return False
 
+    
+  def parse_time(self, timestr):
+    units = {   "j": 86400
+              , "h": 3600
+              , "m": 60
+              , "s": 1
+            }
+    to_ret = 0
+    number = 0
+    for elem in timestr:
+      try:
+        cast = int (elem)
+      except Exception as e:
+        # is it a letter in units ?
+        if not elem in units:
+          raise Exception (f"Unknown element: {elem}")
+          return -1
+        to_ret = to_ret + number * units [elem]
+      else:
+        number = number*10 + cast
+    return to_ret

@@ -32,6 +32,12 @@ class Invitation(commands.Cog):
       return
     if not botconfig.config[str(guild_id)]["do_invite"]:
       return
+    if (    self.utils.is_banned_user (ctx.command, ctx.author, ctx.guild.id)
+         or self.utils.is_banned_role (ctx.command, ctx.author, ctx.guild.id)
+       ):
+      await ctx.message.add_reaction('❌')
+      await ctx.author.send ("Vous n'êtes pas autorisé à utilisez cette commande pour le moment.")
+      return
     error = False
     colour = discord.Colour(0)
     try:
@@ -66,6 +72,12 @@ class Invitation(commands.Cog):
       return
     if not botconfig.config[str(guild_id)]["do_invite"]:
       return
+    if (    self.utils.is_banned_user (ctx.command, ctx.author, ctx.guild.id)
+         or self.utils.is_banned_role (ctx.command, ctx.author, ctx.guild.id)
+       ):
+      await ctx.message.add_reaction('❌')
+      await ctx.author.send ("Vous n'êtes pas autorisé à utilisez cette commande pour le moment.")
+      return
     sql = f"delete from last_invite where guild_id='{guild_id}' and member_id='{member.id}'"
     error = False
     try:
@@ -86,6 +98,12 @@ class Invitation(commands.Cog):
       print ("Missing permissions")
       return
     if not botconfig.config[str(guild_id)]["do_token"]:
+      return
+    if (    self.utils.is_banned_user (ctx.command, ctx.author, ctx.guild.id)
+         or self.utils.is_banned_role (ctx.command, ctx.author, ctx.guild.id)
+       ):
+      await ctx.message.add_reaction('❌')
+      await ctx.author.send ("Vous n'êtes pas autorisé à utilisez cette commande pour le moment.")
       return
     error = False
     try:
@@ -121,6 +139,12 @@ class Invitation(commands.Cog):
       return
     if not botconfig.config[str(guild_id)]["do_invite"]:
       return
+    if (    self.utils.is_banned_user (ctx.command, ctx.author, ctx.guild.id)
+         or self.utils.is_banned_role (ctx.command, ctx.author, ctx.guild.id)
+       ):
+      await ctx.message.add_reaction('❌')
+      await ctx.author.send ("Vous n'êtes pas autorisé à utilisez cette commande pour le moment.")
+      return
     sql = f"select * from invite_channel where guild_id='{guild_id}'"
     print (sql)
     prev_invite_channel = self.db.fetch_one_line (sql)
@@ -143,6 +167,12 @@ class Invitation(commands.Cog):
       return
     if not botconfig.config[str(guild_id)]["do_token"]:
       return
+    if (    self.utils.is_banned_user (ctx.command, ctx.author, ctx.guild.id)
+         or self.utils.is_banned_role (ctx.command, ctx.author, ctx.guild.id)
+       ):
+      await ctx.message.add_reaction('❌')
+      await ctx.author.send ("Vous n'êtes pas autorisé à utilisez cette commande pour le moment.")
+      return
     sql = f"select * from galerie_channel where guild_id='{guild_id}'"
     prev_galerie_channel = self.db.fetch_one_line (sql)
     if not prev_galerie_channel:
@@ -161,9 +191,14 @@ class Invitation(commands.Cog):
       return
     if not botconfig.config[str(guild_id)]["do_invite"]:
       return
+    if (    self.utils.is_banned_user (ctx.command, ctx.author, ctx.guild.id)
+         or self.utils.is_banned_role (ctx.command, ctx.author, ctx.guild.id)
+       ):
+      await ctx.message.add_reaction('❌')
+      await ctx.author.send ("Vous n'êtes pas autorisé à utilisez cette commande pour le moment.")
+      return
     await ctx.send ("Entrez le message d'invitation : ")
-    def check(m):
-      return m.channel == ctx.channel and m.author == ctx.author
+    check = lambda m: m.channel == ctx.channel and m.author == ctx.author
     msg = await self.bot.wait_for('message', check=check)
     message = msg.content
     # message = re.escape(message)
@@ -189,9 +224,14 @@ class Invitation(commands.Cog):
       return
     if not botconfig.config[str(guild_id)]["do_token"]:
       return
+    if (    self.utils.is_banned_user (ctx.command, ctx.author, ctx.guild.id)
+         or self.utils.is_banned_role (ctx.command, ctx.author, ctx.guild.id)
+       ):
+      await ctx.message.add_reaction('❌')
+      await ctx.author.send ("Vous n'êtes pas autorisé à utilisez cette commande pour le moment.")
+      return
     await ctx.send ("Entrez le message de gallerie : ")
-    def check(m):
-      return m.channel == ctx.channel and m.author == ctx.author
+    check = lambda m: m.channel == ctx.channel and m.author == ctx.author
     msg = await self.bot.wait_for('message', check=check)
     message = msg.content
     # message = re.escape(message)

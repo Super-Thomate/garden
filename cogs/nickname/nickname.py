@@ -19,6 +19,12 @@ class Nickname(commands.Cog):
     message = ctx.message
     member = ctx.author
     guild_id = ctx.guild.id
+    if (    self.utils.is_banned_user (ctx.command, ctx.author, ctx.guild.id)
+         or self.utils.is_banned_role (ctx.command, ctx.author, ctx.guild.id)
+       ):
+      await ctx.message.add_reaction('❌')
+      await ctx.author.send ("Vous n'êtes pas autorisé à utilisez cette commande pour le moment.")
+      return
     # Check if there is a nickname
     if not nickname:
       await self.logger.log('nickname_log', member, message, True)
@@ -92,6 +98,12 @@ class Nickname(commands.Cog):
     if not self.utils.is_authorized (ctx.author, guild_id):
       print ("Missing permissions")
       return
+    if (    self.utils.is_banned_user (ctx.command, ctx.author, ctx.guild.id)
+         or self.utils.is_banned_role (ctx.command, ctx.author, ctx.guild.id)
+       ):
+      await ctx.message.add_reaction('❌')
+      await ctx.author.send ("Vous n'êtes pas autorisé à utilisez cette commande pour le moment.")
+      return
     sql = f"delete from last_nickname where guild_id='{guild_id}' and member_id='{member.id}'"
     error = False
     try:
@@ -108,6 +120,12 @@ class Nickname(commands.Cog):
   async def next_nickname(self, ctx):
     member = ctx.author
     guild_id = ctx.guild.id
+    if (    self.utils.is_banned_user (ctx.command, ctx.author, ctx.guild.id)
+         or self.utils.is_banned_role (ctx.command, ctx.author, ctx.guild.id)
+       ):
+      await ctx.message.add_reaction('❌')
+      await ctx.author.send ("Vous n'êtes pas autorisé à utilisez cette commande pour le moment.")
+      return
     nickname_delay = botconfig.config[str(guild_id)]['nickname_delay']
     sql = f'select  datetime(last_change, \'{nickname_delay}\') from last_nickname where guild_id=\'{guild_id}\' and member_id=\'{member.id}\''
     fetched = self.db.fetch_one_line (sql)
@@ -144,6 +162,12 @@ class Nickname(commands.Cog):
     guild_id = ctx.guild.id
     if not self.utils.is_authorized (author, guild_id):
       print ("Missing permissions")
+      return
+    if (    self.utils.is_banned_user (ctx.command, ctx.author, ctx.guild.id)
+         or self.utils.is_banned_role (ctx.command, ctx.author, ctx.guild.id)
+       ):
+      await ctx.message.add_reaction('❌')
+      await ctx.author.send ("Vous n'êtes pas autorisé à utilisez cette commande pour le moment.")
       return
     try:
       for member in ctx.guild.members:

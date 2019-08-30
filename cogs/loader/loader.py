@@ -15,6 +15,12 @@ class Loader(commands.Cog):
     if not self.utils.is_authorized (ctx.author, ctx.guild.id):
       print ("Missing permissions")
       return
+    if (    self.utils.is_banned_user (ctx.command, ctx.author, ctx.guild.id)
+         or self.utils.is_banned_role (ctx.command, ctx.author, ctx.guild.id)
+       ):
+      await ctx.message.add_reaction('❌')
+      await ctx.author.send ("Vous n'êtes pas autorisé à utilisez cette commande pour le moment.")
+      return
     try:
       self.bot.load_extension(f'cogs.{cog}')
     except Exception as e:
@@ -28,6 +34,12 @@ class Loader(commands.Cog):
     Remember to use dot path. e.g: cogs.greetings"""
     if not self.utils.is_authorized (ctx.author, ctx.guild.id):
       print ("Missing permissions")
+      return
+    if (    self.utils.is_banned_user (ctx.command, ctx.author, ctx.guild.id)
+         or self.utils.is_banned_role (ctx.command, ctx.author, ctx.guild.id)
+       ):
+      await ctx.message.add_reaction('❌')
+      await ctx.author.send ("Vous n'êtes pas autorisé à utilisez cette commande pour le moment.")
       return
     try:
       self.bot.unload_extension(f'cogs.{cog}')
@@ -43,6 +55,12 @@ class Loader(commands.Cog):
     if not self.utils.is_authorized (ctx.author, ctx.guild.id):
       print ("Missing permissions")
       return
+    if (    self.utils.is_banned_user (ctx.command, ctx.author, ctx.guild.id)
+         or self.utils.is_banned_role (ctx.command, ctx.author, ctx.guild.id)
+       ):
+      await ctx.message.add_reaction('❌')
+      await ctx.author.send ("Vous n'êtes pas autorisé à utilisez cette commande pour le moment.")
+      return
     try:
       self.bot.unload_extension(f'cogs.{cog}')
       self.bot.load_extension(f'cogs.{cog}')
@@ -57,6 +75,12 @@ class Loader(commands.Cog):
     """
     if not self.utils.is_authorized (ctx.author, ctx.guild.id):
       print ("Missing permissions")
+      return
+    if (    self.utils.is_banned_user (ctx.command, ctx.author, ctx.guild.id)
+         or self.utils.is_banned_role (ctx.command, ctx.author, ctx.guild.id)
+       ):
+      await ctx.message.add_reaction('❌')
+      await ctx.author.send ("Vous n'êtes pas autorisé à utilisez cette commande pour le moment.")
       return
     all_loaded = ""
     for name in self.bot.cogs.keys():

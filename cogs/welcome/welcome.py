@@ -100,6 +100,12 @@ class Welcome(commands.Cog):
     if not self.utils.is_authorized (ctx.author, guild_id):
       print ("Missing permissions")
       return
+    if (    self.utils.is_banned_user (ctx.command, ctx.author, ctx.guild.id)
+         or self.utils.is_banned_role (ctx.command, ctx.author, ctx.guild.id)
+       ):
+      await ctx.message.add_reaction('❌')
+      await ctx.author.send ("Vous n'êtes pas autorisé à utilisez cette commande pour le moment.")
+      return
     if not role:
       # error
       await ctx.send ("A role is required.")
@@ -138,6 +144,12 @@ class Welcome(commands.Cog):
     if not self.utils.is_authorized (ctx.author, guild_id):
       print ("Missing permissions")
       return
+    if (    self.utils.is_banned_user (ctx.command, ctx.author, ctx.guild.id)
+         or self.utils.is_banned_role (ctx.command, ctx.author, ctx.guild.id)
+       ):
+      await ctx.message.add_reaction('❌')
+      await ctx.author.send ("Vous n'êtes pas autorisé à utilisez cette commande pour le moment.")
+      return
     error = False
     select = f"select * from welcome_channel where guild_id='{guild_id}''"
     fetched = self.db.fetch_one_line (select)
@@ -165,9 +177,14 @@ class Welcome(commands.Cog):
     if not self.utils.is_authorized (member, guild_id):
       print ("Missing permissions")
       return
+    if (    self.utils.is_banned_user (ctx.command, ctx.author, ctx.guild.id)
+         or self.utils.is_banned_role (ctx.command, ctx.author, ctx.guild.id)
+       ):
+      await ctx.message.add_reaction('❌')
+      await ctx.author.send ("Vous n'êtes pas autorisé à utilisez cette commande pour le moment.")
+      return
     await ctx.send ("Entrez le message de bienvenue : ")
-    def check(m):
-      return m.channel == ctx.channel and m.author == ctx.author
+    check = lambda m: m.channel == ctx.channel and m.author == ctx.author
     msg = await self.bot.wait_for('message', check=check)
     message = msg.content
     sql = f"select message from welcome_message where guild_id='{guild_id}'"
@@ -190,6 +207,12 @@ class Welcome(commands.Cog):
     member = ctx.author
     if not self.utils.is_authorized (member, guild_id):
       print ("Missing permissions")
+      return
+    if (    self.utils.is_banned_user (ctx.command, ctx.author, ctx.guild.id)
+         or self.utils.is_banned_role (ctx.command, ctx.author, ctx.guild.id)
+       ):
+      await ctx.message.add_reaction('❌')
+      await ctx.author.send ("Vous n'êtes pas autorisé à utilisez cette commande pour le moment.")
       return
     select = f"select role_id from welcome_role where guild_id='{guild_id}'"
     fetched = self.db.fetch_one_line (select)
