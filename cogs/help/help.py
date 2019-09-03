@@ -134,9 +134,9 @@ class Help(commands.Cog):
     * displayroledmmessage role
     """
     embed.add_field (   name="**Commandes admin/modérateur :**"
-                      , value= ("- `!setroledm <role>` - définit un rôle a écouté pour Garden.\n"+
+                      , value= ("- `!setroledm <role>` - définit un rôle à écouter pour Garden.\n"+
                                 "- `!unsetroledm <role>` - retire le rôle de la liste de Garden.\n"+
-                                "- `!setroledmmessage <role>` - définit le message à envoyer pour à la prise du rôle.\n"+
+                                "- `!setroledmmessage <role>` - définit le message à envoyer à la prise du rôle.\n"+
                                 "- `!displayroledmmessage <role>` - affiche le message courant du rôle s'il existe.\n"+
                                 "- `!help roledm` - montre ce message"
                                )
@@ -149,14 +149,17 @@ class Help(commands.Cog):
     line_cogs = ""
     all_cogs = {
         "Birthday": {"status":0, "desc": "Enregistre l'anniversaire d'un membre pour le lui souhaiter"}
-      , "Help": {"status":0, "desc": "Affiche l'aide de Garden"}
+      , "Bancommand": {"status":1, "desc": "Empêche un utilisateur ou un role d'utiliser une commande Garden"}
+      , "Help": {"status":1, "desc": "Affiche l'aide de Garden"}
       , "Highlight": {"status":0, "desc": "Gère les mises en valeurs de message"}
-      , "Invitation": {"status":0, "desc": "Gère les invitations/jetons"}
+      , "Invitation": {"status":1, "desc": "Gère les invitations/jetons"}
       , "Link": {"status":0, "desc": "Gère les liens entre rôles"}
-      , "Loader": {"status":0, "desc": "Chargement des différents cogs"}
-      , "Logs": {"status":0, "desc": "Gère les logs des différents cogs"}
-      , "Nickname": {"status":0, "desc": "Gère le changement de surnom (nickname)"}
+      , "Loader": {"status":1, "desc": "Chargement des différents cogs"}
+      , "Logs": {"status":1, "desc": "Gère les logs des différents cogs"}
+      , "Nickname": {"status":1, "desc": "Gère le changement de surnom (nickname)"}
+      , "RoleDM": {"status":1, "desc": "Gère l'envoie d'un message privé à la prise d'un rôle"}
       , "Utip": {"status":0, "desc": "Gère le rôle pour les backers Utip"}
+      , "Welcome": {"status":0, "desc": "Gère l'envoie d'un message dans un channel définit à la prise d'un rôle"}
     }
     for name in self.bot.cogs.keys():
       all_cogs [name]["status"] = 1
