@@ -134,10 +134,10 @@ class Help(commands.Cog):
     * displayroledmmessage role
     """
     embed.add_field (   name="**Commandes admin/modérateur :**"
-                      , value= ("- `!setroledm <role>` - définit un rôle à écouter pour Garden.\n"+
-                                "- `!unsetroledm <role>` - retire le rôle de la liste de Garden.\n"+
-                                "- `!setroledmmessage <role>` - définit le message à envoyer à la prise du rôle.\n"+
-                                "- `!displayroledmmessage <role>` - affiche le message courant du rôle s'il existe.\n"+
+                      , value= ("- `!setroledm (sr) <role>` - définit un rôle à écouter pour Garden.\n"+
+                                "- `!unsetroledm (ur) <role>` - retire le rôle de la liste de Garden.\n"+
+                                "- `!setroledmmessage (srm) <role>` - définit le message à envoyer à la prise du rôle.\n"+
+                                "- `!displayroledmmessage (drm) <role>` - affiche le message courant du rôle s'il existe.\n"+
                                 "- `!help roledm` - montre ce message"
                                )
                       , inline=False)
