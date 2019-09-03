@@ -149,15 +149,15 @@ class Help(commands.Cog):
     line_cogs = ""
     all_cogs = {
         "Birthday": {"status":0, "desc": "Enregistre l'anniversaire d'un membre pour le lui souhaiter"}
-      , "Bancommand": {"status":1, "desc": "Empêche un utilisateur ou un role d'utiliser une commande Garden"}
-      , "Help": {"status":1, "desc": "Affiche l'aide de Garden"}
+      , "Bancommand": {"status":0, "desc": "Empêche un utilisateur ou un role d'utiliser une commande Garden"}
+      , "Help": {"status":0, "desc": "Affiche l'aide de Garden"}
       , "Highlight": {"status":0, "desc": "Gère les mises en valeurs de message"}
-      , "Invitation": {"status":1, "desc": "Gère les invitations/jetons"}
+      , "Invitation": {"status":0, "desc": "Gère les invitations/jetons"}
       , "Link": {"status":0, "desc": "Gère les liens entre rôles"}
-      , "Loader": {"status":1, "desc": "Chargement des différents cogs"}
-      , "Logs": {"status":1, "desc": "Gère les logs des différents cogs"}
-      , "Nickname": {"status":1, "desc": "Gère le changement de surnom (nickname)"}
-      , "RoleDM": {"status":1, "desc": "Gère l'envoie d'un message privé à la prise d'un rôle"}
+      , "Loader": {"status":0, "desc": "Chargement des différents cogs"}
+      , "Logs": {"status":0, "desc": "Gère les logs des différents cogs"}
+      , "Nickname": {"status":0, "desc": "Gère le changement de surnom (nickname)"}
+      , "RoleDM": {"status":0, "desc": "Gère l'envoie d'un message privé à la prise d'un rôle"}
       , "Utip": {"status":0, "desc": "Gère le rôle pour les backers Utip"}
       , "Welcome": {"status":0, "desc": "Gère l'envoie d'un message dans un channel définit à la prise d'un rôle"}
     }
