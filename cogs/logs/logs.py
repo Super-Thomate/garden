@@ -222,6 +222,9 @@ class Logs(commands.Cog):
     # message = dm ?
     if message.channel.type != discord.ChannelType.private:
       return
+    # don't read a bot yourself included
+    if user.bot:
+      return
     # log for dm
     sql                      = f"select channel_id,guild_id from spy_log ;"
     fetched_log_channel      = self.db.fetch_all_line (sql)
