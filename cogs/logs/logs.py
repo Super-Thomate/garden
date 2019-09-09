@@ -179,7 +179,9 @@ class Logs(commands.Cog):
         until_message          = await channel.fetch_message (message_id)
       except Exception as e:
         print (f" {type(e).__name__} - {e}")
-      
+        if length_or_id == 'id':
+          feedback           = await ctx.send (f"{message_id} n'est pas un id valide.")
+          await feedback.delete (delay=2)
     if not self.utils.is_authorized (member, guild_id):
       print ("Missing permissions")
       return
