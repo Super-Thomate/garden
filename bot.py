@@ -7,7 +7,11 @@ import botconfig
 
 def get_prefix(bot, message):
     """A callable Prefix for our bot."""
-    prefixes = botconfig.config[str(message.guild.id)]['prefixes']
+    prefixes = None
+    if message.guild:
+      prefixes = botconfig.config[str(message.guild.id)]['prefixes']
+    if not prefixes:
+      prefixes = ['!']
     return commands.when_mentioned_or(*prefixes)(bot, message)
 
 initial_extensions = []
