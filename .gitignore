@@ -1,3 +1,4 @@
 __pycache__
 garden.db
+*.db
 config.json

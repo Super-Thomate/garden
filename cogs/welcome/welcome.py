@@ -94,15 +94,12 @@ class Welcome(commands.Cog):
   async def set_welcome_role(self, ctx, *, role: discord.Role = None):
     """
     Set welcome role
-    @params discord.Role role
     """
     guild_id = ctx.guild.id
     if not self.utils.is_authorized (ctx.author, guild_id):
       print ("Missing permissions")
       return
-    if (    self.utils.is_banned_user (ctx.command, ctx.author, ctx.guild.id)
-         or self.utils.is_banned_role (ctx.command, ctx.author, ctx.guild.id)
-       ):
+    if self.utils.is_banned (ctx.command, ctx.author, ctx.guild.id):
       await ctx.message.add_reaction('❌')
       await ctx.author.send ("Vous n'êtes pas autorisé à utilisez cette commande pour le moment.")
       return
@@ -135,18 +132,13 @@ class Welcome(commands.Cog):
   async def set_welcome(self, ctx, *, channel: discord.TextChannel = None):
     """
     Set the welcome channel
-    @params discord.TextChannel channel
-    The text channel for the welcome message.
-    If not provided, the current channel.
     """
     channel = channel or ctx.channel
     guild_id = ctx.guild.id
     if not self.utils.is_authorized (ctx.author, guild_id):
       print ("Missing permissions")
       return
-    if (    self.utils.is_banned_user (ctx.command, ctx.author, ctx.guild.id)
-         or self.utils.is_banned_role (ctx.command, ctx.author, ctx.guild.id)
-       ):
+    if self.utils.is_banned (ctx.command, ctx.author, ctx.guild.id):
       await ctx.message.add_reaction('❌')
       await ctx.author.send ("Vous n'êtes pas autorisé à utilisez cette commande pour le moment.")
       return
@@ -177,9 +169,7 @@ class Welcome(commands.Cog):
     if not self.utils.is_authorized (member, guild_id):
       print ("Missing permissions")
       return
-    if (    self.utils.is_banned_user (ctx.command, ctx.author, ctx.guild.id)
-         or self.utils.is_banned_role (ctx.command, ctx.author, ctx.guild.id)
-       ):
+    if self.utils.is_banned (ctx.command, ctx.author, ctx.guild.id):
       await ctx.message.add_reaction('❌')
       await ctx.author.send ("Vous n'êtes pas autorisé à utilisez cette commande pour le moment.")
       return
@@ -208,9 +198,7 @@ class Welcome(commands.Cog):
     if not self.utils.is_authorized (member, guild_id):
       print ("Missing permissions")
       return
-    if (    self.utils.is_banned_user (ctx.command, ctx.author, ctx.guild.id)
-         or self.utils.is_banned_role (ctx.command, ctx.author, ctx.guild.id)
-       ):
+    if self.utils.is_banned (ctx.command, ctx.author, ctx.guild.id):
       await ctx.message.add_reaction('❌')
       await ctx.author.send ("Vous n'êtes pas autorisé à utilisez cette commande pour le moment.")
       return

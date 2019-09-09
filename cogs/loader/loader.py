@@ -1,12 +1,13 @@
 from discord.ext import commands
 from Utils import Utils
+import os
 
 class Loader(commands.Cog):
 
   def __init__(self, bot):
       self.bot = bot
       self.utils = Utils ()
-  
+
   # Hidden means it won't show up on the default help.
   @commands.command(name='load', hidden=True)
   async def do_load(self, ctx, *, cog: str):
@@ -15,9 +16,7 @@ class Loader(commands.Cog):
     if not self.utils.is_authorized (ctx.author, ctx.guild.id):
       print ("Missing permissions")
       return
-    if (    self.utils.is_banned_user (ctx.command, ctx.author, ctx.guild.id)
-         or self.utils.is_banned_role (ctx.command, ctx.author, ctx.guild.id)
-       ):
+    if self.utils.is_banned (ctx.command, ctx.author, ctx.guild.id):
       await ctx.message.add_reaction('❌')
       await ctx.author.send ("Vous n'êtes pas autorisé à utilisez cette commande pour le moment.")
       return
@@ -35,9 +34,7 @@ class Loader(commands.Cog):
     if not self.utils.is_authorized (ctx.author, ctx.guild.id):
       print ("Missing permissions")
       return
-    if (    self.utils.is_banned_user (ctx.command, ctx.author, ctx.guild.id)
-         or self.utils.is_banned_role (ctx.command, ctx.author, ctx.guild.id)
-       ):
+    if self.utils.is_banned (ctx.command, ctx.author, ctx.guild.id):
       await ctx.message.add_reaction('❌')
       await ctx.author.send ("Vous n'êtes pas autorisé à utilisez cette commande pour le moment.")
       return
@@ -55,9 +52,7 @@ class Loader(commands.Cog):
     if not self.utils.is_authorized (ctx.author, ctx.guild.id):
       print ("Missing permissions")
       return
-    if (    self.utils.is_banned_user (ctx.command, ctx.author, ctx.guild.id)
-         or self.utils.is_banned_role (ctx.command, ctx.author, ctx.guild.id)
-       ):
+    if self.utils.is_banned (ctx.command, ctx.author, ctx.guild.id):
       await ctx.message.add_reaction('❌')
       await ctx.author.send ("Vous n'êtes pas autorisé à utilisez cette commande pour le moment.")
       return
@@ -68,7 +63,7 @@ class Loader(commands.Cog):
       await ctx.send(f'**`ERROR:`** {type(e).__name__} - {e}')
     else:
       await ctx.send('**`SUCCESS`**')
-  
+
   @commands.command(name='listcogs', hidden=True, aliases=['lc'])
   async def list_load(self, ctx):
     """Command which lists all loaded cogs
@@ -76,9 +71,7 @@ class Loader(commands.Cog):
     if not self.utils.is_authorized (ctx.author, ctx.guild.id):
       print ("Missing permissions")
       return
-    if (    self.utils.is_banned_user (ctx.command, ctx.author, ctx.guild.id)
-         or self.utils.is_banned_role (ctx.command, ctx.author, ctx.guild.id)
-       ):
+    if self.utils.is_banned (ctx.command, ctx.author, ctx.guild.id):
       await ctx.message.add_reaction('❌')
       await ctx.author.send ("Vous n'êtes pas autorisé à utilisez cette commande pour le moment.")
       return
@@ -89,5 +82,26 @@ class Loader(commands.Cog):
       all_loaded = "**NONE**"
     try:
       await ctx.send (all_loaded)
+    except Exception as e:
+      print(f'{type(e).__name__} - {e}')
+
+  @commands.command(name='patch', hidden=True)
+  async def get_patch(self, ctx):
+    """
+    Command which give the current patch
+    """
+    if not self.utils.is_authorized (ctx.author, ctx.guild.id):
+      print ("Missing permissions")
+      return
+    if self.utils.is_banned (ctx.command, ctx.author, ctx.guild.id):
+      await ctx.message.add_reaction('❌')
+      await ctx.author.send ("Vous n'êtes pas autorisé à utilisez cette commande pour le moment.")
+      return
+    # `cd ${__dirname}; git branch | grep \\* | awk '{ print $2 }';`
+    dir_path = os.path.dirname(os.path.realpath(__file__))+'/'
+    cmd = "cd "+dir_path+"; git branch | grep \\* | awk '{ print $2 }';"
+    current_patch = os.popen(cmd).read()
+    try:
+      await ctx.send (current_patch)
     except Exception as e:
       print(f'{type(e).__name__} - {e}')

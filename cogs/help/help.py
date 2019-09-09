@@ -12,9 +12,7 @@ class Help(commands.Cog):
   async def help(self, ctx, *, cog: str = None):
     """Display help"""
     cog = cog or "global"
-    if (    self.utils.is_banned_user ("help", ctx.author, ctx.guild.id)
-         or self.utils.is_banned_role ("help", ctx.author, ctx.guild.id)
-       ):
+    if self.utils.is_banned (ctx.command, ctx.author, ctx.guild.id):
       await ctx.message.add_reaction('❌')
       await ctx.author.send ("Vous n'êtes pas autorisé à utilisez cette commande pour le moment.")
       return
@@ -73,21 +71,31 @@ class Help(commands.Cog):
     embed = discord.Embed(colour=colour, title="**VOTE COG HELP**")
     embed.description = ":warning: MessageID fait référence à l'identifiant du message embed de vote"
     embed.add_field (   name="**Commandes utilisateur :**"
-                      , value="- `!addproposition ` - ajouter une proposition au vote en cours\n"+
+                      , value="- `!addproposition (add) [<MessageID|votetype>]` - ajouter une proposition au vote en cours ayant soit l'ID `MessageID`, soit le type `votetype`, soit le premier vote compatible trouvé.\n"+
+                              "- `!editproposition (edit) [<MessageID|votetype>]` - modifier une proposition au vote en cours ayant soit l'ID `MessageID`, soit le type `votetype`, soit le premier vote compatible trouvé."+
+                              " Aucune confirmation n'est demandée.\n"+
+                              "- `!removeproposition (remove) [<MessageID|votetype>]` - retirer une proposition au vote en cours ayant soit l'ID `MessageID`, soit le type `votetype`, soit le premier vote compatible trouvé."+
+                              " Aucune confirmation n'est demandée.\n"+
                               ""
                       , inline=False)
-    embed.add_field (   name="**Commandes admin/modérateur :**"
+    embed.add_field (   name="**Commandes admin/modérateur** *Configuration* **:**"
                       , value="- `!createvote (vote) [<titre>]` - créer un embed de vote avec un titres\n"+
                               "- `!setdescription (setdesc) <MessageID>` - définir la description du vote\n"+
                               "- `!settitle (title) <MessageID>` - définir le titre du vote\n"+
-                              "- `!closeproposition (cp) <MessageID>` - fermer la phase de proposition. Plus aucun `addproposition` ne sera accepté.\n"+
+                              "- `!setvotetype (svt) <MessageID> <votetype>` - définir le type de vote (par défaut `vote`). `votetype` est une chaîne de caractères sans espaces.\n"+
+                              ""
+                      , inline=False)
+    embed.add_field (   name="**Commandes admin/modérateur** *Phases* **:**"
+                      , value="- `!closeproposition (cp) <MessageID>` - fermer la phase de proposition. Plus aucun `addproposition/editproposition/removeproposition` ne sera accepté de la part des non modérateurs.\n"+
+                              "- `!closepedit (ce) <MessageID>` - fermer la phase de modération. Plus aucun `addproposition/editproposition/removeproposition` ne sera accepté.\n"+
                               "- `!closevote (cv) <MessageID>` - fermer la phase de vote. Plus aucun vote ne sera accepté.\n"+
+                              "- `!closepropositionat (cpa) <MessageID>` - fermer la phase de proposition à la date renseignée. Plus aucun `addproposition/editproposition/removeproposition` ne sera accepté de la part des non modérateurs après cette date.\n"+
+                              "- `!closevoteat (cva) <MessageID>` - fermer la phase de vote à la date renseignée. Plus aucun vote ne sera accepté après cette date.\n"+
                               ""
                       , inline=False)
     embed.set_author(icon_url=infos.avatar_url, name=str(infos))
     embed.timestamp = datetime.today()
     return embed
-
 
   def help_bancommand (self):
     infos = self.bot.user
@@ -116,7 +124,32 @@ class Help(commands.Cog):
                                 "- `!listbanrole [<command>]` - liste les rôles bannis par commandes ou pour la commande si elle est précisée.\n"+
                                 "- `!help bancommand ` - montre ce message"
                                )
+                      , inline=False
+                    )
+    embed.set_author(icon_url=infos.avatar_url, name=str(infos))
+    embed.timestamp = datetime.today()
+    return embed
+
+  def help_welcome (self):
+    infos = self.bot.user
+    colour = discord.Colour(0)
+    colour = colour.from_rgb(176, 255, 176)
+    embed = discord.Embed(colour=colour, title="**PUBLIC WELCOME COG HELP**")
+    embed.description = "*Les commandes de ce cog ne sont utilisables que par les admins ou modérateurs spécifiés au bot.*"
+    embed.add_field (   name="**Commandes admin/modérateur :**"
+                      , value="- `!setwelcomechannel (swc) [<channelID>]` - définir le channel de bienvenue (aucun ID spécifié = channel courant )\n"+
+                              "- `!`setwelcomemessage (swm) <message>` - définir le message de bienvenue\n"+
+                              "- `!setwelcomerole (swr) <RoleID>` - définir le rôle qui déclenche le *Public Welcome*"+
+                              ""
                       , inline=False)
+    embed.add_field (   name="**Variables message :**"
+                      , value="- `$member` - mentionne l'utilisateur venant de déclencher le *Public Welcome*\n"+
+                              "- `$role` - mentionne le rôle venant de déclencher le *Public Welcome*\n"+
+                              "- `{ }` -  marque le début et la fin de l'aléatoire à l'intérieur du message\n"+
+                              "- `|` - marque la séparation entre les différents arguments aléatoiresn"+
+                              ""
+                      , inline=False
+                     )
     embed.set_author(icon_url=infos.avatar_url, name=str(infos))
     embed.timestamp = datetime.today()
     return embed
@@ -148,18 +181,19 @@ class Help(commands.Cog):
     print (self.bot.cogs)
     line_cogs = ""
     all_cogs = {
-        "Birthday": {"status":0, "desc": "Enregistre l'anniversaire d'un membre pour le lui souhaiter"}
+          "Birthday": {"status":0, "desc": "Enregistre l'anniversaire d'un membre pour le lui souhaiter"}
       , "Bancommand": {"status":0, "desc": "Empêche un utilisateur ou un role d'utiliser une commande Garden"}
-      , "Help": {"status":0, "desc": "Affiche l'aide de Garden"}
-      , "Highlight": {"status":0, "desc": "Gère les mises en valeurs de message"}
+      ,       "Help": {"status":0, "desc": "Affiche l'aide de Garden"}
+      ,  "Highlight": {"status":0, "desc": "Gère les mises en valeurs de message"}
       , "Invitation": {"status":0, "desc": "Gère les invitations/jetons"}
-      , "Link": {"status":0, "desc": "Gère les liens entre rôles"}
-      , "Loader": {"status":0, "desc": "Chargement des différents cogs"}
-      , "Logs": {"status":0, "desc": "Gère les logs des différents cogs"}
-      , "Nickname": {"status":0, "desc": "Gère le changement de surnom (nickname)"}
-      , "RoleDM": {"status":0, "desc": "Gère l'envoie d'un message privé à la prise d'un rôle"}
-      , "Utip": {"status":0, "desc": "Gère le rôle pour les backers Utip"}
-      , "Welcome": {"status":0, "desc": "Gère l'envoie d'un message dans un channel définit à la prise d'un rôle"}
+      ,       "Link": {"status":0, "desc": "Gère les liens entre rôles"}
+      ,     "Loader": {"status":0, "desc": "Chargement des différents cogs"}
+      ,       "Logs": {"status":0, "desc": "Gère les logs des différents cogs"}
+      ,   "Nickname": {"status":0, "desc": "Gère le changement de surnom (nickname)"}
+      ,     "RoleDM": {"status":0, "desc": "Gère l'envoie d'un message privé à la prise d'un rôle"}
+      ,       "Utip": {"status":0, "desc": "Gère le rôle pour les backers Utip"}
+      ,       "Vote": {"status":0, "desc": "Automatisation des votes"}
+      ,    "Welcome": {"status":0, "desc": "Gère l'envoie d'un message dans un channel définit à la prise d'un rôle"}
     }
     for name in self.bot.cogs.keys():
       all_cogs [name]["status"] = 1

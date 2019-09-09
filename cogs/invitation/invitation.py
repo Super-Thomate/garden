@@ -32,9 +32,7 @@ class Invitation(commands.Cog):
       return
     if not botconfig.config[str(guild_id)]["do_invite"]:
       return
-    if (    self.utils.is_banned_user (ctx.command, ctx.author, ctx.guild.id)
-         or self.utils.is_banned_role (ctx.command, ctx.author, ctx.guild.id)
-       ):
+    if self.utils.is_banned (ctx.command, ctx.author, ctx.guild.id):
       await ctx.message.add_reaction('❌')
       await ctx.author.send ("Vous n'êtes pas autorisé à utilisez cette commande pour le moment.")
       return
@@ -72,9 +70,7 @@ class Invitation(commands.Cog):
       return
     if not botconfig.config[str(guild_id)]["do_invite"]:
       return
-    if (    self.utils.is_banned_user (ctx.command, ctx.author, ctx.guild.id)
-         or self.utils.is_banned_role (ctx.command, ctx.author, ctx.guild.id)
-       ):
+    if self.utils.is_banned (ctx.command, ctx.author, ctx.guild.id):
       await ctx.message.add_reaction('❌')
       await ctx.author.send ("Vous n'êtes pas autorisé à utilisez cette commande pour le moment.")
       return
@@ -99,9 +95,7 @@ class Invitation(commands.Cog):
       return
     if not botconfig.config[str(guild_id)]["do_token"]:
       return
-    if (    self.utils.is_banned_user (ctx.command, ctx.author, ctx.guild.id)
-         or self.utils.is_banned_role (ctx.command, ctx.author, ctx.guild.id)
-       ):
+    if self.utils.is_banned (ctx.command, ctx.author, ctx.guild.id):
       await ctx.message.add_reaction('❌')
       await ctx.author.send ("Vous n'êtes pas autorisé à utilisez cette commande pour le moment.")
       return
@@ -139,9 +133,7 @@ class Invitation(commands.Cog):
       return
     if not botconfig.config[str(guild_id)]["do_invite"]:
       return
-    if (    self.utils.is_banned_user (ctx.command, ctx.author, ctx.guild.id)
-         or self.utils.is_banned_role (ctx.command, ctx.author, ctx.guild.id)
-       ):
+    if self.utils.is_banned (ctx.command, ctx.author, ctx.guild.id):
       await ctx.message.add_reaction('❌')
       await ctx.author.send ("Vous n'êtes pas autorisé à utilisez cette commande pour le moment.")
       return
@@ -191,9 +183,7 @@ class Invitation(commands.Cog):
       return
     if not botconfig.config[str(guild_id)]["do_invite"]:
       return
-    if (    self.utils.is_banned_user (ctx.command, ctx.author, ctx.guild.id)
-         or self.utils.is_banned_role (ctx.command, ctx.author, ctx.guild.id)
-       ):
+    if self.utils.is_banned (ctx.command, ctx.author, ctx.guild.id):
       await ctx.message.add_reaction('❌')
       await ctx.author.send ("Vous n'êtes pas autorisé à utilisez cette commande pour le moment.")
       return
@@ -224,9 +214,7 @@ class Invitation(commands.Cog):
       return
     if not botconfig.config[str(guild_id)]["do_token"]:
       return
-    if (    self.utils.is_banned_user (ctx.command, ctx.author, ctx.guild.id)
-         or self.utils.is_banned_role (ctx.command, ctx.author, ctx.guild.id)
-       ):
+    if self.utils.is_banned (ctx.command, ctx.author, ctx.guild.id):
       await ctx.message.add_reaction('❌')
       await ctx.author.send ("Vous n'êtes pas autorisé à utilisez cette commande pour le moment.")
       return

@@ -21,6 +21,7 @@ initial_extensions = [   'cogs.loader'
                        , 'cogs.welcome'
                        , 'cogs.bancommand'
                        , 'cogs.roledm'
+                       #, 'cogs.vote'
                      ]
 
 bot = commands.Bot(command_prefix=get_prefix)

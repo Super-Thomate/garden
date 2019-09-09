@@ -19,9 +19,7 @@ class Nickname(commands.Cog):
     message = ctx.message
     member = ctx.author
     guild_id = ctx.guild.id
-    if (    self.utils.is_banned_user (ctx.command, ctx.author, ctx.guild.id)
-         or self.utils.is_banned_role (ctx.command, ctx.author, ctx.guild.id)
-       ):
+    if self.utils.is_banned (ctx.command, ctx.author, ctx.guild.id):
       await ctx.message.add_reaction('❌')
       await ctx.author.send ("Vous n'êtes pas autorisé à utilisez cette commande pour le moment.")
       return
@@ -98,9 +96,7 @@ class Nickname(commands.Cog):
     if not self.utils.is_authorized (ctx.author, guild_id):
       print ("Missing permissions")
       return
-    if (    self.utils.is_banned_user (ctx.command, ctx.author, ctx.guild.id)
-         or self.utils.is_banned_role (ctx.command, ctx.author, ctx.guild.id)
-       ):
+    if self.utils.is_banned (ctx.command, ctx.author, ctx.guild.id):
       await ctx.message.add_reaction('❌')
       await ctx.author.send ("Vous n'êtes pas autorisé à utilisez cette commande pour le moment.")
       return
@@ -120,9 +116,7 @@ class Nickname(commands.Cog):
   async def next_nickname(self, ctx):
     member = ctx.author
     guild_id = ctx.guild.id
-    if (    self.utils.is_banned_user (ctx.command, ctx.author, ctx.guild.id)
-         or self.utils.is_banned_role (ctx.command, ctx.author, ctx.guild.id)
-       ):
+    if self.utils.is_banned (ctx.command, ctx.author, ctx.guild.id):
       await ctx.message.add_reaction('❌')
       await ctx.author.send ("Vous n'êtes pas autorisé à utilisez cette commande pour le moment.")
       return
@@ -163,9 +157,7 @@ class Nickname(commands.Cog):
     if not self.utils.is_authorized (author, guild_id):
       print ("Missing permissions")
       return
-    if (    self.utils.is_banned_user (ctx.command, ctx.author, ctx.guild.id)
-         or self.utils.is_banned_role (ctx.command, ctx.author, ctx.guild.id)
-       ):
+    if self.utils.is_banned (ctx.command, ctx.author, ctx.guild.id):
       await ctx.message.add_reaction('❌')
       await ctx.author.send ("Vous n'êtes pas autorisé à utilisez cette commande pour le moment.")
       return
