@@ -182,6 +182,7 @@ class Logs(commands.Cog):
         if length_or_id == 'id':
           feedback           = await ctx.send (f"{message_id} n'est pas un id valide.")
           await feedback.delete (delay=2)
+          return
     if not self.utils.is_authorized (member, guild_id):
       print ("Missing permissions")
       return
