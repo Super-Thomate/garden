@@ -167,17 +167,18 @@ class Logs(commands.Cog):
 
   @commands.command(name='cleanchannel', aliases=['cc'])
   @commands.guild_only()
-  async def cleanchannel(self, ctx, length_or_id: int = None):
+  async def cleanchannel(self, ctx, length_or_id: str = None, message_id: int = None):
     """Clean the current channel"""
     channel = ctx.channel
     member = ctx.author
     guild_id = ctx.guild.id
-    await ctx.message.delete ()
+    await ctx.message.delete (delay=1)
     until_message            = None
-    try:
-      until_message          = await channel.fetch_message (length_or_id)
-    except Exception as e:
-      print (f" {type(e).__name__} - {e}")
+    if message_id and length_or_id == 'id':
+      try:
+        until_message          = await channel.fetch_message (message_id)
+      except Exception as e:
+        print (f" {type(e).__name__} - {e}")
       
     if not self.utils.is_authorized (member, guild_id):
       print ("Missing permissions")
@@ -195,7 +196,13 @@ class Logs(commands.Cog):
           counter           += 1
       length                 = counter
     else:
-      length                 = length_or_id if (length_or_id and length_or_id <= 200) else 10
+      try:
+        length_or_id         = int (length_or_id)
+      except Exception as e:
+        print (f" {type(e).__name__} - {e}")
+        return
+      else:
+        length               = length_or_id if (length_or_id and length_or_id <= 200) else 10
       
     not_is_pin = lambda message : not message.pinned
     # delete all messages except ping
