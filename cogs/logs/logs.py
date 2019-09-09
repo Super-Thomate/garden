@@ -199,13 +199,16 @@ class Logs(commands.Cog):
           counter           += 1
       length                 = counter
     else:
-      try:
-        length_or_id         = int (length_or_id)
-      except Exception as e:
-        print (f" {type(e).__name__} - {e}")
-        return
+      if not length_or_id:
+        length               = 10
       else:
-        length               = length_or_id if (length_or_id and length_or_id <= 200) else 10
+        try:
+          length_or_id       = int (length_or_id)
+        except Exception as e:
+          print (f" {type(e).__name__} - {e}")
+          return
+        else:
+          length             = length_or_id if (length_or_id <= 200) else 10
       
     not_is_pin = lambda message : not message.pinned
     # delete all messages except ping
