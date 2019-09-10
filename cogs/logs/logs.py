@@ -295,7 +295,7 @@ class Logs(commands.Cog):
       msg                    = await self.bot.wait_for('message', check=check)
       message                = msg.content
       await user.send (message)
-      await ctx.delete (delay=2)
+      await ctx.message.delete (delay=2)
       await ask.delete (delay=2)
       await msg.delete (delay=2)
     except Exception as e:
