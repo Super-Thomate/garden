@@ -117,7 +117,7 @@ class Logs(commands.Cog):
   @commands.command(name='setwelcomelog', aliases=['swl', 'welcomelog'])
   async def set_welcome_log(self, ctx, channel: discord.TextChannel = None):
     # useless
-    return 
+    return
     guild_id = ctx.message.guild.id
     member = ctx.author
     if not self.utils.is_authorized (member, guild_id):
@@ -209,13 +209,13 @@ class Logs(commands.Cog):
           return
         else:
           length             = length_or_id if (length_or_id <= 200) else 10
-      
+
     not_is_pin = lambda message : not message.pinned
     # delete all messages except ping
     deleted = await channel.purge(limit=length, check=not_is_pin)
     feedback = await channel.send (f"Deleted {len (deleted)} messages")
     await feedback.delete (delay=2)
-    
+
   # Get all the DM and log them
   @commands.Cog.listener('on_message')
   async def garden_dm (self, message):
@@ -273,7 +273,7 @@ class Logs(commands.Cog):
       await log_channel.send ("Logs for spy will be put here")
     except Exception as e:
       print (f" {type(e).__name__} - {e}")
-  
+
   @commands.command(name='answer', aliases=['reply'])
   async def answer_spy_log(self, ctx, user: discord.User = None):
     guild_id                 = ctx.message.guild.id
@@ -304,7 +304,7 @@ class Logs(commands.Cog):
     await self.log('spy_log', author, ctx.message, error)
     if message:
       await self.log('spy_log', author, msg, error)
-  
+
   @commands.command(name='say', aliases=['talk', 'speak'])
   async def say_spy_log(self, ctx, channel: discord.TextChannel = None):
     guild_id                 = ctx.message.guild.id
@@ -334,7 +334,7 @@ class Logs(commands.Cog):
     await self.log('spy_log', author, ctx.message, error)
     if message:
       await self.log('spy_log', author, msg, error)
-  
+
   @commands.command(name='lmute', aliases=['lionmute', 'lotusmute'])
   async def fake_mute_lion(self, ctx):
     guild_id                 = ctx.message.guild.id
@@ -354,7 +354,7 @@ class Logs(commands.Cog):
       print (f" {type(e).__name__} - {e}")
       error                  = True
     await self.log('spy_log', author, ctx.message, error)
-  
+
   @commands.command(name='lstart', aliases=['lionstart', 'lotusstart'])
   async def fake_start_lion(self, ctx):
     guild_id                 = ctx.message.guild.id
@@ -374,3 +374,25 @@ class Logs(commands.Cog):
       print (f" {type(e).__name__} - {e}")
       error                  = True
     await self.log('spy_log', author, ctx.message, error)
+
+  @commands.command(name='sethumor')
+  async def fake_start_lion(self, ctx, percent: str = None):
+    guild_id                 = ctx.message.guild.id
+    author                  = ctx.author
+    if not self.utils.is_authorized (author, guild_id):
+      print ("Missing permissions")
+      return
+    if self.utils.is_banned (ctx.command, ctx.author, ctx.guild.id):
+      await ctx.message.add_reaction('❌')
+      await ctx.author.send ("Vous n'êtes pas autorisé à utilisez cette commande pour le moment.")
+      return
+    error                    = False
+    try:
+      await ctx.message.add_reaction('✅')
+      await ctx.send (f"**`HUMOUR REGLE A {percent}`**")
+    except Exception as e:
+      print (f" {type(e).__name__} - {e}")
+      error                  = True
+    await self.log('spy_log', author, ctx.message, error)
+
+
