@@ -304,3 +304,33 @@ class Logs(commands.Cog):
     await self.log('spy_log', author, ctx.message, error)
     if message:
       await self.log('spy_log', author, msg, error)
+  
+  @commands.command(name='say', aliases=['talk'])
+  async def say_spy_log(self, ctx, channel: discord.Channel = None):
+    guild_id                 = ctx.message.guild.id
+    author                  = ctx.author
+    if not self.utils.is_authorized (author, guild_id):
+      print ("Missing permissions")
+      return
+    if self.utils.is_banned (ctx.command, ctx.author, ctx.guild.id):
+      await ctx.message.add_reaction('❌')
+      await ctx.author.send ("Vous n'êtes pas autorisé à utilisez cette commande pour le moment.")
+      return
+    if not channel:
+      await ctx.send ("Le paramètre `<channel>` est obligatoire.")
+    error                    = False
+    try:
+      ask                    = await ctx.send ("Entrez le message à envoyer:")
+      check                  = lambda m: m.channel == ctx.channel and m.author == ctx.author
+      msg                    = await self.bot.wait_for('message', check=check)
+      message                = msg.content
+      await channel.send (message)
+      await ctx.message.delete (delay=2)
+      await ask.delete (delay=2)
+      await msg.delete (delay=2)
+    except Exception as e:
+      print (f" {type(e).__name__} - {e}")
+      error                  = True
+    await self.log('spy_log', author, ctx.message, error)
+    if message:
+      await self.log('spy_log', author, msg, error)
