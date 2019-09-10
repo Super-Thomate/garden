@@ -14,7 +14,24 @@ class Config(commands.Cog):
 
   """
   Config:
-  * bancommanduser command user [time]
+  "283243816448819200":
+  {          "roles": [   580062847900450867
+                        , 283247966490460160
+                        , 283245747694993410
+                        , 507978584342659082
+                      ]
+  ,       "prefixes": [   "!"
+                        , "?"
+                        , "-"
+                      ]
+  ,     "create_url": {   "invitation":"https://admin.realms-of-fantasy.net/bot.php"
+                        , "gallery":"https://admin.realms-of-fantasy.net/bot-AR.php?"
+                      }
+  ,   "invite_delay": "6 months"
+  ,      "do_invite": 1
+  ,       "do_token": 0
+  , "nickname_delay": "1 week"
+  }
   """
   def __init__(self, bot):
     self.bot = bot
