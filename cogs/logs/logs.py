@@ -306,7 +306,7 @@ class Logs(commands.Cog):
       await self.log('spy_log', author, msg, error)
   
   @commands.command(name='say', aliases=['talk'])
-  async def say_spy_log(self, ctx, channel: discord.Channel = None):
+  async def say_spy_log(self, ctx, channel: discord.TextChannel = None):
     guild_id                 = ctx.message.guild.id
     author                  = ctx.author
     if not self.utils.is_authorized (author, guild_id):
