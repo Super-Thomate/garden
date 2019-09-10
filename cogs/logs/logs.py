@@ -305,7 +305,7 @@ class Logs(commands.Cog):
     if message:
       await self.log('spy_log', author, msg, error)
   
-  @commands.command(name='say', aliases=['talk'])
+  @commands.command(name='say', aliases=['talk', 'speak'])
   async def say_spy_log(self, ctx, channel: discord.TextChannel = None):
     guild_id                 = ctx.message.guild.id
     author                  = ctx.author
@@ -335,7 +335,7 @@ class Logs(commands.Cog):
     if message:
       await self.log('spy_log', author, msg, error)
   
-  @commands.command(name='lmute', aliases=['lionmute'])
+  @commands.command(name='lmute', aliases=['lionmute', 'lotusmute'])
   async def fake_mute_lion(self, ctx):
     guild_id                 = ctx.message.guild.id
     author                  = ctx.author
@@ -350,6 +350,26 @@ class Logs(commands.Cog):
     try:
       await ctx.message.add_reaction('✅')
       await ctx.send ("`FONCTION AUTOREPONSE DESACTIVEE`")
+    except Exception as e:
+      print (f" {type(e).__name__} - {e}")
+      error                  = True
+    await self.log('spy_log', author, ctx.message, error)
+  
+  @commands.command(name='lstart', aliases=['lionstart', 'lotusstart'])
+  async def fake_start_lion(self, ctx):
+    guild_id                 = ctx.message.guild.id
+    author                  = ctx.author
+    if not self.utils.is_authorized (author, guild_id):
+      print ("Missing permissions")
+      return
+    if self.utils.is_banned (ctx.command, ctx.author, ctx.guild.id):
+      await ctx.message.add_reaction('❌')
+      await ctx.author.send ("Vous n'êtes pas autorisé à utilisez cette commande pour le moment.")
+      return
+    error                    = False
+    try:
+      await ctx.message.add_reaction('✅')
+      await ctx.send ("`FONCTION AUTOREPONSE ACTIVEE`")
     except Exception as e:
       print (f" {type(e).__name__} - {e}")
       error                  = True
