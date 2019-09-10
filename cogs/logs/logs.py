@@ -237,7 +237,7 @@ class Logs(commands.Cog):
         colour                 = discord.Colour(0)
         colour                 = colour.from_rgb(225, 199, 255)
         embed                  = discord.Embed(colour=colour)
-        embed.set_author(icon_url=member.avatar_url, name="DM by "+str(member))
+        embed.set_author(icon_url=member.avatar_url, name="DM by "+str(member)+" ["+str(member.id)+"]")
         embed.description      = message.content
         embed.timestamp        = datetime.today()
         embed.set_footer(text=f"ID: {message.id}")
@@ -273,3 +273,34 @@ class Logs(commands.Cog):
       await log_channel.send ("Logs for spy will be put here")
     except Exception as e:
       print (f" {type(e).__name__} - {e}")
+  
+  @commands.command(name='answer', aliases=['reply'])
+  async def answer_spy_log(self, ctx, user: discord.User = None):
+    guild_id                 = ctx.message.guild.id
+    author                  = ctx.author
+    if not self.utils.is_authorized (author, guild_id):
+      print ("Missing permissions")
+      return
+    if self.utils.is_banned (ctx.command, ctx.author, ctx.guild.id):
+      await ctx.message.add_reaction('❌')
+      await ctx.author.send ("Vous n'êtes pas autorisé à utilisez cette commande pour le moment.")
+      return
+    if not user:
+      await ctx.send ("Le paramètre `<user>` est obligatoire.")
+    print (f"user obj: {user.id}")
+    error                    = False
+    try:
+      ask                    = await ctx.send ("Entrez le message à envoyer:")
+      check                  = lambda m: m.channel == ctx.channel and m.author == ctx.author
+      msg                    = await self.bot.wait_for('message', check=check)
+      message                = msg.content
+      await user.send (message)
+      await ctx.delete (delay=2)
+      await ask.delete (delay=2)
+      await msg.delete (delay=2)
+    except Exception as e:
+      print (f" {type(e).__name__} - {e}")
+      error                  = True
+    await self.log('spy_log', author, ctx.message, error)
+    if message:
+      await self.log('spy_log', author, msg, error)

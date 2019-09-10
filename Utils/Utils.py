@@ -2,6 +2,8 @@ import math
 import botconfig
 from database import Database
 import time
+import sys
+import inspect
 
 
 class Utils():
@@ -144,3 +146,13 @@ class Utils():
       else:
         number = number*10 + cast
     return to_ret
+  
+  
+  def debug(self, message):
+    """
+    Debug function, to use rather than print (message)
+    https://stackoverflow.com/questions/6810999/how-to-determine-file-function-and-line-number
+    """
+    info                     = inspect.getframeinfo((inspect.stack()[1])[0])
+    print (sys._getframe().f_lineno)
+    print (info.filename, 'func=%s' % info.function, 'line=%s:' % info.lineno, message)
