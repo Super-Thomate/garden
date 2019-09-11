@@ -234,6 +234,7 @@ class Turing(commands.Cog):
       return
     if not message_id:
       await ctx.send ("Le paramètre `<message_id>` est obligatoire.")
+    error                    = False
     try:
       message                = None
       # print (ctx.guild.channels)
@@ -281,6 +282,7 @@ class Turing(commands.Cog):
       return
     if not message_id:
       await ctx.send ("Le paramètre `<message_id>` est obligatoire.")
+    error                    = False
     try:
       message                = None
       # print (ctx.guild.channels)
