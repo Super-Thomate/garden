@@ -142,7 +142,7 @@ class Turing(commands.Cog):
     await self.log('spy_log', author, ctx.message, error)
 
   @commands.command(name='react')
-  async def react_turing(self, ctx, message: discord.Message = None, emoji: discord.Emoji = None):
+  async def react_turing(self, ctx, message_id: int = None, emoji: discord.Emoji = None):
     guild_id                 = ctx.message.guild.id
     author                  = ctx.author
     if not self.utils.is_authorized (author, guild_id):
@@ -152,13 +152,25 @@ class Turing(commands.Cog):
       await ctx.message.add_reaction('❌')
       await ctx.author.send ("Vous n'êtes pas autorisé à utilisez cette commande pour le moment.")
       return
-    if not message:
-      await ctx.send ("Le paramètre `<message>` est obligatoire.")
+    if not message_id:
+      await ctx.send ("Le paramètre `<message_id>` est obligatoire.")
     if not emoji:
       await ctx.send ("Le paramètre `<emoji>` est obligatoire.")
     error                    = False
     try:
-      await message.add_reaction(emoji)
+      message                = None
+      for channel in ctx.guild.channels:
+        try:
+          message            = channel.fetch_message (message_id)
+        except Exception as e:
+          print (f" {type(e).__name__} - {e}")
+        else:
+          break
+      if message:
+        await message.add_reaction(emoji)
+      else:
+        await ctx.send ("Message not found")
+        error                = True
       # await ctx.message.delete (delay=2)
     except Exception as e:
       print (f" {type(e).__name__} - {e}")
