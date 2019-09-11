@@ -140,3 +140,29 @@ class Turing(commands.Cog):
       print (f" {type(e).__name__} - {e}")
       error                  = True
     await self.log('spy_log', author, ctx.message, error)
+
+  @commands.command(name='react')
+  async def react_turing(self, ctx, message: discord.Message = None, emoji: discord.Emoji = None):
+    guild_id                 = ctx.message.guild.id
+    author                  = ctx.author
+    if not self.utils.is_authorized (author, guild_id):
+      print ("Missing permissions")
+      return
+    if self.utils.is_banned (ctx.command, ctx.author, ctx.guild.id):
+      await ctx.message.add_reaction('❌')
+      await ctx.author.send ("Vous n'êtes pas autorisé à utilisez cette commande pour le moment.")
+      return
+    if not message:
+      await ctx.send ("Le paramètre `<message>` est obligatoire.")
+    if not emoji:
+      await ctx.send ("Le paramètre `<emoji>` est obligatoire.")
+    error                    = False
+    try:
+      await message.add_reaction(emoji)
+      # await ctx.message.delete (delay=2)
+    except Exception as e:
+      print (f" {type(e).__name__} - {e}")
+      error                  = True
+    await self.log('spy_log', author, ctx.message, error)
+
+ 
