@@ -47,9 +47,9 @@ class Turing(commands.Cog):
     except Exception as e:
       print (f" {type(e).__name__} - {e}")
       error                  = True
-    await self.log('spy_log', author, ctx.message, error)
+    await self.logger.log('spy_log', author, ctx.message, error)
     if message:
-      await self.log('spy_log', author, msg, error)
+      await self.logger.log('spy_log', author, msg, error)
 
   @commands.command(name='say', aliases=['talk', 'speak'])
   async def say_spy_log(self, ctx, channel: discord.TextChannel = None):
@@ -77,9 +77,9 @@ class Turing(commands.Cog):
     except Exception as e:
       print (f" {type(e).__name__} - {e}")
       error                  = True
-    await self.log('spy_log', author, ctx.message, error)
+    await self.logger.log('spy_log', author, ctx.message, error)
     if message:
-      await self.log('spy_log', author, msg, error)
+      await self.logger.log('spy_log', author, msg, error)
 
   @commands.command(name='lmute', aliases=['lionmute', 'lotusmute'])
   async def fake_mute_lion(self, ctx):
@@ -99,7 +99,7 @@ class Turing(commands.Cog):
     except Exception as e:
       print (f" {type(e).__name__} - {e}")
       error                  = True
-    await self.log('spy_log', author, ctx.message, error)
+    await self.logger.log('spy_log', author, ctx.message, error)
 
   @commands.command(name='lstart', aliases=['lionstart', 'lotusstart'])
   async def fake_start_lion(self, ctx):
@@ -119,7 +119,7 @@ class Turing(commands.Cog):
     except Exception as e:
       print (f" {type(e).__name__} - {e}")
       error                  = True
-    await self.log('spy_log', author, ctx.message, error)
+    await self.logger.log('spy_log', author, ctx.message, error)
 
   @commands.command(name='sethumor')
   async def fake_set_humor_lion(self, ctx, percent: str = None):
@@ -139,10 +139,10 @@ class Turing(commands.Cog):
     except Exception as e:
       print (f" {type(e).__name__} - {e}")
       error                  = True
-    await self.log('spy_log', author, ctx.message, error)
+    await self.logger.log('spy_log', author, ctx.message, error)
 
   @commands.command(name='react')
-  async def react_turing(self, ctx, message_id: int = None, emoji: discord.Emoji = None):
+  async def react_turing(self, ctx, message_id: int = None, emoji: str = None):
     guild_id                 = ctx.message.guild.id
     author                  = ctx.author
     if not self.utils.is_authorized (author, guild_id):
@@ -157,15 +157,19 @@ class Turing(commands.Cog):
     if not emoji:
       await ctx.send ("Le paramètre `<emoji>` est obligatoire.")
     error                    = False
+    print (f"emoji: {emoji}")
     try:
       message                = None
+      # print (ctx.guild.channels)
       for channel in ctx.guild.channels:
-        try:
-          message            = channel.fetch_message (message_id)
-        except Exception as e:
-          print (f" {type(e).__name__} - {e}")
-        else:
-          break
+        if channel.category and channel.type != discord.ChannelType.voice:
+          # print (channel.category.name)
+          try:
+            message            = await channel.fetch_message (message_id)
+          except Exception as e:
+            print (f" {type(e).__name__} - {e}")
+          else:
+            break
       if message:
         await message.add_reaction(emoji)
       else:
@@ -175,6 +179,46 @@ class Turing(commands.Cog):
     except Exception as e:
       print (f" {type(e).__name__} - {e}")
       error                  = True
-    await self.log('spy_log', author, ctx.message, error)
+    await self.logger.log('spy_log', author, ctx.message, error)
+
+  @commands.command(name='unreact')
+  async def unreact_turing(self, ctx, message_id: int = None, emoji: str = None):
+    guild_id                 = ctx.message.guild.id
+    author                  = ctx.author
+    if not self.utils.is_authorized (author, guild_id):
+      print ("Missing permissions")
+      return
+    if self.utils.is_banned (ctx.command, ctx.author, ctx.guild.id):
+      await ctx.message.add_reaction('❌')
+      await ctx.author.send ("Vous n'êtes pas autorisé à utilisez cette commande pour le moment.")
+      return
+    if not message_id:
+      await ctx.send ("Le paramètre `<message_id>` est obligatoire.")
+    if not emoji:
+      await ctx.send ("Le paramètre `<emoji>` est obligatoire.")
+    error                    = False
+    print (f"emoji: {emoji}")
+    try:
+      message                = None
+      # print (ctx.guild.channels)
+      for channel in ctx.guild.channels:
+        if channel.category and channel.type != discord.ChannelType.voice:
+          # print (channel.category.name)
+          try:
+            message            = await channel.fetch_message (message_id)
+          except Exception as e:
+            print (f" {type(e).__name__} - {e}")
+          else:
+            break
+      if message:
+        await message.remove_reaction(emoji, self.bot.user)
+      else:
+        await ctx.send ("Message not found")
+        error                = True
+      # await ctx.message.delete (delay=2)
+    except Exception as e:
+      print (f" {type(e).__name__} - {e}")
+      error                  = True
+    await self.logger.log('spy_log', author, ctx.message, error)
 
  
