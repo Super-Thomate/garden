@@ -160,6 +160,7 @@ class Logs(commands.Cog):
     embed.description = message.content
     embed.timestamp = datetime.today()
     embed.set_footer(text=f"ID: {message.id}")
+    embed.url(message.jump_url)
     try:
       await log_channel.send(content=None, embed=embed)
     except Exception as e:

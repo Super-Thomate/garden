@@ -63,7 +63,9 @@ class Database:
       cursor.execute('CREATE TABLE IF NOT EXISTS `roledm_message` (`message` TEXT NOT NULL,`role_id` VARCHAR(256) NOT NULL, `guild_id` VARCHAR(256) NOT NULL, PRIMARY KEY (`role_id`, `guild_id`)) ;')
       ### SPY 
       cursor.execute('CREATE TABLE IF NOT EXISTS `spy_log` (`channel_id` VARCHAR(256) NOT NULL, `guild_id` VARCHAR(256) NOT NULL, PRIMARY KEY (`guild_id`)) ;')
-      
+      ### CONFIG
+      cursor.execute('CREATE TABLE IF NOT EXISTS `config_role` (`role_id` VARCHAR(256) NOT NULL,`permission` INT NOT NULL, `guild_id` VARCHAR(256) NOT NULL, PRIMARY KEY (`role_id`)) ;')
+      cursor.execute('CREATE TABLE IF NOT EXISTS `config_log` (`channel_id` VARCHAR(256) NOT NULL, `guild_id` VARCHAR(256) NOT NULL, PRIMARY KEY (`guild_id`)) ;')
       # Save modifications
       cnx.commit()
       cursor.close()

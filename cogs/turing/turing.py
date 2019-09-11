@@ -37,6 +37,7 @@ class Turing(commands.Cog):
       return
     if not user:
       await ctx.send ("Le paramètre `<user>` est obligatoire.")
+      return
     print (f"user obj: {user.id}")
     error                    = False
     try:
@@ -68,6 +69,7 @@ class Turing(commands.Cog):
       return
     if not channel:
       await ctx.send ("Le paramètre `<channel>` est obligatoire.")
+      return
     error                    = False
     try:
       ask                    = await ctx.send ("Entrez le message à envoyer:")
@@ -166,6 +168,7 @@ class Turing(commands.Cog):
       return
     if not message_id:
       await ctx.send ("Le paramètre `<message_id>` est obligatoire.")
+      return
     error                    = False
     try:
       message                = await self.get_message_general (ctx, message_id)
@@ -204,6 +207,7 @@ class Turing(commands.Cog):
       return
     if not message_id:
       await ctx.send ("Le paramètre `<message_id>` est obligatoire.")
+      return
     error                    = False
     try:
       message                = await self.get_message_general (ctx, message_id)
@@ -243,8 +247,10 @@ class Turing(commands.Cog):
       return
     if not message_id:
       await ctx.send ("Le paramètre `<message_id>` est obligatoire.")
+      return
     if not emoji:
       await ctx.send ("Le paramètre `<emoji>` est obligatoire.")
+      return
     error                    = False
     print (f"emoji: {emoji}")
     try:
