@@ -221,4 +221,87 @@ class Turing(commands.Cog):
       error                  = True
     await self.logger.log('spy_log', author, ctx.message, error)
 
+  @commands.command(name='editmessage')
+  async def edit_message_turing(self, ctx, message_id: int = None):
+    guild_id                 = ctx.message.guild.id
+    author                  = ctx.author
+    if not self.utils.is_authorized (author, guild_id):
+      print ("Missing permissions")
+      return
+    if self.utils.is_banned (ctx.command, ctx.author, ctx.guild.id):
+      await ctx.message.add_reaction('❌')
+      await ctx.author.send ("Vous n'êtes pas autorisé à utilisez cette commande pour le moment.")
+      return
+    if not message_id:
+      await ctx.send ("Le paramètre `<message_id>` est obligatoire.")
+    try:
+      message                = None
+      # print (ctx.guild.channels)
+      for channel in ctx.guild.channels:
+        if channel.category and channel.type != discord.ChannelType.voice:
+          # print (channel.category.name)
+          try:
+            message            = await channel.fetch_message (message_id)
+          except Exception as e:
+            print (f" {type(e).__name__} - {e}")
+          else:
+            break
+      if message:
+        old_content_title    = await ctx.send ("Ancien message:")
+        old_content          = await ctx.send (ctx.message.content)
+        ask                  = await ctx.send ("Entrez le nouveau message:")
+        check                = lambda m: m.channel == ctx.channel and m.author == ctx.author
+        msg                  = await self.bot.wait_for('message', check=check)
+        new_content          = msg.content
+        await message.edit (content=new_content)
+        await ctx.message.delete (delay=2)
+        await old_content_title.delete (delay=2)
+        await old_content.delete (delay=2)
+        await ask.delete (delay=2)
+        await msg.delete (delay=2)
+      else:
+        await ctx.send ("Message not found")
+        error                = True
+      # await ctx.message.delete (delay=2)
+    except Exception as e:
+      print (f" {type(e).__name__} - {e}")
+      error                  = True
+    await self.logger.log('spy_log', author, ctx.message, error)
+
+  @commands.command(name='deletemessage')
+  async def delete_message_turing(self, ctx, message_id: int = None):
+    guild_id                 = ctx.message.guild.id
+    author                  = ctx.author
+    if not self.utils.is_authorized (author, guild_id):
+      print ("Missing permissions")
+      return
+    if self.utils.is_banned (ctx.command, ctx.author, ctx.guild.id):
+      await ctx.message.add_reaction('❌')
+      await ctx.author.send ("Vous n'êtes pas autorisé à utilisez cette commande pour le moment.")
+      return
+    if not message_id:
+      await ctx.send ("Le paramètre `<message_id>` est obligatoire.")
+    try:
+      message                = None
+      # print (ctx.guild.channels)
+      for channel in ctx.guild.channels:
+        if channel.category and channel.type != discord.ChannelType.voice:
+          # print (channel.category.name)
+          try:
+            message            = await channel.fetch_message (message_id)
+          except Exception as e:
+            print (f" {type(e).__name__} - {e}")
+          else:
+            break
+      if message:
+        await message.delete ()
+      else:
+        await ctx.send ("Message not found")
+        error                = True
+      # await ctx.message.delete (delay=2)
+    except Exception as e:
+      print (f" {type(e).__name__} - {e}")
+      error                  = True
+    await self.logger.log('spy_log', author, ctx.message, error)
+
  
