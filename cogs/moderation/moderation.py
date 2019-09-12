@@ -19,6 +19,8 @@ class Moderation(commands.Cog):
   async def all_caps_emoji(self, message):
     if (message.guild == None):
       return
+    if (message.author.id == self.bot.user.id):
+      return
     if len (message.content) > 5 and message.content.isupper():
       await message.add_reaction ("<:CapsLock:621629196359303168>")
     return
