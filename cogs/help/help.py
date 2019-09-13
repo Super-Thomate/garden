@@ -201,9 +201,9 @@ class Help(commands.Cog):
       ,    "Welcome": {"status":0, "desc": "Gère l'envoie d'un message dans un channel définit à la prise d'un rôle"}
     }
     for name in self.bot.cogs.keys():
-      if all_cogs [name]:
+      if name in all_cogs :
         all_cogs [name]["status"] = 1
-      elif all_cogs_2 [name]:
+      elif  name in all_cogs_2 :
         all_cogs_2 [name]["status"] = 1
         
     for cog, dicog in all_cogs.items():
