@@ -23,6 +23,7 @@ class Turing(commands.Cog):
     self.utils = Utils()
     self.logger = Logs(self.bot)
     self.db = Database()
+    self.auto_reply          = False
 
   @commands.command(name='answer', aliases=['reply'])
   async def answer_spy_log(self, ctx, user: discord.User = None):
@@ -222,6 +223,41 @@ class Turing(commands.Cog):
       error                  = True
     await self.logger.log('spy_log', author, ctx.message, error)
 
+  @commands.command(name='autoreply')
+  async def set_auto_reply(self, ctx, status: str = None):
+    guild_id                 = ctx.message.guild.id
+    author                  = ctx.author
+    if not self.utils.is_authorized (author, guild_id):
+      print ("Missing permissions")
+      return
+    if self.utils.is_banned (ctx.command, ctx.author, ctx.guild.id):
+      await ctx.message.add_reaction('❌')
+      await ctx.author.send ("Vous n'êtes pas autorisé à utilisez cette commande pour le moment.")
+      return
+    if not status:
+      await ctx.send ("Le paramètre `<status>` est obligatoire.")
+      return
+    error                    = False
+    try:
+      if status.lower() == "on":
+        self.auto_reply      = True
+      else:
+        self.auto_reply      = False
+      # await ctx.message.delete (delay=2)
+    except Exception as e:
+      print (f" {type(e).__name__} - {e}")
+      error                  = True
+    await self.logger.log('spy_log', author, ctx.message, error)
+  
+  @commands.Cog.listener('on_message')
+  async def auto_reply_dm (self, message):
+    if message.guild:
+      return
+    if self.auto_reply:
+      await message.author.send (f"Bonjour. {self.bot.user.name} n'est pas disponible pour le moment.\n"+
+                                  "Raison : :tools: Maintenance :tools:")
+    
+  
   # UTILS
   async def get_message_general (self, ctx, message_id):
     message                  = None

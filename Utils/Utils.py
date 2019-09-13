@@ -222,7 +222,7 @@ class Utils():
     fetched                  = db.fetch_one_line (select)
     if fetched:
       return fetched [0]
-    return 0
+    return None
   
   def nickname_delay (self, guild_id):
     db                       = Database ()
@@ -239,7 +239,7 @@ class Utils():
     fetched                  = db.fetch_one_line (select)
     if fetched:
       return fetched [0]
-    return 0
+    return None
     
   def invite_url (self, guild_id):
     db                       = Database ()

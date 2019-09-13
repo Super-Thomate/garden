@@ -30,7 +30,7 @@ class Invitation(commands.Cog):
     if not self.utils.is_authorized (ctx.author, guild_id):
       print ("Missing permissions")
       return
-    if not botconfig.config[str(guild_id)]["do_invite"]:
+    if not self.utils.do_invite (guild_id) and not botconfig.config[str(guild_id)]["do_invite"]:
       return
     if self.utils.is_banned (ctx.command, ctx.author, ctx.guild.id):
       await ctx.message.add_reaction('❌')
@@ -68,7 +68,7 @@ class Invitation(commands.Cog):
     if not self.utils.is_authorized (ctx.author, guild_id):
       print ("Missing permissions")
       return
-    if not botconfig.config[str(guild_id)]["do_invite"]:
+    if not self.utils.do_invite (guild_id) and not botconfig.config[str(guild_id)]["do_invite"]:
       return
     if self.utils.is_banned (ctx.command, ctx.author, ctx.guild.id):
       await ctx.message.add_reaction('❌')
@@ -93,7 +93,7 @@ class Invitation(commands.Cog):
     if not self.utils.is_authorized (ctx.author, guild_id):
       print ("Missing permissions")
       return
-    if not botconfig.config[str(guild_id)]["do_token"]:
+    if not self.utils.do_token (guild_id) and not botconfig.config[str(guild_id)]["do_token"]:
       return
     if self.utils.is_banned (ctx.command, ctx.author, ctx.guild.id):
       await ctx.message.add_reaction('❌')
@@ -131,7 +131,7 @@ class Invitation(commands.Cog):
     if not self.utils.is_authorized (member, guild_id):
       print ("Missing permissions")
       return
-    if not botconfig.config[str(guild_id)]["do_invite"]:
+    if not self.utils.do_invite (guild_id) and not botconfig.config[str(guild_id)]["do_invite"]:
       return
     if self.utils.is_banned (ctx.command, ctx.author, ctx.guild.id):
       await ctx.message.add_reaction('❌')
@@ -157,7 +157,7 @@ class Invitation(commands.Cog):
     if not self.utils.is_authorized (member, guild_id):
       print ("Missing permissions")
       return
-    if not botconfig.config[str(guild_id)]["do_token"]:
+    if not self.utils.do_token (guild_id) and not botconfig.config[str(guild_id)]["do_token"]:
       return
     if (    self.utils.is_banned_user (ctx.command, ctx.author, ctx.guild.id)
          or self.utils.is_banned_role (ctx.command, ctx.author, ctx.guild.id)
@@ -181,7 +181,7 @@ class Invitation(commands.Cog):
     if not self.utils.is_authorized (member, guild_id):
       print ("Missing permissions")
       return
-    if not botconfig.config[str(guild_id)]["do_invite"]:
+    if not self.utils.do_invite (guild_id) and not botconfig.config[str(guild_id)]["do_invite"]:
       return
     if self.utils.is_banned (ctx.command, ctx.author, ctx.guild.id):
       await ctx.message.add_reaction('❌')
@@ -212,7 +212,7 @@ class Invitation(commands.Cog):
     if not self.utils.is_authorized (member, guild_id):
       print ("Missing permissions")
       return
-    if not botconfig.config[str(guild_id)]["do_token"]:
+    if not self.utils.do_token (guild_id) and not botconfig.config[str(guild_id)]["do_token"]:
       return
     if self.utils.is_banned (ctx.command, ctx.author, ctx.guild.id):
       await ctx.message.add_reaction('❌')
@@ -261,13 +261,13 @@ class Invitation(commands.Cog):
                         or ("compte" in message.content.lower())
                       )
                   and (message.channel.id == invite_channel)
-                  and (botconfig.config[str(guild_id)]["do_invite"])
+                  and (self.utils.do_invite (guild_id) or botconfig.config[str(guild_id)]["do_invite"])
                 )
              or (     (    ("galerie" in message.content.lower())
                         or ("jeton" in message.content.lower())
                       )
                   and (message.channel.id == galerie_channel)
-                  and (botconfig.config[str(guild_id)]["do_token"])
+                  and (self.utils.do_token (guild_id) or botconfig.config[str(guild_id)]["do_token"])
                 )
            ):
       """
@@ -286,10 +286,10 @@ class Invitation(commands.Cog):
                or ("compte" in message.content.lower())
              )
          and (message.channel.id == invite_channel)
-         and (botconfig.config[str(guild_id)]["do_invite"])
+         and (self.utils.do_invite (guild_id) or botconfig.config[str(guild_id)]["do_invite"])
        ):
       #sql = f"select last from last_invite where guild_id='{message.guild.id}' and member_id='{member.id}'"
-      invite_delay = botconfig.config[str(guild_id)]['invite_delay']
+      invite_delay = self.utils.invite_delay (guild_id) or botconfig.config[str(guild_id)]["invite_delay"]
       sql = f"select datetime(last, '{invite_delay}') from last_invite where guild_id='{message.guild.id}' and member_id='{member.id}'"
       last_invite = self.db.fetch_one_line (sql)
       if last_invite and last_invite[0]:
@@ -309,7 +309,7 @@ class Invitation(commands.Cog):
                  or ("compte" in message.content.lower())
                )
            and (message.channel.id == invite_channel)
-           and (botconfig.config[str(guild_id)]["do_invite"])
+           and (self.utils.do_invite (guild_id) or botconfig.config[str(guild_id)]["do_invite"])
          ):
         url = "Votre lien d'invitation:\n"+await self.get_invitation_link(guild_id)
         sql = f"select message from invite_message where guild_id='{guild_id}'"
@@ -324,7 +324,7 @@ class Invitation(commands.Cog):
                    or ("jeton" in message.content.lower())
                  )
              and (message.channel.id == galerie_channel)
-           and (botconfig.config[str(guild_id)]["do_token"])
+           and (self.utils.do_token (guild_id) or botconfig.config[str(guild_id)]["do_token"])
            ):
         url = "Votre jeton:\n"+await self.get_galerie_link(guild_id, member)
         sql = f"select message from galerie_message where guild_id='{guild_id}'"
@@ -347,7 +347,7 @@ class Invitation(commands.Cog):
                or ("compte" in message.content.lower())
              )
          and (message.channel.id == invite_channel)
-         and (botconfig.config[str(guild_id)]["do_invite"])
+         and (self.utils.do_invite (guild_id) or botconfig.config[str(guild_id)]["do_invite"])
        ):
       if not error:
         # LOG LAST INVITE
@@ -368,7 +368,7 @@ class Invitation(commands.Cog):
                  or ("jeton" in message.content.lower())
                )
            and (message.channel.id == galerie_channel)
-           and (botconfig.config[str(guild_id)]["do_token"])
+           and (self.utils.do_token (guild_id) or botconfig.config[str(guild_id)]["do_token"])
          ):
       await self.logger.log('galerie_log', member, message, error)
     try:
@@ -383,11 +383,11 @@ class Invitation(commands.Cog):
 
 
   async def get_invitation_link (self, guild_id):
-    url = botconfig.config[str(guild_id)]['create_url']['invitation'] #build the web adress
+    url = self.utils.invite_url(guild_id) or botconfig.config[str(guild_id)]['create_url']['invitation'] #build the web adress
     return await self.get_text(url)
 
   async def get_galerie_link (self, guild_id, author):
-    url = botconfig.config[str(guild_id)]['create_url']['gallery'] + urllib.parse.urlencode({ 'user' : author.display_name}) #build the web adress
+    url = (self.utils.token_url(guild_id) or botconfig.config[str(guild_id)]['create_url']['gallery']) + urllib.parse.urlencode({ 'user' : author.display_name}) #build the web adress
     return await self.get_text(url)
 
   async def get_text(self, url):

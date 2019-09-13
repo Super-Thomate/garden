@@ -30,7 +30,7 @@ class Nickname(commands.Cog):
       await ctx.channel.send (f"Vous n'avez pas donné de pseudo.")
       return
     # Check if I can change my nickname
-    nickname_delay = botconfig.config[str(guild_id)]['nickname_delay']
+    nickname_delay = self.utils.nickname_delay (guild_id) or botconfig.config[str(guild_id)]['nickname_delay']
     sql = f'select  datetime(last_change, \'{nickname_delay}\') from last_nickname where guild_id=\'{guild_id}\' and member_id=\'{member.id}\''
     fetched = self.db.fetch_one_line (sql)
     print (f"for {sql}\nget {fetched}")
@@ -120,7 +120,7 @@ class Nickname(commands.Cog):
       await ctx.message.add_reaction('❌')
       await ctx.author.send ("Vous n'êtes pas autorisé à utilisez cette commande pour le moment.")
       return
-    nickname_delay = botconfig.config[str(guild_id)]['nickname_delay']
+    nickname_delay = self.utils.nickname_delay (guild_id) or botconfig.config[str(guild_id)]['nickname_delay']
     sql = f'select  datetime(last_change, \'{nickname_delay}\') from last_nickname where guild_id=\'{guild_id}\' and member_id=\'{member.id}\''
     fetched = self.db.fetch_one_line (sql)
     print (f"for {sql}\nget {fetched}")

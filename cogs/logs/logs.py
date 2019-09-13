@@ -18,7 +18,7 @@ class Logs(commands.Cog):
     if not self.utils.is_authorized (member, guild_id):
       print ("Missing permissions")
       return
-    if not botconfig.config[str(guild_id)]["do_invite"]:
+    if (not self.utils.do_invite (guild_id) and not botconfig.config[str(guild_id)]["do_invite"]):
       return
     if self.utils.is_banned (ctx.command, ctx.author, ctx.guild.id):
       await ctx.message.add_reaction('❌')
@@ -44,7 +44,7 @@ class Logs(commands.Cog):
     if not self.utils.is_authorized (member, guild_id):
       print ("Missing permissions")
       return
-    if not botconfig.config[str(guild_id)]["do_token"]:
+    if (not self.utils.do_invite (guild_id) and not botconfig.config[str(guild_id)]["do_token"]):
       return
     if self.utils.is_banned (ctx.command, ctx.author, ctx.guild.id):
       await ctx.message.add_reaction('❌')
