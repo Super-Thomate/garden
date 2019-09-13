@@ -142,7 +142,7 @@ class Logs(commands.Cog):
       print (f" {type(e).__name__} - {e}")
 
 
-  async def log(self, db, member, message, error):
+  async def log(self, db, member, message, error, params = None):
     guild_id = message.channel.guild.id
     sql = f"select channel_id from {db} where guild_id='{guild_id}'"
     db_log_channel = self.db.fetch_one_line (sql)
@@ -160,6 +160,8 @@ class Logs(commands.Cog):
     embed.description = message.content
     embed.timestamp = datetime.today()
     embed.set_footer(text=f"ID: {message.id}")
+    if params and params.url_to_go:
+      embed.url              = params.url_to_go
     try:
       await log_channel.send(content=None, embed=embed)
     except Exception as e:

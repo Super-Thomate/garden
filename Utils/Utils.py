@@ -13,8 +13,9 @@ class Utils():
       return True
     # if perm
     for obj_role in member.roles:
-      if (    (obj_role.name in botconfig.config[str(guild_id)]['roles'])
+      if (    (obj_role.id in self.get_roles_modo (guild_id))
            or (obj_role.id in botconfig.config[str(guild_id)]['roles'])
+           or (obj_role.name in botconfig.config[str(guild_id)]['roles'])
          ):
         return True
     return False
@@ -121,9 +122,12 @@ class Utils():
     return to_ret.strip()
 
   def has_role (self, member, role_id):
-    for obj_role in member.roles:
-      if obj_role.id == int(role_id):
-        return True
+    try:
+      for obj_role in member.roles:
+        if obj_role.id == int(role_id):
+          return True
+    except Exception as e:
+      print (f" {type(e).__name__} - {e}")
     return False
 
   def parse_time(self, timestr):
@@ -146,8 +150,25 @@ class Utils():
       else:
         number = number*10 + cast
     return to_ret
-  
-  
+
+  def get_roles_modo (self, guild_id):
+    db                       = Database()
+    all_roles                = []
+    select                   = (  "select   role_id "+
+                                  "from     config_role "+
+                                  "where "+
+                                  "          permission=1 "+
+                                  "      and "+
+                                 f"          guild_id='{guild_id}' "+
+                                  ";"+
+                                  ""
+                               )
+    fetched                  = db.fetch_all_line (select)
+    if fetched:
+      for role_fetched in fetched:
+        all_roles     [len(all_roles)] = role_fetched [0]
+    return all_roles
+   
   def debug(self, message):
     """
     Debug function, to use rather than print (message)

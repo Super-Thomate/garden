@@ -66,7 +66,7 @@ class Database:
       ### CONFIG
       cursor.execute('CREATE TABLE IF NOT EXISTS `config_role` (`role_id` VARCHAR(256) NOT NULL,`permission` INT NOT NULL, `guild_id` VARCHAR(256) NOT NULL, PRIMARY KEY (`role_id`)) ;')
       cursor.execute('CREATE TABLE IF NOT EXISTS `config_url` (`url` VARCHAR(512) NOT NULL, `type_url` VARCHAR(128) NOT NULL, `guild_id` VARCHAR(256) NOT NULL, PRIMARY KEY (`type_url`, `guild_id`)) ;')
-      cursor.execute('CREATE TABLE IF NOT EXISTS `type_delay` (`delay` VARCHAR(512) NOT NULL, `type_delay` VARCHAR(128) NOT NULL, `guild_id` VARCHAR(256) NOT NULL, PRIMARY KEY (`type_delay`, `guild_id`)) ;')
+      cursor.execute('CREATE TABLE IF NOT EXISTS `type_delay` (`delay` INTEGER NOT NULL, `type_delay` VARCHAR(128) NOT NULL, `guild_id` VARCHAR(256) NOT NULL, PRIMARY KEY (`type_delay`, `guild_id`)) ;')
       cursor.execute('CREATE TABLE IF NOT EXISTS `config_log` (`channel_id` VARCHAR(256) NOT NULL, `guild_id` VARCHAR(256) NOT NULL, PRIMARY KEY (`guild_id`)) ;')
       # Save modifications
       cnx.commit()

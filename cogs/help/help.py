@@ -191,6 +191,7 @@ class Help(commands.Cog):
       ,       "Logs": {"status":0, "desc": "Gère les logs des différents cogs"}
       ,   "Nickname": {"status":0, "desc": "Gère le changement de surnom (nickname)"}
       ,     "RoleDM": {"status":0, "desc": "Gère l'envoie d'un message privé à la prise d'un rôle"}
+      ,     "Turing": {"status":0, "desc": "Moteur d'intelligence artificiel du bot"}
       ,       "Utip": {"status":0, "desc": "Gère le rôle pour les backers Utip"}
       ,       "Vote": {"status":0, "desc": "Automatisation des votes"}
       ,    "Welcome": {"status":0, "desc": "Gère l'envoie d'un message dans un channel définit à la prise d'un rôle"}

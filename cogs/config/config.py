@@ -58,7 +58,7 @@ class Config(commands.Cog):
       insert                 = (  "insert into config_role"+
                                   " (`role_id`, `permission`, `guild_id`) "+
                                   "values "+
-                                 f" ('{role.id}', 2, '{guild_id}') ;"
+                                 f" ('{role.id}', 1, '{guild_id}') ;"
                                )
       self.db.execute_order (insert)
     except Exception as e:

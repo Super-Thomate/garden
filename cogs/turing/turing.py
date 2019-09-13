@@ -267,4 +267,4 @@ class Turing(commands.Cog):
     except Exception as e:
       print (f" {type(e).__name__} - {e}")
       error                  = True
-    await self.logger.log('spy_log', author, ctx.message, error)
+    await self.logger.log('spy_log', author, ctx.message, error, {"url_to_go": message.jump_url})
