@@ -160,8 +160,11 @@ class Logs(commands.Cog):
     embed.description = message.content
     embed.timestamp = datetime.today()
     embed.set_footer(text=f"ID: {message.id}")
-    if params and params.url_to_go:
-      embed.url              = params.url_to_go
+    print (f"params: {params}")
+    if params and "url_to_go" in params:
+      print ("url_to_go")
+      embed.description      = embed.description+"\njumpto: "+ params ["url_to_go"]
+
     try:
       await log_channel.send(content=None, embed=embed)
     except Exception as e:
