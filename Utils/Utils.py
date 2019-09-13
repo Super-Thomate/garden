@@ -12,13 +12,7 @@ class Utils():
     if self.is_admin(member):
       return True
     # if perm
-    for obj_role in member.roles:
-      if (    (obj_role.id in self.get_roles_modo (guild_id))
-           or (obj_role.id in botconfig.config[str(guild_id)]['roles'])
-           or (obj_role.name in botconfig.config[str(guild_id)]['roles'])
-         ):
-        return True
-    return False
+    return self.is_allowed (member, guild_id)
   
   def is_banned (self, command, member, guild_id):
     # admin can't be blocked
@@ -98,7 +92,8 @@ class Utils():
   
   def is_allowed (self, member, guild_id):
     for obj_role in member.roles:
-      if (    (obj_role.name in botconfig.config[str(guild_id)]['roles'])
+      if (    (obj_role.id in self.get_roles_modo (guild_id))
+           or (obj_role.name in botconfig.config[str(guild_id)]['roles'])
            or (obj_role.id in botconfig.config[str(guild_id)]['roles'])
          ):
         return True
@@ -177,3 +172,105 @@ class Utils():
     info                     = inspect.getframeinfo((inspect.stack()[1])[0])
     print (sys._getframe().f_lineno)
     print (info.filename, 'func=%s' % info.function, 'line=%s:' % info.lineno, message)
+  
+  def do_invite (self, guild_id):
+    db                       = Database ()
+    select                   = (  "select   do "+
+                                  "       , type_do"+
+                                  "from     config_do "+
+                                  "where "+
+                                  "          type_do='invite' "+
+                                  "      and "+
+                                 f"          guild_id='{guild_id}' "+
+                                  ";"+
+                                  ""
+                               )
+    fetched                  = db.fetch_one_line (select)
+    if fetched:
+      return (fetched [0] == 1)
+    return False
+  
+  def do_token (self, guild_id):
+    db                       = Database ()
+    select                   = (  "select   do "+
+                                  "       , type_do"+
+                                  "from     config_do "+
+                                  "where "+
+                                  "          type_do='token' "+
+                                  "      and "+
+                                 f"          guild_id='{guild_id}' "+
+                                  ";"+
+                                  ""
+                               )
+    fetched                  = db.fetch_one_line (select)
+    if fetched:
+      return (fetched [0] == 1)
+    return False
+  
+  def invite_delay (self, guild_id):
+    db                       = Database ()
+    select                   = (  "select   delay "+
+                                  "       , type_delay"+
+                                  "from     config_delay "+
+                                  "where "+
+                                  "          type_delay='invite' "+
+                                  "      and "+
+                                 f"          guild_id='{guild_id}' "+
+                                  ";"+
+                                  ""
+                               )
+    fetched                  = db.fetch_one_line (select)
+    if fetched:
+      return fetched [0]
+    return 0
+  
+  def nickname_delay (self, guild_id):
+    db                       = Database ()
+    select                   = (  "select   delay "+
+                                  "       , type_delay"+
+                                  "from     config_delay "+
+                                  "where "+
+                                  "          type_delay='nickname' "+
+                                  "      and "+
+                                 f"          guild_id='{guild_id}' "+
+                                  ";"+
+                                  ""
+                               )
+    fetched                  = db.fetch_one_line (select)
+    if fetched:
+      return fetched [0]
+    return 0
+    
+  def invite_url (self, guild_id):
+    db                       = Database ()
+    select                   = (  "select   url "+
+                                  "       , type_url"+
+                                  "from     config_url "+
+                                  "where "+
+                                  "          type_url='invite' "+
+                                  "      and "+
+                                 f"          guild_id='{guild_id}' "+
+                                  ";"+
+                                  ""
+                               )
+    fetched                  = db.fetch_one_line (select)
+    if fetched:
+      return fetched [0]
+    return ""
+    
+  def token_url (self, guild_id):
+    db                       = Database ()
+    select                   = (  "select   url "+
+                                  "       , type_url"+
+                                  "from     config_url "+
+                                  "where "+
+                                  "          type_url='token' "+
+                                  "      and "+
+                                 f"          guild_id='{guild_id}' "+
+                                  ";"+
+                                  ""
+                               )
+    fetched                  = db.fetch_one_line (select)
+    if fetched:
+      return fetched [0]
+    return ""

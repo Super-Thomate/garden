@@ -2,16 +2,27 @@ import discord
 import sys
 import os
 from discord.ext import commands
+from database import Database
 import botconfig
 
 
 def get_prefix(bot, message):
     """A callable Prefix for our bot."""
-    prefixes = None
+    prefixes = []
     if message.guild:
       prefixes = botconfig.config[str(message.guild.id)]['prefixes']
-    if not prefixes:
-      prefixes = ['!']
+    db                       = Database ()
+    select                   = (   "select   prefix "+
+                                   "from     config_prefix"+
+                                   "where "+
+                                  f"guild_id='{message.guild.id}' ;"+
+                                   ""
+                               )
+    fetched                  = db.fetch_all_line (select)
+    for line in fetched:
+      prefixes.append [line [0]]
+    if not len (prefixes):
+      prefixes               = ['!']
     return commands.when_mentioned_or(*prefixes)(bot, message)
 
 initial_extensions = []
@@ -28,6 +39,7 @@ initial_extensions = [   'cogs.loader'
                        #, 'cogs.vote'
                        , 'cogs.turing'
                        , 'cogs.moderation'
+                       , 'cogs.configuration'
                      ]
 
 bot = commands.Bot(command_prefix=get_prefix)

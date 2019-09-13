@@ -182,23 +182,24 @@ class Help(commands.Cog):
     line_cogs = ""
     line_cogs_2 = ""
     all_cogs = {
-          "Birthday": {"status":0, "desc": "Enregistre l'anniversaire d'un membre pour le lui souhaiter"}
-      , "Bancommand": {"status":0, "desc": "Empêche un utilisateur ou un role d'utiliser une commande Garden"}
-      ,       "Help": {"status":0, "desc": "Affiche l'aide de Garden"}
-      ,  "Highlight": {"status":0, "desc": "Gère les mises en valeurs de message"}
-      , "Invitation": {"status":0, "desc": "Gère les invitations/jetons"}
-      ,       "Link": {"status":0, "desc": "Gère les liens entre rôles"}
-      ,     "Loader": {"status":0, "desc": "Chargement des différents cogs"}
-      ,       "Logs": {"status":0, "desc": "Gère les logs des différents cogs"}
+             "Birthday": {"status":0, "desc": "Enregistre l'anniversaire d'un membre pour le lui souhaiter"}
+      ,    "Bancommand": {"status":0, "desc": "Empêche un utilisateur ou un role d'utiliser une commande Garden"}
+      , "Configuration": {"status":0, "desc": "Configuration pour Garden"}
+      ,          "Help": {"status":0, "desc": "Affiche l'aide de Garden"}
+      ,     "Highlight": {"status":0, "desc": "Gère les mises en valeurs de message"}
+      ,    "Invitation": {"status":0, "desc": "Gère les invitations/jetons"}
+      ,          "Link": {"status":0, "desc": "Gère les liens entre rôles"}
+      ,        "Loader": {"status":0, "desc": "Chargement des différents cogs"}
     }
     all_cogs_2               = {
-          "Nickname": {"status":0, "desc": "Gère le changement de surnom (nickname)"}
-      , "Moderation": {"status":0, "desc": "Modération divers"}
-      ,     "RoleDM": {"status":0, "desc": "Gère l'envoie d'un message privé à la prise d'un rôle"}
-      ,     "Turing": {"status":0, "desc": "Moteur d'intelligence artificiel du bot [En test]"}
-      ,       "Utip": {"status":0, "desc": "Gère le rôle pour les backers Utip"}
-      ,       "Vote": {"status":0, "desc": "Automatisation des votes"}
-      ,    "Welcome": {"status":0, "desc": "Gère l'envoie d'un message dans un channel définit à la prise d'un rôle"}
+                 "Logs": {"status":0, "desc": "Gère les logs des différents cogs"}
+      ,      "Nickname": {"status":0, "desc": "Gère le changement de surnom (nickname)"}
+      ,    "Moderation": {"status":0, "desc": "Modération divers"}
+      ,        "RoleDM": {"status":0, "desc": "Gère l'envoie d'un message privé à la prise d'un rôle"}
+      ,        "Turing": {"status":0, "desc": "Moteur d'intelligence artificiel du bot [En test]"}
+      ,          "Utip": {"status":0, "desc": "Gère le rôle pour les backers Utip"}
+      ,          "Vote": {"status":0, "desc": "Automatisation des votes"}
+      ,       "Welcome": {"status":0, "desc": "Gère l'envoie d'un message dans un channel définit à la prise d'un rôle"}
     }
     for name in self.bot.cogs.keys():
       if name in all_cogs :
