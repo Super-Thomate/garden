@@ -190,6 +190,7 @@ class Help(commands.Cog):
       ,     "Loader": {"status":0, "desc": "Chargement des différents cogs"}
       ,       "Logs": {"status":0, "desc": "Gère les logs des différents cogs"}
       ,   "Nickname": {"status":0, "desc": "Gère le changement de surnom (nickname)"}
+      , "Moderation": {"status":0, "desc": "Modération divers"}
       ,     "RoleDM": {"status":0, "desc": "Gère l'envoie d'un message privé à la prise d'un rôle"}
       ,     "Turing": {"status":0, "desc": "Moteur d'intelligence artificiel du bot [En test]"}
       ,       "Utip": {"status":0, "desc": "Gère le rôle pour les backers Utip"}
