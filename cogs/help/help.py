@@ -180,6 +180,7 @@ class Help(commands.Cog):
   def help_global (self):
     print (self.bot.cogs)
     line_cogs = ""
+    line_cogs_2 = ""
     all_cogs = {
           "Birthday": {"status":0, "desc": "Enregistre l'anniversaire d'un membre pour le lui souhaiter"}
       , "Bancommand": {"status":0, "desc": "Empêche un utilisateur ou un role d'utiliser une commande Garden"}
@@ -189,7 +190,9 @@ class Help(commands.Cog):
       ,       "Link": {"status":0, "desc": "Gère les liens entre rôles"}
       ,     "Loader": {"status":0, "desc": "Chargement des différents cogs"}
       ,       "Logs": {"status":0, "desc": "Gère les logs des différents cogs"}
-      ,   "Nickname": {"status":0, "desc": "Gère le changement de surnom (nickname)"}
+    }
+    all_cogs_2               = {
+          "Nickname": {"status":0, "desc": "Gère le changement de surnom (nickname)"}
       , "Moderation": {"status":0, "desc": "Modération divers"}
       ,     "RoleDM": {"status":0, "desc": "Gère l'envoie d'un message privé à la prise d'un rôle"}
       ,     "Turing": {"status":0, "desc": "Moteur d'intelligence artificiel du bot [En test]"}
@@ -198,10 +201,17 @@ class Help(commands.Cog):
       ,    "Welcome": {"status":0, "desc": "Gère l'envoie d'un message dans un channel définit à la prise d'un rôle"}
     }
     for name in self.bot.cogs.keys():
-      all_cogs [name]["status"] = 1
+      if all_cogs [name]:
+        all_cogs [name]["status"] = 1
+      elif all_cogs_2 [name]:
+        all_cogs_2 [name]["status"] = 1
+        
     for cog, dicog in all_cogs.items():
       emoji = ":white_check_mark:" if dicog["status"] else ":x:"
       line_cogs += f"-  **{cog}** {emoji}  - *{dicog ['desc']}*\n"
+    for cog, dicog in all_cogs_2.items():
+      emoji = ":white_check_mark:" if dicog["status"] else ":x:"
+      line_cogs_2 += f"-  **{cog}** {emoji}  - *{dicog ['desc']}*\n"
 
     infos = self.bot.user
     colour = discord.Colour(0)
@@ -209,7 +219,8 @@ class Help(commands.Cog):
     embed = discord.Embed(colour=colour, title="**GARDEN HELP**")
     embed.description = "*Ce bot est séparé en différents **cogs**. Choisissez quelle aide vous souhaitez afficher.*"
     embed.add_field (name="__**Général**__", value="- `-help <NomDuCog>` - Montre l'aide du cog spécifié\n- `-load <NomDuCog>` - Charge le cog spécifié ( :white_check_mark: )\n- `-unload <NomDuCog>` - Décharge le cog spécifié ( :x: )", inline=False)
-    embed.add_field (name="__**Cogs Disponibles**__", value=line_cogs, inline=False)
+    embed.add_field (name="__**Cogs Disponibles (1/2)**__", value=line_cogs, inline=False)
+    embed.add_field (name="__**Cogs Disponibles (2/2)**__", value=line_cogs_2, inline=False)
     embed.set_author(icon_url=infos.avatar_url, name=str(infos))
     embed.timestamp = datetime.today()
     return embed
