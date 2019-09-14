@@ -61,9 +61,11 @@ class Configuration(commands.Cog):
                                  f" ('{role.id}', 1, '{guild_id}') ;"
                                )
       self.db.execute_order (insert)
+      await ctx.message.add_reaction(':white_check_mark:')
     except Exception as e:
       print (f" {type(e).__name__} - {e}")
       error                  = True
+      await ctx.message.add_reaction('❌')
     await self.logger.log('config_log', author, ctx.message, error)
 
   @commands.command(name='removerolemoderateur', aliases=['removerolemodo', 'rrm'])
@@ -89,9 +91,11 @@ class Configuration(commands.Cog):
                                   ""
                                )
       self.db.execute_order (delete)
+      await ctx.message.add_reaction(':white_check_mark:')
     except Exception as e:
       print (f" {type(e).__name__} - {e}")
       error                  = True
+      await ctx.message.add_reaction('❌')
     await self.logger.log('config_log', author, ctx.message, error)
 
   @commands.command(name='addprefix')
@@ -116,9 +120,11 @@ class Configuration(commands.Cog):
                                  f" (?, '{guild_id}') ;"
                                )
       self.db.execute_order (insert, [prefix])
+      await ctx.message.add_reaction(':white_check_mark:')
     except Exception as e:
       print (f" {type(e).__name__} - {e}")
       error                  = True
+      await ctx.message.add_reaction('❌')
     await self.logger.log('config_log', author, ctx.message, error)
 
   @commands.command(name='removeprefix')
@@ -145,9 +151,11 @@ class Configuration(commands.Cog):
                                   ""
                                )
       self.db.execute_order (delete, [prefix])
+      await ctx.message.add_reaction(':white_check_mark:')
     except Exception as e:
       print (f" {type(e).__name__} - {e}")
       error                  = True
+      await ctx.message.add_reaction('❌')
     await self.logger.log('config_log', author, ctx.message, error)
 
   @commands.command(name='seturl')
@@ -190,9 +198,11 @@ class Configuration(commands.Cog):
                                   ""
                                )
       self.db.execute_order (order, [url, type_url])
+      await ctx.message.add_reaction(':white_check_mark:')
     except Exception as e:
       print (f" {type(e).__name__} - {e}")
       error                  = True
+      await ctx.message.add_reaction('❌')
     await self.logger.log('config_log', author, ctx.message, error)
 
   @commands.command(name='removeurl')
@@ -217,9 +227,11 @@ class Configuration(commands.Cog):
                                   ""
                                )
       self.db.execute_order (delete, [type_url])
+      await ctx.message.add_reaction(':white_check_mark:')
     except Exception as e:
       print (f" {type(e).__name__} - {e}")
       error                  = True
+      await ctx.message.add_reaction('❌')
     await self.logger.log('config_log', author, ctx.message, error)
 
   @commands.command(name='setdelay')
@@ -262,9 +274,11 @@ class Configuration(commands.Cog):
                                   ""
                                )
       self.db.execute_order (order, [delay, type_delay])
+      await ctx.message.add_reaction(':white_check_mark:')
     except Exception as e:
       print (f" {type(e).__name__} - {e}")
       error                  = True
+      await ctx.message.add_reaction('❌')
     await self.logger.log('config_log', author, ctx.message, error)
 
   @commands.command(name='removedelay')
@@ -289,9 +303,11 @@ class Configuration(commands.Cog):
                                   ""
                                )
       self.db.execute_order (delete, [type_delay])
+      await ctx.message.add_reaction(':white_check_mark:')
     except Exception as e:
       print (f" {type(e).__name__} - {e}")
       error                  = True
+      await ctx.message.add_reaction('❌')
     await self.logger.log('config_log', author, ctx.message, error)
 
   @commands.command(name='setdo')
@@ -334,9 +350,11 @@ class Configuration(commands.Cog):
                                   ""
                                )
       self.db.execute_order (order, [do, type_do])
+      await ctx.message.add_reaction(':white_check_mark:')
     except Exception as e:
       print (f" {type(e).__name__} - {e}")
       error                  = True
+      await ctx.message.add_reaction('❌')
     await self.logger.log('config_log', author, ctx.message, error)
 
   @commands.command(name='removedo')
@@ -361,8 +379,10 @@ class Configuration(commands.Cog):
                                   ""
                                )
       self.db.execute_order (delete, [type_do])
+      await ctx.message.add_reaction(':white_check_mark:')
     except Exception as e:
       print (f" {type(e).__name__} - {e}")
       error                  = True
+      await ctx.message.add_reaction('❌')
     await self.logger.log('config_log', author, ctx.message, error)
 
