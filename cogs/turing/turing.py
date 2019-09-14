@@ -175,7 +175,7 @@ class Turing(commands.Cog):
       message                = await self.get_message_general (ctx, message_id)
       if message:
         old_content_title    = await ctx.send ("Ancien message:")
-        old_content          = await ctx.send (ctx.message.content)
+        old_content          = await ctx.send (message.content)
         ask                  = await ctx.send ("Entrez le nouveau message:")
         check                = lambda m: m.channel == ctx.channel and m.author == ctx.author
         msg                  = await self.bot.wait_for('message', check=check)
@@ -248,7 +248,7 @@ class Turing(commands.Cog):
       print (f" {type(e).__name__} - {e}")
       error                  = True
     await self.logger.log('spy_log', author, ctx.message, error)
-  
+
   @commands.Cog.listener('on_message')
   async def auto_reply_dm (self, message):
     if message.guild:
@@ -256,8 +256,8 @@ class Turing(commands.Cog):
     if self.auto_reply:
       await message.author.send (f"Bonjour. {self.bot.user.name} n'est pas disponible pour le moment.\n"+
                                   "Raison : :tools: Maintenance :tools:")
-    
-  
+
+
   # UTILS
   async def get_message_general (self, ctx, message_id):
     message                  = None
@@ -270,7 +270,7 @@ class Turing(commands.Cog):
         else:
           break
     return message
-  
+
   async def react_to_message (self, ctx, message_id, emoji, react_type):
     guild_id                 = ctx.message.guild.id
     author                  = ctx.author
