@@ -177,7 +177,7 @@ class Logs(commands.Cog):
     channel = ctx.channel
     member = ctx.author
     guild_id = ctx.guild.id
-    await ctx.message.delete (delay=1)
+    await ctx.message.delete ()
     until_message            = None
     if message_id and length_or_id == 'id':
       try:
