@@ -61,7 +61,7 @@ class Configuration(commands.Cog):
                                  f" ('{role.id}', 1, '{guild_id}') ;"
                                )
       self.db.execute_order (insert)
-      await ctx.message.add_reaction(':white_check_mark:')
+      await ctx.message.add_reaction('✅')
     except Exception as e:
       print (f" {type(e).__name__} - {e}")
       error                  = True
@@ -91,7 +91,7 @@ class Configuration(commands.Cog):
                                   ""
                                )
       self.db.execute_order (delete)
-      await ctx.message.add_reaction(':white_check_mark:')
+      await ctx.message.add_reaction('✅')
     except Exception as e:
       print (f" {type(e).__name__} - {e}")
       error                  = True
@@ -120,7 +120,7 @@ class Configuration(commands.Cog):
                                  f" (?, '{guild_id}') ;"
                                )
       self.db.execute_order (insert, [prefix])
-      await ctx.message.add_reaction(':white_check_mark:')
+      await ctx.message.add_reaction('✅')
     except Exception as e:
       print (f" {type(e).__name__} - {e}")
       error                  = True
@@ -151,7 +151,7 @@ class Configuration(commands.Cog):
                                   ""
                                )
       self.db.execute_order (delete, [prefix])
-      await ctx.message.add_reaction(':white_check_mark:')
+      await ctx.message.add_reaction('✅')
     except Exception as e:
       print (f" {type(e).__name__} - {e}")
       error                  = True
@@ -198,7 +198,7 @@ class Configuration(commands.Cog):
                                   ""
                                )
       self.db.execute_order (order, [url, type_url])
-      await ctx.message.add_reaction(':white_check_mark:')
+      await ctx.message.add_reaction('✅')
     except Exception as e:
       print (f" {type(e).__name__} - {e}")
       error                  = True
@@ -227,7 +227,7 @@ class Configuration(commands.Cog):
                                   ""
                                )
       self.db.execute_order (delete, [type_url])
-      await ctx.message.add_reaction(':white_check_mark:')
+      await ctx.message.add_reaction('✅')
     except Exception as e:
       print (f" {type(e).__name__} - {e}")
       error                  = True
@@ -274,7 +274,7 @@ class Configuration(commands.Cog):
                                   ""
                                )
       self.db.execute_order (order, [delay, type_delay])
-      await ctx.message.add_reaction(':white_check_mark:')
+      await ctx.message.add_reaction('✅')
     except Exception as e:
       print (f" {type(e).__name__} - {e}")
       error                  = True
@@ -303,7 +303,7 @@ class Configuration(commands.Cog):
                                   ""
                                )
       self.db.execute_order (delete, [type_delay])
-      await ctx.message.add_reaction(':white_check_mark:')
+      await ctx.message.add_reaction('✅')
     except Exception as e:
       print (f" {type(e).__name__} - {e}")
       error                  = True
@@ -350,7 +350,7 @@ class Configuration(commands.Cog):
                                   ""
                                )
       self.db.execute_order (order, [do, type_do])
-      await ctx.message.add_reaction(':white_check_mark:')
+      await ctx.message.add_reaction('✅')
     except Exception as e:
       print (f" {type(e).__name__} - {e}")
       error                  = True
@@ -379,7 +379,7 @@ class Configuration(commands.Cog):
                                   ""
                                )
       self.db.execute_order (delete, [type_do])
-      await ctx.message.add_reaction(':white_check_mark:')
+      await ctx.message.add_reaction('✅')
     except Exception as e:
       print (f" {type(e).__name__} - {e}")
       error                  = True
