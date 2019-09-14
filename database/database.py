@@ -61,14 +61,14 @@ class Database:
       ### ROLEDM COG
       cursor.execute('CREATE TABLE IF NOT EXISTS `roledm_role` (`role_id` VARCHAR(256) NOT NULL, `guild_id` VARCHAR(256) NOT NULL, PRIMARY KEY (`role_id`, `guild_id`)) ;')
       cursor.execute('CREATE TABLE IF NOT EXISTS `roledm_message` (`message` TEXT NOT NULL,`role_id` VARCHAR(256) NOT NULL, `guild_id` VARCHAR(256) NOT NULL, PRIMARY KEY (`role_id`, `guild_id`)) ;')
-      ### SPY 
+      ### SPY
       cursor.execute('CREATE TABLE IF NOT EXISTS `spy_log` (`channel_id` VARCHAR(256) NOT NULL, `guild_id` VARCHAR(256) NOT NULL, PRIMARY KEY (`guild_id`)) ;')
       ### CONFIG
       cursor.execute('CREATE TABLE IF NOT EXISTS `config_role` (`role_id` VARCHAR(256) NOT NULL,`permission` INT NOT NULL, `guild_id` VARCHAR(256) NOT NULL, PRIMARY KEY (`role_id`)) ;')
       cursor.execute('CREATE TABLE IF NOT EXISTS `config_prefix` (`prefix` VARCHAR(64) NOT NULL, `guild_id` VARCHAR(256) NOT NULL, PRIMARY KEY (`prefix`, `guild_id`)) ;')
       cursor.execute('CREATE TABLE IF NOT EXISTS `config_url` (`url` VARCHAR(512) NOT NULL, `type_url` VARCHAR(128) NOT NULL, `guild_id` VARCHAR(256) NOT NULL, PRIMARY KEY (`type_url`, `guild_id`)) ;')
       cursor.execute('CREATE TABLE IF NOT EXISTS `config_delay` (`delay` INTEGER NOT NULL, `type_delay` VARCHAR(128) NOT NULL, `guild_id` VARCHAR(256) NOT NULL, PRIMARY KEY (`type_delay`, `guild_id`)) ;')
-      cursor.execute('CREATE TABLE IF NOT EXISTS `config_do` (`do` INTEGER NOT NULL, `type_do` VARCHAR(128) NOT NULL, `guild_id` VARCHAR(256) NOT NULL, PRIMARY KEY (`type_delay`, `guild_id`)) ;')
+      cursor.execute('CREATE TABLE IF NOT EXISTS `config_do` (`do` INTEGER NOT NULL, `type_do` VARCHAR(128) NOT NULL, `guild_id` VARCHAR(256) NOT NULL, PRIMARY KEY (`type_do`, `guild_id`)) ;')
       cursor.execute('CREATE TABLE IF NOT EXISTS `config_log` (`channel_id` VARCHAR(256) NOT NULL, `guild_id` VARCHAR(256) NOT NULL, PRIMARY KEY (`guild_id`)) ;')
       # Save modifications
       cnx.commit()
