@@ -13,7 +13,7 @@ class Utils():
       return True
     # if perm
     return self.is_allowed (member, guild_id)
-  
+
   def is_banned (self, command, member, guild_id):
     # admin can't be blocked
     if self.is_admin(member):
@@ -50,7 +50,7 @@ class Utils():
             return True
     # neither
     return False
-  
+
   def is_banned_user (self, command, member, guild_id):
     db = Database()
     select = f"select until from ban_command_user where guild_id='{guild_id}' and user_id='{member.id}' and command='{command}' ;"
@@ -82,14 +82,14 @@ class Utils():
           return True
         return until > math.floor (time.time()) # still ban
     return False
-  
+
   def is_admin (self, member):
     # if perm administrator => True
     for perm, value in member.guild_permissions:
       if perm == "administrator" and value:
         return True
     return False
-  
+
   def is_allowed (self, member, guild_id):
     for obj_role in member.roles:
       if (    (obj_role.id in self.get_roles_modo (guild_id))
@@ -98,7 +98,7 @@ class Utils():
          ):
         return True
     return False
-  
+
   def format_time(self, timestamp):
     timer = [   ["j", 86400]
               , ["h", 3600]
@@ -158,12 +158,15 @@ class Utils():
                                   ";"+
                                   ""
                                )
-    fetched                  = db.fetch_all_line (select)
+    try:
+      fetched                  = db.fetch_all_line (select)
+    expect Exception as e:
+      print (f"get_roles_modo {type(e).__name__} - {e}")
     if fetched:
       for role_fetched in fetched:
         all_roles     [len(all_roles)] = role_fetched [0]
     return all_roles
-   
+
   def debug(self, message):
     """
     Debug function, to use rather than print (message)
@@ -172,7 +175,7 @@ class Utils():
     info                     = inspect.getframeinfo((inspect.stack()[1])[0])
     print (sys._getframe().f_lineno)
     print (info.filename, 'func=%s' % info.function, 'line=%s:' % info.lineno, message)
-  
+
   def do_invite (self, guild_id):
     db                       = Database ()
     select                   = (  "select   do "+
@@ -189,7 +192,7 @@ class Utils():
     if fetched:
       return (fetched [0] == 1)
     return False
-  
+
   def do_token (self, guild_id):
     db                       = Database ()
     select                   = (  "select   do "+
@@ -206,7 +209,7 @@ class Utils():
     if fetched:
       return (fetched [0] == 1)
     return False
-  
+
   def invite_delay (self, guild_id):
     db                       = Database ()
     select                   = (  "select   delay "+
@@ -223,7 +226,7 @@ class Utils():
     if fetched:
       return fetched [0]
     return None
-  
+
   def nickname_delay (self, guild_id):
     db                       = Database ()
     select                   = (  "select   delay "+
@@ -240,7 +243,7 @@ class Utils():
     if fetched:
       return fetched [0]
     return None
-    
+
   def invite_url (self, guild_id):
     db                       = Database ()
     select                   = (  "select   url "+
@@ -257,7 +260,7 @@ class Utils():
     if fetched:
       return fetched [0]
     return ""
-    
+
   def token_url (self, guild_id):
     db                       = Database ()
     select                   = (  "select   url "+
