@@ -26,7 +26,7 @@ class Utils():
       try:
         until = int (fetched [0])
       except Exception as e:
-        print (f"{type(e).__name__} - {e}")
+        print (f"is_banned {type(e).__name__} - {e}")
         return True
       if until > math.floor (time.time()): # still ban
         return True
@@ -38,13 +38,13 @@ class Utils():
         try:
           role_id = int (line [1])
         except Exception as e:
-          print (f"{type(e).__name__} - {e}")
+          print (f"is_banned {type(e).__name__} - {e}")
           return True
         if self.has_role(role_id, member):
           try:
             until = int (line [0])
           except Exception as e:
-            print (f"{type(e).__name__} - {e}")
+            print (f"is_banned {type(e).__name__} - {e}")
             return True
           if until > math.floor (time.time()): # still ban
             return True
@@ -59,7 +59,7 @@ class Utils():
       try:
         until = int (fetched [0])
       except Exception as e:
-        print (f"{type(e).__name__} - {e}")
+        print (f"is_banned {type(e).__name__} - {e}")
         return True
       return until > math.floor (time.time()) # still ban
     return False
@@ -72,13 +72,13 @@ class Utils():
       try:
         role_id = int (fetched [1])
       except Exception as e:
-        print (f"{type(e).__name__} - {e}")
+        print (f"is_banned {type(e).__name__} - {e}")
         return True
       if self.has_role(role_id, member):
         try:
           until = int (fetched [0])
         except Exception as e:
-          print (f"{type(e).__name__} - {e}")
+          print (f"is_banned {type(e).__name__} - {e}")
           return True
         return until > math.floor (time.time()) # still ban
     return False
@@ -106,7 +106,7 @@ class Utils():
               , ["s", 1]
             ]
     current = timestamp
-    print (f"current: {current}")
+    print (f"format_time current: {current}")
     to_ret = ""
     for obj_time in timer:
       if math.floor (current/obj_time [1]) > 0:
@@ -122,7 +122,7 @@ class Utils():
         if obj_role.id == int(role_id):
           return True
     except Exception as e:
-      print (f" {type(e).__name__} - {e}")
+      print (f"has_role {type(e).__name__} - {e}")
     return False
 
   def parse_time(self, timestr):

@@ -86,7 +86,7 @@ class Configuration(commands.Cog):
     try:
       delete                 = (  "delete from config_role"+
                                   " where "+
-                                 f" `role_id`='{role.id}' and `permission`=2 and"+
+                                 f" `role_id`='{role.id}' and `permission`=1 and"+
                                  f" `guild_id` = '{guild_id}' ;"+
                                   ""
                                )
