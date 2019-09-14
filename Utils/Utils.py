@@ -160,7 +160,7 @@ class Utils():
                                )
     try:
       fetched                  = db.fetch_all_line (select)
-    expect Exception as e:
+    except Exception as e:
       print (f"get_roles_modo {type(e).__name__} - {e}")
     if fetched:
       for role_fetched in fetched:
