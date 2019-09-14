@@ -13,8 +13,8 @@ def get_prefix(bot, message):
       prefixes = botconfig.config[str(message.guild.id)]['prefixes']
     db                       = Database ()
     select                   = (   "select   prefix "+
-                                   "from     config_prefix"+
-                                   "where "+
+                                   "from     config_prefix "+
+                                   " where "+
                                   f"guild_id='{message.guild.id}' ;"+
                                    ""
                                )

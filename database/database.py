@@ -116,6 +116,6 @@ class Database:
       cursor.close()
     except Exception as e:
       cursor.close()
-      print (f'ERROR: {type(e).__name__} - {e}')
+      print (f'fetch_all_line ERROR: {type(e).__name__} - {e} in \n{sql}')
     cnx.close()
     return lines
