@@ -200,7 +200,7 @@ class Logs(commands.Cog):
       # redo length
       counter                = 0
       async for message in channel.history(limit=200):
-        if message.id >= length_or_id:
+        if message.id >= message_id:
           counter           += 1
       length                 = counter
     else:

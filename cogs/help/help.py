@@ -83,6 +83,8 @@ class Help(commands.Cog):
                               "- `!setdescription (setdesc) <MessageID>` - définir la description du vote\n"+
                               "- `!settitle (title) <MessageID>` - définir le titre du vote\n"+
                               "- `!setvotetype (svt) <MessageID> <votetype>` - définir le type de vote (par défaut `vote`). `votetype` est une chaîne de caractères sans espaces.\n"+
+                              "- `!setvoterole (svr) <MessageID> <role>` - définir le rôle à prévenir en cas de fermeture de la phase de proposition.\n"+
+                              "- `!setvotechannel (svc) <MessageID> <channel>` - définir le salon où prévenir en cas de fermeture de la phase de proposition.\n"+
                               ""
                       , inline=False)
     embed.add_field (   name="**Commandes admin/modérateur** *Phases* **:**"
@@ -206,7 +208,7 @@ class Help(commands.Cog):
         all_cogs [name]["status"] = 1
       elif  name in all_cogs_2 :
         all_cogs_2 [name]["status"] = 1
-        
+
     for cog, dicog in all_cogs.items():
       emoji = ":white_check_mark:" if dicog["status"] else ":x:"
       line_cogs += f"-  **{cog}** {emoji}  - *{dicog ['desc']}*\n"

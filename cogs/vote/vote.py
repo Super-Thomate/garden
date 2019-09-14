@@ -52,6 +52,7 @@ class Vote(commands.Cog):
     self.db.execute_order (sql, [])
     # await ctx.send (f"`{sql}`")
     await self.logger.log('vote_log', author, ctx.message, error)
+    await ctx.message.delete(delay=0.5)
 
   @commands.command(name='setvotetype', aliases=['svt'])
   @commands.guild_only()
@@ -83,8 +84,11 @@ class Vote(commands.Cog):
     except Exception as e:
       await ctx.send ("An error occured !")
       await ctx.message.add_reaction ('❌')
+      await self.logger.log('vote_log', author, ctx.message, True)
       return
     await ctx.message.add_reaction ('✅')
+    await self.logger.log('vote_log', author, ctx.message, False)
+    await ctx.message.delete(delay=0.5)
 
   @commands.command(name='setdescription', aliases=['setdesc', 'desc', 'sd'])
   @commands.guild_only()
@@ -356,12 +360,12 @@ class Vote(commands.Cog):
       print ("No permissions")
       await ctx.message.add_reaction ('❌')
       return
-    select = f"select message_id, month, year from vote_message where guild_id='{guild_id}' and closed <> 2 ;"
+    select = f"select message_id, month, year from vote_message where guild_id='{guild_id}' and closed <> 3 ;"
     fetched = self.db.fetch_all_line (select)
     if fetched:
       for message in fetched:
         message_id = message[0]
-        update = f"update vote_message set closed=2 where message_id='{message_id}' ;"
+        update = f"update vote_message set closed=3 where message_id='{message_id}' ;"
         try:
           vote_msg = await ctx.channel.fetch_message (message_id)
         except Exception as e:
@@ -473,6 +477,23 @@ class Vote(commands.Cog):
 
 
 
+  @commands.command(name='resetvote', aliases=['rv'])
+  @commands.guild_only()
+  async def reset_vote(self, ctx, message_id: str = None):
+    """
+    Reset a vote
+    """
+    author = ctx.author
+    guild_id = ctx.guild.id
+    if not self.utils.is_authorized (author, guild_id):
+      print ("No permissions")
+      return
+    if self.utils.is_banned (ctx.command, ctx.author, ctx.guild.id):
+      await ctx.message.add_reaction('❌')
+      await ctx.author.send ("Vous n'êtes pas autorisé à utilisez cette commande pour le moment.")
+      return
+    await self.handle_result (ctx, message_id, "reset_vote", True)
+
 
 
 
@@ -516,11 +537,12 @@ class Vote(commands.Cog):
       await ctx.message.add_reaction ('❌')
       return
     # vote closure status
-    end_proposition = (fetched [1] == 1)
-    end_edit = (fetched [1] == 2)
-    vote_closed = (fetched [1] == 3)
-    month = fetched [2]
-    year = fetched [3]
+    closure_status           = fetched [1]
+    end_proposition          = (fetched [1] == 1)
+    end_edit                 = (fetched [1] == 2)
+    vote_closed              = (fetched [1] == 3)
+    month                    = fetched [2]
+    year                     = fetched [3]
     # get the message
     try:
       vote_msg = await ctx.channel.fetch_message (message_id)
@@ -546,7 +568,12 @@ class Vote(commands.Cog):
         return
       ask = await ctx.send ("Entrez la proposition :")
     elif handle == "end_proposition":
-      await ctx.message.add_reaction ('✅')
+      if closure_status > 0:
+        await ctx.message.add_reaction ('❌')
+        feedback             = await ctx.send ("Vous ne pouvez plus fermer la phase de proposition")
+        await ctx.message.delete (delay=0.5)
+        await feedback.delete (delay=1.5)
+        return
       update = f"update vote_message set closed=1 where message_id='{message_id}'"
       self.db.execute_order (update, [])
       proposition_ended_at = math.floor (time.time())
@@ -557,9 +584,16 @@ class Vote(commands.Cog):
       embed.colour=colour
       embed.set_footer(text=f"{month}/{year} Phase de proposition terminée")
       await vote_msg.edit (embed=embed)
+      await ctx.message.add_reaction ('✅')
+      await ctx.message.delete (delay=0.5)
       return
     elif handle == "end_edit":
-      await ctx.message.add_reaction ('✅')
+      if closure_status > 1:
+        await ctx.message.add_reaction ('❌')
+        feedback             = await ctx.send ("Vous ne pouvez plus fermer la phase d'édition")
+        await ctx.message.delete (delay=0.5)
+        await feedback.delete (delay=1.5)
+        return
       update = f"update vote_message set closed=2 where message_id='{message_id}'"
       self.db.execute_order (update, [])
       edit_ended_at = math.floor (time.time())
@@ -570,9 +604,16 @@ class Vote(commands.Cog):
       embed.colour=colour
       embed.set_footer(text=f"{month}/{year} Phase de vote")
       await vote_msg.edit (embed=embed)
+      await ctx.message.add_reaction ('✅')
+      await ctx.message.delete (delay=0.5)
       return
     elif handle == "close_vote":
-      await ctx.message.add_reaction ('✅')
+      if closure_status > 2:
+        await ctx.message.add_reaction ('❌')
+        feedback             = await ctx.send ("Vous ne pouvez plus fermer la phase de vote")
+        await ctx.message.delete (delay=0.5)
+        await feedback.delete (delay=1.5)
+        return
       update = f"update vote_message set closed=3 where message_id='{message_id}'"
       self.db.execute_order (update, [])
       vote_ended_at = math.floor (time.time())
@@ -584,6 +625,8 @@ class Vote(commands.Cog):
       embed.set_footer(text=f"{month}/{year} Phase de vote terminée")
       embed = self.embed_get_result(message_id, guild_id, embed)
       await vote_msg.edit (embed=embed)
+      await ctx.message.add_reaction ('✅')
+      await ctx.message.delete (delay=0.5)
       return
     elif handle == "end_proposition_at":
       ask = await ctx.send ("Fermer les propositions le (JJ-MM-AAAA hh:mm:ss) :")
@@ -599,6 +642,35 @@ class Vote(commands.Cog):
         await ctx.send ("La phase de proposition est terminée. Vous ne pouvez pas éditer de propositions.")
         return
       ask = await ctx.send ("Entrez le numéro de la proposition à éditer :")
+    elif handle == "reset_vote":
+      if closure_status < 2:
+        await ctx.message.add_reaction ('❌')
+        feedback             = await ctx.send ("Vous ne pouvez pas reset : pas de vote en cours ou fermer.")
+        await ctx.message.delete (delay=0.5)
+        await feedback.delete (delay=1.5)
+        return
+      # reset all ballots
+      self.reset_all_ballots (message_id)
+      # reset all reactions
+      for reaction in vote_msg.reactions:
+        async for user in reaction.users():
+          if user.id != self.bot.user.id:
+            await reaction.remove (user)
+      # repoen vote
+      update                 = f"update vote_message set closed=2 where message_id='{message_id}'"
+      self.db.execute_order (update)
+      edit_ended_at          = math.floor (time.time())
+      update                 = f"update vote_time set edit_ended_at='{edit_ended_at}', vote_ended_at=NULL where message_id='{message_id}'"
+      self.db.execute_order (update)
+      colour                 = discord.Colour(0)
+      colour                 = colour.from_rgb(56, 255, 56)
+      embed.colour           = colour
+      embed.set_footer(text=f"{month}/{year} Phase de vote")
+      embed                  = self.embed_get_no_result (message_id, guild_id, embed)
+      await vote_msg.edit (embed=embed)
+      await ctx.message.add_reaction ('✅')
+      await ctx.message.delete (delay=0.5)
+      return
     check = lambda m: m.channel == ctx.channel and m.author == ctx.author
     msg = await self.bot.wait_for('message', check=check)
     if handle == "proposition_line":
@@ -805,7 +877,7 @@ class Vote(commands.Cog):
         else:
           error = True
           await ctx.send (f"La proposion #{proposition_id} n'a pas été trouvée. Elle n'existe pas ou vous n'avez pas la permission de l'éditer.")
-    
+
     await vote_msg.edit (embed=embed)
     if error:
       await ctx.message.add_reaction ('❌')
@@ -827,40 +899,47 @@ class Vote(commands.Cog):
     embed.add_field (name='Propositions', value='\uFEFF', inline=False)
     embed.set_footer(text=f"{month}/{year}")
     return embed
-    
-    
+
+
   ## VOTE LISTENER
   @commands.Cog.listener()
-  async def on_raw_reaction_add(self, payload):
-    message_id = payload.message_id
-    guild_id = payload.guild_id
-    emoji = payload.emoji
-    if not self.is_vote_message (message_id, guild_id):
+  async def on_reaction_add(self, reaction, user):
+    message_id               = reaction.message.id
+    guild_id                 = reaction.message.guild.id
+    emoji                    = reaction.emoji
+    status_message           = self.is_vote_message (message_id, guild_id)
+    if status_message == -1: # not a vote message
+      return
+    if status_message != 2: # not a vote phase
+      if user.id != self.bot.user.id:
+        await reaction.remove (user)
       return
     # handler
     self.update_ballot (message_id, emoji, True)
-    
+
   @commands.Cog.listener()
-  async def on_raw_reaction_remove(self, payload):
-    message_id = payload.message_id
-    guild_id = payload.guild_id
-    emoji = payload.emoji
-    if not self.is_vote_message (message_id, guild_id):
+  async def on_reaction_remove(self, reaction, user):
+    message_id               = reaction.message.id
+    guild_id                 = reaction.message.guild.id
+    emoji                    = reaction.emoji
+    status_message           = self.is_vote_message (message_id, guild_id)
+    if status_message != 2: # not a vote message or not a vote phase
       return
     # handler
     self.update_ballot (message_id, emoji, False)
-  
+
   def is_vote_message (self, message_id, guild_id):
     # check if message = vote
     select = f"select closed from vote_message where message_id='{message_id}' and guild_id='{guild_id}' ;"
     fetched = self.db.fetch_one_line (select)
     if not fetched:
-      return False
-    closed = fetched [0]
+      return -1
+    """
     if closed != 2:  # not in vote phase
       return False
-    return True
-  
+    """
+    return fetched [0]
+
   def is_correct_emoji (self, message_id, guild_id, emoji):
     # check if message = vote
     select = f"select ballot from vote_propositions where message_id='{message_id}' and guild_id='{guild_id}' and emoji='{emoji}' ;"
@@ -883,6 +962,7 @@ class Vote(commands.Cog):
       ballot = ballot+1
     else:
       ballot = ballot-1
+    ballot                   = 0 if ballot < 0 else ballot
     update = f"update vote_propositions set ballot={ballot} where message_id='{message_id}' and emoji='{emoji}' ;"
     try:
       self.db.execute_order (update)
@@ -890,7 +970,14 @@ class Vote(commands.Cog):
       print (f"{type(e).__name__} - {e}")
       return -1
     return ballot
-  
+
+  def reset_all_ballots (self, message_id):
+    update                   = f"update vote_propositions set ballot=0 where  message_id='{message_id}' ;"
+    try:
+      self.db.execute_order (update)
+    except Exception as e:
+      print (f"{type(e).__name__} - {e}")
+
   def embed_get_result (self, message_id, guild_id, embed):
     # valid message saved ?
     sql = f"select channel_id,closed,month,year from vote_message where message_id='{message_id}' and guild_id='{guild_id}'"
@@ -921,6 +1008,41 @@ class Vote(commands.Cog):
           new_value = "- "+emoji+" "+proposition+" ("+str(ballot)+")"
         else:
           new_value = new_value +"\n - "+emoji+" "+proposition+" ("+str(ballot)+")"
+    field = embed.fields [0]
+    embed.clear_fields()
+    embed.add_field (name=field.name, value=new_value, inline=False)
+    return embed
+
+  def embed_get_no_result (self, message_id, guild_id, embed):
+    # valid message saved ?
+    sql = f"select channel_id,closed,month,year from vote_message where message_id='{message_id}' and guild_id='{guild_id}'"
+    fetched = self.db.fetch_one_line (sql)
+    if not fetched:
+      print ("impossibru")
+      return
+    # vote closure status
+    channel_id = int (fetched[0])
+    end_proposition = (fetched [1] == 1)
+    end_edit = (fetched [1] == 2)
+    vote_closed = (fetched [1] == 3)
+    month = fetched [2]
+    year = fetched [3]
+    field = embed.fields [0]
+    select = f"select proposition_id,emoji,proposition,ballot from vote_propositions where message_id='{message_id}' order by proposition_id asc ;"
+    fetched = self.db.fetch_all_line (select)
+    if not fetched:
+      new_value = "\uFEFF"
+    else:
+      print (f"fetched: {fetched}")
+      for line in fetched:
+        proposition_id = line [0]
+        emoji = line [1]
+        proposition = line [2]
+        ballot = line [3]
+        if proposition_id == 1:
+          new_value = "- "+emoji+" "+proposition
+        else:
+          new_value = new_value +"\n - "+emoji+" "+proposition
     field = embed.fields [0]
     embed.clear_fields()
     embed.add_field (name=field.name, value=new_value, inline=False)
