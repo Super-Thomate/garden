@@ -164,7 +164,7 @@ class Utils():
       print (f"get_roles_modo {type(e).__name__} - {e}")
     if fetched:
       for role_fetched in fetched:
-        all_roles     [len(all_roles)] = role_fetched [0]
+        all_roles.append(role_fetched [0])
     return all_roles
 
   def debug(self, message):
