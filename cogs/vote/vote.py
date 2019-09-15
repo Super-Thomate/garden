@@ -962,7 +962,7 @@ class Vote(commands.Cog):
     if status_message != 2: # not a vote phase
       return
     # handler
-    self.update_ballot (message_id, emoji, True)
+    self.update_ballot (message_id, emoji, False)
 
   def is_vote_message (self, message_id, guild_id):
     # check if message = vote
