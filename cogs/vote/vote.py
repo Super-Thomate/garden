@@ -537,6 +537,7 @@ class Vote(commands.Cog):
       await ctx.message.add_reaction ('❌')
       return
     # vote closure status
+    channel_id               = int (fetched [0])
     closure_status           = fetched [1]
     end_proposition          = (fetched [1] == 1)
     end_edit                 = (fetched [1] == 2)
@@ -545,7 +546,8 @@ class Vote(commands.Cog):
     year                     = fetched [3]
     # get the message
     try:
-      vote_msg = await ctx.channel.fetch_message (message_id)
+      channel                = ctx.guild.get_channel (channel_id)
+      vote_msg               = await channel.fetch_message (message_id)
     except Exception as e:
       if type(e).__name__ == "NotFound":
         await ctx.send (f"MessageID {message_id} does not correspond to a message on this channel")
