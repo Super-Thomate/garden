@@ -146,7 +146,7 @@ async def on_ready():
                 embed        = embed_get_result (message_id, guild_id, embed)
                 await vote_message.edit (embed=embed)
                 update       = (f"update vote_message set closed = 3 "+
-                                "where message_id='{message_id}' ;"
+                                f"where message_id='{message_id}' ;"
                                )
                 db.execute_order(update)
                 #send feedback
