@@ -925,16 +925,17 @@ class Vote(commands.Cog):
     guild_id                 = payload.guild_id
     channel_id               = payload.channel_id
     emoji                    = payload.emoji
+    user_id                  = payload.user_id
     status_message           = self.is_vote_message (message_id, guild_id)
     if status_message == -1: # not a vote message
       return
     if status_message != 2: # not a vote phase
-      if payload.user_id != self.bot.user.id:
+      if user_id != self.bot.user.id:
         for guild in self.bot.guilds:
           if guild.id == guild_id:
             channel          = guild.get_channel (channel_id)
             message          = await channel.fetch_message (message_id)
-            await message.remove_reaction (emoji, user)
+            await message.remove_reaction (emoji, guild.get_member (user_id))
             break
       return
     # handler
