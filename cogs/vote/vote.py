@@ -920,6 +920,27 @@ class Vote(commands.Cog):
     self.update_ballot (message_id, emoji, True)
 
   @commands.Cog.listener()
+  async def on_raw_reaction_add(self, payload):
+    message_id               = payload.message_id
+    guild_id                 = payload.guild_id
+    channel_id               = payload.channel_id
+    emoji                    = payload.emoji
+    status_message           = self.is_vote_message (message_id, guild_id)
+    if status_message == -1: # not a vote message
+      return
+    if status_message != 2: # not a vote phase
+      if user.id != self.bot.user.id:
+        for guild in self.bot.guilds:
+          if guild.id == guild_id:
+            channel          = guild.get_channel (channel_id)
+            message          = await channel.fetch_message (message_id)
+            await message.remove_reaction (emoji, user)
+            break
+      return
+    # handler
+    self.update_ballot (message_id, emoji, True)
+
+  @commands.Cog.listener()
   async def on_reaction_remove(self, reaction, user):
     message_id               = reaction.message.id
     guild_id                 = reaction.message.guild.id
@@ -929,6 +950,18 @@ class Vote(commands.Cog):
       return
     # handler
     self.update_ballot (message_id, emoji, False)
+
+  @commands.Cog.listener()
+  async def on_raw_reaction_remove(self, payload):
+    message_id               = payload.message_id
+    guild_id                 = payload.guild_id
+    channel_id               = payload.channel_id
+    emoji                    = payload.emoji
+    status_message           = self.is_vote_message (message_id, guild_id)
+    if status_message != 2: # not a vote phase
+      return
+    # handler
+    self.update_ballot (message_id, emoji, True)
 
   def is_vote_message (self, message_id, guild_id):
     # check if message = vote
