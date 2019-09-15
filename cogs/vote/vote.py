@@ -929,7 +929,7 @@ class Vote(commands.Cog):
     if status_message == -1: # not a vote message
       return
     if status_message != 2: # not a vote phase
-      if user.id != self.bot.user.id:
+      if payload.user_id != self.bot.user.id:
         for guild in self.bot.guilds:
           if guild.id == guild_id:
             channel          = guild.get_channel (channel_id)
