@@ -11,7 +11,7 @@ bot                          = discord.Client()
 """
 AUTOBOT
 Manages all recurrent tasks
-Launch by a cron 
+Launch by a cron
 * * * * * /usr/bin/python3 /path/to/garden/auto_bot.py Carotte 1>/path/to/garden/auto_bot_Carotte.log 2>/path/to/garden/auto_bot_Carotte.log.err
 ## TODO
 # Close proposition phase
@@ -40,17 +40,17 @@ async def on_ready():
                                  "author_id,closed from vote_message where "+
                                 f"guild_id='{guild_id}' and (closed <> 3) ;"
                                )
-      fetched                = db.fetch_all_line (select)
-      if fetched:
+      fetched_all            = db.fetch_all_line (select)
+      if fetched_all:
         # print (f"fetched: {fetched}")
-        for line in fetched:
+        for line in fetched_all:
           # XX_ended_at > today => close
           message_id         = int(line [0])
           channel_id         = int(line [1])
           author_id          = int(line [4])
-          proposition_phase  = (fetched [5] == 0)
-          edit_phase         = (fetched [5] == 1)
-          vote_phase         = (fetched [5] == 2)
+          proposition_phase  = (line [5] == 0)
+          edit_phase         = (line [5] == 1)
+          vote_phase         = (line [5] == 2)
           # do i have to close it ?
           sql                = ( "select proposition_ended_at,edit_ended_at,"+
                                  "vote_ended_at from vote_time where "+
