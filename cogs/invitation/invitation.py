@@ -5,6 +5,7 @@ import urllib
 import re
 from discord.ext import commands
 from datetime import datetime
+import time
 from ..logs import Logs
 from database import Database
 from Utils import Utils
@@ -289,15 +290,19 @@ class Invitation(commands.Cog):
          and (self.utils.do_invite (guild_id) or botconfig.config[str(guild_id)]["do_invite"])
        ):
       #sql = f"select last from last_invite where guild_id='{message.guild.id}' and member_id='{member.id}'"
-      invite_delay = self.utils.invite_delay (guild_id) or botconfig.config[str(guild_id)]["invite_delay"]
-      sql = f"select datetime(last, '{invite_delay}') from last_invite where guild_id='{message.guild.id}' and member_id='{member.id}'"
-      last_invite = self.db.fetch_one_line (sql)
+      invite_delay           = self.utils.invite_delay (guild_id) or botconfig.config[str(guild_id)]["invite_delay"]
+      sql                    = f"select last from last_invite where guild_id='{message.guild.id}' and member_id='{member.id}'"
+      last_invite            = self.db.fetch_one_line (sql)
       if last_invite and last_invite[0]:
-        last = last_invite[0]
-        last_datetime = datetime.strptime (last, '%Y-%m-%d %H:%M:%S')
-        duree = last_datetime - datetime.now()
-        if duree.seconds > 1 and duree.days >= 0:
-          total_seconds = duree.days*86400+duree.seconds
+        #last                 = last_invite[0]
+        #last_datetime        = datetime.strptime (last, '%Y-%m-%d %H:%M:%S')
+        last_timestamp       = time.mktime(datetime.strptime(last_invite [0], "%Y-%m-%d %H:%M:%S").timetuple())
+        # duree = last_datetime - datetime.now()
+        duree                = math.floor ((last_timestamp + invite_delay) - time.time())
+        # if duree.seconds > 1 and duree.days >= 0:
+        if duree > 0:
+          # total_seconds = duree.days*86400+duree.seconds
+          total_seconds      = duree
           print (total_seconds)
           await self.logger.log('invite_log', member, message, True)
           await message.add_reaction('❌')
