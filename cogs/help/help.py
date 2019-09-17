@@ -179,8 +179,8 @@ class Help(commands.Cog):
     embed.set_author(icon_url=infos.avatar_url, name=str(infos))
     embed.timestamp = datetime.today()
     return embed
+  
   def help_global (self):
-    print (self.bot.cogs)
     line_cogs = ""
     line_cogs_2 = ""
     all_cogs = {
