@@ -5,14 +5,14 @@ from discord.ext import commands
 import botconfig
 from database import Database
 import time
+from datetime import datetime
 import math
 
 bot                          = discord.Client()
 """
 AUTOBOT
 Manages all recurrent tasks
-Launch by a cron
-* * * * * /usr/bin/python3 /path/to/garden/auto_bot.py Carotte 1>/path/to/garden/auto_bot_Carotte.log 2>/path/to/garden/auto_bot_Carotte.log.err
+Repeat itself every 60 seconds
 ## TODO
 # Close proposition phase
 # Close edit phase
@@ -31,6 +31,7 @@ async def on_ready():
            )
         )
   while run_boy_run:
+    print (f"[{datetime.now().strftime('%d-%m-%Y %H:%M:%S')}] Running task")
     await tasks()
     time.sleep(sleepy_time)
     # sys.exit(0)
@@ -65,6 +66,7 @@ async def tasks ():
                                 f"message_id='{message_id}' ;"
                                )
           fetch_ended_at     = db.fetch_one_line (sql)
+          # print (f"fetch_ended_at: {fetch_ended_at}")
           if fetch_ended_at:
             proposition_ended_at       = fetch_ended_at [0]
             edit_ended_at    = fetch_ended_at [1]
