@@ -20,7 +20,7 @@ Launch by a cron
 
 """
 run_boy_run                  = True
-
+sleepy_time                  = 60
 @bot.event
 async def on_ready():
   print (  ( "------\n"+
@@ -32,7 +32,7 @@ async def on_ready():
         )
   while run_boy_run:
     await tasks()
-    time.sleep(60)
+    time.sleep(sleepy_time)
 
 async def tasks ():
   try:
