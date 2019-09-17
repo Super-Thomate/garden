@@ -19,6 +19,7 @@ Launch by a cron
 # Close vote phase
 
 """
+run_boy_run                  = True
 
 @bot.event
 async def on_ready():
@@ -29,6 +30,11 @@ async def on_ready():
              "------"
            )
         )
+  while run_boy_run:
+    await tasks()
+    time.sleep(60)
+
+async def tasks ():
   try:
     db                       = Database ()
     guilds                   = bot.guilds
@@ -76,7 +82,6 @@ async def on_ready():
               vote_channel   = guild.get_channel (channel_id)
             except Exception as e:
               print (f"Error on guild.get_channel: {type(e).__name__} - {e}")
-              sys.exit(0)
             if vote_channel:
               vote_message   = await vote_channel.fetch_message (message_id)
               if  vote_message:
@@ -132,7 +137,6 @@ async def on_ready():
               vote_channel   = guild.get_channel (channel_id)
             except Exception as e:
               print (f"Error on guild.get_channel: {type(e).__name__} - {e}")
-              sys.exit(0)
             if vote_channel:
               vote_message   = await vote_channel.fetch_message (message_id)
               if  vote_message:
@@ -176,7 +180,6 @@ async def on_ready():
     sys.exit(0)
   except Exception as e:
     print (f"{type(e).__name__} - {e}")
-    sys.exit(0)
 
 def embed_get_result (message_id, guild_id, embed):
   db                         = Database ()
