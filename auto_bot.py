@@ -33,6 +33,7 @@ async def on_ready():
   while run_boy_run:
     await tasks()
     time.sleep(sleepy_time)
+    # sys.exit(0)
 
 async def tasks ():
   try:
@@ -48,9 +49,10 @@ async def tasks ():
                                )
       fetched_all            = db.fetch_all_line (select)
       if fetched_all:
-        # print (f"fetched: {fetched}")
+        # print (f"fetched_all: {fetched_all}")
         for line in fetched_all:
           # XX_ended_at > today => close
+          # print (f"line: {line}")
           message_id         = int(line [0])
           channel_id         = int(line [1])
           author_id          = int(line [4])
@@ -63,123 +65,131 @@ async def tasks ():
                                 f"message_id='{message_id}' ;"
                                )
           fetch_ended_at     = db.fetch_one_line (sql)
-          proposition_ended_at         = fetch_ended_at [0]
-          edit_ended_at      = fetch_ended_at [1]
-          vote_ended_at      = fetch_ended_at [2]
-          """
-          print (f"vote_ended_at: {vote_ended_at}")
-          print (f"time: {math.floor (time.time())}")
-          if vote_ended_at:
-            print (f"res: {vote_ended_at <= math.floor (time.time())}")
-          """
-          if (     (proposition_ended_at)
-               and (proposition_ended_at <= math.floor (time.time()))
-               and (proposition_phase)
-             ):
-            print ("close proposition")
-            try:
-              #print (f"guild: {guild.channels}")
-              vote_channel   = guild.get_channel (channel_id)
-            except Exception as e:
-              print (f"Error on guild.get_channel: {type(e).__name__} - {e}")
-            if vote_channel:
-              vote_message   = await vote_channel.fetch_message (message_id)
-              if  vote_message:
-                print ("vote_channel and vote_message OK")
-                embed        = vote_message.embeds[0]
-                colour       = discord.Colour(0)
-                colour       = colour.from_rgb(56, 255, 56)
-                embed.colour = colour
-                embed.set_footer(text=f"{line[2]}/{line[3]} Phase de "+
-                                       "proposition terminée"
-                                )
-                await vote_message.edit (embed=embed)
-                update       = ( "update vote_message set closed = 1 where "+
+          if fetch_ended_at:
+            proposition_ended_at       = fetch_ended_at [0]
+            edit_ended_at    = fetch_ended_at [1]
+            vote_ended_at    = fetch_ended_at [2]
+            """
+            print (f"vote_ended_at: {vote_ended_at}")
+            print (f"time: {math.floor (time.time())}")
+            if vote_ended_at:
+              print (f"res: {vote_ended_at <= math.floor (time.time())}")
+            """
+            if (     (proposition_ended_at)
+                 and (proposition_ended_at <= math.floor (time.time()))
+                 and (proposition_phase)
+               ):
+              print ("close proposition")
+              try:
+                #print (f"guild: {guild.channels}")
+                vote_channel = guild.get_channel (channel_id)
+              except Exception as e:
+                print (f"Error on guild.get_channel: {type(e).__name__} - {e}")
+              if vote_channel:
+                vote_message = None
+                try:
+                  vote_message         = await vote_channel.fetch_message (message_id)
+                except Exception as e:
+                  print (f"Error on vote_channel.fetch_message: {type(e).__name__} - {e}")
+                if  vote_message:
+                  print ("vote_channel and vote_message OK")
+                  embed      = vote_message.embeds[0]
+                  colour     = discord.Colour(0)
+                  colour     = colour.from_rgb(56, 255, 56)
+                  embed.colour         = colour
+                  embed.set_footer(text=f"{line[2]}/{line[3]} Phase de "+
+                                         "proposition terminée"
+                                  )
+                  await vote_message.edit (embed=embed)
+                  update     = ( "update vote_message set closed = 1 where "+
                                 f"message_id='{message_id}' ;"
                                )
-                db.execute_order(update)
-                #send feedback
-                select       = ( "select a.role_id, b.channel_id"+
+                  db.execute_order(update)
+                  #send feedback
+                  select     = ( "select a.role_id, b.channel_id"+
                                  " from vote_role as a, vote_channel as b"+
                                  " where"+
                                  " a.guild_id=b.guild_id"+
                                  " and"+
                                 f" a.guild_id='{guild_id}' ;"
                                )
-                # print (f"select: {select}")
-                fetched      = db.fetch_one_line(select)
-                # print (f"fetched: {fetched}")
-                if fetched:
-                  feedback_role_id     = int (fetched [0])
-                  feedback_channel_id  = int (fetched [1])
-                  feedback_channel     = guild.get_channel (feedback_channel_id)
-                  await feedback_channel.send (f"<@&{feedback_role_id}>"+
-                                                " La phase de proposition"+
-                                                " est terminée."
-                                              )
+                  # print (f"select: {select}")
+                  fetched    = db.fetch_one_line(select)
+                  # print (f"fetched: {fetched}")
+                  if fetched:
+                    feedback_role_id   = int (fetched [0])
+                    feedback_channel_id          = int (fetched [1])
+                    feedback_channel   = guild.get_channel (feedback_channel_id)
+                    await feedback_channel.send (f"<@&{feedback_role_id}>"+
+                                                  " La phase de proposition"+
+                                                  " est terminée."
+                                                )
+                  else:
+                    # nothing => send DM to author
+                    await guild.get_member(author_id).send (
+                          "La phase de proposition est terminée.\n"+
+                          "Vous recevez ce message car le salon et/ou le rôle "+
+                          "de vote ne sont pas correctements définis ou manquants."
+                                                           )
                 else:
-                  # nothing => send DM to author
-                  await guild.get_member(author_id).send (
-                        "La phase de proposition est terminée.\n"+
-                        "Vous recevez ce message car le salon et/ou le rôle "+
-                        "de vote ne sont pas correctements définis ou manquants."
-                                                         )
+                  print ("ERROR: NO MESSAGE FOUND")
               else:
-                print ("ERROR: NO MESSAGE FOUND")
-            else:
-              print ("ERROR: NO CHANNEL FOUND")
-          if (     (vote_ended_at)
-               and (vote_ended_at <= math.floor (time.time()))
-             ):
-            print ("close vote")
-            try:
-              #print (f"guild: {guild.channels}")
-              vote_channel   = guild.get_channel (channel_id)
-            except Exception as e:
-              print (f"Error on guild.get_channel: {type(e).__name__} - {e}")
-            if vote_channel:
-              vote_message   = await vote_channel.fetch_message (message_id)
-              if  vote_message:
-                embed        = vote_message.embeds[0]
-                colour       = discord.Colour(0)
-                colour       = colour.from_rgb(255, 71, 71)
-                embed.colour = colour
-                embed.set_footer(text=f"{line[2]}/{line[3]} "+
-                                       "Phase de vote terminée"
-                                )
-                embed        = embed_get_result (message_id, guild_id, embed)
-                await vote_message.edit (embed=embed)
-                update       = (f"update vote_message set closed = 3 "+
+                print ("ERROR: NO CHANNEL FOUND")
+            if (     (vote_ended_at)
+                 and (vote_ended_at <= math.floor (time.time()))
+               ):
+              print ("close vote")
+              try:
+                #print (f"guild: {guild.channels}")
+                vote_channel = guild.get_channel (channel_id)
+              except Exception as e:
+                print (f"Error on guild.get_channel: {type(e).__name__} - {e}")
+              if vote_channel:
+                vote_message = None
+                try:
+                  vote_message         = await vote_channel.fetch_message (message_id)
+                except Exception as e:
+                  print (f"Error on vote_channel.fetch_message: {type(e).__name__} - {e}")
+                if  vote_message:
+                  embed      = vote_message.embeds[0]
+                  colour     = discord.Colour(0)
+                  colour     = colour.from_rgb(255, 71, 71)
+                  embed.colour         = colour
+                  embed.set_footer(text=f"{line[2]}/{line[3]} "+
+                                         "Phase de vote terminée"
+                                  )
+                  embed      = embed_get_result (message_id, guild_id, embed)
+                  await vote_message.edit (embed=embed)
+                  update     = (f"update vote_message set closed = 3 "+
                                 f"where message_id='{message_id}' ;"
                                )
-                db.execute_order(update)
-                #send feedback
-                select       = ( "select a.role_id, b.channel_id"+
+                  db.execute_order(update)
+                  #send feedback
+                  select     = ( "select a.role_id, b.channel_id"+
                                  " from vote_role as a, vote_channel as b"+
                                 f" where a.guild_id=b.guild_id and a.guild_id='{guild_id}' ;"
                                )
-                # print (f"select: {select}")
-                fetched      = db.fetch_one_line(select)
-                # print (f"fetched: {fetched}")
-                if fetched:
-                  feedback_role_id     = int (fetched [0])
-                  feedback_channel_id  = int (fetched [1])
-                  feedback_channel     = guild.get_channel (feedback_channel_id)
-                  await feedback_channel.send (f"<@{feedback_role_id}> La phase de vote est terminée.")
+                  # print (f"select: {select}")
+                  fetched    = db.fetch_one_line(select)
+                  # print (f"fetched: {fetched}")
+                  if fetched:
+                    feedback_role_id   = int (fetched [0])
+                    feedback_channel_id          = int (fetched [1])
+                    feedback_channel   = guild.get_channel (feedback_channel_id)
+                    await feedback_channel.send (f"<@{feedback_role_id}> La phase de vote est terminée.")
+                  else:
+                    # nothing => send DM to author
+                    await guild.get_member(author_id).send (
+                          "La phase de vote est terminée.\n"+
+                          "Vous recevez ce message car le salon et/ou le rôle de vote ne sont pas"+
+                          " correctements définis ou manquants."
+                                                           )
                 else:
-                  # nothing => send DM to author
-                  await guild.get_member(author_id).send (
-                        "La phase de vote est terminée.\n"+
-                        "Vous recevez ce message car le salon et/ou le rôle de vote ne sont pas"+
-                        " correctements définis ou manquants."
-                                                         )
+                  print ("ERROR: NO MESSAGE FOUND")
               else:
-                print ("ERROR: NO MESSAGE FOUND")
-            else:
-              print ("ERROR: NO CHANNEL FOUND")
-    sys.exit(0)
+                print ("ERROR: NO CHANNEL FOUND")
   except Exception as e:
-    print (f"{type(e).__name__} - {e}")
+    print (f"auto task {type(e).__name__} - {e}")
 
 def embed_get_result (message_id, guild_id, embed):
   db                         = Database ()
