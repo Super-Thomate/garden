@@ -178,7 +178,7 @@ async def tasks ():
                     feedback_role_id   = int (fetched [0])
                     feedback_channel_id          = int (fetched [1])
                     feedback_channel   = guild.get_channel (feedback_channel_id)
-                    await feedback_channel.send (f"<@{feedback_role_id}> La phase de vote est terminée.")
+                    await feedback_channel.send (f"<@&{feedback_role_id}> La phase de vote est terminée.")
                   else:
                     # nothing => send DM to author
                     await guild.get_member(author_id).send (
