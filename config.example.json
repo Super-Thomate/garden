@@ -1,4 +1,4 @@
-{   "Instance":        "token": "BotToken"
+{   "Instance":{        "token": "BotToken"
                 ,   "activity": "gardening"
                 ,   "guild_id": {          "roles": [   "Role1"
                                                       , "Role2"
@@ -13,4 +13,5 @@
                                   ,    "do_invite": 1
                                   ,     "do_token": 0
                                 }
+                }
 }
