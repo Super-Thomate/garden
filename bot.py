@@ -21,7 +21,7 @@ def get_prefix(bot, message):
     fetched                  = db.fetch_all_line (select)
     if fetched:
       for line in fetched:
-        prefixes.append [line [0]]
+        prefixes.append (line [0])
     if not len (prefixes):
       prefixes               = ['!']
     return commands.when_mentioned_or(*prefixes)(bot, message)
