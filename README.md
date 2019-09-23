@@ -26,6 +26,10 @@ Install BeautifulSoup :
 ```
 pip3 install beautifulsoup4
 ```
+Install DateUtil :
+```
+pip install python-dateutil
+```
 
 # Launch Garden
 
