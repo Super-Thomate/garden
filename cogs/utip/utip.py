@@ -189,7 +189,7 @@ class Utip(commands.Cog):
       await ctx.message.add_reaction('❌')
       await ctx.author.send ("Vous n'êtes pas autorisé à utiliser cette commande pour le moment.")
       return
-    await ctx.send ("Entrez le message de bienvenue : ")
+    await ctx.send ("Entrez le message de feedback pour la commande `!utip` : ")
     check                    = lambda m: m.channel == ctx.channel and m.author == ctx.author
     msg                      = await self.bot.wait_for('message', check=check)
     message                  = msg.content
