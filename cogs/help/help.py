@@ -200,7 +200,7 @@ class Help(commands.Cog):
                                 )
                       , inline=False)
     embed.add_field (   name="**Commandes admin/modérateur :**"
-                      , value= ("- `!setutipchannel (suc) [<channel>]` - définit le channel de moédation de Utip.\n"+
+                      , value= ("- `!setutipchannel (suc) [<channel>]` - définit le channel de modération de Utip.\n"+
                                 "- `!setutiplog (sul) [<channel>]` - définit le channel de log de Utip.\n"+
                                 "- `!setutiprole (sur) <role>` - définit le rôle à donner.\n"+
                                 "- `!setutipmessage (sum)` - éditeur pour le message à envoyer lors de la demande.\n"+
