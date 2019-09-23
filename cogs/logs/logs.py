@@ -22,7 +22,7 @@ class Logs(commands.Cog):
       return
     if self.utils.is_banned (ctx.command, ctx.author, ctx.guild.id):
       await ctx.message.add_reaction('❌')
-      await ctx.author.send ("Vous n'êtes pas autorisé à utilisez cette commande pour le moment.")
+      await ctx.author.send ("Vous n'êtes pas autorisé à utiliser cette commande pour le moment.")
       return
     try:
       log_channel = channel or ctx.message.channel
@@ -48,7 +48,7 @@ class Logs(commands.Cog):
       return
     if self.utils.is_banned (ctx.command, ctx.author, ctx.guild.id):
       await ctx.message.add_reaction('❌')
-      await ctx.author.send ("Vous n'êtes pas autorisé à utilisez cette commande pour le moment.")
+      await ctx.author.send ("Vous n'êtes pas autorisé à utiliser cette commande pour le moment.")
       return
     try:
       log_channel = channel or ctx.message.channel
@@ -73,7 +73,7 @@ class Logs(commands.Cog):
       return
     if self.utils.is_banned (ctx.command, ctx.author, ctx.guild.id):
       await ctx.message.add_reaction('❌')
-      await ctx.author.send ("Vous n'êtes pas autorisé à utilisez cette commande pour le moment.")
+      await ctx.author.send ("Vous n'êtes pas autorisé à utiliser cette commande pour le moment.")
       return
     try:
       log_channel = channel or ctx.message.channel
@@ -98,7 +98,7 @@ class Logs(commands.Cog):
       return
     if self.utils.is_banned (ctx.command, ctx.author, ctx.guild.id):
       await ctx.message.add_reaction('❌')
-      await ctx.author.send ("Vous n'êtes pas autorisé à utilisez cette commande pour le moment.")
+      await ctx.author.send ("Vous n'êtes pas autorisé à utiliser cette commande pour le moment.")
       return
     try:
       log_channel = channel or ctx.message.channel
@@ -125,7 +125,7 @@ class Logs(commands.Cog):
       return
     if self.utils.is_banned (ctx.command, ctx.author, ctx.guild.id):
       await ctx.message.add_reaction('❌')
-      await ctx.author.send ("Vous n'êtes pas autorisé à utilisez cette commande pour le moment.")
+      await ctx.author.send ("Vous n'êtes pas autorisé à utiliser cette commande pour le moment.")
       return
     try:
       log_channel = channel or ctx.message.channel
@@ -193,7 +193,7 @@ class Logs(commands.Cog):
       return
     if self.utils.is_banned (ctx.command, ctx.author, ctx.guild.id):
       await ctx.message.add_reaction('❌')
-      await ctx.author.send ("Vous n'êtes pas autorisé à utilisez cette commande pour le moment.")
+      await ctx.author.send ("Vous n'êtes pas autorisé à utiliser cette commande pour le moment.")
       return
     print ("Let's go !")
     if until_message:
@@ -261,7 +261,7 @@ class Logs(commands.Cog):
       return
     if self.utils.is_banned (ctx.command, ctx.author, ctx.guild.id):
       await ctx.message.add_reaction('❌')
-      await ctx.author.send ("Vous n'êtes pas autorisé à utilisez cette commande pour le moment.")
+      await ctx.author.send ("Vous n'êtes pas autorisé à utiliser cette commande pour le moment.")
       return
     try:
       log_channel            = channel or ctx.message.channel
@@ -289,7 +289,7 @@ class Logs(commands.Cog):
       return
     if self.utils.is_banned (ctx.command, ctx.author, ctx.guild.id):
       await ctx.message.add_reaction('❌')
-      await ctx.author.send ("Vous n'êtes pas autorisé à utilisez cette commande pour le moment.")
+      await ctx.author.send ("Vous n'êtes pas autorisé à utiliser cette commande pour le moment.")
       return
     try:
       log_channel = channel or ctx.message.channel
@@ -304,3 +304,30 @@ class Logs(commands.Cog):
       await log_channel.send ("Logs for config will be put here")
     except Exception as e:
       print (f" {type(e).__name__} - {e}")
+
+
+  @commands.command(name='setutiplog', aliases=['setutip', 'sul', 'utiplog'])
+  async def set_utip_log(self, ctx, channel: discord.TextChannel = None):
+    guild_id = ctx.message.guild.id
+    member = ctx.author
+    if not self.utils.is_authorized (member, guild_id):
+      print ("Missing permissions")
+      return
+    if self.utils.is_banned (ctx.command, ctx.author, ctx.guild.id):
+      await ctx.message.add_reaction('❌')
+      await ctx.author.send ("Vous n'êtes pas autorisé à utiliser cette commande pour le moment.")
+      return
+    try:
+      log_channel = channel or ctx.message.channel
+      guild_id = ctx.message.guild.id
+      sql = f"select * from utip_log where guild_id='{guild_id}'"
+      prev_log_channel = self.db.fetch_one_line (sql)
+      if not prev_log_channel:
+        sql = "INSERT INTO utip_log VALUES ('{0}', '{1}')".format(log_channel.id, guild_id)
+      else:
+        sql = f"update utip_log set channel_id='{log_channel.id}' where guild_id='{guild_id}'"
+      self.db.execute_order(sql, [])
+      await log_channel.send ("Logs for utip will be put here")
+    except Exception as e:
+      print (f" {type(e).__name__} - {e}")
+      await ctx.message.add_reaction('❌')

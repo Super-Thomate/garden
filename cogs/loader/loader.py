@@ -18,7 +18,7 @@ class Loader(commands.Cog):
       return
     if self.utils.is_banned (ctx.command, ctx.author, ctx.guild.id):
       await ctx.message.add_reaction('❌')
-      await ctx.author.send ("Vous n'êtes pas autorisé à utilisez cette commande pour le moment.")
+      await ctx.author.send ("Vous n'êtes pas autorisé à utiliser cette commande pour le moment.")
       return
     try:
       self.bot.load_extension(f'cogs.{cog}')
@@ -36,7 +36,7 @@ class Loader(commands.Cog):
       return
     if self.utils.is_banned (ctx.command, ctx.author, ctx.guild.id):
       await ctx.message.add_reaction('❌')
-      await ctx.author.send ("Vous n'êtes pas autorisé à utilisez cette commande pour le moment.")
+      await ctx.author.send ("Vous n'êtes pas autorisé à utiliser cette commande pour le moment.")
       return
     try:
       self.bot.unload_extension(f'cogs.{cog}')
@@ -54,7 +54,7 @@ class Loader(commands.Cog):
       return
     if self.utils.is_banned (ctx.command, ctx.author, ctx.guild.id):
       await ctx.message.add_reaction('❌')
-      await ctx.author.send ("Vous n'êtes pas autorisé à utilisez cette commande pour le moment.")
+      await ctx.author.send ("Vous n'êtes pas autorisé à utiliser cette commande pour le moment.")
       return
     try:
       self.bot.unload_extension(f'cogs.{cog}')
@@ -73,7 +73,7 @@ class Loader(commands.Cog):
       return
     if self.utils.is_banned (ctx.command, ctx.author, ctx.guild.id):
       await ctx.message.add_reaction('❌')
-      await ctx.author.send ("Vous n'êtes pas autorisé à utilisez cette commande pour le moment.")
+      await ctx.author.send ("Vous n'êtes pas autorisé à utiliser cette commande pour le moment.")
       return
     all_loaded = ""
     for name in self.bot.cogs.keys():
@@ -95,7 +95,7 @@ class Loader(commands.Cog):
       return
     if self.utils.is_banned (ctx.command, ctx.author, ctx.guild.id):
       await ctx.message.add_reaction('❌')
-      await ctx.author.send ("Vous n'êtes pas autorisé à utilisez cette commande pour le moment.")
+      await ctx.author.send ("Vous n'êtes pas autorisé à utiliser cette commande pour le moment.")
       return
     # `cd ${__dirname}; git branch | grep \\* | awk '{ print $2 }';`
     dir_path = os.path.dirname(os.path.realpath(__file__))+'/'

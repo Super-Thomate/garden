@@ -4,7 +4,7 @@ from database import Database
 import time
 import sys
 import inspect
-
+from urllib.request import urlopen
 
 class Utils():
   def is_authorized (self, member, guild_id):
@@ -277,3 +277,26 @@ class Utils():
     if fetched:
       return fetched [0]
     return ""
+
+  def is_valid_url (self, url):
+    import re
+    regex = re.compile(
+        r'^https?://'  # http:// or https://
+        r'(?:(?:[A-Z0-9](?:[A-Z0-9-]{0,61}[A-Z0-9])?\.)+[A-Z]{2,6}\.?|'  # domain...
+        r'localhost|'  # localhost...
+        r'\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})' # ...or ip
+        r'(?::\d+)?'  # optional port
+        r'(?:/?|[/?]\S+)$', re.IGNORECASE)
+    return url is not None and regex.search(url)
+    
+  def is_url_image (self, image_url):
+    if not self.is_valid_url(image_url):
+      return False
+    image_formats            = ("image/png", "image/jpeg", "image/jpg")
+    try:
+      site                   = urlopen(image_url)
+      meta                   = site.info()  # get header of the http request
+    except Exception as e:
+      print (f"{type(e).__name__} - {e}")
+      return False
+    return meta["content-type"] in image_formats

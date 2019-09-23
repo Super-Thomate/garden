@@ -14,7 +14,7 @@ class Help(commands.Cog):
     cog = cog or "global"
     if self.utils.is_banned (ctx.command, ctx.author, ctx.guild.id):
       await ctx.message.add_reaction('❌')
-      await ctx.author.send ("Vous n'êtes pas autorisé à utilisez cette commande pour le moment.")
+      await ctx.author.send ("Vous n'êtes pas autorisé à utiliser cette commande pour le moment.")
       return
     try:
       method = getattr(self, "help_"+cog.lower())
@@ -174,6 +174,38 @@ class Help(commands.Cog):
                                 "- `!setroledmmessage (srm) <role>` - définit le message à envoyer à la prise du rôle.\n"+
                                 "- `!displayroledmmessage (drm) <role>` - affiche le message courant du rôle s'il existe.\n"+
                                 "- `!help roledm` - montre ce message"
+                               )
+                      , inline=False)
+    embed.set_author(icon_url=infos.avatar_url, name=str(infos))
+    embed.timestamp = datetime.today()
+    return embed
+
+  def help_utip (self):
+    infos = self.bot.user
+    colour = discord.Colour(0)
+    colour = colour.from_rgb(176, 255, 176)
+    embed = discord.Embed(colour=colour, title="**UTIP COG HELP**")
+    """
+    * utip
+    * setutipchannel channel
+    * setutiplog channel
+    * setutiprole role
+    * setutipmessage
+    * setutipdelay
+    """
+    embed.add_field (   name="**Commandes membre :**"
+                      , value= ("- `!utip` - poste une demande pour le rôle Utip."+
+                                " Le bot vous demandera les pièces nécessaires dans le salon.\n"+
+                                ""
+                                )
+                      , inline=False)
+    embed.add_field (   name="**Commandes admin/modérateur :**"
+                      , value= ("- `!setutipchannel (suc) [<channel>]` - définit le channel de moédation de Utip.\n"+
+                                "- `!setutiplog (sul) [<channel>]` - définit le channel de log de Utip.\n"+
+                                "- `!setutiprole (sur) <role>` - définit le rôle à donner.\n"+
+                                "- `!setutipmessage (sum)` - éditeur pour le message à envoyer lors de la demande.\n"+
+                                "- `!setutipdelay (sud)` - éditeur pour le temps que le rôle Utip est conservé.\n"+
+                                "- `!help utip` - montre ce message"
                                )
                       , inline=False)
     embed.set_author(icon_url=infos.avatar_url, name=str(infos))

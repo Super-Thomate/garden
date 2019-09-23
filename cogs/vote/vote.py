@@ -29,7 +29,7 @@ class Vote(commands.Cog):
       return
     if self.utils.is_banned (ctx.command, ctx.author, ctx.guild.id):
       await ctx.message.add_reaction('❌')
-      await ctx.author.send ("Vous n'êtes pas autorisé à utilisez cette commande pour le moment.")
+      await ctx.author.send ("Vous n'êtes pas autorisé à utiliser cette commande pour le moment.")
       return
     # date
     today = date.today()
@@ -66,7 +66,7 @@ class Vote(commands.Cog):
       return
     if self.utils.is_banned (ctx.command, ctx.author, ctx.guild.id):
       await ctx.message.add_reaction('❌')
-      await ctx.author.send ("Vous n'êtes pas autorisé à utilisez cette commande pour le moment.")
+      await ctx.author.send ("Vous n'êtes pas autorisé à utiliser cette commande pour le moment.")
       return
     if not message_id:
       await ctx.send ("Paramètre manquant: message_id")
@@ -102,7 +102,7 @@ class Vote(commands.Cog):
       return
     if self.utils.is_banned (ctx.command, ctx.author, ctx.guild.id):
       await ctx.message.add_reaction('❌')
-      await ctx.author.send ("Vous n'êtes pas autorisé à utilisez cette commande pour le moment.")
+      await ctx.author.send ("Vous n'êtes pas autorisé à utiliser cette commande pour le moment.")
       return
     await self.handle_result (ctx, message_id, "description", True)
 
@@ -118,7 +118,7 @@ class Vote(commands.Cog):
       return
     if self.utils.is_banned (ctx.command, ctx.author, ctx.guild.id):
       await ctx.message.add_reaction('❌')
-      await ctx.author.send ("Vous n'êtes pas autorisé à utilisez cette commande pour le moment.")
+      await ctx.author.send ("Vous n'êtes pas autorisé à utiliser cette commande pour le moment.")
       return
     await self.handle_result (ctx, message_id, "title", True)
 
@@ -130,7 +130,7 @@ class Vote(commands.Cog):
     """
     if self.utils.is_banned (ctx.command, ctx.author, ctx.guild.id):
       await ctx.message.add_reaction('❌')
-      await ctx.author.send ("Vous n'êtes pas autorisé à utilisez cette commande pour le moment.")
+      await ctx.author.send ("Vous n'êtes pas autorisé à utiliser cette commande pour le moment.")
       return
     if not message_id_vote_type:
       # search for the lastest vote in that channel
@@ -168,7 +168,7 @@ class Vote(commands.Cog):
     """
     if self.utils.is_banned (ctx.command, ctx.author, ctx.guild.id):
       await ctx.message.add_reaction('❌')
-      await ctx.author.send ("Vous n'êtes pas autorisé à utilisez cette commande pour le moment.")
+      await ctx.author.send ("Vous n'êtes pas autorisé à utiliser cette commande pour le moment.")
       return
     if not message_id_vote_type:
       # search for the lastest vote in that channel
@@ -207,7 +207,7 @@ class Vote(commands.Cog):
     """
     if self.utils.is_banned (ctx.command, ctx.author, ctx.guild.id):
       await ctx.message.add_reaction('❌')
-      await ctx.author.send ("Vous n'êtes pas autorisé à utilisez cette commande pour le moment.")
+      await ctx.author.send ("Vous n'êtes pas autorisé à utiliser cette commande pour le moment.")
       return
     if not message_id_vote_type:
       # search for the lastest vote in that channel
@@ -267,7 +267,7 @@ class Vote(commands.Cog):
       return
     if self.utils.is_banned (ctx.command, ctx.author, ctx.guild.id):
       await ctx.message.add_reaction('❌')
-      await ctx.author.send ("Vous n'êtes pas autorisé à utilisez cette commande pour le moment.")
+      await ctx.author.send ("Vous n'êtes pas autorisé à utiliser cette commande pour le moment.")
       return
     await self.handle_result (ctx, message_id, "end_proposition", True)
 
@@ -284,7 +284,7 @@ class Vote(commands.Cog):
       return
     if self.utils.is_banned (ctx.command, ctx.author, ctx.guild.id):
       await ctx.message.add_reaction('❌')
-      await ctx.author.send ("Vous n'êtes pas autorisé à utilisez cette commande pour le moment.")
+      await ctx.author.send ("Vous n'êtes pas autorisé à utiliser cette commande pour le moment.")
       return
     await self.handle_result (ctx, message_id, "end_edit", True)
 
@@ -301,7 +301,7 @@ class Vote(commands.Cog):
       return
     if self.utils.is_banned (ctx.command, ctx.author, ctx.guild.id):
       await ctx.message.add_reaction('❌')
-      await ctx.author.send ("Vous n'êtes pas autorisé à utilisez cette commande pour le moment.")
+      await ctx.author.send ("Vous n'êtes pas autorisé à utiliser cette commande pour le moment.")
       return
     await self.handle_result (ctx, message_id, "close_vote", True)
 
@@ -318,7 +318,7 @@ class Vote(commands.Cog):
       return
     if self.utils.is_banned (ctx.command, ctx.author, ctx.guild.id):
       await ctx.message.add_reaction('❌')
-      await ctx.author.send ("Vous n'êtes pas autorisé à utilisez cette commande pour le moment.")
+      await ctx.author.send ("Vous n'êtes pas autorisé à utiliser cette commande pour le moment.")
       return
     await self.handle_result (ctx, message_id, "end_proposition_at", True)
 
@@ -335,7 +335,7 @@ class Vote(commands.Cog):
       return
     if self.utils.is_banned (ctx.command, ctx.author, ctx.guild.id):
       await ctx.message.add_reaction('❌')
-      await ctx.author.send ("Vous n'êtes pas autorisé à utilisez cette commande pour le moment.")
+      await ctx.author.send ("Vous n'êtes pas autorisé à utiliser cette commande pour le moment.")
       return
     await self.handle_result (ctx, message_id, "end_vote_at", True)
 
@@ -352,7 +352,7 @@ class Vote(commands.Cog):
       return
     if self.utils.is_banned (ctx.command, ctx.author, ctx.guild.id):
       await ctx.message.add_reaction('❌')
-      await ctx.author.send ("Vous n'êtes pas autorisé à utilisez cette commande pour le moment.")
+      await ctx.author.send ("Vous n'êtes pas autorisé à utiliser cette commande pour le moment.")
       return
     author = ctx.author
     guild_id = ctx.guild.id
@@ -401,7 +401,7 @@ class Vote(commands.Cog):
       return
     if self.utils.is_banned (ctx.command, ctx.author, ctx.guild.id):
       await ctx.message.add_reaction('❌')
-      await ctx.author.send ("Vous n'êtes pas autorisé à utilisez cette commande pour le moment.")
+      await ctx.author.send ("Vous n'êtes pas autorisé à utiliser cette commande pour le moment.")
       return
     channel_id = channel_id or ctx.channel.id
     guild_id = ctx.guild.id
@@ -438,7 +438,7 @@ class Vote(commands.Cog):
       return
     if self.utils.is_banned (ctx.command, ctx.author, ctx.guild.id):
       await ctx.message.add_reaction('❌')
-      await ctx.author.send ("Vous n'êtes pas autorisé à utilisez cette commande pour le moment.")
+      await ctx.author.send ("Vous n'êtes pas autorisé à utiliser cette commande pour le moment.")
       return
     if not role_id:
       await ctx.send ("Paramètre manquant: role_id")
@@ -931,12 +931,9 @@ class Vote(commands.Cog):
       return
     if status_message != 2: # not a vote phase
       if user_id != self.bot.user.id:
-        for guild in self.bot.guilds:
-          if guild.id == guild_id:
-            channel          = guild.get_channel (channel_id)
-            message          = await channel.fetch_message (message_id)
-            await message.remove_reaction (emoji, guild.get_member (user_id))
-            break
+        channel          = await self.bot.fetch_channel (channel_id)
+        message          = await channel.fetch_message (message_id)
+        await message.remove_reaction (emoji, message.guild.get_member (user_id))
       return
     # handler
     self.update_ballot (message_id, emoji, True)

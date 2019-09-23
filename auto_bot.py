@@ -32,11 +32,12 @@ async def on_ready():
         )
   while run_boy_run:
     print (f"[{datetime.now().strftime('%d-%m-%Y %H:%M:%S')}] Running task")
-    await tasks()
+    await vote_tasks()
+    await utip_tasks ()
     time.sleep(sleepy_time)
     # sys.exit(0)
 
-async def tasks ():
+async def vote_tasks ():
   try:
     db                       = Database ()
     guilds                   = bot.guilds
@@ -44,9 +45,15 @@ async def tasks ():
     # CLOSE PHASES"
     for guild in guilds:
       guild_id               = guild.id
-      select                 = ( "select message_id,channel_id,month,year,"+
-                                 "author_id,closed from vote_message where "+
-                                f"guild_id='{guild_id}' and (closed <> 3) ;"
+      select                 = ( "select   message_id"+
+                                 "       , channel_id"+
+                                 "       , month"+
+                                 "       , year"+
+                                 "       , author_id"+
+                                 "       , closed "+
+                                 "from vote_message"+
+                                 " where "+
+                                f" guild_id='{guild_id}' and (closed <> 3) ;"
                                )
       fetched_all            = db.fetch_all_line (select)
       if fetched_all:
@@ -190,6 +197,49 @@ async def tasks ():
                   print ("ERROR: NO MESSAGE FOUND")
               else:
                 print ("ERROR: NO CHANNEL FOUND")
+  except Exception as e:
+    print (f"auto task {type(e).__name__} - {e}")
+
+async def utip_tasks ():
+  try:
+    db                       = Database ()
+    guilds                   = bot.guilds
+    # print (f"guilds: {guilds}")
+    # CLOSE PHASES"
+    for guild in guilds:
+      guild_id               = guild.id
+      select                 = ( "select   user_id"+
+                                 "       , until"+
+                                 " from utip_timer "+
+                                 " where "+
+                                f" guild_id='{guild_id}'"+
+                                 " and "+
+                                 " (until is not null and until <>0) "+
+                                 " ;"
+                               )
+      fetched_all            = db.fetch_all_line (select)
+      if fetched_all:
+        select_role          = f"select role_id from utip_role where guild_id='{guild_id}' ;"
+        fetched_role         = db.fetch_one_line (select_role)
+        role_utip            = guild.get_role (int (fetched_role [0]))
+        for utiper in fetched_all:
+          user_id            = int (utiper [0])
+          until              = utiper [1]
+          if  math.floor(time.time()) > until:
+            delete           = (  "delete from utip_timer "+
+                                 f" where user_id='{user_id}'"+
+                                  " and "+
+                                 f" guild_id='{guild_id}' ;"+
+                                  ""
+                               )
+            member           = guild.get_member (user_id)
+            if member:
+              await member.remove_roles(role_utip)
+              await member.send("Vous n'avez plus le rôle de backers."+
+                                " Si vous souhaitez le récupérer, faîtes une nouvelle demande."
+                               )
+              db.execute_order(delete)
+              
   except Exception as e:
     print (f"auto task {type(e).__name__} - {e}")
 

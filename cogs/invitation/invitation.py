@@ -35,7 +35,7 @@ class Invitation(commands.Cog):
       return
     if self.utils.is_banned (ctx.command, ctx.author, ctx.guild.id):
       await ctx.message.add_reaction('❌')
-      await ctx.author.send ("Vous n'êtes pas autorisé à utilisez cette commande pour le moment.")
+      await ctx.author.send ("Vous n'êtes pas autorisé à utiliser cette commande pour le moment.")
       return
     error = False
     colour = discord.Colour(0)
@@ -73,7 +73,7 @@ class Invitation(commands.Cog):
       return
     if self.utils.is_banned (ctx.command, ctx.author, ctx.guild.id):
       await ctx.message.add_reaction('❌')
-      await ctx.author.send ("Vous n'êtes pas autorisé à utilisez cette commande pour le moment.")
+      await ctx.author.send ("Vous n'êtes pas autorisé à utiliser cette commande pour le moment.")
       return
     sql = f"delete from last_invite where guild_id='{guild_id}' and member_id='{member.id}'"
     error = False
@@ -98,7 +98,7 @@ class Invitation(commands.Cog):
       return
     if self.utils.is_banned (ctx.command, ctx.author, ctx.guild.id):
       await ctx.message.add_reaction('❌')
-      await ctx.author.send ("Vous n'êtes pas autorisé à utilisez cette commande pour le moment.")
+      await ctx.author.send ("Vous n'êtes pas autorisé à utiliser cette commande pour le moment.")
       return
     error = False
     try:
@@ -136,7 +136,7 @@ class Invitation(commands.Cog):
       return
     if self.utils.is_banned (ctx.command, ctx.author, ctx.guild.id):
       await ctx.message.add_reaction('❌')
-      await ctx.author.send ("Vous n'êtes pas autorisé à utilisez cette commande pour le moment.")
+      await ctx.author.send ("Vous n'êtes pas autorisé à utiliser cette commande pour le moment.")
       return
     sql = f"select * from invite_channel where guild_id='{guild_id}'"
     print (sql)
@@ -164,7 +164,7 @@ class Invitation(commands.Cog):
          or self.utils.is_banned_role (ctx.command, ctx.author, ctx.guild.id)
        ):
       await ctx.message.add_reaction('❌')
-      await ctx.author.send ("Vous n'êtes pas autorisé à utilisez cette commande pour le moment.")
+      await ctx.author.send ("Vous n'êtes pas autorisé à utiliser cette commande pour le moment.")
       return
     sql = f"select * from galerie_channel where guild_id='{guild_id}'"
     prev_galerie_channel = self.db.fetch_one_line (sql)
@@ -186,7 +186,7 @@ class Invitation(commands.Cog):
       return
     if self.utils.is_banned (ctx.command, ctx.author, ctx.guild.id):
       await ctx.message.add_reaction('❌')
-      await ctx.author.send ("Vous n'êtes pas autorisé à utilisez cette commande pour le moment.")
+      await ctx.author.send ("Vous n'êtes pas autorisé à utiliser cette commande pour le moment.")
       return
     await ctx.send ("Entrez le message d'invitation : ")
     check = lambda m: m.channel == ctx.channel and m.author == ctx.author
@@ -217,7 +217,7 @@ class Invitation(commands.Cog):
       return
     if self.utils.is_banned (ctx.command, ctx.author, ctx.guild.id):
       await ctx.message.add_reaction('❌')
-      await ctx.author.send ("Vous n'êtes pas autorisé à utilisez cette commande pour le moment.")
+      await ctx.author.send ("Vous n'êtes pas autorisé à utiliser cette commande pour le moment.")
       return
     await ctx.send ("Entrez le message de gallerie : ")
     check = lambda m: m.channel == ctx.channel and m.author == ctx.author

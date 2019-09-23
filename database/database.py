@@ -70,6 +70,16 @@ class Database:
       cursor.execute('CREATE TABLE IF NOT EXISTS `config_delay` (`delay` INTEGER NOT NULL, `type_delay` VARCHAR(128) NOT NULL, `guild_id` VARCHAR(256) NOT NULL, PRIMARY KEY (`type_delay`, `guild_id`)) ;')
       cursor.execute('CREATE TABLE IF NOT EXISTS `config_do` (`do` INTEGER NOT NULL, `type_do` VARCHAR(128) NOT NULL, `guild_id` VARCHAR(256) NOT NULL, PRIMARY KEY (`type_do`, `guild_id`)) ;')
       cursor.execute('CREATE TABLE IF NOT EXISTS `config_log` (`channel_id` VARCHAR(256) NOT NULL, `guild_id` VARCHAR(256) NOT NULL, PRIMARY KEY (`guild_id`)) ;')
+      # UTIP COG
+      cursor.execute('CREATE TABLE IF NOT EXISTS `utip_role` (`role_id` VARCHAR(256) NOT NULL, `guild_id` VARCHAR(256) NOT NULL, PRIMARY KEY (`role_id`, `guild_id`)) ;')
+      cursor.execute('CREATE TABLE IF NOT EXISTS `utip_timer` (`user_id` VARCHAR(256) NOT NULL, `until` INTEGER NOT NULL, `guild_id` VARCHAR(256) NOT NULL, PRIMARY KEY (`user_id`, `guild_id`)) ;')
+      cursor.execute('CREATE TABLE IF NOT EXISTS `utip_message` (`message` TEXT NOT NULL, `guild_id` VARCHAR(256) NOT NULL, PRIMARY KEY (`guild_id`)) ;')
+      cursor.execute('CREATE TABLE IF NOT EXISTS `utip_channel` (`channel_id` VARCHAR(256) NOT NULL, `guild_id` VARCHAR(256) NOT NULL, PRIMARY KEY (`guild_id`)) ;')
+      cursor.execute('CREATE TABLE IF NOT EXISTS `utip_waiting` (`user_id` VARCHAR(256) NOT NULL, `status` INTEGER NOT NULL, `message_id` VARCHAR(256) NOT NULL, `valid_by` VARCHAR(256), `valid_at` INTEGER, `guild_id` VARCHAR(256) NOT NULL, PRIMARY KEY (`message_id`)) ;')
+      cursor.execute('CREATE TABLE IF NOT EXISTS `utip_log` (`channel_id` VARCHAR(256) NOT NULL, `guild_id` VARCHAR(256) NOT NULL, PRIMARY KEY (`guild_id`)) ;')
+      
+      
+      
       # Save modifications
       cnx.commit()
       cursor.close()
