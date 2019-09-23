@@ -17,9 +17,6 @@ class Utip(commands.Cog):
   async def utip_send(self, ctx):
     guild_id = ctx.message.guild.id
     author = ctx.author
-    if not self.utils.is_authorized (author, guild_id):
-      print ("Missing permissions")
-      return
     if self.utils.is_banned (ctx.command, author, ctx.guild.id):
       await ctx.message.add_reaction('❌')
       await ctx.author.send ("Vous n'êtes pas autorisé à utiliser cette commande pour le moment.")
