@@ -220,16 +220,16 @@ class Utip(commands.Cog):
       await ctx.message.add_reaction('❌')
       await ctx.author.send ("Vous n'êtes pas autorisé à utiliser cette commande pour le moment.")
       return
-    await ctx.send ("Entrez le délai (en secondes) durant lequel le membre garde le rôle : ")
+    await ctx.send ("Entrez le délai durant lequel le membre garde le rôle : ")
     check                    = lambda m: m.channel == ctx.channel and m.author == ctx.author
     msg                      = await self.bot.wait_for('message', check=check)
     message                  = msg.content
     sql                      = f"select delay from config_delay where guild_id='{guild_id}' and type_delay='utip_role' ;"
     try:
-      delay                  = int (message)
+      delay                  = self.utils.parse_time (message)
     except Exception as e:
       await ctx.message.add_reaction('❌')
-      await ctx.channel.send (f"Le délai doit être un nombre entier positif ~~{message}~~")
+      await ctx.channel.send (f"Le délai doit être au format jhms ~~{message}~~")
       return
     prev_galerie_delay       = self.db.fetch_one_line (sql)
     if not prev_galerie_delay:
