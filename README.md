@@ -29,7 +29,7 @@ pip3 install beautifulsoup4
 
 # Launch Garden
 
-Garden expects an instance name, which is linked to a bot's token in `botconfig.py`.
+Garden expects an instance name, which is linked to a bot's token in `config.json`.
 To launch Garden you must run in command line:
 `/usr/bin/python3 /home/garden/bot.py :instance:`
 You must replace `/home/garden/` with the actual path to Garden's directory.
@@ -42,7 +42,7 @@ In order to initialize Garden, you must load cogs using
 ```
 Where `<p>` is your prefix and `cogs_name` is a valid cog's name.
 
-Prefixes can be set in `botconfig.py` (an example is provided).
+Prefixes can be set in `config.json` (an example is provided).
 
 # Autostart Garden using systemd on Linux
 Create a new service file:
@@ -72,7 +72,7 @@ You must replace `/home/garden/` with the actual path to Garden's directory.
 This same file can be used to start as many instances of the bot as you wish, without creating more service files, just start and enable more services and add any bot instance name after the **@**
 
 To start the bot, run the service and add the instance name after the **@**:
-`sudo systemctl start red@instancename`
+`sudo systemctl start garden@instancename`
 
 To set the bot to start on boot, you must enable the service, again adding the instance name after the **@**:
 `sudo systemctl enable garden@instancename`
