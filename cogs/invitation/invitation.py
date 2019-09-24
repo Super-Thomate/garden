@@ -301,7 +301,7 @@ class Invitation(commands.Cog):
         if str(invite_delay).isnumeric():
           invite_delay = int(invite_delay)
         else:
-          self.utils.convert_str_to_time(invite_delay);
+         invite_delay =  self.utils.convert_str_to_time(invite_delay);
         duree                = math.floor ((last_timestamp + invite_delay) - time.time())
         # if duree.seconds > 1 and duree.days >= 0:
         if duree > 0:
