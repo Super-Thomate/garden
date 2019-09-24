@@ -63,7 +63,8 @@ class Database:
       alter table welcome_user add `role_id` INTEGER not null default 0 ;
       alter table welcome_user rename to welcome_user_old ;
       CREATE TABLE IF NOT EXISTS `welcome_user` (`user_id` VARCHAR(256) NOT NULL, `role_id` integer not null, `welcomed_at` INTEGER NOT NULL, `guild_id` VARCHAR(256) NOT NULL, PRIMARY KEY (`user_id`, `role_id`, `guild_id`)) ;
-      INSERT INTO welcome_user SELECT * FROM welcome_user_old;
+      INSERT INTO welcome_user SELECT `user_id`,`role_id`,`welcomed_at`,`guild_id` FROM welcome_user_old;
+      drop welcome_user_old ;
       """
       ### BANCOMMAND COG
       cursor.execute('CREATE TABLE IF NOT EXISTS `ban_command_user_log` (`channel_id` VARCHAR(256) NOT NULL, `guild_id` VARCHAR(256) NOT NULL, PRIMARY KEY (`guild_id`))  ;')

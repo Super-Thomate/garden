@@ -14,7 +14,7 @@ class Welcome(commands.Cog):
   """
   PublicWelcome:
   setwelcomechannel [channel_id]
-  setwelcomemessage message
+  setwelcomemessage role_id message
   setwelcomerole role_id
   """
   def __init__(self, bot):
@@ -147,12 +147,12 @@ class Welcome(commands.Cog):
       await ctx.author.send ("Vous n'êtes pas autorisé à utiliser cette commande pour le moment.")
       return
     error = False
-    select = f"select * from welcome_channel where guild_id='{guild_id}''"
+    select = f"select * from welcome_channel where guild_id='{guild_id}' ;"
     fetched = self.db.fetch_one_line (select)
     if not fetched:
-      sql = f"insert into welcome_channel values ('{channel.id}', '{guild_id}')"
+      sql = f"insert into welcome_channel values ('{channel.id}', '{guild_id}') ;"
     else:
-      sql = f"update welcome_channel set channel_id='{channel.id}' where guild_id='{guild_id}'"
+      sql = f"update welcome_channel set channel_id='{channel.id}' where guild_id='{guild_id}' ;"
     try:
       self.db.execute_order (sql, [])
     except Exception as e:
