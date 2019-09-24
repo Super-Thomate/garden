@@ -141,8 +141,8 @@ class Help(commands.Cog):
     embed.add_field (   name="**Commandes admin/modérateur :**"
                       , value="- `!setwelcomechannel (swc) [<channelID>]` - définir le channel de bienvenue (aucun ID spécifié = channel courant )\n"+
                               "- `!setwelcomemessage (swm) <RoleID>` - définir le message de bienvenue pour RoleID\n"+
-                              "- `!setwelcomerole (swr) <RoleID>` - définir un rôle qui déclenche le *Public Welcome*"+
-                              "- `!updatewelcome (uw) - enregistre l'information de bienvenue pour tous les rôles de tous les users ayant un rôle qui déclenche la bienvenue."+
+                              "- `!setwelcomerole (swr) <RoleID>` - définir un rôle qui déclenche le *Public Welcome*\n"+
+                              "- `!updatewelcome (uw)` - enregistre l'information de bienvenue pour tous les rôles de tous les users ayant un rôle qui déclenche la bienvenue.\n"+
                               "- `!clearwelcome (cw) [<user>]` - reset l'information de bienvenue pour le user ou soi-même."+
                               ""
                       , inline=False)
