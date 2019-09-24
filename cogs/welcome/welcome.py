@@ -32,7 +32,7 @@ class Welcome(commands.Cog):
     select = f"select role_id from welcome_role where guild_id='{guild_id}'"
     fetched = self.db.fetch_all_line (select)
     for line in fetched:
-      role_id = line [0]
+      role_id = int(line [0])
       if (     not self.utils.has_role (before, role_id)
            and self.utils.has_role (after, role_id)
          ):
@@ -40,14 +40,14 @@ class Welcome(commands.Cog):
         print ('The member obtained the role')
         # already welcomed ?
         if unique_welcome:
-          select = f"select * from welcome_user where user_id='{before.id}' and guild_id='{guild_id}' ;"
+          select = f"select * from welcome_user where user_id='{before.id}' and guild_id='{guild_id}' and role_id={role_id} ;"
           fetched = self.db.fetch_one_line (select)
           if fetched:
             # already welcomed !
             return
         # get the channel
         channel = None
-        select = f"select channel_id from welcome_channel where guild_id='{guild_id}'"
+        select = f"select channel_id from welcome_channel where guild_id='{guild_id}' ;"
         fetched = self.db.fetch_one_line (select)
         if fetched:
            channel_id = fetched [0]
@@ -56,7 +56,7 @@ class Welcome(commands.Cog):
           print ('Not channel')
           channel = before.guild.system_channel
         # get the message
-        select = f"select message from welcome_message where guild_id='{guild_id}'"
+        select = f"select message from welcome_message where guild_id='{guild_id}' and role_id={role_id} ; "
         fetched = self.db.fetch_one_line (select)
         if fetched:
            text = ""
@@ -87,7 +87,11 @@ class Welcome(commands.Cog):
         await channel.send (message)
         # save welcome
         if unique_welcome:
-          sql = f"insert into welcome_user values ('{before.id}', '{guild_id}', {math.floor (time.time())}) ;"
+          sql = (  "insert into welcome_user "+
+                   " (`user_id`, `role_id`, `welcomed_at` ,`guild_id`) "+
+                   " values "+
+                  f"('{before.id}', {role_id}, {math.floor (time.time())}, '{guild_id}') ;"
+                )
           self.db.execute_order (sql)
 
   @commands.command(name='setwelcomerole', aliases=['swr', 'welcomerole'])
@@ -163,7 +167,7 @@ class Welcome(commands.Cog):
     # await self.logger.log('welcome_log', ctx.author, ctx.message, error) # no logs
 
   @commands.command(name='setwelcomemessage', aliases=['welcomemessage', 'swm'])
-  async def set_welcome_message(self, ctx):
+  async def set_welcome_message(self, ctx, role: discord.Role = None):
     guild_id = ctx.message.guild.id
     member = ctx.author
     if not self.utils.is_authorized (member, guild_id):
@@ -173,16 +177,20 @@ class Welcome(commands.Cog):
       await ctx.message.add_reaction('❌')
       await ctx.author.send ("Vous n'êtes pas autorisé à utiliser cette commande pour le moment.")
       return
+    if not role:
+      await ctx.message.add_reaction('❌')
+      await ctx.send ("Paramètre <role> obligatoire.")
+      return
     await ctx.send ("Entrez le message de bienvenue : ")
     check = lambda m: m.channel == ctx.channel and m.author == ctx.author
     msg = await self.bot.wait_for('message', check=check)
     message = msg.content
-    sql = f"select message from welcome_message where guild_id='{guild_id}'"
+    sql = f"select message from welcome_message where guild_id='{guild_id}' and role_id={role.id}; "
     prev_galerie_message = self.db.fetch_one_line (sql)
     if not prev_galerie_message:
-      sql = f"INSERT INTO welcome_message VALUES (?, '{guild_id}')"
+      sql = f"INSERT INTO welcome_message (`message`,`role_id`,`guild_id`) VALUES (?, {role.id},'{guild_id}') ;"
     else:
-      sql = f"update welcome_message set message=? where guild_id='{guild_id}'"
+      sql = f"update welcome_message set message=? where guild_id='{guild_id}' and role_id={role.id} ;"
     print (sql)
     try:
       self.db.execute_order(sql, [message])
@@ -203,16 +211,18 @@ class Welcome(commands.Cog):
       await ctx.author.send ("Vous n'êtes pas autorisé à utiliser cette commande pour le moment.")
       return
     select = f"select role_id from welcome_role where guild_id='{guild_id}'"
-    fetched = self.db.fetch_one_line (select)
-    if not fetched:
+    fetched_all = self.db.fetch_all_line (select)
+    if not fetched_all:
       await ctx.send ("Aucun rôle n'est défini !")
       return
-    role_id = int (fetched [0])
-    #get the role
-    role = ctx.guild.get_role (role_id)
-    # write every member
-    for member in role.members:
-      # sql
-      insert = f"insert into welcome_user values ('{member.id}', '{guild_id}', {math.floor (time.time())}) ;"
-      self.db.execute_order (insert)
-    # await self.logger.log('welcome_log', ctx.author, ctx.message, error) # no logs
+    for fetched in fetched_all:
+      role_id = int (fetched [0])
+      #get the role
+      role = ctx.guild.get_role (role_id)
+      # write every member
+      for member in role.members:
+        # sql
+        insert = ("insert into welcome_user (`user_id`, `role_id`, `welcomed_at`, `guild_id`)"+
+        f"values ('{member.id}', {role_id},{math.floor (time.time())}, '{guild_id}') ;")
+        self.db.execute_order (insert)
+      # await self.logger.log('welcome_log', ctx.author, ctx.message, error) # no logs

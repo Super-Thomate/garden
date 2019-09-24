@@ -47,12 +47,24 @@ class Database:
       ### WELCOME COG
       cursor.execute('CREATE TABLE IF NOT EXISTS `welcome_channel` (`channel_id` VARCHAR(256) NOT NULL, `guild_id` VARCHAR(256) NOT NULL, PRIMARY KEY (`guild_id`))  ;')
       cursor.execute('CREATE TABLE IF NOT EXISTS `welcome_log` (`channel_id` VARCHAR(256) NOT NULL, `guild_id` VARCHAR(256) NOT NULL, PRIMARY KEY (`guild_id`)) ;')
-      cursor.execute('CREATE TABLE IF NOT EXISTS `welcome_message` (`message` TEXT NOT NULL, `guild_id` VARCHAR(256) NOT NULL, PRIMARY KEY (`guild_id`)) ;')
-      cursor.execute('CREATE TABLE IF NOT EXISTS `welcome_role` (`role_id` VARCHAR(256) NOT NULL, `guild_id` VARCHAR(256) NOT NULL, PRIMARY KEY (`guild_id`)) ;')
-      cursor.execute('CREATE TABLE IF NOT EXISTS `welcome_user` (`user_id` VARCHAR(256) NOT NULL, `guild_id` VARCHAR(256) NOT NULL, `welcomed_at` INTEGER NOT NULL, PRIMARY KEY (`user_id`, `guild_id`)) ;')
-      # alter table welcome_user rename to welcome_user_old ;
-      # CREATE TABLE IF NOT EXISTS `welcome_user` (`user_id` VARCHAR(256) NOT NULL, `guild_id` VARCHAR(256) NOT NULL, `welcomed_at` INTEGER NOT NULL, PRIMARY KEY (`user_id`, `guild_id`)) ;
-      # INSERT INTO welcome_user SELECT * FROM welcome_user_old;
+      cursor.execute('CREATE TABLE IF NOT EXISTS `welcome_message` (`message` TEXT NOT NULL, `role_id` integer not null, `guild_id` VARCHAR(256) NOT NULL, PRIMARY KEY (`role_id`, `guild_id`)) ;')
+      """
+      alter table welcome_message add `role_id` INTEGER not null default 0 ;
+      """
+      cursor.execute('CREATE TABLE IF NOT EXISTS `welcome_role` (`role_id` VARCHAR(256) NOT NULL, `guild_id` VARCHAR(256) NOT NULL, PRIMARY KEY (`role_id`, `guild_id`)) ;')
+      """
+      alter table `welcome_role` rename to zob ;
+      CREATE TABLE IF NOT EXISTS `welcome_role` (`role_id` VARCHAR(256) NOT NULL, `guild_id` VARCHAR(256) NOT NULL, PRIMARY KEY (`role_id`, `guild_id`)) ;
+      insert into welcome_role select * from zob ;
+      drop table zob ;
+      """
+      cursor.execute('CREATE TABLE IF NOT EXISTS `welcome_user` (`user_id` VARCHAR(256) NOT NULL, `role_id` integer not null, `welcomed_at` INTEGER NOT NULL, `guild_id` VARCHAR(256) NOT NULL, PRIMARY KEY (`user_id`, `role_id`, `guild_id`)) ;')
+      """
+      alter table welcome_user add `role_id` INTEGER not null default 0 ;
+      alter table welcome_user rename to welcome_user_old ;
+      CREATE TABLE IF NOT EXISTS `welcome_user` (`user_id` VARCHAR(256) NOT NULL, `role_id` integer not null, `welcomed_at` INTEGER NOT NULL, `guild_id` VARCHAR(256) NOT NULL, PRIMARY KEY (`user_id`, `role_id`, `guild_id`)) ;
+      INSERT INTO welcome_user SELECT * FROM welcome_user_old;
+      """
       ### BANCOMMAND COG
       cursor.execute('CREATE TABLE IF NOT EXISTS `ban_command_user_log` (`channel_id` VARCHAR(256) NOT NULL, `guild_id` VARCHAR(256) NOT NULL, PRIMARY KEY (`guild_id`))  ;')
       cursor.execute('CREATE TABLE IF NOT EXISTS `ban_command_user` (`command` VARCHAR(256) NOT NULL, `until` INTEGER, `user_id` VARCHAR(256) NOT NULL, `guild_id` VARCHAR(256) NOT NULL, PRIMARY KEY (`command`, `user_id`, `guild_id`)) ;')
