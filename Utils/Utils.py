@@ -313,5 +313,5 @@ class Utils():
           current = current * 28*24*3600
         elif element == "weeks":
           current = current * 7*24*3600
-      timesptamp = timestamp + currrent
+      timesptamp = timestamp + current
     return timestamp

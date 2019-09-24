@@ -68,7 +68,7 @@ class Database:
       alter table welcome_user rename to welcome_user_old ;
       CREATE TABLE IF NOT EXISTS `welcome_user` (`user_id` VARCHAR(256) NOT NULL, `role_id` integer not null, `welcomed_at` INTEGER NOT NULL, `guild_id` VARCHAR(256) NOT NULL, PRIMARY KEY (`user_id`, `role_id`, `guild_id`)) ;
       INSERT INTO welcome_user SELECT `user_id`,`role_id`,`welcomed_at`,`guild_id` FROM welcome_user_old;
-      drop welcome_user_old ;
+      drop table welcome_user_old ;
       """
       ### BANCOMMAND COG
       cursor.execute('CREATE TABLE IF NOT EXISTS `ban_command_user_log` (`channel_id` VARCHAR(256) NOT NULL, `guild_id` VARCHAR(256) NOT NULL, PRIMARY KEY (`guild_id`))  ;')
@@ -94,9 +94,9 @@ class Database:
       cursor.execute('CREATE TABLE IF NOT EXISTS `utip_channel` (`channel_id` VARCHAR(256) NOT NULL, `guild_id` VARCHAR(256) NOT NULL, PRIMARY KEY (`guild_id`)) ;')
       cursor.execute('CREATE TABLE IF NOT EXISTS `utip_waiting` (`user_id` VARCHAR(256) NOT NULL, `status` INTEGER NOT NULL, `message_id` VARCHAR(256) NOT NULL, `valid_by` VARCHAR(256), `valid_at` INTEGER, `guild_id` VARCHAR(256) NOT NULL, PRIMARY KEY (`message_id`)) ;')
       cursor.execute('CREATE TABLE IF NOT EXISTS `utip_log` (`channel_id` VARCHAR(256) NOT NULL, `guild_id` VARCHAR(256) NOT NULL, PRIMARY KEY (`guild_id`)) ;')
-      
-      
-      
+
+
+
       # Save modifications
       cnx.commit()
       cursor.close()
