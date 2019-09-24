@@ -305,7 +305,8 @@ class Invitation(commands.Cog):
         print (invite_delay)
         duree                = math.floor ((last_timestamp + invite_delay) - time.time())
         # if duree.seconds > 1 and duree.days >= 0:
-        if duree > 0:
+        # if duree > 0:
+        if last_invite and last_invite[0]:
           # total_seconds = duree.days*86400+duree.seconds
           total_seconds      = duree
           print (total_seconds)
