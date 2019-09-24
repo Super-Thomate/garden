@@ -298,6 +298,10 @@ class Invitation(commands.Cog):
         #last_datetime        = datetime.strptime (last, '%Y-%m-%d %H:%M:%S')
         last_timestamp       = time.mktime(datetime.strptime(last_invite [0], "%Y-%m-%d %H:%M:%S").timetuple())
         # duree = last_datetime - datetime.now()
+        if str(invite_delay).isnumeric():
+          invite_delay = int(invite_delay)
+        else:
+          self.utils.convert_str_to_time(invite_delay);
         duree                = math.floor ((last_timestamp + invite_delay) - time.time())
         # if duree.seconds > 1 and duree.days >= 0:
         if duree > 0:

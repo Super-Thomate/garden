@@ -288,7 +288,7 @@ class Utils():
         r'(?::\d+)?'  # optional port
         r'(?:/?|[/?]\S+)$', re.IGNORECASE)
     return url is not None and regex.search(url)
-    
+
   def is_url_image (self, image_url):
     if not self.is_valid_url(image_url):
       return False
@@ -300,3 +300,18 @@ class Utils():
       print (f"{type(e).__name__} - {e}")
       return False
     return meta["content-type"] in image_formats
+
+  def convert_str_to_time (self, time_string):
+    time_array = time_string.split(" ")
+    timestamp = 0
+    current = 0
+    for element in time_array:
+      if element.isnumeric():
+        current = int (element)
+      else:
+        if element == "months":
+          current = current * 28*24*3600
+        elif element == "weeks":
+          current = current * 7*24*3600
+      timesptamp = timestamp + currrent
+    return timestamp
