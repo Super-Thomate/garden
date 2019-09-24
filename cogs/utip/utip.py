@@ -334,8 +334,9 @@ class Utip(commands.Cog):
       await self.give_role (member_selected, role_utip, delay)
       colour                 = colour.from_rgb(56, 255, 56)
       embed.set_footer(text=f"Accepté par {str(author_selected)}")
-      feedback_message       = ( "Votre demande a été acceptée. "+
-                                f"Vous possédez le rôle de backers pendant {self.utils.format_time(delay)}."+
+      feedback_message       = ( ":white_check_mark: Demande validée ! "+
+                                f"Tu dispose du role de backers pendant **{self.utils.format_time(delay)}**."+
+                                # ":arrow_right: Ton role prendra fin le **XX/XX/XXX** à **XX:XX**"+
                                  ""
                                )
     else:
