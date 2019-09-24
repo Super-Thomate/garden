@@ -227,3 +227,22 @@ class Welcome(commands.Cog):
         f"values ('{member.id}', {role_id},{math.floor (time.time())}, '{guild_id}') ;")
         self.db.execute_order (insert)
       # await self.logger.log('welcome_log', ctx.author, ctx.message, error) # no logs
+
+  @commands.command(name='clearwelcome', aliases=['cw'])
+  async def reset_welcomeuser(self, ctx, member: discord.Member = None):
+    guild_id                 = ctx.message.guild.id
+    author                   = ctx.author
+    if not self.utils.is_authorized (author, guild_id):
+      print ("Missing permissions")
+      return
+    if self.utils.is_banned (ctx.command, author, ctx.guild.id):
+      await ctx.message.add_reaction('❌')
+      await ctx.author.send ("Vous n'êtes pas autorisé à utiliser cette commande pour le moment.")
+      return
+    member                   = member or author
+    delete                   = (   "delete from welcome_user "+
+                                   " where "+
+                                   f"user_id='{member.id}' ;"+
+                                   ""
+                               )
+    self.db.execute_order (delete)
