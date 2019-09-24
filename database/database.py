@@ -50,6 +50,10 @@ class Database:
       cursor.execute('CREATE TABLE IF NOT EXISTS `welcome_message` (`message` TEXT NOT NULL, `role_id` integer not null, `guild_id` VARCHAR(256) NOT NULL, PRIMARY KEY (`role_id`, `guild_id`)) ;')
       """
       alter table welcome_message add `role_id` INTEGER not null default 0 ;
+      alter table `welcome_message` rename to zob ;
+      CREATE TABLE IF NOT EXISTS `welcome_message` (`message` TEXT NOT NULL, `role_id` integer not null, `guild_id` VARCHAR(256) NOT NULL, PRIMARY KEY (`role_id`, `guild_id`)) ;
+      insert into welcome_message select message,role_id,guild_id from zob ;
+      drop table zob ;
       """
       cursor.execute('CREATE TABLE IF NOT EXISTS `welcome_role` (`role_id` VARCHAR(256) NOT NULL, `guild_id` VARCHAR(256) NOT NULL, PRIMARY KEY (`role_id`, `guild_id`)) ;')
       """

@@ -44,6 +44,7 @@ class Welcome(commands.Cog):
           fetched = self.db.fetch_one_line (select)
           if fetched:
             # already welcomed !
+            print ('already welcomed')
             return
         # get the channel
         channel = None
@@ -113,12 +114,12 @@ class Welcome(commands.Cog):
       await self.logger.log('nickname_log', ctx.author, ctx.message, True)
       return
     role_id = role.id
-    select = f"select role_id from welcome_role where guild_id='{guild_id}'"
+    select = f"select role_id from welcome_role where guild_id='{guild_id}' and role_id='{role_id}' ;"
     fetched = self.db.fetch_one_line (select)
     if fetched:
-      sql = f"update welcome_role set role_id='{role_id}' where guild_id='{guild_id}' "
+      sql = f"update welcome_role set role_id='{role_id}' where guild_id='{guild_id}' and role_id='{role_id}' ;"
     else:
-      sql = f"insert into welcome_role values ('{role_id}', '{guild_id}')"
+      sql = f"insert into welcome_role values ('{role_id}', '{guild_id}') ;"
     error = False
     print (sql)
     try:
