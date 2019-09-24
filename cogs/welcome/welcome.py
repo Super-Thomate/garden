@@ -245,4 +245,11 @@ class Welcome(commands.Cog):
                                    f"user_id='{member.id}' ;"+
                                    ""
                                )
-    self.db.execute_order (delete)
+    try:
+      self.db.execute_order (delete)
+    except Exception as e:
+      await ctx.message.add_reaction('❌')
+      print (f'{type(e).__name__} - {e}')
+    else:
+      await ctx.message.add_reaction('✅')
+      

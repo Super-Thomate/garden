@@ -140,7 +140,7 @@ class Help(commands.Cog):
     embed.description = "*Les commandes de ce cog ne sont utilisables que par les admins ou modérateurs spécifiés au bot.*"
     embed.add_field (   name="**Commandes admin/modérateur :**"
                       , value="- `!setwelcomechannel (swc) [<channelID>]` - définir le channel de bienvenue (aucun ID spécifié = channel courant )\n"+
-                              "- `!`setwelcomemessage (swm) <message>` - définir le message de bienvenue\n"+
+                              "- `!setwelcomemessage (swm) <RoleID>` - définir le message de bienvenue pour RoleID\n"+
                               "- `!setwelcomerole (swr) <RoleID>` - définir le rôle qui déclenche le *Public Welcome*"+
                               ""
                       , inline=False)
