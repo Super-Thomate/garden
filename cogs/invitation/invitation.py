@@ -301,15 +301,17 @@ class Invitation(commands.Cog):
         if str(invite_delay).isnumeric():
           invite_delay = int(invite_delay)
         else:
-         invite_delay =  self.utils.convert_str_to_time(invite_delay);
-        print (invite_delay)
+          invite_delay = self.utils.convert_str_to_time(invite_delay)
+        print (f"last_timestamp: {last_timestamp}")
+        print (f"invite_delay: {invite_delay}")
         duree                = math.floor ((last_timestamp + invite_delay) - time.time())
+        print (f"duree: {duree}")
         # if duree.seconds > 1 and duree.days >= 0:
-        # if duree > 0:
-        if last_invite and last_invite[0]:
+        if duree > 0:
+        # if last_invite and last_invite[0]:
           # total_seconds = duree.days*86400+duree.seconds
           total_seconds      = duree
-          print (total_seconds)
+          print (f"total_seconds: {total_seconds}")
           await self.logger.log('invite_log', member, message, True)
           await message.add_reaction('❌')
           await message.channel.send(f"Vous avez déjà demandé une invitation récemment.\nIl vous faut attendre encore {self.utils.format_time(total_seconds)}")

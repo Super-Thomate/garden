@@ -116,7 +116,8 @@ class Database:
       cursor.close()
     except Exception as e:
       cursor.close()
-      print (f'ERROR: {type(e).__name__} - {e}')
+      print (f'execute_order ERROR: {type(e).__name__} - {e}')
+      print (f'sql: {sql}')
     cnx.close()
 
   def fetch_one_line (self, sql, params=[]):
@@ -129,7 +130,8 @@ class Database:
       cursor.close()
     except Exception as e:
       cursor.close()
-      print (f'ERROR: {type(e).__name__} - {e}')
+      print (f'fetch_one_line ERROR: {type(e).__name__} - {e}')
+      print (f'sql: {sql}')
     cnx.close()
     return line
 

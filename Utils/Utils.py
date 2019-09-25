@@ -179,7 +179,7 @@ class Utils():
   def do_invite (self, guild_id):
     db                       = Database ()
     select                   = (  "select   do "+
-                                  "       , type_do"+
+                                  "       , type_do "+
                                   "from     config_do "+
                                   "where "+
                                   "          type_do='invite' "+
@@ -188,7 +188,10 @@ class Utils():
                                   ";"+
                                   ""
                                )
-    fetched                  = db.fetch_one_line (select)
+    try:
+      fetched                  = db.fetch_one_line (select)
+    except Exception as e:
+      print (f"do_invite {type(e).__name__} - {e}")
     if fetched:
       return (fetched [0] == 1)
     return False
@@ -196,7 +199,7 @@ class Utils():
   def do_token (self, guild_id):
     db                       = Database ()
     select                   = (  "select   do "+
-                                  "       , type_do"+
+                                  "       , type_do "+
                                   "from     config_do "+
                                   "where "+
                                   "          type_do='token' "+
@@ -205,7 +208,10 @@ class Utils():
                                   ";"+
                                   ""
                                )
-    fetched                  = db.fetch_one_line (select)
+    try:
+      fetched                  = db.fetch_one_line (select)
+    except Exception as e:
+      print (f"do_token {type(e).__name__} - {e}")
     if fetched:
       return (fetched [0] == 1)
     return False
@@ -213,7 +219,7 @@ class Utils():
   def invite_delay (self, guild_id):
     db                       = Database ()
     select                   = (  "select   delay "+
-                                  "       , type_delay"+
+                                  "       , type_delay "+
                                   "from     config_delay "+
                                   "where "+
                                   "          type_delay='invite' "+
@@ -222,7 +228,10 @@ class Utils():
                                   ";"+
                                   ""
                                )
-    fetched                  = db.fetch_one_line (select)
+    try:
+      fetched                  = db.fetch_one_line (select)
+    except Exception as e:
+      print (f"invite_delay {type(e).__name__} - {e}")
     if fetched:
       return fetched [0]
     return None
@@ -230,7 +239,7 @@ class Utils():
   def nickname_delay (self, guild_id):
     db                       = Database ()
     select                   = (  "select   delay "+
-                                  "       , type_delay"+
+                                  "       , type_delay "+
                                   "from     config_delay "+
                                   "where "+
                                   "          type_delay='nickname' "+
@@ -239,7 +248,10 @@ class Utils():
                                   ";"+
                                   ""
                                )
-    fetched                  = db.fetch_one_line (select)
+    try:
+      fetched                  = db.fetch_one_line (select)
+    except Exception as e:
+      print (f"nickname_delay {type(e).__name__} - {e}")
     if fetched:
       return fetched [0]
     return None
@@ -247,7 +259,7 @@ class Utils():
   def invite_url (self, guild_id):
     db                       = Database ()
     select                   = (  "select   url "+
-                                  "       , type_url"+
+                                  "       , type_url "+
                                   "from     config_url "+
                                   "where "+
                                   "          type_url='invite' "+
@@ -264,7 +276,7 @@ class Utils():
   def token_url (self, guild_id):
     db                       = Database ()
     select                   = (  "select   url "+
-                                  "       , type_url"+
+                                  "       , type_url "+
                                   "from     config_url "+
                                   "where "+
                                   "          type_url='token' "+
@@ -303,15 +315,21 @@ class Utils():
 
   def convert_str_to_time (self, time_string):
     time_array = time_string.split(" ")
+    print(f"time_array: {time_array}")
     timestamp = 0
     current = 0
     for element in time_array:
+      print (f"element: {element}")
       if element.isnumeric():
         current = int (element)
+        print(f"isnumeric = current: {current}")
       else:
         if element == "months":
           current = current * 28*24*3600
         elif element == "weeks":
           current = current * 7*24*3600
-      timesptamp = timestamp + current
+        print(f"else current: {current}")
+        timestamp = timestamp + current
+        current                = 0
+    print(f"timestamp: {timestamp}")
     return timestamp
