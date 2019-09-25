@@ -93,6 +93,7 @@ class Help(commands.Cog):
                               "- `!closevote (cv) <MessageID>` - fermer la phase de vote. Plus aucun vote ne sera accepté.\n"+
                               "- `!closepropositionat (cpa) <MessageID>` - fermer la phase de proposition à la date renseignée. Plus aucun `addproposition/editproposition/removeproposition` ne sera accepté de la part des non modérateurs après cette date.\n"+
                               "- `!closevoteat (cva) <MessageID>` - fermer la phase de vote à la date renseignée. Plus aucun vote ne sera accepté après cette date.\n"+
+                              "- `!resetvote (rv) <MessageID>` - reset la phase de vote pour le message (remet les votes à 0).\n"+
                               ""
                       , inline=False)
     embed.set_author(icon_url=infos.avatar_url, name=str(infos))
