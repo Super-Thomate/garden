@@ -238,6 +238,51 @@ class Invitation(commands.Cog):
     await ctx.channel.send (f"Nouveau message : `{message}`")
 
 
+  @commands.command(name='setinvitedelay', aliases=['sid'])
+  async def set_invite_delay(self, ctx, delay: str = None):
+    author                   = ctx.author
+    guild_id                 = ctx.message.guild.id
+    if not self.utils.is_authorized (author, guild_id):
+      print ("Missing permissions")
+      return
+    if not self.utils.do_invite (guild_id) and not botconfig.config[str(guild_id)]["do_invite"]:
+      return
+    if self.utils.is_banned (ctx.command, ctx.author, ctx.guild.id):
+      await ctx.message.add_reaction('❌')
+      await ctx.author.send ("Vous n'êtes pas autorisé à utiliser cette commande pour le moment.")
+      return
+    try:
+      if not delay.isnumeric():
+        delay                  = self.utils.parse_time(delay)
+      type_delay               = "invite"
+      select                 = (  "select delay from config_delay"+
+                                  " where "+
+                                 f" `type_delay`=? and `guild_id`='{guild_id}'"+
+                                  ""
+                               )
+      fetched                = self.db.fetch_one_line (select, [type_delay])
+      if fetched:
+        order                = (  "update config_delay"+
+                                  " set `delay`=? "+
+                                  " where "+
+                                 f" `type_delay`=? and `guild_id`='{guild_id}'"+
+                                  ""
+                               )
+      else:
+        order                = (  "insert into config_delay"+
+                                  " (`delay`, `type_delay`, `guild_id`) "+
+                                  " values "+
+                                 f" (?, ?, '{guild_id}')"+
+                                  ""
+                               )
+      self.db.execute_order (order, [delay, type_delay])
+      await ctx.message.add_reaction('✅')
+    except Exception as e:
+      print (f" {type(e).__name__} - {e}")
+      error                  = True
+      await ctx.message.add_reaction('❌')
+    await self.logger.log('config_log', author, ctx.message, error)
+
   @commands.Cog.listener('on_message')
   @commands.guild_only()
   async def invitation(self, message):

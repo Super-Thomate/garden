@@ -235,7 +235,7 @@ class Configuration(commands.Cog):
     await self.logger.log('config_log', author, ctx.message, error)
 
   @commands.command(name='setdelay')
-  async def set_delay (self, ctx, type_delay: str = None, delay: int = None):
+  async def set_delay (self, ctx, type_delay: str = None, delay: str = None):
     guild_id                 = ctx.message.guild.id
     author                  = ctx.author
     if not self.utils.is_authorized (author, guild_id):
@@ -253,6 +253,8 @@ class Configuration(commands.Cog):
       return
     error                    = False
     try:
+      if not delay.isnumeric():
+        delay                = self.utils.parse_time(delay)
       select                 = (  "select delay from config_delay"+
                                   " where "+
                                  f" `type_delay`=? and `guild_id`='{guild_id}'"+

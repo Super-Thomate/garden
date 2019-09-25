@@ -3,6 +3,7 @@ import botconfig
 import math
 from discord.ext import commands
 from datetime import datetime
+import time
 from ..logs import Logs
 from database import Database
 from Utils import Utils
@@ -30,17 +31,21 @@ class Nickname(commands.Cog):
       await ctx.channel.send (f"Vous n'avez pas donné de pseudo.")
       return
     # Check if I can change my nickname
-    nickname_delay = self.utils.nickname_delay (guild_id) or botconfig.config[str(guild_id)]['nickname_delay']
-    sql = f'select  datetime(last_change, \'{nickname_delay}\') from last_nickname where guild_id=\'{guild_id}\' and member_id=\'{member.id}\''
+    nickname_delay           = self.utils.nickname_delay (guild_id)
+    sql = f'select last_change from last_nickname where guild_id=\'{guild_id}\' and member_id=\'{member.id}\''
     fetched = self.db.fetch_one_line (sql)
     print (f"for {sql}\nget {fetched}")
-    if fetched:
-      last_change = fetched [0]
-      last_change_datetime = datetime.strptime (last_change, '%Y-%m-%d %H:%M:%S')
-      duree = last_change_datetime - datetime.now()
-      if duree.seconds > 1 and duree.days >= 0:
+    if nickname_delay and fetched and fetched[0]:
+      last_change            = time.mktime(datetime.strptime (fetched [0], '%Y-%m-%d %H:%M:%S').timetuple())
+      if str(nickname_delay).isnumeric():
+        nickname_delay = int(nickname_delay)
+      else:
+        nickname_delay = self.utils.convert_str_to_time(nickname_delay)
+      print(f"nickname_delay: {nickname_delay}")
+      duree                  = math.floor ((last_change + nickname_delay) - time.time())
+      if duree > 0:
         # I can't
-        total_seconds = duree.days*86400+duree.seconds
+        total_seconds        = duree
         await self.logger.log('nickname_log', member, message, True)
         await ctx.message.add_reaction('❌')
         await ctx.channel.send (f"Vous avez changé de pseudo récemment.\nIl vous faut attendre encore {self.utils.format_time(total_seconds)}")
