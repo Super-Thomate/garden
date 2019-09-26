@@ -14,7 +14,7 @@ class Help(commands.Cog):
     cog = cog or "global"
     if self.utils.is_banned (ctx.command, ctx.author, ctx.guild.id):
       await ctx.message.add_reaction('❌')
-      await ctx.author.send ("Vous n'êtes pas autorisé à utiliser cette commande pour le moment.")
+      await ctx.author.send(self.utils.get_text(self.language_code, "user_unauthorized_use_command"))
       return
     try:
       method = getattr(self, "help_"+cog.lower())

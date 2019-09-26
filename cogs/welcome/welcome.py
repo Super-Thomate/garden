@@ -106,11 +106,11 @@ class Welcome(commands.Cog):
       return
     if self.utils.is_banned (ctx.command, ctx.author, ctx.guild.id):
       await ctx.message.add_reaction('❌')
-      await ctx.author.send ("Vous n'êtes pas autorisé à utiliser cette commande pour le moment.")
+      await ctx.author.send(self.utils.get_text(self.language_code, "user_unauthorized_use_command"))
       return
     if not role:
       # error
-      await ctx.send ("A role is required.")
+      await ctx.send(self.utils.get_text(self.language_code, "parameter_is_mandatory").format('<role>'))
       await self.logger.log('nickname_log', ctx.author, ctx.message, True)
       return
     role_id = role.id
@@ -145,7 +145,7 @@ class Welcome(commands.Cog):
       return
     if self.utils.is_banned (ctx.command, ctx.author, ctx.guild.id):
       await ctx.message.add_reaction('❌')
-      await ctx.author.send ("Vous n'êtes pas autorisé à utiliser cette commande pour le moment.")
+      await ctx.author.send(self.utils.get_text(self.language_code, "user_unauthorized_use_command"))
       return
     error = False
     select = f"select * from welcome_channel where guild_id='{guild_id}' ;"
@@ -176,13 +176,13 @@ class Welcome(commands.Cog):
       return
     if self.utils.is_banned (ctx.command, ctx.author, ctx.guild.id):
       await ctx.message.add_reaction('❌')
-      await ctx.author.send ("Vous n'êtes pas autorisé à utiliser cette commande pour le moment.")
+      await ctx.author.send(self.utils.get_text(self.language_code, "user_unauthorized_use_command"))
       return
     if not role:
       await ctx.message.add_reaction('❌')
-      await ctx.send ("Paramètre <role> obligatoire.")
+      await ctx.send(self.utils.get_text(self.language_code, "parameter_is_mandatory").format('<role>'))
       return
-    await ctx.send ("Entrez le message de bienvenue : ")
+    await ctx.send(self.utils.get_text(self.language_code, "ask_new_welcome_message"))
     check = lambda m: m.channel == ctx.channel and m.author == ctx.author
     msg = await self.bot.wait_for('message', check=check)
     message = msg.content
@@ -209,12 +209,12 @@ class Welcome(commands.Cog):
       return
     if self.utils.is_banned (ctx.command, ctx.author, ctx.guild.id):
       await ctx.message.add_reaction('❌')
-      await ctx.author.send ("Vous n'êtes pas autorisé à utiliser cette commande pour le moment.")
+      await ctx.author.send(self.utils.get_text(self.language_code, "user_unauthorized_use_command"))
       return
     select                   = f"select role_id from welcome_role where guild_id='{guild_id}'"
     fetched_all              = self.db.fetch_all_line (select)
     if not fetched_all:
-      await ctx.send ("Aucun rôle n'est défini !")
+      await ctx.send(self.utils.get_text(self.language_code, "no_role_defined"))
       return
     for fetched in fetched_all:
       role_id                = int (fetched [0])
@@ -240,7 +240,7 @@ class Welcome(commands.Cog):
       return
     if self.utils.is_banned (ctx.command, author, ctx.guild.id):
       await ctx.message.add_reaction('❌')
-      await ctx.author.send ("Vous n'êtes pas autorisé à utiliser cette commande pour le moment.")
+      await ctx.author.send(self.utils.get_text(self.language_code, "user_unauthorized_use_command"))
       return
     member                   = member or author
     delete                   = (   "delete from welcome_user "+

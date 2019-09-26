@@ -72,10 +72,10 @@ class Bancommand(commands.Cog):
       msg = await self.bot.wait_for('message', check=check)
       if msg.content == '1':
         if not fetched [0]:
-          await ctx.send ("L'utilisateur est déjà banni permanent.")
+          await ctx.send(self.utils.get_text(self.language_code, "STRING_TO_CHANGE"))
           timestamp = "NULL"
         elif timestamp == "NULL":
-          await ctx.send ("L'utilisateur est donc banni permanent.")
+          await ctx.send(self.utils.get_text(self.language_code, "STRING_TO_CHANGE"))
         else:
           timestamp = fetched [0] + self.utils.parse_time (timer)
       elif msg.content == '2':
@@ -142,7 +142,7 @@ class Bancommand(commands.Cog):
       print ("Missing permissions")
       return
     if not user:
-      await ctx.send ("Paramètre user manquant")
+      await ctx.send(self.utils.get_text(self.language_code, "parameter_is_mandatory").format('User'))
     select = (   "select command, until, user_id from ban_command_user "+
                 f"where guild_id='{guild_id}' "+
                 f"and user_id='{user.id}'"+
@@ -151,7 +151,7 @@ class Bancommand(commands.Cog):
              )
     fetched = self.db.fetch_all_line (select)
     if not fetched:
-      await ctx.send ("Aucune commande bannie pour l'utilisateur.")
+      await ctx.send(self.utils.get_text(self.language_code, "user_has_no_banned_command"))
       return
     to_ret = []
     user_name = (user.name+" a.k.a."+user.display_name) if user else "user inconnu"
@@ -208,7 +208,10 @@ class Bancommand(commands.Cog):
              )
     fetched = self.db.fetch_all_line (select)
     if not fetched:
-      await ctx.send ("Aucune commande bannie pour les utilisateurs."if not command else f"Aucun utilisateur banni pour la commande **{command}**.")
+      if not command:
+        await ctx.send(self.utils.get_text(self.language_code, "no_command_banned_for_users"))
+      else:
+        await ctx.send(self.utils.get_text(self.language_code, "no_user_banned_from_command").format(f'**{command}**'))
       return
     to_ret = []
     to_ret_string = ""
@@ -333,7 +336,7 @@ class Bancommand(commands.Cog):
       print ("Missing permissions")
       return
     if not role:
-      await ctx.send ("Paramètre role manquant")
+      await ctx.send(self.utils.get_text(self.language_code, "parameter_is_mandatory").format('Rôle'))
     select = (   "select command, until, role_id from ban_command_role "+
                 f"where guild_id='{guild_id}' "+
                 f"and role_id='{role.id}'"+
@@ -342,7 +345,7 @@ class Bancommand(commands.Cog):
              )
     fetched = self.db.fetch_all_line (select)
     if not fetched:
-      await ctx.send ("Aucune commande bannie pour l'utilisateur.")
+      await ctx.send(self.utils.get_text(self.language_code, "no_command_banned_for_user"))
       return
     to_ret = []
     role_name = role.name
@@ -399,7 +402,11 @@ class Bancommand(commands.Cog):
              )
     fetched = self.db.fetch_all_line (select)
     if not fetched:
-      await ctx.send ("Aucune commande bannie pour les utilisateurs."if not command else f"Aucun utilisateur banni pour la commande **{command}**.")
+      if not command:
+        await ctx.send(self.utils.get_text(self.language_code, "no_command_banned_for_user"))
+      else:
+        await ctx.send(self.utils.get_text(self.language_code, "no_user_banned_from_command").format(f'**{command}**'))
+
       return
     to_ret = []
     to_ret_string = ""

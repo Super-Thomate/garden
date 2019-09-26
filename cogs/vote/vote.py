@@ -29,7 +29,7 @@ class Vote(commands.Cog):
       return
     if self.utils.is_banned (ctx.command, ctx.author, ctx.guild.id):
       await ctx.message.add_reaction('❌')
-      await ctx.author.send ("Vous n'êtes pas autorisé à utiliser cette commande pour le moment.")
+      await ctx.author.send(self.utils.get_text(self.language_code, "user_unauthorized_use_command"))
       return
     # date
     today = date.today()
@@ -66,15 +66,15 @@ class Vote(commands.Cog):
       return
     if self.utils.is_banned (ctx.command, ctx.author, ctx.guild.id):
       await ctx.message.add_reaction('❌')
-      await ctx.author.send ("Vous n'êtes pas autorisé à utiliser cette commande pour le moment.")
+      await ctx.author.send(self.utils.get_text(self.language_code, "user_unauthorized_use_command"))
       return
     if not message_id:
-      await ctx.send ("Paramètre manquant: message_id")
+      await ctx.send(self.utils.get_text(self.language_code, "parameter_is_mandatory").format('<messageID>'))
       return
     try:
       message_id = int (message_id)
     except Exception as e:
-      await ctx.send ("Paramètre manquant: message_id")
+      await ctx.send(self.utils.get_text(self.language_code, "parameter_is_mandatory").format('<messageID>'))
       return
     if not type_vote:
       type_vote = "vote"
@@ -82,7 +82,7 @@ class Vote(commands.Cog):
     try:
       self.db.execute_order(sql, [type_vote, message_id])
     except Exception as e:
-      await ctx.send ("An error occured !")
+      await ctx.send(self.utils.get_text(self.language_code, "error_occured"))
       await ctx.message.add_reaction ('❌')
       await self.logger.log('vote_log', author, ctx.message, True)
       return
@@ -102,7 +102,7 @@ class Vote(commands.Cog):
       return
     if self.utils.is_banned (ctx.command, ctx.author, ctx.guild.id):
       await ctx.message.add_reaction('❌')
-      await ctx.author.send ("Vous n'êtes pas autorisé à utiliser cette commande pour le moment.")
+      await ctx.author.send(self.utils.get_text(self.language_code, "user_unauthorized_use_command"))
       return
     await self.handle_result (ctx, message_id, "description", True)
 
@@ -118,7 +118,7 @@ class Vote(commands.Cog):
       return
     if self.utils.is_banned (ctx.command, ctx.author, ctx.guild.id):
       await ctx.message.add_reaction('❌')
-      await ctx.author.send ("Vous n'êtes pas autorisé à utiliser cette commande pour le moment.")
+      await ctx.author.send(self.utils.get_text(self.language_code, "user_unauthorized_use_command"))
       return
     await self.handle_result (ctx, message_id, "title", True)
 
@@ -130,7 +130,7 @@ class Vote(commands.Cog):
     """
     if self.utils.is_banned (ctx.command, ctx.author, ctx.guild.id):
       await ctx.message.add_reaction('❌')
-      await ctx.author.send ("Vous n'êtes pas autorisé à utiliser cette commande pour le moment.")
+      await ctx.author.send(self.utils.get_text(self.language_code, "user_unauthorized_use_command"))
       return
     if not message_id_vote_type:
       # search for the lastest vote in that channel
@@ -168,7 +168,7 @@ class Vote(commands.Cog):
     """
     if self.utils.is_banned (ctx.command, ctx.author, ctx.guild.id):
       await ctx.message.add_reaction('❌')
-      await ctx.author.send ("Vous n'êtes pas autorisé à utiliser cette commande pour le moment.")
+      await ctx.author.send(self.utils.get_text(self.language_code, "user_unauthorized_use_command"))
       return
     if not message_id_vote_type:
       # search for the lastest vote in that channel
@@ -207,7 +207,7 @@ class Vote(commands.Cog):
     """
     if self.utils.is_banned (ctx.command, ctx.author, ctx.guild.id):
       await ctx.message.add_reaction('❌')
-      await ctx.author.send ("Vous n'êtes pas autorisé à utiliser cette commande pour le moment.")
+      await ctx.author.send(self.utils.get_text(self.language_code, "user_unauthorized_use_command"))
       return
     if not message_id_vote_type:
       # search for the lastest vote in that channel
@@ -267,7 +267,7 @@ class Vote(commands.Cog):
       return
     if self.utils.is_banned (ctx.command, ctx.author, ctx.guild.id):
       await ctx.message.add_reaction('❌')
-      await ctx.author.send ("Vous n'êtes pas autorisé à utiliser cette commande pour le moment.")
+      await ctx.author.send(self.utils.get_text(self.language_code, "user_unauthorized_use_command"))
       return
     await self.handle_result (ctx, message_id, "end_proposition", True)
 
@@ -284,7 +284,7 @@ class Vote(commands.Cog):
       return
     if self.utils.is_banned (ctx.command, ctx.author, ctx.guild.id):
       await ctx.message.add_reaction('❌')
-      await ctx.author.send ("Vous n'êtes pas autorisé à utiliser cette commande pour le moment.")
+      await ctx.author.send(self.utils.get_text(self.language_code, "user_unauthorized_use_command"))
       return
     await self.handle_result (ctx, message_id, "end_edit", True)
 
@@ -301,7 +301,7 @@ class Vote(commands.Cog):
       return
     if self.utils.is_banned (ctx.command, ctx.author, ctx.guild.id):
       await ctx.message.add_reaction('❌')
-      await ctx.author.send ("Vous n'êtes pas autorisé à utiliser cette commande pour le moment.")
+      await ctx.author.send(self.utils.get_text(self.language_code, "user_unauthorized_use_command"))
       return
     await self.handle_result (ctx, message_id, "close_vote", True)
 
@@ -318,7 +318,7 @@ class Vote(commands.Cog):
       return
     if self.utils.is_banned (ctx.command, ctx.author, ctx.guild.id):
       await ctx.message.add_reaction('❌')
-      await ctx.author.send ("Vous n'êtes pas autorisé à utiliser cette commande pour le moment.")
+      await ctx.author.send(self.utils.get_text(self.language_code, "user_unauthorized_use_command"))
       return
     await self.handle_result (ctx, message_id, "end_proposition_at", True)
 
@@ -335,7 +335,7 @@ class Vote(commands.Cog):
       return
     if self.utils.is_banned (ctx.command, ctx.author, ctx.guild.id):
       await ctx.message.add_reaction('❌')
-      await ctx.author.send ("Vous n'êtes pas autorisé à utiliser cette commande pour le moment.")
+      await ctx.author.send(self.utils.get_text(self.language_code, "user_unauthorized_use_command"))
       return
     await self.handle_result (ctx, message_id, "end_vote_at", True)
 
@@ -352,7 +352,7 @@ class Vote(commands.Cog):
       return
     if self.utils.is_banned (ctx.command, ctx.author, ctx.guild.id):
       await ctx.message.add_reaction('❌')
-      await ctx.author.send ("Vous n'êtes pas autorisé à utiliser cette commande pour le moment.")
+      await ctx.author.send(self.utils.get_text(self.language_code, "user_unauthorized_use_command"))
       return
     author = ctx.author
     guild_id = ctx.guild.id
@@ -401,14 +401,14 @@ class Vote(commands.Cog):
       return
     if self.utils.is_banned (ctx.command, ctx.author, ctx.guild.id):
       await ctx.message.add_reaction('❌')
-      await ctx.author.send ("Vous n'êtes pas autorisé à utiliser cette commande pour le moment.")
+      await ctx.author.send(self.utils.get_text(self.language_code, "user_unauthorized_use_command"))
       return
     channel_id = channel_id or ctx.channel.id
     guild_id = ctx.guild.id
     try:
       channel_id = int (channel_id)
     except Exception as e:
-      await ctx.send ("Paramètre manquant: channel_id")
+      await ctx.send(self.utils.get_text(self.language_code, "parameter_is_mandatory").format('<channelID>'))
       await ctx.message.add_reaction ('❌')
       return
     select = f"select * from vote_channel where guild_id='{guild_id}' ;"
@@ -420,7 +420,7 @@ class Vote(commands.Cog):
     try:
       self.db.execute_order(sql)
     except Exception as e:
-      await ctx.send ("An error occured !")
+      await ctx.send(self.utils.get_text(self.language_code, "error_occured"))
       await ctx.message.add_reaction ('❌')
       return
     await ctx.message.add_reaction ('✅')
@@ -438,16 +438,16 @@ class Vote(commands.Cog):
       return
     if self.utils.is_banned (ctx.command, ctx.author, ctx.guild.id):
       await ctx.message.add_reaction('❌')
-      await ctx.author.send ("Vous n'êtes pas autorisé à utiliser cette commande pour le moment.")
+      await ctx.author.send(self.utils.get_text(self.language_code, "user_unauthorized_use_command"))
       return
     if not role_id:
-      await ctx.send ("Paramètre manquant: role_id")
+      await ctx.send(self.utils.get_text(self.language_code, "parameter_is_mandatory").format('<roleID>'))
       await ctx.message.add_reaction ('❌')
       return
     try:
       role_id = int (role_id)
     except Exception as e:
-      await ctx.send ("Paramètre manquant: role_id")
+      await ctx.send(self.utils.get_text(self.language_code, "parameter_is_mandatory").format('<roleID>'))
       await ctx.message.add_reaction ('❌')
       return
     guild_id = ctx.guild.id
@@ -457,7 +457,7 @@ class Vote(commands.Cog):
       fetched = self.db.fetch_one_line (select)
     except Exception as e:
       print (f"{type(e).__name__} - {e}")
-      await ctx.send ("An error occured !")
+      await ctx.send(self.utils.get_text(self.language_code, "error_occured"))
       await ctx.message.add_reaction ('❌')
       return
     print ("fetched")
@@ -470,7 +470,7 @@ class Vote(commands.Cog):
       self.db.execute_order(sql)
     except Exception as e:
       print (f"{type(e).__name__} - {e}")
-      await ctx.send ("An error occured !")
+      await ctx.send(self.utils.get_text(self.language_code, "error_occured"))
       await ctx.message.add_reaction ('❌')
       return
     await ctx.message.add_reaction ('✅')
@@ -490,7 +490,7 @@ class Vote(commands.Cog):
       return
     if self.utils.is_banned (ctx.command, ctx.author, ctx.guild.id):
       await ctx.message.add_reaction('❌')
-      await ctx.author.send ("Vous n'êtes pas autorisé à utilisez cette commande pour le moment.")
+      await ctx.author.send(self.utils.get_text(self.language_code, "user_unauthorized_use_command"))
       return
     await self.handle_result (ctx, message_id, "reset_vote", True)
 
@@ -517,14 +517,14 @@ class Vote(commands.Cog):
         return    # Send 'Hi what is your proposition'
       message_id = fetched [0]
     if not message_id:
-      await ctx.send ('Missing parameters MessageID')
+      await ctx.send (self.utils.get_text('fr', 'parameter_is_mandatory').format('<messageID>'))
       await ctx.message.add_reaction ('❌')
       await self.logger.log('vote_log', author, ctx.message, True)
       return
     try:
       message_id = int (message_id)
     except Exception as e:
-      await ctx.send ('Parameters MessageID must be an integer')
+      await ctx.send (self.utils.get_text('fr', 'message_id_format_not_valid'))
       await ctx.message.add_reaction ('❌')
       await self.logger.log('vote_log', author, ctx.message, True)
       return
@@ -561,18 +561,18 @@ class Vote(commands.Cog):
     embed = vote_msg.embeds[0]
 
     if handle == "description":
-      ask = await ctx.send ("Entrez la nouvelle description du vote :")
+      ask = await ctx.send(self.utils.get_text(self.language_code, "ask_new_vote_description"))
     elif handle == "title":
-      ask = await ctx.send ("Entrez le nouveau titre du vote :")
+      ask = await ctx.send(self.utils.get_text(self.language_code, "ask_new_vote_title"))
     elif handle == "proposition_line":
       if (end_proposition and not is_authorized) or end_edit or vote_closed:
-        await ctx.send ("La phase de proposition est terminée")
+        await ctx.send(self.utils.get_text(self.language_code, "proposition_phase_end"))
         return
-      ask = await ctx.send ("Entrez la proposition :")
+      ask = await ctx.send(self.utils.get_text(self.language_code, "ask_proposition"))
     elif handle == "end_proposition":
       if closure_status > 0:
         await ctx.message.add_reaction ('❌')
-        feedback             = await ctx.send ("Vous ne pouvez plus fermer la phase de proposition")
+        feedback             = await ctx.send(self.utils.get_text(self.language_code, "cant_close_proposition_phase"))
         await ctx.message.delete (delay=0.5)
         await feedback.delete (delay=1.5)
         return
@@ -592,7 +592,7 @@ class Vote(commands.Cog):
     elif handle == "end_edit":
       if closure_status > 1:
         await ctx.message.add_reaction ('❌')
-        feedback             = await ctx.send ("Vous ne pouvez plus fermer la phase d'édition")
+        feedback             = await ctx.send(self.utils.get_text(self.language_code, "cant_close_edition_phase"))
         await ctx.message.delete (delay=0.5)
         await feedback.delete (delay=1.5)
         return
@@ -612,7 +612,7 @@ class Vote(commands.Cog):
     elif handle == "close_vote":
       if closure_status > 2:
         await ctx.message.add_reaction ('❌')
-        feedback             = await ctx.send ("Vous ne pouvez plus fermer la phase de vote")
+        feedback             = await ctx.send(self.utils.get_text(self.language_code, "cant_close_vote_phase"))
         await ctx.message.delete (delay=0.5)
         await feedback.delete (delay=1.5)
         return
@@ -631,23 +631,23 @@ class Vote(commands.Cog):
       await ctx.message.delete (delay=0.5)
       return
     elif handle == "end_proposition_at":
-      ask = await ctx.send ("Fermer les propositions le (JJ-MM-AAAA hh:mm:ss) :")
+      ask = await ctx.send(self.utils.get_text(self.language_code, "close_proposition_at"))
     elif handle == "end_vote_at":
-      ask = await ctx.send ("Fermer les vote le (JJ-MM-AAAA hh:mm:ss) :")
+      ask = await ctx.send(self.utils.get_text(self.language_code, "close_vote_at"))
     elif handle == "remove_proposition":
       if end_edit or vote_closed:
-        await ctx.send ("La phase de proposition est terminée. Vous ne pouvez pas supprimer de propositions.")
+        await ctx.send(self.utils.get_text(self.language_code, "cant_close_proposition_phase_2"))
         return
-      ask = await ctx.send ("Entrez le numéro de la proposition à retirer :")
+      ask = await ctx.send(self.utils.get_text(self.language_code, "ask_prosition_to_delete"))
     elif handle == "edit_proposition":
       if end_edit or vote_closed:
-        await ctx.send ("La phase de proposition est terminée. Vous ne pouvez pas éditer de propositions.")
+        await ctx.send(self.utils.get_text(self.language_code, "cant_close_proposition_phase_3"))
         return
-      ask = await ctx.send ("Entrez le numéro de la proposition à éditer :")
+      ask = await ctx.send(self.utils.get_text(self.language_code, "ask_prosition_to_edit"))
     elif handle == "reset_vote":
       if closure_status < 2:
         await ctx.message.add_reaction ('❌')
-        feedback             = await ctx.send ("Vous ne pouvez pas reset : pas de vote en cours ou fermer.")
+        feedback             = await ctx.send(self.utils.get_text(self.language_code, "cant_reset_vote"))
         await ctx.message.delete (delay=0.5)
         await feedback.delete (delay=1.5)
         return
@@ -677,14 +677,14 @@ class Vote(commands.Cog):
     msg = await self.bot.wait_for('message', check=check)
     if handle == "proposition_line":
       proposition = msg.content
-      ask_emoji = await ctx.send ("Entrez l'emoji :")
+      ask_emoji = await ctx.send(self.utils.get_text(self.language_code, "ask_emoji"))
       msg_emoji = await self.bot.wait_for('message', check=check)
       emoji = msg_emoji.content
       # test if emoji already exists
       select = f"select emoji from vote_propositions where message_id='{message_id}' and emoji='{emoji}' ;"
       fetched = self.db.fetch_one_line (select)
       if fetched:
-        err_feedback = await ctx.send ("Emoji déjà utilisé. Ajout annulé.")
+        err_feedback = await ctx.send(self.utils.get_text(self.language_code, "emoji_already_used_add"))
         await err_feedback.delete(delay=1)
         error = True
       else:
@@ -692,7 +692,7 @@ class Vote(commands.Cog):
         try:
           await vote_msg.add_reaction (emoji)
         except Exception as e:
-          feedback = await ctx.send ("L'emoji proposé est invalide")
+          feedback = await ctx.send(self.utils.get_text(self.language_code, "emoji_invalid"))
           error = True
           print (f"{type(e).__name__} - {e}")
           await feedback.delete (delay=2)
@@ -733,7 +733,7 @@ class Vote(commands.Cog):
         timestamp = datetime.timestamp(date_time)
         print (f"timestamp: {timestamp}")
         if timestamp < math.floor (time.time()):
-          error_message = await ctx.send ("La date ne peut pas être dans le passé")
+          error_message = await ctx.send(self.utils.get_text(self.language_code, "date_is_before_now"))
           await error_message.delete(delay=1)
           error = True
         else:
@@ -746,7 +746,7 @@ class Vote(commands.Cog):
           self.db.execute_order (update)
       except Exception as e:
         print (f"{type(e).__name__} - {e}")
-        error_message = await ctx.send ("Date mal formatée")
+        error_message = await ctx.send(self.utils.get_text(self.language_code, "date_format_error"))
         await error_message.delete(delay=1)
         error = True
     elif handle == "remove_proposition":
@@ -754,7 +754,7 @@ class Vote(commands.Cog):
         proposition_id = int (msg.content)
       except Exception as e:
         print (f"{type(e).__name__} - {e}")
-        await ctx.send ("Paramètre attendu: Nombre entier").delete(delay=0.5)
+        await ctx.send(self.utils.get_text(self.language_code, "need_integer_parameter"))
         error = True
       else:
         if end_proposition or is_authorized:
@@ -792,7 +792,7 @@ class Vote(commands.Cog):
            except Exception as e:
              await ctx.message.add_reaction ('❌')
              print (f"{type(e).__name__} - {e}")
-             await ctx.send ("Une erreur est survenue")
+             await ctx.send(self.utils.get_text(self.language_code, "error_occured"))
              error = True
         else:
           error = True
@@ -802,7 +802,7 @@ class Vote(commands.Cog):
         proposition_id = int (msg.content)
       except Exception as e:
         print (f"{type(e).__name__} - {e}")
-        await ctx.send ("Paramètre attendu: Nombre entier").delete(delay=0.5)
+        await ctx.send(self.utils.get_text(self.language_code, "need_integer_parameter"))
         error = True
       else:
         if end_proposition or self.utils.is_authorized (ctx.author, guild_id):
@@ -813,9 +813,9 @@ class Vote(commands.Cog):
           select = f"select emoji from vote_propositions where message_id='{message_id}' and author_id='{ctx.author.id}' and proposition_id={proposition_id} ;"
         fetched_proposition = self.db.fetch_one_line (select) ;
         if fetched_proposition:
-           ask_line = await ctx.send ("Entrez la nouvelle proposition:")
+           ask_line = await ctx.send(self.utils.get_text(self.language_code, "ask_new_proposition"))
            msg_line = await self.bot.wait_for('message', check=check)
-           ask_emoji = await ctx.send ("Entrez le nouvel emoji :")
+           ask_emoji = await ctx.send(self.utils.get_text(self.language_code, "ask_new_emoji"))
            msg_emoji = await self.bot.wait_for('message', check=check)
            proposition = msg_line.content
            emoji = msg_emoji.content
@@ -823,7 +823,7 @@ class Vote(commands.Cog):
            select = f"select emoji from vote_propositions where message_id='{message_id}' and emoji='{emoji}' and proposition_id <> {proposition_id} ;"
            fetched = self.db.fetch_one_line (select)
            if fetched:
-             err_feedback = await ctx.send ("Emoji déjà utilisé. Modification annulée.")
+             err_feedback = await ctx.send(self.utils.get_text(self.language_code, "emoji_already_used_edit"))
              await err_feedback.delete(delay=1)
              error = True
            else:
@@ -832,7 +832,7 @@ class Vote(commands.Cog):
                await vote_msg.remove_reaction (fetched_proposition[0], self.bot.user) # remove emoji
                await vote_msg.add_reaction (emoji)
              except Exception as e:
-               feedback = await ctx.send ("L'emoji proposé est invalide")
+               feedback = await ctx.send(self.utils.get_text(self.language_code, "emoji_invalid"))
                error = True
                await vote_msg.add_reaction (fetched_proposition[0])
                print (f"{type(e).__name__} - {e}")
@@ -870,7 +870,7 @@ class Vote(commands.Cog):
                except Exception as e:
                  await ctx.message.add_reaction ('❌')
                  print (f"{type(e).__name__} - {e}")
-                 await ctx.send ("Une erreur est survenue")
+                 await ctx.send(self.utils.get_text(self.language_code, "error_occured"))
                  error = True
            await msg_line.delete(delay=0.5)
            await ask_line.delete(delay=0.5)

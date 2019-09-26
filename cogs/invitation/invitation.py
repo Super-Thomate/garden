@@ -33,7 +33,7 @@ class Invitation(commands.Cog):
       return
     if self.utils.is_banned (ctx.command, ctx.author, ctx.guild.id):
       await ctx.message.add_reaction('❌')
-      await ctx.author.send ("Vous n'êtes pas autorisé à utiliser cette commande pour le moment.")
+      await ctx.author.send(self.utils.get_text(self.language_code, "user_unauthorized_use_command"))
       return
     error                    = False
     colour                   = discord.Colour(0)
@@ -68,7 +68,7 @@ class Invitation(commands.Cog):
       return
     if self.utils.is_banned (ctx.command, ctx.author, ctx.guild.id):
       await ctx.message.add_reaction('❌')
-      await ctx.author.send ("Vous n'êtes pas autorisé à utiliser cette commande pour le moment.")
+      await ctx.author.send(self.utils.get_text(self.language_code, "user_unauthorized_use_command"))
       return
     sql                      = f"delete from last_invite where guild_id='{guild_id}' and member_id='{member.id}'"
     error                    = False
@@ -91,7 +91,7 @@ class Invitation(commands.Cog):
       return
     if self.utils.is_banned (ctx.command, ctx.author, ctx.guild.id):
       await ctx.message.add_reaction('❌')
-      await ctx.author.send ("Vous n'êtes pas autorisé à utiliser cette commande pour le moment.")
+      await ctx.author.send(self.utils.get_text(self.language_code, "user_unauthorized_use_command"))
       return
     sql                      = f"select * from invite_channel where guild_id='{guild_id}'"
     prev_invite_channel      = self.db.fetch_one_line (sql)
@@ -100,7 +100,7 @@ class Invitation(commands.Cog):
     else:
       sql                    = f"update invite_channel set channel_id='{invite_channel.id}' where guild_id='{guild_id}'"
     self.db.execute_order(sql)
-    await invite_channel.send ("Request for invite will be put here")
+    await invite_channel.send(self.utils.get_text(self.language_code, "invite_channel_set"))
 
   @commands.command(name='invitemessage', aliases=['im'])
   async def set_invite_message(self, ctx):
@@ -111,9 +111,9 @@ class Invitation(commands.Cog):
       return
     if self.utils.is_banned (ctx.command, ctx.author, ctx.guild.id):
       await ctx.message.add_reaction('❌')
-      await ctx.author.send ("Vous n'êtes pas autorisé à utiliser cette commande pour le moment.")
+      await ctx.author.send(self.utils.get_text(self.language_code, "user_unauthorized_use_command"))
       return
-    await ctx.send ("Entrez le message d'invitation : ")
+    await ctx.send(self.utils.get_text(self.language_code, "ask_new_invitation_message"))
     check                    = lambda m: m.channel == ctx.channel and m.author == ctx.author
     msg                      = await self.bot.wait_for('message', check=check)
     message                  = msg.content
@@ -139,7 +139,7 @@ class Invitation(commands.Cog):
       return
     if self.utils.is_banned (ctx.command, ctx.author, ctx.guild.id):
       await ctx.message.add_reaction('❌')
-      await ctx.author.send ("Vous n'êtes pas autorisé à utiliser cette commande pour le moment.")
+      await ctx.author.send(self.utils.get_text(self.language_code, "user_unauthorized_use_command"))
       return
     try:
       if not delay.isnumeric():

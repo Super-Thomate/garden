@@ -18,14 +18,14 @@ class Loader(commands.Cog):
       return
     if self.utils.is_banned (ctx.command, ctx.author, ctx.guild.id):
       await ctx.message.add_reaction('❌')
-      await ctx.author.send ("Vous n'êtes pas autorisé à utiliser cette commande pour le moment.")
+      await ctx.author.send(self.utils.get_text(self.language_code, "user_unauthorized_use_command"))
       return
     try:
       self.bot.load_extension(f'cogs.{cog}')
     except Exception as e:
       await ctx.send(f'**`ERROR:`** {type(e).__name__} - {e}')
     else:
-      await ctx.send('**`SUCCESS`**')
+      await ctx.send(self.utils.get_text('fr', 'success'))
 
   @commands.command(name='unload', hidden=True)
   async def do_unload(self, ctx, *, cog: str):
@@ -36,14 +36,14 @@ class Loader(commands.Cog):
       return
     if self.utils.is_banned (ctx.command, ctx.author, ctx.guild.id):
       await ctx.message.add_reaction('❌')
-      await ctx.author.send ("Vous n'êtes pas autorisé à utiliser cette commande pour le moment.")
+      await ctx.author.send(self.utils.get_text(self.language_code, "user_unauthorized_use_command"))
       return
     try:
       self.bot.unload_extension(f'cogs.{cog}')
     except Exception as e:
       await ctx.send(f'**`ERROR:`** {type(e).__name__} - {e}')
     else:
-      await ctx.send('**`SUCCESS`**')
+      await ctx.send(self.utils.get_text('fr', 'success'))
 
   @commands.command(name='reload', hidden=True)
   async def do_reload(self, ctx, *, cog: str):
@@ -54,7 +54,7 @@ class Loader(commands.Cog):
       return
     if self.utils.is_banned (ctx.command, ctx.author, ctx.guild.id):
       await ctx.message.add_reaction('❌')
-      await ctx.author.send ("Vous n'êtes pas autorisé à utiliser cette commande pour le moment.")
+      await ctx.author.send(self.utils.get_text(self.language_code, "user_unauthorized_use_command"))
       return
     try:
       self.bot.unload_extension(f'cogs.{cog}')
@@ -62,7 +62,7 @@ class Loader(commands.Cog):
     except Exception as e:
       await ctx.send(f'**`ERROR:`** {type(e).__name__} - {e}')
     else:
-      await ctx.send('**`SUCCESS`**')
+      await ctx.send(self.utils.get_text('fr', 'success'))
 
   @commands.command(name='listcogs', hidden=True, aliases=['lc'])
   async def list_load(self, ctx):
@@ -73,7 +73,7 @@ class Loader(commands.Cog):
       return
     if self.utils.is_banned (ctx.command, ctx.author, ctx.guild.id):
       await ctx.message.add_reaction('❌')
-      await ctx.author.send ("Vous n'êtes pas autorisé à utiliser cette commande pour le moment.")
+      await ctx.author.send(self.utils.get_text(self.language_code, "user_unauthorized_use_command"))
       return
     all_loaded = ""
     for name in self.bot.cogs.keys():
@@ -95,7 +95,7 @@ class Loader(commands.Cog):
       return
     if self.utils.is_banned (ctx.command, ctx.author, ctx.guild.id):
       await ctx.message.add_reaction('❌')
-      await ctx.author.send ("Vous n'êtes pas autorisé à utiliser cette commande pour le moment.")
+      await ctx.author.send(self.utils.get_text(self.language_code, "user_unauthorized_use_command"))
       return
     # `cd ${__dirname}; git branch | grep \\* | awk '{ print $2 }';`
     dir_path = os.path.dirname(os.path.realpath(__file__))+'/'

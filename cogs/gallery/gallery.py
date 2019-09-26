@@ -33,7 +33,7 @@ class Gallery(commands.Cog):
       return
     if self.utils.is_banned (ctx.command, ctx.author, ctx.guild.id):
       await ctx.message.add_reaction('❌')
-      await ctx.author.send ("Vous n'êtes pas autorisé à utiliser cette commande pour le moment.")
+      await ctx.author.send(self.utils.get_text(self.language_code, "user_unauthorized_use_command"))
       return
     error                    = False
     try:
@@ -73,7 +73,7 @@ class Gallery(commands.Cog):
          or self.utils.is_banned_role (ctx.command, ctx.author, ctx.guild.id)
        ):
       await ctx.message.add_reaction('❌')
-      await ctx.author.send ("Vous n'êtes pas autorisé à utiliser cette commande pour le moment.")
+      await ctx.author.send(self.utils.get_text(self.language_code, "user_unauthorized_use_command"))
       return
     sql                      = f"select * from galerie_channel where guild_id='{guild_id}'"
     prev_gallery_channel     = self.db.fetch_one_line (sql)
@@ -82,7 +82,7 @@ class Gallery(commands.Cog):
     else:
       sql                    = f"update galerie_channel set channel_id='{gallery_channel.id}' where guild_id='{guild_id}'"
     self.db.execute_order(sql)
-    await gallery_channel.send ("Request for galerie will be put here")
+    await gallery_channel.send(self.utils.get_text(self.language_code, "gallery_channel_set"))
 
   @commands.command(name='gallerymessage', aliases=['gm'])
   async def set_gallery_message(self, ctx):
@@ -93,9 +93,9 @@ class Gallery(commands.Cog):
       return
     if self.utils.is_banned (ctx.command, ctx.author, ctx.guild.id):
       await ctx.message.add_reaction('❌')
-      await ctx.author.send ("Vous n'êtes pas autorisé à utiliser cette commande pour le moment.")
+      await ctx.author.send(self.utils.get_text(self.language_code, "user_unauthorized_use_command"))
       return
-    await ctx.send ("Entrez le message de gallerie : ")
+    await ctx.send(self.utils.get_text(self.language_code, "ask_new_gallery_message"))
     check                    = lambda m: m.channel == ctx.channel and m.author == ctx.author
     msg                      = await self.bot.wait_for('message', check=check)
     message                  = msg.content
@@ -122,7 +122,7 @@ class Gallery(commands.Cog):
       return
     if self.utils.is_banned (ctx.command, ctx.author, ctx.guild.id):
       await ctx.message.add_reaction('❌')
-      await ctx.author.send ("Vous n'êtes pas autorisé à utiliser cette commande pour le moment.")
+      await ctx.author.send(self.utils.get_text(self.language_code, "user_unauthorized_use_command"))
       return
     try:
       if not delay.isnumeric():

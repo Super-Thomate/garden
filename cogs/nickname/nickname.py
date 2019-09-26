@@ -22,7 +22,7 @@ class Nickname(commands.Cog):
     guild_id = ctx.guild.id
     if self.utils.is_banned (ctx.command, ctx.author, ctx.guild.id):
       await ctx.message.add_reaction('❌')
-      await ctx.author.send ("Vous n'êtes pas autorisé à utiliser cette commande pour le moment.")
+      await ctx.author.send(self.utils.get_text(self.language_code, "user_unauthorized_use_command"))
       return
     # Check if there is a nickname
     if not nickname:
@@ -103,7 +103,7 @@ class Nickname(commands.Cog):
       return
     if self.utils.is_banned (ctx.command, ctx.author, ctx.guild.id):
       await ctx.message.add_reaction('❌')
-      await ctx.author.send ("Vous n'êtes pas autorisé à utiliser cette commande pour le moment.")
+      await ctx.author.send(self.utils.get_text(self.language_code, "user_unauthorized_use_command"))
       return
     sql = f"delete from last_nickname where guild_id='{guild_id}' and member_id='{member.id}'"
     error = False
@@ -123,7 +123,7 @@ class Nickname(commands.Cog):
     guild_id = ctx.guild.id
     if self.utils.is_banned (ctx.command, ctx.author, ctx.guild.id):
       await ctx.message.add_reaction('❌')
-      await ctx.author.send ("Vous n'êtes pas autorisé à utiliser cette commande pour le moment.")
+      await ctx.author.send(self.utils.get_text(self.language_code, "user_unauthorized_use_command"))
       return
     nickname_delay = self.utils.nickname_delay (guild_id) or botconfig.config[str(guild_id)]['nickname_delay']
     sql = f'select  datetime(last_change, \'{nickname_delay}\') from last_nickname where guild_id=\'{guild_id}\' and member_id=\'{member.id}\''
@@ -164,7 +164,7 @@ class Nickname(commands.Cog):
       return
     if self.utils.is_banned (ctx.command, ctx.author, ctx.guild.id):
       await ctx.message.add_reaction('❌')
-      await ctx.author.send ("Vous n'êtes pas autorisé à utiliser cette commande pour le moment.")
+      await ctx.author.send(self.utils.get_text(self.language_code, "user_unauthorized_use_command"))
       return
     try:
       for member in ctx.guild.members:
@@ -185,7 +185,7 @@ class Nickname(commands.Cog):
                   )
           if len (sql):
             self.db.execute_order (sql)
-      await ctx.send ("Nickname updated")
+      await ctx.send(self.utils.get_text(self.language_code, "nickname_updated"))
     except Exception as e:
-      await ctx.send ("An error occured")
+      await ctx.send(self.utils.get_text(self.language_code, "error_occured").format(f"{type(e).__name__}",  f"{e}"))
       print (f"{type(e).__name__} - {e}")
