@@ -358,14 +358,10 @@ class Logs(commands.Cog):
 
   async def log_dm (self, db, member, message, guild, error, params = None):
     if guild.get_member(member.id):
-      print ("Log dm")
       sql                    = f"select channel_id from {db} where guild_id='{guild.id}'"
       db_log_channel         = self.db.fetch_one_line (sql)
-      print ("sql: {}".format(sql))
-      print ("db_log_channel: {}".format(db_log_channel))
       if not db_log_channel:
         return
-      print ("Channel found")
       log_channel            = guild.get_channel (int (db_log_channel[0]))
       colour                 = discord.Colour(0)
       colour                 = colour.from_rgb(176, 255, 176)
