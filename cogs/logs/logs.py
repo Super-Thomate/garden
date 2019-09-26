@@ -364,11 +364,11 @@ class Logs(commands.Cog):
         return
       log_channel            = guild.get_channel (int (db_log_channel[0]))
       colour                 = discord.Colour(0)
-      colour                 = colour.from_rgb(176, 255, 176)
+      colour                 = colour.from_rgb(76, 110, 76)
       if error:
-        colour               = colour.from_rgb(255, 125, 125)
+        colour               = colour.from_rgb(150, 72, 72)
       embed                  = discord.Embed(colour=colour)
-      embed.set_author(icon_url=member.avatar_url, name=str(member))
+      embed.set_author(icon_url=member.avatar_url, name=str(member)+" in DM")
       embed.description      = message.content
       embed.timestamp        = datetime.utcnow()
       embed.set_footer(text=f"ID: {message.id}")
