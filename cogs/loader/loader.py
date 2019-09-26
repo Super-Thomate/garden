@@ -10,8 +10,8 @@ class Loader(commands.Cog):
       self.utils             = Utils ()
       self.db                = Database()
 
-  @commands.command(name='load', hidden=True)
-  async def do_load(self, ctx, *, cog: str):
+  @commands.command(name='cogload', hidden=True)
+  async def cog_do_load(self, ctx, *, cog: str):
     """Command which Loads a Module.
     Remember to use dot path. e.g: cogs.greetings"""
     if not self.utils.is_authorized (ctx.author, ctx.guild.id):
@@ -28,8 +28,8 @@ class Loader(commands.Cog):
     else:
       await ctx.send('**`SUCCESS`**')
 
-  @commands.command(name='unload', hidden=True)
-  async def do_unload(self, ctx, *, cog: str):
+  @commands.command(name='cogunload', hidden=True)
+  async def cog_do_unload(self, ctx, *, cog: str):
     """Command which Unloads a Module.
     Remember to use dot path. e.g: cogs.greetings"""
     if not self.utils.is_authorized (ctx.author, ctx.guild.id):
@@ -46,8 +46,8 @@ class Loader(commands.Cog):
     else:
       await ctx.send('**`SUCCESS`**')
 
-  @commands.command(name='reload', hidden=True)
-  async def do_reload(self, ctx, *, cog: str):
+  @commands.command(name='cogreload', hidden=True)
+  async def cog_do_reload(self, ctx, *, cog: str):
     """Command which Reloads a Module.
     Remember to use dot path. e.g: cogs.greetings"""
     if not self.utils.is_authorized (ctx.author, ctx.guild.id):
@@ -106,3 +106,44 @@ class Loader(commands.Cog):
       await ctx.send (current_patch)
     except Exception as e:
       print(f'{type(e).__name__} - {e}')
+  
+
+  @commands.command(name='load', hidden=True)
+  async def do_load(self, ctx, *, cog: str):
+    """
+    Load cogs for this guild
+    """
+    if not self.utils.is_authorized (ctx.author, ctx.guild.id):
+      print ("Missing permissions")
+      return
+    if self.utils.is_banned (ctx.command, ctx.author, ctx.guild.id):
+      await ctx.message.add_reaction('❌')
+      await ctx.author.send ("Vous n'êtes pas autorisé à utiliser cette commande pour le moment.")
+      return
+    try:
+      self.bot.load_extension(f'cogs.{cog}')
+    except Exception as e:
+      await ctx.send(f'**`ERROR:`** {type(e).__name__} - {e}')
+    else:
+      await ctx.send('**`SUCCESS`**')
+      await ctx.message.add_reaction('✅')
+
+  @commands.command(name='unload', hidden=True)
+  async def do_unload(self, ctx, *, cog: str):
+    """
+    Unload cogs for this guild
+    """
+    if not self.utils.is_authorized (ctx.author, ctx.guild.id):
+      print ("Missing permissions")
+      return
+    if self.utils.is_banned (ctx.command, ctx.author, ctx.guild.id):
+      await ctx.message.add_reaction('❌')
+      await ctx.author.send ("Vous n'êtes pas autorisé à utiliser cette commande pour le moment.")
+      return
+    try:
+      self.bot.unload_extension(f'cogs.{cog}')
+    except Exception as e:
+      await ctx.send(f'**`ERROR:`** {type(e).__name__} - {e}')
+    else:
+      await ctx.send('**`SUCCESS`**')
+      await ctx.message.add_reaction('✅')
