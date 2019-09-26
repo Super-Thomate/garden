@@ -363,9 +363,8 @@ class Logs(commands.Cog):
       sql                    = f"select channel_id from {db} where guild_id='{guild.id}'"
       db_log_channel         = self.db.fetch_one_line (sql)
       if not db_log_channel:
-        log_channel          = message.channel
-      else:
-        log_channel          = guild.get_channel (int (db_log_channel[0]))
+        return
+      log_channel            = guild.get_channel (int (db_log_channel[0]))
       colour                 = discord.Colour(0)
       colour                 = colour.from_rgb(176, 255, 176)
       if error:
