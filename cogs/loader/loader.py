@@ -113,19 +113,42 @@ class Loader(commands.Cog):
     """
     Load cogs for this guild
     """
-    if not self.utils.is_authorized (ctx.author, ctx.guild.id):
+    author                   = ctx.author
+    guild_id                 = ctx.guild.id
+    if not self.utils.is_authorized (author, guild_id):
       print ("Missing permissions")
       return
-    if self.utils.is_banned (ctx.command, ctx.author, ctx.guild.id):
+    if self.utils.is_banned (ctx.command, author, guild_id):
       await ctx.message.add_reaction('❌')
       await ctx.author.send ("Vous n'êtes pas autorisé à utiliser cette commande pour le moment.")
       return
+    if not cog:
+      await ctx.message.add_reaction('❌')
+      await ctx.send ("Paramètre <cog> obligatoire.")
+      return
     try:
-      self.bot.load_extension(f'cogs.{cog}')
+      select                 = (   "select   status "
+                                   "from     config_cog "+
+                                   "where "+
+                                  f"guild_id='{guild_id}' "+
+                                   " and "+
+                                   " cog=? ;"+
+                                   ""
+                               )
+      fetched                = self.db.fetch_one_line (select, [cog])
+      sql                    = ""
+      if fetched:
+        status               = fetched [0]
+        if status == 0:
+          sql                = "update config_cog set status=1 where cog=? and guild_id=? ;"
+      else:
+        sql                  = "insert_into config_cog (`cog`, `guild_id`, `status`) values (?,?,1) ;"
+      if len(sql):
+        self.db.execute_order (sql, [cog, guild_id])
     except Exception as e:
-      await ctx.send(f'**`ERROR:`** {type(e).__name__} - {e}')
+      await ctx.message.add_reaction('❌')
+      print (f"{type(e).__name__} - {e}")
     else:
-      await ctx.send('**`SUCCESS`**')
       await ctx.message.add_reaction('✅')
 
   @commands.command(name='unload', hidden=True)
@@ -133,17 +156,40 @@ class Loader(commands.Cog):
     """
     Unload cogs for this guild
     """
-    if not self.utils.is_authorized (ctx.author, ctx.guild.id):
+    author                   = ctx.author
+    guild_id                 = ctx.guild.id
+    if not self.utils.is_authorized (author, guild_id):
       print ("Missing permissions")
       return
-    if self.utils.is_banned (ctx.command, ctx.author, ctx.guild.id):
+    if self.utils.is_banned (ctx.command, author, guild_id):
       await ctx.message.add_reaction('❌')
       await ctx.author.send ("Vous n'êtes pas autorisé à utiliser cette commande pour le moment.")
       return
+    if not cog:
+      await ctx.message.add_reaction('❌')
+      await ctx.send ("Paramètre <cog> obligatoire.")
+      return
     try:
-      self.bot.unload_extension(f'cogs.{cog}')
+      select                 = (   "select   status "
+                                   "from     config_cog "+
+                                   "where "+
+                                  f"guild_id='{guild_id}' "+
+                                   " and "+
+                                   " cog=? ;"+
+                                   ""
+                               )
+      fetched                = self.db.fetch_one_line (select, [cog])
+      sql                    = ""
+      if fetched:
+        status               = fetched [0]
+        if status == 1:
+          sql                = "update config_cog set status=0 where cog=? and guild_id=? ;"
+      else:
+        sql                  = "insert_into config_cog (`cog`, `guild_id`, `status`) values (?,?,0) ;"
+      if len(sql):
+        self.db.execute_order (sql, [cog, guild_id])
     except Exception as e:
-      await ctx.send(f'**`ERROR:`** {type(e).__name__} - {e}')
+      await ctx.message.add_reaction('❌')
+      print (f"{type(e).__name__} - {e}")
     else:
-      await ctx.send('**`SUCCESS`**')
       await ctx.message.add_reaction('✅')
