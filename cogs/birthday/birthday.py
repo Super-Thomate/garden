@@ -4,7 +4,6 @@ from database import Database
 from Utils import Utils
 from ..logs import Logs
 import datetime
-import re
 
 
 class Birthday(commands.Cog):
@@ -27,25 +26,25 @@ class Birthday(commands.Cog):
     error = False
 
     if self.utils.is_banned(ctx.command, ctx.author, guild_id):
-      await ctx.send("Vous n'êtes pas autorisé à utiliser cette commande pour le moment.")
+      await ctx.send(self.utils.get_text('fr', 'user_unauthorized_use_command'))
       await ctx.message.add_reaction('❌')
       return
 
     sql = f"SELECT user_id FROM birthday_user WHERE user_id='{member_id}'"
     data = self.db.fetch_one_line(sql)
     if data is not None:
-      await ctx.send('Tu as déjà enregistré ton anniversaire.')
+      await ctx.send(self.utils.get_text('fr', 'user_already_registered_birthday'))
       await ctx.message.add_reaction('❌')
       return
 
-    await ctx.send('Entrez votre date d\'anniversaire (format: jj/mm)')
+    await ctx.send(self.utils.get_text('fr', 'ask_user_register_birthday'))
     response = await self.bot.wait_for('message', check=lambda m: m.channel == ctx.channel and m.author.id == member_id)
     birthday = response.content
 
     try:
       valid = True if birthday == "29/02" else datetime.datetime.strptime(birthday, '%d/%m')
     except ValueError:
-      await ctx.send('Le format est invalide. Le format correct est jj/mm (ex: 06/01)')
+      await ctx.send(self.utils.get_text('fr', 'birthday_format_invalid'))
       await response.add_reaction('❌')
       ctx.message.content += '\n' + birthday
       await self.logger.log('birthday_log', ctx.author, ctx.message, True)
@@ -61,10 +60,10 @@ class Birthday(commands.Cog):
       self.db.execute_order(sql, [])
     except Exception as e:
       error = True
-      await ctx.send('Erreur d\'écriture en base de donnée 💀')
+      await ctx.send(self.utils.get_text('fr', 'database_writing_error'))
       print(f"{type(e).__name__} - {e}")
 
-    await ctx.send(f'Très bien {ctx.author.display_name}, ton anniversaire a été enregistré')
+    await ctx.send(self.utils.get_text('fr', 'user_birthday_registered').format(ctx.author.display_name))
     await response.add_reaction('✅')
     # Log command
     ctx.message.content += '\n' + birthday
@@ -80,7 +79,7 @@ class Birthday(commands.Cog):
       print("Missing permissions")
       return
     if self.utils.is_banned(ctx.command, ctx.author, guild_id):
-      await ctx.send("Vous n'êtes pas autorisé à utilisez cette commande pour le moment.")
+      await ctx.send(self.utils.get_text('fr', 'user_unauthorized_use_command'))
       await ctx.message.add_reaction('❌')
       return
 
@@ -94,10 +93,10 @@ class Birthday(commands.Cog):
     try:
       self.db.execute_order(sql, [])
     except Exception as e:
-      await ctx.send('Erreur d\'écriture en base de donnée 💀')
+      await ctx.send(self.utils.get_text('fr', 'database_writing_error'))
       print(f"{type(e).__name__} - {e}")
 
-    await ctx.send(f'Le channel <#{channel_id}> a été défini comme channel pour les anniversaires')
+    await ctx.send(self.utils.get_text('fr', 'birthday_channel_set').format(channel_id))
 
   @commands.command(name='resetbirthday', aliases=['rb'])
   async def reset_birthday(self, ctx, member_id: str = None):
@@ -107,11 +106,11 @@ class Birthday(commands.Cog):
       print("Missing permissions")
       return
     if self.utils.is_banned(ctx.command, ctx.author, guild_id):
-      await ctx.send("Vous n'êtes pas autorisé à utilisez cette commande pour le moment.")
+      await ctx.send(self.utils.get_text('fr', 'user_unauthorized_use_command'))
       await ctx.message.add_reaction('❌')
       return
     if member_id is None:
-      await ctx.send("Le paramètre <member_id> est obligatoire.")
+      await ctx.send(self.utils.get_text('fr', 'parameter_is_mandatory').format("memberID"))
       await ctx.message.add_reaction('❌')
       await self.logger.log('birthday_log', ctx.author, ctx.message, True)
       return
@@ -121,8 +120,8 @@ class Birthday(commands.Cog):
       self.db.execute_order(sql, [])
     except Exception as e:
       error = True
-      await ctx.send('Erreur d\'écriture en base de donnée 💀')
+      await ctx.send(self.utils.get_text('fr', 'database_writing_error'))
       print(f"{type(e).__name__} - {e}")
 
-    await ctx.send(f"<@{member_id}> a été retiré.e de la table des anniversaires")
+    await ctx.send(self.utils.get_text('fr', 'user_birthday_reset').format(member_id))
     await self.logger.log('birthday_log', ctx.author, ctx.message, error)

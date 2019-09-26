@@ -8,6 +8,9 @@ from database import Database
 from urllib.request import urlopen
 
 class Utils():
+  def __init__(self):
+    self.tradution_fr = json.load(open('french.json', 'r'))
+
   def is_authorized (self, member, guild_id):
     #Test server bypasses
     if guild_id == 494812563016777729:
@@ -338,6 +341,6 @@ class Utils():
     print(f"timestamp: {timestamp}")
     return timestamp
 
-  def get_text(self, language_code, text_key):
+  def get_text(self, language_code: str, text_key: str) -> str:
     if language_code == "fr":
-      pass
+      return self.tradution_fr[text_key]

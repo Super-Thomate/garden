@@ -39,7 +39,7 @@ initial_extensions = [   'cogs.loader'
                        , 'cogs.turing'
                        , 'cogs.moderation'
                        , 'cogs.configuration'
-                     #  , 'cogs.birthday'
+                       , 'cogs.birthday'
                        , 'cogs.gallery'
                      ]
 
