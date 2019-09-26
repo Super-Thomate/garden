@@ -1,9 +1,10 @@
 import math
 import botconfig
-from database import Database
 import time
 import sys
 import inspect
+import json
+from database import Database
 from urllib.request import urlopen
 
 class Utils():
@@ -141,7 +142,7 @@ class Utils():
         cast = int (elem)
       except Exception as e:
         # is it a letter in units ?
-        if not elem in units:
+        if elem not in units:
           raise Exception (f"Unknown element: {elem}")
           return -1
         to_ret = to_ret + number * units [elem]
@@ -336,3 +337,7 @@ class Utils():
         current                = 0
     print(f"timestamp: {timestamp}")
     return timestamp
+
+  def get_text(self, language_code, text_key):
+    if language_code == "fr":
+      pass

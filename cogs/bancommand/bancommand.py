@@ -51,7 +51,7 @@ class Bancommand(commands.Cog):
       return
     # Check if user exists
     if not user:
-      await ctx.send (f"User manquant.")
+      await ctx.send (f"paramètre User manquant.")
       await ctx.message.add_reaction('❌')
       return
     # Parse time
