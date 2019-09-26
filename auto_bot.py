@@ -34,6 +34,7 @@ async def on_ready():
     print (f"[{datetime.now().strftime('%d-%m-%Y %H:%M:%S')}] Running task")
     await vote_tasks()
     await utip_tasks ()
+    await birthday_task ()
     time.sleep(sleepy_time)
     # sys.exit(0)
 
@@ -269,6 +270,33 @@ def embed_get_result (message_id, guild_id, embed):
   embed.add_field (name=field.name, value=new_value, inline=False)
   return embed
 
+async def birthday_task():
+  db = Database()
+  date = datetime.now().strftime('%d/%m')
+  sql = f"SELECT user_id, guild_id, last_year_wished FROM birthday_user WHERE user_birthday='{date}'"
+  data = db.fetch_all_line(sql)
+  sql = f"SELECT channel_id FROM birthday_channel"
+
+  channel_id = db.fetch_one_line(sql)
+  if not channel_id:
+    raise RuntimeError('Birthday channel is not set !')
+  birthday_channel = bot.get_channel(int(channel_id[0]))
+
+  for line in data:
+    member_id = line[0]
+    last_year_wished = line[2]
+    current_year = datetime.now().strftime('%Y')
+    if current_year == last_year_wished:
+      continue
+
+    await birthday_channel.send(f'Joyeux anniversaire a <@{member_id}> !! :confetti_ball:')
+    sql = f"UPDATE birthday_user SET last_year_wished='{current_year}' WHERE user_id='{member_id}'"
+
+    try:
+      db.execute_order(sql, [])
+    except Exception as e:
+      await birthday_channel.send('Erreur d\'écriture en base de donnée 💀')
+      print(f"{type(e).__name__} - {e}")
 
 
 bot.run(botconfig.config['token'])

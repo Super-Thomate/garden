@@ -142,6 +142,31 @@ class Logs(commands.Cog):
       print (f" {type(e).__name__} - {e}")
 
 
+  @commands.command(name='setbirthdaylog', aliases=['sbl'])
+  async def set_birthday_log(self, ctx, channel: discord.TextChannel = None):
+    guild_id = ctx.guild.id
+    member = ctx.author
+    if not self.utils.is_authorized (member, guild_id):
+      print("Missing permissions")
+      return
+    if self.utils.is_banned(ctx.command, ctx.author, ctx.guild.id):
+      await ctx.message.add_reaction('❌')
+      await ctx.author.send("Vous n'êtes pas autorisé à utilisez cette commande pour le moment.")
+      return
+    try:
+      log_channel = channel or ctx.message.channel
+      sql = f"SELECT channel_id FROM birthday_log WHERE guild_id={guild_id}"
+      channel_already_set = self.db.fetch_one_line(sql)
+      if channel_already_set:
+        sql = f"UPDATE birthday_log set channel_id='{log_channel.id}' WHERE guild_id='{guild_id}'"
+      else:
+        sql = f"INSERT INTO birthday_log VALUES ('{log_channel.id}', '{guild_id}')"
+      self.db.execute_order(sql, [])
+      await log_channel.send("Logs for birthday will be put here")
+    except Exception as e:
+      print(f" {type(e).__name__} - {e}")
+
+
   async def log(self, db, member, message, error, params = None):
     guild_id = message.channel.guild.id
     sql = f"select channel_id from {db} where guild_id='{guild_id}'"

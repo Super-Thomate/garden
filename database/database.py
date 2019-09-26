@@ -47,6 +47,7 @@ class Database:
       ### WELCOME COG
       cursor.execute('CREATE TABLE IF NOT EXISTS `welcome_channel` (`channel_id` VARCHAR(256) NOT NULL, `guild_id` VARCHAR(256) NOT NULL, PRIMARY KEY (`guild_id`))  ;')
       cursor.execute('CREATE TABLE IF NOT EXISTS `welcome_log` (`channel_id` VARCHAR(256) NOT NULL, `guild_id` VARCHAR(256) NOT NULL, PRIMARY KEY (`guild_id`)) ;')
+<<<<<<< HEAD
       cursor.execute('CREATE TABLE IF NOT EXISTS `welcome_message` (`message` TEXT NOT NULL, `role_id` integer not null, `guild_id` VARCHAR(256) NOT NULL, PRIMARY KEY (`role_id`, `guild_id`)) ;')
       """
       alter table welcome_message add `role_id` INTEGER not null default 0 ;
@@ -70,6 +71,14 @@ class Database:
       INSERT INTO welcome_user SELECT `user_id`,`role_id`,`welcomed_at`,`guild_id` FROM welcome_user_old;
       drop table welcome_user_old ;
       """
+=======
+      cursor.execute('CREATE TABLE IF NOT EXISTS `welcome_message` (`message` TEXT NOT NULL, `guild_id` VARCHAR(256) NOT NULL, PRIMARY KEY (`guild_id`)) ;')
+      cursor.execute('CREATE TABLE IF NOT EXISTS `welcome_role` (`role_id` VARCHAR(256) NOT NULL, `guild_id` VARCHAR(256) NOT NULL, PRIMARY KEY (`guild_id`)) ;')
+      cursor.execute('CREATE TABLE IF NOT EXISTS `welcome_user` (`user_id` VARCHAR(256) NOT NULL, `guild_id` VARCHAR(256) NOT NULL, `welcomed_at` INTEGER NOT NULL, PRIMARY KEY (`user_id`, `guild_id`)) ;')
+      # alter table welcome_user rename to welcome_user_old ;
+      # CREATE TABLE IF NOT EXISTS `welcome_user` (`user_id` VARCHAR(256) NOT NULL, `guild_id` VARCHAR(256) NOT NULL, `welcomed_at` INTEGER NOT NULL, PRIMARY KEY (`user_id`, `guild_id`)) ;
+      # INSERT INTO welcome_user SELECT * FROM welcome_user_old;
+>>>>>>> patch/V2/7
       ### BANCOMMAND COG
       cursor.execute('CREATE TABLE IF NOT EXISTS `ban_command_user_log` (`channel_id` VARCHAR(256) NOT NULL, `guild_id` VARCHAR(256) NOT NULL, PRIMARY KEY (`guild_id`))  ;')
       cursor.execute('CREATE TABLE IF NOT EXISTS `ban_command_user` (`command` VARCHAR(256) NOT NULL, `until` INTEGER, `user_id` VARCHAR(256) NOT NULL, `guild_id` VARCHAR(256) NOT NULL, PRIMARY KEY (`command`, `user_id`, `guild_id`)) ;')
@@ -87,6 +96,7 @@ class Database:
       cursor.execute('CREATE TABLE IF NOT EXISTS `config_delay` (`delay` INTEGER NOT NULL, `type_delay` VARCHAR(128) NOT NULL, `guild_id` VARCHAR(256) NOT NULL, PRIMARY KEY (`type_delay`, `guild_id`)) ;')
       cursor.execute('CREATE TABLE IF NOT EXISTS `config_do` (`do` INTEGER NOT NULL, `type_do` VARCHAR(128) NOT NULL, `guild_id` VARCHAR(256) NOT NULL, PRIMARY KEY (`type_do`, `guild_id`)) ;')
       cursor.execute('CREATE TABLE IF NOT EXISTS `config_log` (`channel_id` VARCHAR(256) NOT NULL, `guild_id` VARCHAR(256) NOT NULL, PRIMARY KEY (`guild_id`)) ;')
+<<<<<<< HEAD
       # UTIP COG
       cursor.execute('CREATE TABLE IF NOT EXISTS `utip_role` (`role_id` VARCHAR(256) NOT NULL, `guild_id` VARCHAR(256) NOT NULL, PRIMARY KEY (`role_id`, `guild_id`)) ;')
       cursor.execute('CREATE TABLE IF NOT EXISTS `utip_timer` (`user_id` VARCHAR(256) NOT NULL, `until` INTEGER NOT NULL, `guild_id` VARCHAR(256) NOT NULL, PRIMARY KEY (`user_id`, `guild_id`)) ;')
@@ -97,6 +107,12 @@ class Database:
 
 
 
+=======
+      ### BIRTHDAY COG
+      cursor.execute('CREATE TABLE IF NOT EXISTS `birthday_user` (`user_id` VARCHAR(256) NOT NULL, `guild_id` VARCHAR(256) NOT NULL, `user_birthday` VARCHAR(5), `last_year_wished` VARCHAR(4), PRIMARY KEY (`user_id`)) ;')
+      cursor.execute('CREATE TABLE IF NOT EXISTS `birthday_channel` (`channel_id` VARCHAR(256) NOT NULL, `guild_id` VARCHAR(256) NOT NULL, PRIMARY KEY (`guild_id`)) ;')
+      cursor.execute('CREATE TABLE IF NOT EXISTS `birthday_log` (`channel_id` VARCHAR(256) NOT NULL, `guild_id` VARCHAR(256) NOT NULL, PRIMARY KEY (`guild_id`)) ;')
+>>>>>>> patch/V2/7
       # Save modifications
       cnx.commit()
       cursor.close()

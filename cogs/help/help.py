@@ -214,6 +214,20 @@ class Help(commands.Cog):
     embed.set_author(icon_url=infos.avatar_url, name=str(infos))
     embed.timestamp = datetime.today()
     return embed
+
+  def help_birthday (self):
+    infos = self.bot.user
+    colour = discord.Colour(0)
+    colour = colour.from_rgb(176, 255, 176)
+    embed = discord.Embed(colour=colour, title="**BIRTHDAY COG HELP**")
+    embed.description = "*Certaine commandes de ce cog ne sont utilisables que par les admins ou modérateurs spécifiés au bot.*"
+    embed.add_field (name="**Birthday :cake: :**", value="- `-setbirthday (-bd)` - Définir la date d'anniversaire d'un membre. Format jj/mm\n"
+                                                         "- `-setbirthdaychannel (-sbc) <channelID>` - Définir un channel pour le souhait des anniversaires (pas de paramètre signifie channel actuel)\n"
+                                                         "- `-setbirthdaylog (-sbl) <channelID>` - Définir un channel pour le log des anniversaires (pas de paramètre signifie channel actuel)\n"
+                                                         "- `-resetbirthday (-rb) <memberID>` - Supprime un membre de la table des anniversaire afin qu'iel puisse reset sa date d'anniversaire", inline=False)
+    embed.set_author(icon_url=infos.avatar_url, name=str(infos))
+    embed.timestamp = datetime.today()
+    return embed
   
   def help_global (self):
     line_cogs = ""

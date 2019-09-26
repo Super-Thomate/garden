@@ -26,8 +26,6 @@ def get_prefix(bot, message):
       prefixes               = ['!']
     return commands.when_mentioned_or(*prefixes)(bot, message)
 
-initial_extensions = []
-
 # Define all of our cogs
 initial_extensions = [   'cogs.loader'
                        , 'cogs.logs'
@@ -41,7 +39,7 @@ initial_extensions = [   'cogs.loader'
                        , 'cogs.turing'
                        , 'cogs.moderation'
                        , 'cogs.configuration'
-                       , 'cogs.utip'
+                     #  , 'cogs.birthday'
                      ]
 
 bot = commands.Bot(command_prefix=get_prefix)

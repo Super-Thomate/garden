@@ -8,6 +8,9 @@ from urllib.request import urlopen
 
 class Utils():
   def is_authorized (self, member, guild_id):
+    #Test server bypasses
+    if guild_id == 494812563016777729:
+      return True
     # admin can't be blocked
     if self.is_admin(member):
       return True
@@ -164,7 +167,7 @@ class Utils():
       print (f"get_roles_modo {type(e).__name__} - {e}")
     if fetched:
       for role_fetched in fetched:
-        all_roles.append(role_fetched [0])
+        all_roles.append(int (role_fetched [0]))
     return all_roles
 
   def debug(self, message):
