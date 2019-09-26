@@ -207,10 +207,10 @@ class Invitation(commands.Cog):
             duree            = math.floor ((last_timestamp + invite_delay) - time.time())
             print (f"duree: {duree}")
             if duree > 0:
-              await self.logger.log_dm('invite_log', member, message, True)
+              await self.logger.log_dm('invite_log', member, guild, message, True)
               await message.add_reaction('❌')
               feedback       = await message.channel.send(f"Vous avez déjà demandé une invitation récemment.\nIl vous faut attendre encore {self.utils.format_time(duree)}")
-              await self.logger.log_dm('invite_log', self.bot.user, feedback, True)
+              await self.logger.log_dm('invite_log', self.bot.user, feedback, guild, True)
               return
           try:
             colour           = discord.Colour(0)
@@ -245,7 +245,7 @@ class Invitation(commands.Cog):
             except Exception as e:
               print (f'{type(e).__name__} - {e}')
               error          = True
-          await self.logger.log_dm ('invite_log', member, message, error)
+          await self.logger.log_dm ('invite_log', member, message, guild, error)
           try:
             if error:
               await message.add_reaction('❌')

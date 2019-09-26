@@ -358,30 +358,28 @@ class Logs(commands.Cog):
 
 
 
-  async def log_dm (self, db, member, message, error, params = None):
-    for guild in self.bot.guilds:
-      # if member is in this guild => go
-      if guild.get_member(member.id):
-        sql                  = f"select channel_id from {db} where guild_id='{guild.id}'"
-        db_log_channel       = self.db.fetch_one_line (sql)
-        if not db_log_channel:
-          log_channel        = message.channel
-        else:
-          log_channel        = guild.get_channel (int (db_log_channel[0]))
-        colour               = discord.Colour(0)
-        colour               = colour.from_rgb(176, 255, 176)
-        if error:
-          colour             = colour.from_rgb(255, 125, 125)
-        embed                = discord.Embed(colour=colour)
-        embed.set_author(icon_url=member.avatar_url, name=str(member))
-        embed.description    = message.content
-        embed.timestamp      = datetime.utcnow()
-        embed.set_footer(text=f"ID: {message.id}")
-        print (f"params: {params}")
-        if params and "url_to_go" in params:
-          print ("url_to_go")
-          embed.description    = embed.description+"\njumpto: "+ params ["url_to_go"]
-        try:
-          await log_channel.send(content=None, embed=embed)
-        except Exception as e:
-          print (f" {type(e).__name__} - {e}")
+  async def log_dm (self, db, member, message, guild, error, params = None):
+    if guild.get_member(member.id):
+      sql                    = f"select channel_id from {db} where guild_id='{guild.id}'"
+      db_log_channel         = self.db.fetch_one_line (sql)
+      if not db_log_channel:
+        log_channel          = message.channel
+      else:
+        log_channel          = guild.get_channel (int (db_log_channel[0]))
+      colour                 = discord.Colour(0)
+      colour                 = colour.from_rgb(176, 255, 176)
+      if error:
+        colour               = colour.from_rgb(255, 125, 125)
+      embed                  = discord.Embed(colour=colour)
+      embed.set_author(icon_url=member.avatar_url, name=str(member))
+      embed.description      = message.content
+      embed.timestamp        = datetime.utcnow()
+      embed.set_footer(text=f"ID: {message.id}")
+      print (f"params: {params}")
+      if params and "url_to_go" in params:
+        print ("url_to_go")
+        embed.description    = embed.description+"\njumpto: "+ params ["url_to_go"]
+      try:
+        await log_channel.send(content=None, embed=embed)
+      except Exception as e:
+        print (f" {type(e).__name__} - {e}")

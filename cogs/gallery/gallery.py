@@ -195,7 +195,7 @@ class Gallery(commands.Cog):
           except Exception as e:
             print (f" {type(e).__name__} - {e}")
             error            = True
-          await self.logger.log_dm('galerie_log', author, message, error)
+          await self.logger.log_dm('galerie_log', author, message,guild, error)
           try:
             if error:
               await message.add_reaction('❌')
