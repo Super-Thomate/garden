@@ -211,22 +211,25 @@ class Welcome(commands.Cog):
       await ctx.message.add_reaction('❌')
       await ctx.author.send ("Vous n'êtes pas autorisé à utiliser cette commande pour le moment.")
       return
-    select = f"select role_id from welcome_role where guild_id='{guild_id}'"
-    fetched_all = self.db.fetch_all_line (select)
+    select                   = f"select role_id from welcome_role where guild_id='{guild_id}'"
+    fetched_all              = self.db.fetch_all_line (select)
     if not fetched_all:
       await ctx.send ("Aucun rôle n'est défini !")
       return
     for fetched in fetched_all:
-      role_id = int (fetched [0])
+      role_id                = int (fetched [0])
       #get the role
-      role = ctx.guild.get_role (role_id)
+      role                   = ctx.guild.get_role (role_id)
       # write every member
       for member in role.members:
         # sql
         insert = ("insert into welcome_user (`user_id`, `role_id`, `welcomed_at`, `guild_id`)"+
         f"values ('{member.id}', {role_id},{math.floor (time.time())}, '{guild_id}') ;")
-        self.db.execute_order (insert)
-      # await self.logger.log('welcome_log', ctx.author, ctx.message, error) # no logs
+        try:
+          self.db.execute_order (insert)
+        except Exception as e:
+          print (f'{type(e).__name__} - {e}')
+    await ctx.message.add_reaction('✅')
 
   @commands.command(name='clearwelcome', aliases=['cw'])
   async def reset_welcomeuser(self, ctx, member: discord.Member = None):
