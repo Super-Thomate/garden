@@ -18,8 +18,6 @@ class Logs(commands.Cog):
     if not self.utils.is_authorized (member, guild_id):
       print ("Missing permissions")
       return
-    if (not self.utils.do_invite (guild_id) and not botconfig.config[str(guild_id)]["do_invite"]):
-      return
     if self.utils.is_banned (ctx.command, ctx.author, ctx.guild.id):
       await ctx.message.add_reaction('❌')
       await ctx.author.send ("Vous n'êtes pas autorisé à utiliser cette commande pour le moment.")
@@ -32,7 +30,7 @@ class Logs(commands.Cog):
         sql = "INSERT INTO invite_log VALUES ('{0}', '{1}')".format(log_channel.id, guild_id)
       else:
         sql = f"update invite_log set channel_id='{log_channel.id}' where guild_id='{guild_id}'"
-      self.db.execute_order(sql, [])
+      self.db.execute_order(sql)
       await log_channel.send ("Logs for invite will be put here")
     except Exception as e:
       print (f" {type(e).__name__} - {e}")
@@ -363,6 +361,8 @@ class Logs(commands.Cog):
       print ("Log dm")
       sql                    = f"select channel_id from {db} where guild_id='{guild.id}'"
       db_log_channel         = self.db.fetch_one_line (sql)
+      print ("sql: {}".format(sql))
+      print ("db_log_channel: {}".format(db_log_channel))
       if not db_log_channel:
         return
       print ("Channel found")
