@@ -211,27 +211,28 @@ class Invitation(commands.Cog):
               await message.add_reaction('❌')
               feedback       = await message.channel.send(f"Vous avez déjà demandé une invitation récemment.\nIl vous faut attendre encore {self.utils.format_time(duree)}")
               await self.logger.log_dm('invite_log', self.bot.user, feedback, guild, True)
-              return
-          try:
-            colour           = discord.Colour(0)
-            url              = "Votre lien d'invitation:\n"+await self.get_invitation_link(guild_id)
-            sql              = f"select message from invite_message where guild_id='{guild_id}'"
-            invite_message   =  self.db.fetch_one_line (sql)
-            if invite_message:
-              url            = url+"\n\n"+invite_message [0]
-            colour           = colour.from_rgb(255, 51, 124)
-            icon_url         = "https://cdn.discordapp.com/attachments/597091535242395649/597091654847037514/Plan_de_travail_18x.png"
-            name             = "Steven Universe Fantasy"
-            #embed.set_footer(text=f"ID: {message.id}")
-            embed            = discord.Embed(colour=colour)
-            embed.set_author(icon_url=icon_url, name=name)
-            embed.description          = url
-            embed.timestamp  = datetime.utcnow()
-            await member.send (content=None, embed=embed)
-          except Exception as e:
-            await message.channel.send (f"Oups il semblerait que tu n'aies pas activé l'envoi de messages privés.")
-            print (f" {type(e).__name__} - {e}")
-            error            = True
+              error          = True
+          if not error:
+            try:
+              colour         = discord.Colour(0)
+              url            = "Votre lien d'invitation:\n"+await self.get_invitation_link(guild_id)
+              sql            = f"select message from invite_message where guild_id='{guild_id}'"
+              invite_message =  self.db.fetch_one_line (sql)
+              if invite_message:
+                url          = url+"\n\n"+invite_message [0]
+              colour         = colour.from_rgb(255, 51, 124)
+              icon_url       = "https://cdn.discordapp.com/attachments/597091535242395649/597091654847037514/Plan_de_travail_18x.png"
+              name           = "Steven Universe Fantasy"
+              #embed.set_footer(text=f"ID: {message.id}")
+              embed          = discord.Embed(colour=colour)
+              embed.set_author(icon_url=icon_url, name=name)
+              embed.description        = url
+              embed.timestamp          = datetime.utcnow()
+              await member.send (content=None, embed=embed)
+            except Exception as e:
+              await message.channel.send (f"Oups il semblerait que tu n'aies pas activé l'envoi de messages privés.")
+              print (f" {type(e).__name__} - {e}")
+              error          = True
           if not error:
             # LOG LAST INVITE
             sql              = f"select * from last_invite where guild_id='{guild_id}' and member_id='{member.id}'"
