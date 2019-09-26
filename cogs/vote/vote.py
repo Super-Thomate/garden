@@ -906,6 +906,8 @@ class Vote(commands.Cog):
   ## VOTE LISTENER
   @commands.Cog.listener()
   async def on_reaction_add(self, reaction, user):
+    if not reaction.message.guild:
+      return
     message_id               = reaction.message.id
     guild_id                 = reaction.message.guild.id
     emoji                    = reaction.emoji

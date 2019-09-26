@@ -11,17 +11,17 @@ def get_prefix(bot, message):
     prefixes = []
     if message.guild:
       prefixes = botconfig.config[str(message.guild.id)]['prefixes']
-    db                       = Database ()
-    select                   = (   "select   prefix "+
+      db                     = Database ()
+      select                 = (   "select   prefix "+
                                    "from     config_prefix "+
                                    " where "+
                                   f"guild_id='{message.guild.id}' ;"+
                                    ""
                                )
-    fetched                  = db.fetch_all_line (select)
-    if fetched:
-      for line in fetched:
-        prefixes.append (line [0])
+      fetched                = db.fetch_all_line (select)
+      if fetched:
+        for line in fetched:
+          prefixes.append (line [0])
     if not len (prefixes):
       prefixes               = ['!']
     return commands.when_mentioned_or(*prefixes)(bot, message)
@@ -40,6 +40,7 @@ initial_extensions = [   'cogs.loader'
                        , 'cogs.moderation'
                        , 'cogs.configuration'
                      #  , 'cogs.birthday'
+                       , 'cogs.gallery'
                      ]
 
 bot = commands.Bot(command_prefix=get_prefix)
