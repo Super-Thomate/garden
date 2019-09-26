@@ -41,6 +41,7 @@ initial_extensions = [   'cogs.loader'
                        , 'cogs.configuration'
                      #  , 'cogs.birthday'
                        , 'cogs.gallery'
+                       , 'cogs.utip'
                      ]
 
 bot = commands.Bot(command_prefix=get_prefix)
