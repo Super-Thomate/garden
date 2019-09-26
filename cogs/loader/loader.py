@@ -1,14 +1,15 @@
 from discord.ext import commands
 from Utils import Utils
+from databse import Database
 import os
 
 class Loader(commands.Cog):
 
   def __init__(self, bot):
-      self.bot = bot
-      self.utils = Utils ()
+      self.bot               = bot
+      self.utils             = Utils ()
+      self.db                = Database()
 
-  # Hidden means it won't show up on the default help.
   @commands.command(name='load', hidden=True)
   async def do_load(self, ctx, *, cog: str):
     """Command which Loads a Module.
