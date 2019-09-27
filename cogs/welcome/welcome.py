@@ -22,6 +22,7 @@ class Welcome(commands.Cog):
     self.utils = Utils()
     self.logger = Logs(self.bot)
     self.db = Database()
+    self.language_code = 'fr'
 
   @commands.Cog.listener()
   async def on_member_update(self, before, after):
@@ -83,7 +84,7 @@ class Welcome(commands.Cog):
            """
            message = text.replace("$member", before.mention).replace("$role", f"<@&{role_id}>")
         else:
-           message = f"Welcome {before.mention} !"
+           message = self.utils.get_text(self.language_code, 'welcome_user_1').format(before.mention)
         # send
         await channel.send (message)
         # save welcome

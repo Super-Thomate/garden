@@ -14,6 +14,7 @@ class Nickname(commands.Cog):
     self.utils = Utils()
     self.logger = Logs(self.bot)
     self.db = Database()
+    self.language_code = 'fr'
 
   @commands.command(name='nickname', aliases=['pseudo'])
   async def set_nickname(self, ctx, *, nickname: str = None):

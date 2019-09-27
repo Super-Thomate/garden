@@ -28,6 +28,7 @@ class Bancommand(commands.Cog):
     self.utils = Utils()
     self.logger = Logs(self.bot)
     self.db = Database()
+    self.language_code = 'fr'
 
   @commands.command(name='bancommanduser', aliases=['bcu'])
   async def ban_command_user(self, ctx, command: str = None, user: discord.Member = None, timer: str = None):
@@ -163,9 +164,9 @@ class Bancommand(commands.Cog):
       # parse until
       if until:
         # date = self.utils.format_time (until)
-        date = datetime.utcfromtimestamp(until).strftime("%d/%m/%Y %H:%M:%S")
+        date = datetime.utcfromtimestamp(until).strftime(self.utils.get_text(self.language_code, 'date_format'))
       else:
-        date = "Permanent"
+        date = self.utils.get_text(self.language_code, 'permanent')
       temp = ( f"{command} ["+
                f"{date}]"
              )
@@ -229,9 +230,9 @@ class Bancommand(commands.Cog):
       # parse until
       if until:
         # date = self.utils.format_time (until)
-        date = datetime.utcfromtimestamp(until).strftime("%d/%m/%Y %H:%M:%S")
+        date = datetime.utcfromtimestamp(until).strftime(self.utils.get_text(self.language_code, 'date_format'))
       else:
-        date = "Permanent"
+        date = self.utils.get_text(self.language_code, 'permanent')
       temp = ( f"{user_name} ["+
                f"{date}]"
              )
@@ -357,9 +358,9 @@ class Bancommand(commands.Cog):
       # parse until
       if until:
         # date = self.utils.format_time (until)
-        date = datetime.utcfromtimestamp(until).strftime("%d/%m/%Y %H:%M:%S")
+        date = datetime.utcfromtimestamp(until).strftime(self.utils.get_text(self.language_code, 'date_format'))
       else:
-        date = "Permanent"
+        date = self.utils.get_text(self.language_code, 'permanent')
       temp = ( f"{command} ["+
                f"{date}]"
              )
@@ -424,9 +425,9 @@ class Bancommand(commands.Cog):
       # parse until
       if until:
         # date = self.utils.format_time (until)
-        date = datetime.utcfromtimestamp(until).strftime("%d/%m/%Y %H:%M:%S")
+        date = datetime.utcfromtimestamp(until).strftime(self.utils.get_text(self.language_code, 'date_format'))
       else:
-        date = "Permanent"
+        date = self.utils.get_text(self.language_code, 'permanent')
       temp = ( f"{role_name} ["+
                f"{date}]"
              )

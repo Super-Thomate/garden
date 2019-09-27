@@ -10,6 +10,7 @@ class Logs(commands.Cog):
     self.bot = bot
     self.db = Database()
     self.utils = Utils()
+    self.language_code = 'fr'
 
   @commands.command(name='setinvitelog', aliases=['setinvite', 'sil', 'invitelog'])
   async def set_invitation_log(self, ctx, channel: discord.TextChannel = None):

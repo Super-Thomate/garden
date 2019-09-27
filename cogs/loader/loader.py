@@ -5,8 +5,9 @@ import os
 class Loader(commands.Cog):
 
   def __init__(self, bot):
-      self.bot = bot
-      self.utils = Utils ()
+    self.bot = bot
+    self.utils = Utils()
+    self.language_code = 'fr'
 
   # Hidden means it won't show up on the default help.
   @commands.command(name='load', hidden=True)

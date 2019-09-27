@@ -12,6 +12,7 @@ class Utip(commands.Cog):
     self.utils = Utils()
     self.logger = Logs(self.bot)
     self.db = Database()
+    self.language_code = 'fr'
 
   @commands.command(name='utip')
   async def utip_send(self, ctx):

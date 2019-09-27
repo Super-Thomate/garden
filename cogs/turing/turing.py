@@ -23,7 +23,8 @@ class Turing(commands.Cog):
     self.utils = Utils()
     self.logger = Logs(self.bot)
     self.db = Database()
-    self.auto_reply          = False
+    self.auto_reply = False
+    self.language_code = 'fr'
 
   @commands.command(name='answer', aliases=['reply'])
   async def answer_spy_log(self, ctx, user: discord.User = None):

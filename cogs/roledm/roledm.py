@@ -19,6 +19,7 @@ class RoleDM(commands.Cog):
     self.utils = Utils()
     self.logger = Logs(self.bot)
     self.db = Database()
+    self.language_code = 'fr'
   
   @commands.Cog.listener()
   async def on_member_update(self, before, after):
@@ -39,7 +40,7 @@ class RoleDM(commands.Cog):
         if fetched:
           message = (fetched [0]).replace("$member", before.mention).replace("$role", f"<@&{role_id}>")
         else:
-          message = f"Bienveue {before.mention} ! Le message de bienvenue n'existe pas encore !"
+          message = self.utils.get_text(self.language_code, 'welcome_user_welcome_message_not_found').format(before.mention)
         # send
         await before.send (message)
 
@@ -140,7 +141,7 @@ class RoleDM(commands.Cog):
       print (f"{type(e).__name__} - {e}")
       await ctx.message.add_reaction('❌')
       return
-    await ctx.channel.send (f"Nouveau message : `{message}`")
+    await ctx.channel.send (self.utils.get_text(self.language_code, 'display_new_message').format(message))
  
   @commands.command(name='displayroledmmessage', aliases=['drm'])
   async def display_roledm_message(self, ctx, *, role: discord.Role = None):

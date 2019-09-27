@@ -22,6 +22,7 @@ class Gallery(commands.Cog):
     self.utils               = Utils()
     self.logger              = Logs(self.bot)
     self.db                  = Database()
+    self.language_code = 'fr'
 
   @commands.command(name='token')
   async def send_token(self, ctx, member: discord.Member = None):
@@ -38,7 +39,7 @@ class Gallery(commands.Cog):
     error                    = False
     try:
       colour                 = discord.Colour(0)
-      url                    = "Votre jeton:\n"+await self.get_galerie_link(guild_id, member)
+      url                    = self.utils.get_text('fr', 'your_token')+await self.get_galerie_link(guild_id, member)
       sql                    = f"select message from galerie_message where guild_id='{guild_id}'"
       galerie_message        = self.db.fetch_one_line (sql)
       if galerie_message:
@@ -53,7 +54,7 @@ class Gallery(commands.Cog):
       await member.send (content=None, embed=embed)
       await ctx.message.add_reaction('✅')
     except Exception as e:
-      await ctx.message.channel.send (f"Oups il semblerait que {member.display_name} n'ait pas activé l'envoi de messages privés.")
+      await ctx.message.channel.send (self.utils.get_text(self.language_code, 'user_disabled_PM').format(member.display_name))
       print (f" {type(e).__name__} - {e}")
       await ctx.message.add_reaction('❌')
       error                  = True
@@ -229,7 +230,7 @@ class Gallery(commands.Cog):
           embed.timestamp    = datetime.utcnow()
           await member.send (content=None, embed=embed)
         except Exception as e:
-          await message.channel.send (f"Oups il semblerait que tu n'aies pas activé l'envoi de messages privés.")
+          await message.channel.send (self.utils.get_text(self.language_code, 'user_disabled_PM_2'))
           print (f" {type(e).__name__} - {e}")
           error              = True
         await self.logger.log('galerie_log', member, message, error)
