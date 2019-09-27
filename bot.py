@@ -51,15 +51,42 @@ if __name__ == '__main__':
   for extension in initial_extensions:
     bot.load_extension(extension)
 
+
+@bot.check
+async def globally_block_unloaded (ctx):
+  db                         = Database()
+  cog                        = ctx.cog.qualified_name.lower()
+  guild_id                   = ctx.guild.id
+  try:
+    select                   = (   "select   status "
+                                   "from     config_cog "+
+                                   "where "+
+                                   "cog=? "+
+                                   " and "+
+                                   "guild_id=? ;"+
+                                   ""
+                               )
+    fetched                  = db.fetch_one_line (select, [cog, guild_id])
+    
+    return (fetched and fetched [0]==1) or (cog in ["configuration", "help", "loader", "logs"])
+  except Exception as e:
+     return False
+
+@bot.listen()
+async def on_command_error (ctx, error):
+  if type(error).__name__ == "CheckFailure":
+    await ctx.send ("La commande `{0}` n'a pas pu être exécutée. Vérifiez que le cog `{1}` est bien chargé.".format(ctx.command, ctx.cog.qualified_name.lower()))
+  print (f"{type(error).__name__} - {error}")
+
 @bot.event
 async def on_guild_join(guild):
   guild_id                   = guild.id
   # Create default config
   insert                     = [
-     f"insert into config_prefix (`prefix`, `guild_id`) values ('!', '{guild_id}')"
-   , f"insert into config_delay (`delay`, `type_delay`, `guild_id`) values (0, 'nickname', '{guild_id}')"
-   , f"insert into config_delay (`delay`, `type_delay`, `guild_id`) values (0, 'invite', '{guild_id}')"
-   , f"insert into config_delay (`delay`, `type_delay`, `guild_id`) values (0, 'utip_role', '{guild_id}')"
+     f"insert into config_prefix (`prefix`, `guild_id`) values ('!', '{guild_id}') ;"
+   , f"insert into config_delay (`delay`, `type_delay`, `guild_id`) values (0, 'nickname', '{guild_id}') ;"
+   , f"insert into config_delay (`delay`, `type_delay`, `guild_id`) values (0, 'invite', '{guild_id}') ;"
+   , f"insert into config_delay (`delay`, `type_delay`, `guild_id`) values (0, 'utip_role', '{guild_id}') ;"
                                ]
 """
 , "494812563016777729": {"roles":["ModoBot","Bénévoles","Modosdudiscord","Fondateur-admin","Pèsedanslegame","Modosstagiaires","Touristesbienveillant.e.s","Equipedelaplateforme"],"prefixes":["!","?","-"],"create_url":{"invitation":"https://admin.realms-of-fantasy.net/bot.php","gallery":"https://admin.realms-of-fantasy.net/bot-AR.php?"},"invite_delay":"6 months","do_invite":1,"do_token":1,"nickname_delay":"7 days"}

@@ -3,7 +3,7 @@ import sys
 import os
 
 
-class Database:
+class Database():
   def __init__ (self):
     # get the path to project root
     dir_path = os.path.dirname(os.path.realpath(__file__))+'/'
