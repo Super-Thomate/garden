@@ -67,7 +67,8 @@ class Loader(commands.Cog):
 
   @commands.command(name='listcogs', hidden=True, aliases=['lc'])
   async def list_load(self, ctx):
-    """Command which lists all loaded cogs
+    """
+    Command which lists all loaded cogs
     """
     if not self.utils.is_authorized (ctx.author, ctx.guild.id):
       print ("Missing permissions")
@@ -193,3 +194,28 @@ class Loader(commands.Cog):
       print (f"{type(e).__name__} - {e}")
     else:
       await ctx.message.add_reaction('✅')
+
+  @commands.command(name='cogs', hidden=True)
+  async def list_cogs_guild(self, ctx):
+    """
+    Command which lists all loaded cogs for this guild
+    """
+    author                   = ctx.author
+    guild_id                 = ctx.guild.id
+    if not self.utils.is_authorized (author, guild_id):
+      print ("Missing permissions")
+      return
+    if self.utils.is_banned (ctx.command, author, guild_id):
+      await ctx.message.add_reaction('❌')
+      await ctx.author.send ("Vous n'êtes pas autorisé à utiliser cette commande pour le moment.")
+      return
+    all_loaded = ""
+    for cog in self.bot.cogs.values():
+      name                   = cog.qualified_name
+      all_loaded += f"- **{name}**\n"
+    if not len (all_loaded):
+      all_loaded = "**NONE**"
+    try:
+      await ctx.send (all_loaded)
+    except Exception as e:
+      print(f'{type(e).__name__} - {e}')
