@@ -87,6 +87,7 @@ class Database:
       cursor.execute('CREATE TABLE IF NOT EXISTS `config_delay` (`delay` INTEGER NOT NULL, `type_delay` VARCHAR(128) NOT NULL, `guild_id` VARCHAR(256) NOT NULL, PRIMARY KEY (`type_delay`, `guild_id`)) ;')
       cursor.execute('CREATE TABLE IF NOT EXISTS `config_do` (`do` INTEGER NOT NULL, `type_do` VARCHAR(128) NOT NULL, `guild_id` VARCHAR(256) NOT NULL, PRIMARY KEY (`type_do`, `guild_id`)) ;')
       cursor.execute('CREATE TABLE IF NOT EXISTS `config_log` (`channel_id` VARCHAR(256) NOT NULL, `guild_id` VARCHAR(256) NOT NULL, PRIMARY KEY (`guild_id`)) ;')
+      cursor.execute('CREATE TABLE IF NOT EXISTS `config_cog` (`cog` varchar(256) not null, `guild_id` int not null, `status` int not null, primary key (`cog`, `guild_id`)) ;')
       # UTIP COG
       cursor.execute('CREATE TABLE IF NOT EXISTS `utip_role` (`role_id` VARCHAR(256) NOT NULL, `guild_id` VARCHAR(256) NOT NULL, PRIMARY KEY (`role_id`, `guild_id`)) ;')
       cursor.execute('CREATE TABLE IF NOT EXISTS `utip_timer` (`user_id` VARCHAR(256) NOT NULL, `until` INTEGER NOT NULL, `guild_id` VARCHAR(256) NOT NULL, PRIMARY KEY (`user_id`, `guild_id`)) ;')
@@ -106,6 +107,21 @@ class Database:
       cursor.close()
       print (f'ERROR: {type(e).__name__} - {e}')
     cnx.close()
+
+  def update_model(self):
+    cnx = sqlite3.connect (self.path)
+    cursor = cnx.cursor()
+    try:
+      
+      
+      # Save modifications
+      cnx.commit()
+      cursor.close()
+    except Exception as e:
+      cursor.close()
+      print (f'ERROR: {type(e).__name__} - {e}')
+    cnx.close()
+    
 
   def execute_order (self, sql, params=[]):
     cnx = sqlite3.connect (self.path)

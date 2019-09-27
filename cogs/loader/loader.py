@@ -130,12 +130,12 @@ class Loader(commands.Cog):
       select                 = (   "select   status "
                                    "from     config_cog "+
                                    "where "+
-                                  f"guild_id='{guild_id}' "+
+                                   "cog=? "+
                                    " and "+
-                                   " cog=? ;"+
+                                   "guild_id=? ;"+
                                    ""
                                )
-      fetched                = self.db.fetch_one_line (select, [cog])
+      fetched                = self.db.fetch_one_line (select, [cog, guild_id])
       sql                    = ""
       if fetched:
         status               = fetched [0]
@@ -173,12 +173,12 @@ class Loader(commands.Cog):
       select                 = (   "select   status "
                                    "from     config_cog "+
                                    "where "+
-                                  f"guild_id='{guild_id}' "+
+                                   "cog=? "+
                                    " and "+
-                                   " cog=? ;"+
+                                   "guild_id=? ;"+
                                    ""
                                )
-      fetched                = self.db.fetch_one_line (select, [cog])
+      fetched                = self.db.fetch_one_line (select, [cog, guild_id])
       sql                    = ""
       if fetched:
         status               = fetched [0]
