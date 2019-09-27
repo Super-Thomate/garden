@@ -70,6 +70,7 @@ async def globally_block_unloaded (ctx):
     
     return (fetched and fetched [0]==1) or (cog in ["configuration", "help", "loader", "logs"])
   except Exception as e:
+     print (f"{type(e).__name__} - {e}")
      return False
 
 @bot.listen()
