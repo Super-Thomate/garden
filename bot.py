@@ -62,9 +62,6 @@ async def on_guild_join(guild):
    , f"insert into config_delay (`delay`, `type_delay`, `guild_id`) values (0, 'invite', '{guild_id}')"
    , f"insert into config_delay (`delay`, `type_delay`, `guild_id`) values (0, 'utip_role', '{guild_id}')"
                                ]
-"""
-, "494812563016777729": {"roles":["ModoBot","Bénévoles","Modosdudiscord","Fondateur-admin","Pèsedanslegame","Modosstagiaires","Touristesbienveillant.e.s","Equipedelaplateforme"],"prefixes":["!","?","-"],"create_url":{"invitation":"https://admin.realms-of-fantasy.net/bot.php","gallery":"https://admin.realms-of-fantasy.net/bot-AR.php?"},"invite_delay":"6 months","do_invite":1,"do_token":1,"nickname_delay":"7 days"}
-"""
   
 @bot.event
 async def on_ready():
