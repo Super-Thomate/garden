@@ -342,5 +342,8 @@ class Utils():
     return timestamp
 
   def get_text(self, language_code: str, text_key: str) -> str:
-    if language_code == "fr":
-      return self.traduction_fr[text_key]
+    try:
+      if language_code == "fr":
+        return self.traduction_fr[text_key]
+    except KeyError:
+      return f"**KeyError** pour le langage `{language_code}`. Veuillez montrer ce message à un modérateur."
