@@ -9,7 +9,7 @@ from urllib.request import urlopen
 
 class Utils():
   def __init__(self):
-    self.tradution_fr = json.load(open('french.json', 'r'))
+    self.traduction_fr = json.load(open('french.json', 'r'))
 
   def is_authorized (self, member, guild_id):
     #Test server bypasses
@@ -343,4 +343,4 @@ class Utils():
 
   def get_text(self, language_code: str, text_key: str) -> str:
     if language_code == "fr":
-      return self.tradution_fr[text_key]
+      return self.traduction_fr[text_key]

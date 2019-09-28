@@ -142,7 +142,7 @@
   "cant_close_edition_phase": "Vous ne pouvez plus fermer la phase d'édition",
   "ask_new_vote_proposition": "Entrez la nouvelle proposition pour le vote:",
   "ask_prosition_to_delete": "Entrez le numéro de la proposition à retirer:",
-  "vote_phase_end": "<@&{feedback_role_id}> La phase de vote est terminée.",
+  "vote_phase_end": "{0} La phase de vote est terminée.",
   "ask_prosition_to_edit": "Entrez le numéro de la proposition à éditer:",
   "cant_close_vote_phase": "Vous ne pouvez plus fermer la phase de vote",
   "proposition_phase_end_2": "{0} La phase de proposition est terminée.",
