@@ -24,7 +24,7 @@ class Loader(commands.Cog):
     try:
       self.bot.load_extension(f'cogs.{cog}')
     except Exception as e:
-      await ctx.send(f'**`ERROR:`** {type(e).__name__} - {e}')
+      await ctx.send(self.utils.get_text(self.language_code, "exception_error").format(type(e).__name__, e))
     else:
       await ctx.send(self.utils.get_text('fr', 'success'))
 
@@ -42,7 +42,7 @@ class Loader(commands.Cog):
     try:
       self.bot.unload_extension(f'cogs.{cog}')
     except Exception as e:
-      await ctx.send(f'**`ERROR:`** {type(e).__name__} - {e}')
+      await ctx.send(self.utils.get_text(self.language_code, "exception_error").format(type(e).__name__, e))
     else:
       await ctx.send(self.utils.get_text('fr', 'success'))
 
@@ -61,7 +61,7 @@ class Loader(commands.Cog):
       self.bot.unload_extension(f'cogs.{cog}')
       self.bot.load_extension(f'cogs.{cog}')
     except Exception as e:
-      await ctx.send(f'**`ERROR:`** {type(e).__name__} - {e}')
+      await ctx.send(self.utils.get_text(self.language_code, "exception_error").format(type(e).__name__, e))
     else:
       await ctx.send(self.utils.get_text('fr', 'success'))
 

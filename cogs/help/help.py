@@ -22,10 +22,10 @@ class Help(commands.Cog):
       embed = method()
       await ctx.channel.send (content=None, embed=embed)
     except AttributeError as e:
-      await ctx.channel.send (f"Cog **{cog}** unknown")
+      await ctx.channel.send (self.utils.get_text(self.language_code, "unknow_cog").format(cog))
       print (f"{type(e).__name__} - {e}")
     except Exception as e:
-      await ctx.channel.send (f"An error occured: {type(e).__name__} - {e}")
+      await ctx.channel.send (self.utils.get_text(self.language_code, "error_occured").format(type(e).__name__, e))
 
 
   def help_invitation (self):

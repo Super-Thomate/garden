@@ -65,7 +65,7 @@ async def on_guild_join(guild):
 """
 , "494812563016777729": {"roles":["ModoBot","Bénévoles","Modosdudiscord","Fondateur-admin","Pèsedanslegame","Modosstagiaires","Touristesbienveillant.e.s","Equipedelaplateforme"],"prefixes":["!","?","-"],"create_url":{"invitation":"https://admin.realms-of-fantasy.net/bot.php","gallery":"https://admin.realms-of-fantasy.net/bot-AR.php?"},"invite_delay":"6 months","do_invite":1,"do_token":1,"nickname_delay":"7 days"}
 """
-  
+
 @bot.event
 async def on_ready():
   print('------')

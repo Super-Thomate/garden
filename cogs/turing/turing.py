@@ -143,7 +143,7 @@ class Turing(commands.Cog):
     error                    = False
     try:
       await ctx.message.add_reaction('✅')
-      await ctx.send (f"**`HUMOUR REGLE A {percent}`**")
+      await ctx.send(self.utils.get_text(self.language_code, "set_humor_to").format(percent))
     except Exception as e:
       print (f" {type(e).__name__} - {e}")
       error                  = True
@@ -255,9 +255,9 @@ class Turing(commands.Cog):
     if message.guild:
       return
     if self.auto_reply:
-      await message.author.send (f"Bonjour. {self.bot.user.name} n'est pas disponible pour le moment.\n"+
-                                  "Raison : :tools: Maintenance :tools:")
-
+      await message.author.send(self.utils.get_text(
+                                self.language_code, "bot_DM_is_unavailable")
+                                .format(self.bot.user.name))
 
   # UTILS
   async def get_message_general (self, ctx, message_id):

@@ -208,7 +208,7 @@ class Logs(commands.Cog):
       except Exception as e:
         print (f" {type(e).__name__} - {e}")
         if length_or_id == 'id':
-          feedback           = await ctx.send (f"{message_id} n'est pas un id valide.")
+          feedback = await ctx.send(self.utils.get_text(self.language_code, "not_valid_id").format(message_id))
           await feedback.delete (delay=2)
           return
     if not self.utils.is_authorized (member, guild_id):
@@ -241,7 +241,7 @@ class Logs(commands.Cog):
     not_is_pin = lambda message : not message.pinned
     # delete all messages except ping
     deleted = await channel.purge(limit=length, check=not_is_pin)
-    feedback = await channel.send (f"Deleted {len (deleted)} messages")
+    feedback = await channel.send(self.utils.get_text(self.language_code, "deleted_messages").format(len(deleted)))
     await feedback.delete (delay=2)
 
   # Get all the DM and log them
@@ -381,3 +381,10 @@ class Logs(commands.Cog):
         await log_channel.send(content=None, embed=embed)
       except Exception as e:
         print (f" {type(e).__name__} - {e}")
+
+  @commands.Cog.listener()
+  async def on_command_error(self, ctx, exception):
+    if not ctx.command:
+      return
+    if ctx.command.name in ['setbirthdaylog']:
+      await ctx.channel.send(exception)

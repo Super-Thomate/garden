@@ -29,7 +29,7 @@ class Nickname(commands.Cog):
     if not nickname:
       await self.logger.log('nickname_log', member, message, True)
       await ctx.message.add_reaction('❌')
-      await ctx.channel.send (f"Vous n'avez pas donné de pseudo.")
+      await ctx.channel.send(self.utils.get_text(self.language_code, "no_nickname_given"))
       return
     # Check if I can change my nickname
     nickname_delay           = self.utils.nickname_delay (guild_id)
@@ -49,7 +49,10 @@ class Nickname(commands.Cog):
         total_seconds        = duree
         await self.logger.log('nickname_log', member, message, True)
         await ctx.message.add_reaction('❌')
-        await ctx.channel.send (f"Vous avez changé de pseudo récemment.\nIl vous faut attendre encore {self.utils.format_time(total_seconds)}")
+        await ctx.channel.send(self.utils.get_text(
+                                self.language_code,
+                                "user_already_changed_nickname")
+                              .format(self.utils.format_time(total_seconds)))
         return
     # Change my Nickname
     error = False
@@ -69,7 +72,7 @@ class Nickname(commands.Cog):
       try:
         self.db.execute_order (sql, [])
       except Exception as e:
-        await message.channel.send (f'Inscription en db fail !')
+        await message.channel.send(self.utils.get_text(self.language_code, "database_writing_error"))
         print (f'{type(e).__name__} - {e}')
         error = True
     if not error:
@@ -84,7 +87,7 @@ class Nickname(commands.Cog):
       try:
         self.db.execute_order (sql, [nickname])
       except Exception as e:
-        await message.channel.send (f'Inscription en db fail !')
+        await message.channel.send(self.utils.get_text(self.language_code, "database_writing_error"))
         print (f'{type(e).__name__} - {e}')
         error = True
     # Log my change
@@ -139,9 +142,12 @@ class Nickname(commands.Cog):
         total_seconds = duree.days*86400+duree.seconds
         print (f"duree.days: {duree.days}")
         print (f"total_seconds: {total_seconds}")
-        await ctx.send (f"Il vous faut attendre encore {self.utils.format_time(total_seconds)}")
+        await ctx.channel.send(self.utils.get_text(
+                                self.language_code,
+                                "delay_between_nickname")
+                               .format(self.utils.format_time(total_seconds)))
         return
-    await ctx.send (f"Vous pouvez changer de pseudo dès maintenant")
+    await ctx.send(self.utils.get_text(self.language_code, "user_can_change_nickname"))
     
     
   @commands.Cog.listener()

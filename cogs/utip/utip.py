@@ -196,7 +196,7 @@ class Utip(commands.Cog):
       await ctx.message.add_reaction('❌')
     else:
       await ctx.message.add_reaction('✅')
-      await ctx.channel.send (f"Nouveau message : `{message}`")
+      await ctx.channel.send(self.utils.get_text(self.language_code, "display_new_message").format(message))
   
   @commands.command(name='setutipdelay', aliases=['utipdelay', 'sud'])
   async def set_utip_delay(self, ctx):
@@ -218,7 +218,7 @@ class Utip(commands.Cog):
       delay                  = self.utils.parse_time (message)
     except Exception as e:
       await ctx.message.add_reaction('❌')
-      await ctx.channel.send (f"Le délai doit être au format jhms ~~{message}~~")
+      await ctx.channel.send(self.utils.get_text(self.language_code, "utip_delay_error").format(message))
       return
     prev_galerie_delay       = self.db.fetch_one_line (sql)
     if not prev_galerie_delay:

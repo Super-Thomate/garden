@@ -138,7 +138,7 @@ class Vote(commands.Cog):
       select = f"select message_id from vote_message where channel_id={ctx.channel.id} and closed=0"
       fetched = self.db.fetch_one_line (select)
       if not fetched:
-        await ctx.send (f"Aucun message de vote valide n'a été trouvé dans ce salon")
+        await ctx.send(self.utils.get_text(self.language_code, "no_valid_vote_message_found"))
         await self.logger.log('vote_log', ctx.author, ctx.message, True)
         await ctx.message.add_reaction ('❌')
         return
@@ -153,7 +153,7 @@ class Vote(commands.Cog):
         select = f"select message_id from vote_message where guild_id='{ctx.guild.id}' and closed=0 and vote_type=?"
         fetched = self.db.fetch_one_line (select, [message_id_vote_type])
         if not fetched:
-          await ctx.send (f"Aucun message de vote valide n'a été trouvé dans ce salon")
+          await ctx.send(self.utils.get_text(self.language_code, "no_valid_vote_message_found"))
           await self.logger.log('vote_log', ctx.author, ctx.message, True)
           await ctx.message.add_reaction ('❌')
           return
@@ -176,7 +176,7 @@ class Vote(commands.Cog):
       select = f"select message_id from vote_message where channel_id={ctx.channel.id} and closed=0"
       fetched = self.db.fetch_one_line (select)
       if not fetched:
-        await ctx.send (f"Aucun message de vote valide n'a été trouvé dans ce salon")
+        await ctx.send(self.utils.get_text(self.language_code, "no_valid_vote_message_found"))
         await self.logger.log('vote_log', ctx.author, ctx.message, True)
         await ctx.message.add_reaction ('❌')
         return
@@ -192,7 +192,7 @@ class Vote(commands.Cog):
         select = f"select message_id from vote_message where guild_id='{ctx.guild.id}' and closed=0 and vote_type=?"
         fetched = self.db.fetch_one_line (select, [message_id_vote_type])
         if not fetched:
-          await ctx.send (f"Aucun message de vote valide n'a été trouvé dans ce salon")
+          await ctx.send(self.utils.get_text(self.language_code, "no_valid_vote_message_found"))
           await self.logger.log('vote_log', ctx.author, ctx.message, True)
           await ctx.message.add_reaction ('❌')
           return
@@ -215,7 +215,7 @@ class Vote(commands.Cog):
       select = f"select message_id from vote_message where channel_id={ctx.channel.id} and closed=0"
       fetched = self.db.fetch_one_line (select)
       if not fetched:
-        await ctx.send (f"Aucun message de vote valide n'a été trouvé dans ce salon")
+        await ctx.send(self.utils.get_text(self.language_code, "no_valid_vote_message_found"))
         await self.logger.log('vote_log', ctx.author, ctx.message, True)
         await ctx.message.add_reaction ('❌')
         return
@@ -231,7 +231,7 @@ class Vote(commands.Cog):
         select = f"select message_id from vote_message where guild_id='{ctx.guild.id}' and closed=0 and vote_type=?"
         fetched = self.db.fetch_one_line (select, [message_id_vote_type])
         if not fetched:
-          await ctx.send (f"Aucun message de vote valide n'a été trouvé dans ce salon")
+          await ctx.send(self.utils.get_text(self.language_code, "no_valid_vote_message_found"))
           await self.logger.log('vote_log', ctx.author, ctx.message, True)
           await ctx.message.add_reaction ('❌')
           return
@@ -371,11 +371,11 @@ class Vote(commands.Cog):
           vote_msg = await ctx.channel.fetch_message (message_id)
         except Exception as e:
           if type(e).__name__ == "NotFound":
-            await ctx.send (f"MessageID {message_id} does not correspond to a message on this channel")
+            await ctx.send(self.utils.get_text(self.language_code, "no_valid_vote_message_found"))
           elif type(e).__name__ == "Forbidden":
-            await ctx.send (f"Permission denied.")
+            await ctx.send(self.utils.get_text(self.language_code, "permission_denied"))
           else:
-            await ctx.send (f"Unknown error : {type(e).__name__} - {e}")
+            await ctx.send(self.utils.get_text(self.language_code, "unknow_error").format(type(e).__name__, e))
           await self.logger.log('vote_log', author, ctx.message, True)
           await ctx.message.add_reaction ('❌')
           return
@@ -512,7 +512,7 @@ class Vote(commands.Cog):
       select = f"select message_id from vote_message where channel_id={ctx.channel.id} and closed=0 ;"
       fetched = self.db.fetch_one_line (select)
       if not fetched:
-        await ctx.send (f"Aucun message de vote valide n'a été trouvé dans ce salon")
+        await ctx.send(self.utils.get_text(self.language_code, "no_valid_vote_message_found"))
         await self.logger.log('vote_log', author, ctx.message, True)
         await ctx.message.add_reaction ('❌')
         return    # Send 'Hi what is your proposition'
@@ -533,7 +533,7 @@ class Vote(commands.Cog):
     sql = f"select channel_id,closed,month,year from vote_message where message_id='{message_id}' and guild_id='{guild_id}'"
     fetched = self.db.fetch_one_line (sql)
     if not fetched:
-      await ctx.send (f"MessageID {message_id} does not correspond to a vote")
+      await ctx.send(self.utils.get_text(self.language_code, "message_not_found_in_channel").format(message_id))
       await self.logger.log('vote_log', author, ctx.message, True)
       await ctx.message.add_reaction ('❌')
       return
@@ -551,11 +551,11 @@ class Vote(commands.Cog):
       vote_msg               = await channel.fetch_message (message_id)
     except Exception as e:
       if type(e).__name__ == "NotFound":
-        await ctx.send (f"MessageID {message_id} does not correspond to a message on this channel")
+        await ctx.send(self.utils.get_text(self.language_code, "message_not_found_in_channel").format(message_id))
       elif type(e).__name__ == "Forbidden":
-        await ctx.send (f"Permission denied.")
+        await ctx.send(self.utils.get_text(self.language_code, "permission_denied"))
       else:
-        await ctx.send (f"Unknown error : {type(e).__name__} - {e}")
+        await ctx.send(self.utils.get_text(self.language_code, "unknow_error").format(type(e).__name__, e))
       await self.logger.log('vote_log', author, ctx.message, True)
       await ctx.message.add_reaction ('❌')
       return
@@ -797,7 +797,7 @@ class Vote(commands.Cog):
              error = True
         else:
           error = True
-          await ctx.send (f"La proposion #{proposition_id} n'a pas été trouvée. Elle n'existe pas ou vous n'avez pas la permission de l'éditer.")
+          await ctx.send(self.utils.get_text(self.language_code, "proposition_not_found").format(f'#{proposition_id}'))
     elif handle == "edit_proposition":
       try:
         proposition_id = int (msg.content)
@@ -879,7 +879,7 @@ class Vote(commands.Cog):
            await ask_emoji.delete(delay=0.5)
         else:
           error = True
-          await ctx.send (f"La proposion #{proposition_id} n'a pas été trouvée. Elle n'existe pas ou vous n'avez pas la permission de l'éditer.")
+          await ctx.send(self.utils.get_text(self.language_code, "proposition_not_found").format(f'#{proposition_id}'))
 
     await vote_msg.edit (embed=embed)
     if error:

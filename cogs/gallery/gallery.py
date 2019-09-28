@@ -111,7 +111,7 @@ class Gallery(commands.Cog):
       self.db.execute_order(sql, [message])
     except Exception as e:
       print (f"{type(e).__name__} - {e}")
-    await ctx.channel.send (f"Nouveau message : `{message}`")
+    await ctx.channel.send(self.utils.get_text(self.language_code, "display_new_message").format(message))
 
 
   @commands.command(name='setgallerydelay', aliases=['sgd'])

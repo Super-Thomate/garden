@@ -135,10 +135,7 @@ async def vote_tasks ():
                     feedback_role_id   = int (fetched [0])
                     feedback_channel_id          = int (fetched [1])
                     feedback_channel   = guild.get_channel (feedback_channel_id)
-                    await feedback_channel.send (f"<@&{feedback_role_id}>"+
-                                                  " La phase de proposition"+
-                                                  " est terminée."
-                                                )
+                    await feedback_channel.send (utils.get_text(language_code, "proposition_phase_end_2").format(f'<@&{feedback_role_id}>'))
                   else:
                     # nothing => send DM to author
                     await guild.get_member(author_id).send (utils.get_text('fr', 'proposition_phase_end_3'))
@@ -187,7 +184,7 @@ async def vote_tasks ():
                     feedback_role_id   = int (fetched [0])
                     feedback_channel_id          = int (fetched [1])
                     feedback_channel   = guild.get_channel (feedback_channel_id)
-                    await feedback_channel.send (f"<@&{feedback_role_id}> La phase de vote est terminée.")
+                    await feedback_channel.send(utils.get_text(language_code, "proposition_phase_end_2").format(f'<@&{feedback_role_id}>'))
                   else:
                     # nothing => send DM to author
                     await guild.get_member(author_id).send (utils.get_text('fr', 'vote_phase_end_2'))
@@ -307,7 +304,7 @@ async def birthday_task():
 
     get_birthday_message(guild_id, member_id)
 
-    await birthday_channel.send(f'Joyeux anniversaire a <@{member_id}> !! :confetti_ball:')
+    await birthday_channel.send(get_birthday_message(guild_id, member_id))
     sql = f"UPDATE birthday_user SET last_year_wished='{current_year}' WHERE user_id='{member_id}'"
 
     try:

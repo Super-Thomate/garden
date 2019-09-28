@@ -158,7 +158,7 @@ class Welcome(commands.Cog):
     try:
       self.db.execute_order (sql, [])
     except Exception as e:
-      await ctx.channel.send (f'Inscription en db fail !')
+      await ctx.channel.send(self.utils.get_text(self.language_code, "database_writing_error"))
       print (f'{type(e).__name__} - {e}')
       error = True
     # Log my change
@@ -198,7 +198,7 @@ class Welcome(commands.Cog):
       self.db.execute_order(sql, [message])
     except Exception as e:
       print (f"{type(e).__name__} - {e}")
-    await ctx.channel.send (f"Nouveau message : `{message}`")
+    await ctx.channel.send(self.utils.get_text(self.language_code, "display_new_message").format(message))
     # await self.logger.log('welcome_log', ctx.author, ctx.message, error) # no logs
 
   @commands.command(name='updatewelcome', aliases=['uw'])

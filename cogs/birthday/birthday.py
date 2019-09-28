@@ -71,7 +71,7 @@ class Birthday(commands.Cog):
     await self.logger.log('birthday_log', ctx.author, ctx.message, error)
 
   @commands.command(name="setbirthdaychannel", aliases=['sbc'])
-  async def set_birthday_channel(self, ctx, channel_id: str = None):
+  async def set_birthday_channel(self, ctx, channel_id: discord.TextChannel = None):
     """Save channel where birthday will be wished. Param: channel ID"""
     guild_id = ctx.guild.id
     channel_id = channel_id or ctx.channel.id
@@ -97,12 +97,13 @@ class Birthday(commands.Cog):
       await ctx.send(self.utils.get_text(self.language_code, 'database_writing_error'))
       print(f"{type(e).__name__} - {e}")
 
-    await ctx.send(self.utils.get_text(self.language_code, 'birthday_channel_set').format(channel_id))
+    await ctx.send(self.utils.get_text(self.language_code, 'birthday_channel_set').format(f'<#{channel_id}>'))
 
   @commands.command(name='resetbirthday', aliases=['rb'])
-  async def reset_birthday(self, ctx, member_id: str = None):
+  async def reset_birthday(self, ctx, member: discord.Member = None):
     guild_id = ctx.guild.id
     error = False
+    member = member or ctx.author
     if not self.utils.is_authorized(ctx.author, guild_id):
       print("Missing permissions")
       return
@@ -110,13 +111,20 @@ class Birthday(commands.Cog):
       await ctx.send(self.utils.get_text(self.language_code, 'user_unauthorized_use_command'))
       await ctx.message.add_reaction('❌')
       return
-    if member_id is None:
+    if member is None:
       await ctx.send(self.utils.get_text(self.language_code, 'parameter_is_mandatory').format("memberID"))
       await ctx.message.add_reaction('❌')
       await self.logger.log('birthday_log', ctx.author, ctx.message, True)
       return
 
-    sql = f"DELETE FROM birthday_user WHERE user_id='{member_id}'"
+    sql = f"SELECT user_id FROM birthday_user WHERE user_id={member.id} and guild_id={ctx.guild.id}"
+    member_in_db = self.db.fetch_one_line(sql)
+    if not member_in_db:
+      await ctx.send(self.utils.get_text(self.language_code, "user_not_in_database").format(member.mention, 'birthday_user'))
+      return
+
+
+    sql = f"DELETE FROM birthday_user WHERE user_id='{member.id}'"
     try:
       self.db.execute_order(sql, [])
     except Exception as e:
@@ -124,7 +132,7 @@ class Birthday(commands.Cog):
       await ctx.send(self.utils.get_text(self.language_code, 'database_writing_error'))
       print(f"{type(e).__name__} - {e}")
 
-    await ctx.send(self.utils.get_text(self.language_code, 'user_birthday_reset').format(member_id))
+    await ctx.send(self.utils.get_text(self.language_code, 'user_birthday_reset').format(member.mention))
     await self.logger.log('birthday_log', ctx.author, ctx.message, error)
 
   @commands.command(name='setbirthdaymessage', aliases=['birthdaymessage', 'sbm'])
@@ -157,3 +165,10 @@ class Birthday(commands.Cog):
       await ctx.message.add_reaction('❌')
       return
     await ctx.channel.send(self.utils.get_text(self.language_code, 'display_new_message').format(message))
+
+  @commands.Cog.listener()
+  async def on_command_error(self, ctx, exception):
+    if not ctx.command:
+      return
+    if ctx.command.name in ['resetbirthday', 'setbirthdaychannel']:
+      await ctx.channel.send(exception)

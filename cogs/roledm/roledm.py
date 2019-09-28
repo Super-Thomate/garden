@@ -162,6 +162,6 @@ class RoleDM(commands.Cog):
     sql = f"select message from roledm_message where guild_id='{guild_id}' and role_id='{role_id}' ;"
     prev_roledm_message = self.db.fetch_one_line (sql)
     if not prev_roledm_message:
-      await ctx.channel.send (f"Aucun message de définit pour le role {role.name}")
+      await ctx.channel.send(self.utils.get_text(self.language_code, "no_message_defined_for_role").format(role.name))
     else:
       await ctx.channel.send (prev_roledm_message[0])

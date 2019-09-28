@@ -54,7 +54,8 @@ class Invitation(commands.Cog):
       await member.send (content=None, embed=embed)
       await ctx.message.add_reaction('✅')
     except Exception as e:
-      await ctx.message.channel.send (f"Oups il semblerait que {member.display_name} n'ait pas activé l'envoi de messages privés.")
+      await ctx.message.channel.send (self.utils.get_text(self.language_code, "user_disabled_PM").format(member.display_name))
+
       print (f"{type(e).__name__} - {e}")
       await ctx.message.add_reaction('❌')
       error = True
@@ -129,7 +130,7 @@ class Invitation(commands.Cog):
       self.db.execute_order(sql, [message])
     except Exception as e:
       print (f"{type(e).__name__} - {e}")
-    await ctx.channel.send (f"Nouveau message : `{message}`")
+    await ctx.channel.send(self.utils.get_text(self.language_code, "display_new_message"))
 
   @commands.command(name='setinvitedelay', aliases=['sid'])
   async def set_invite_delay(self, ctx, delay: str = None):
@@ -210,7 +211,7 @@ class Invitation(commands.Cog):
             if duree > 0:
               await message.add_reaction('❌')
               error          = True
-              feedback       = await message.channel.send(f"Vous avez déjà demandé une invitation récemment.\nIl vous faut attendre encore {self.utils.format_time(duree)}")
+              feedback       = await message.channel.send(self.utils.get_text(self.language_code, "user_already_ask_invitation").format(self.utils.format_time(duree)))
               await self.logger.log_dm('invite_log', self.bot.user, feedback, guild, error)
           if not error:
             try:
@@ -230,7 +231,7 @@ class Invitation(commands.Cog):
               embed.timestamp          = datetime.utcnow()
               await member.send (content=None, embed=embed)
             except Exception as e:
-              await message.channel.send (f"Oups il semblerait que tu n'aies pas activé l'envoi de messages privés.")
+              await message.channel.send(self.utils.get_text(self.language_code, "user_disabled_PM_2"))
               print (f" {type(e).__name__} - {e}")
               error          = True
           if not error:
@@ -281,7 +282,7 @@ class Invitation(commands.Cog):
           if duree > 0:
             await self.logger.log('invite_log', member, message, True)
             await message.add_reaction('❌')
-            await message.channel.send(f"Vous avez déjà demandé une invitation récemment.\nIl vous faut attendre encore {self.utils.format_time(duree)}")
+            await message.channel.send(self.utils.get_text(self.language_code, "user_already_ask_invitation").format(self.utils.format_time(duree)))
             return
         try:
           colour             = discord.Colour(0)
@@ -300,7 +301,7 @@ class Invitation(commands.Cog):
           embed.timestamp    = datetime.utcnow()
           await member.send (content=None, embed=embed)
         except Exception as e:
-          await message.channel.send (f"Oups il semblerait que tu n'aies pas activé l'envoi de messages privés.")
+          await message.channel.send(self.utils.get_text(self.language_code, "user_disabled_PM_2"))
           print (f" {type(e).__name__} - {e}")
           error              = True
         if not error:
@@ -314,7 +315,7 @@ class Invitation(commands.Cog):
           try:
             self.db.execute_order (sql)
           except Exception as e:
-            await message.channel.send (f'Inscription en db fail !')
+            await message.channel.send(self.utils.get_text(self.language_code, "database_writing_error"))
             print (f'{type(e).__name__} - {e}')
             error            = True
         await self.logger.log('invite_log', member, message, error)
