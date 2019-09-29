@@ -22,7 +22,6 @@ class Welcome(commands.Cog):
     self.utils = Utils()
     self.logger = Logs(self.bot)
     self.db = Database()
-    self.language_code = 'fr'
 
   @commands.Cog.listener()
   async def on_member_update(self, before, after):
@@ -84,7 +83,7 @@ class Welcome(commands.Cog):
            """
            message = text.replace("$member", before.mention).replace("$role", f"<@&{role_id}>")
         else:
-           message = self.utils.get_text(self.language_code, 'welcome_user_1').format(before.mention)
+           message = self.utils.get_text(guild_id, 'welcome_user_1').format(before.mention)
         # send
         await channel.send (message)
         # save welcome
@@ -107,11 +106,11 @@ class Welcome(commands.Cog):
       return
     if self.utils.is_banned (ctx.command, ctx.author, ctx.guild.id):
       await ctx.message.add_reaction('❌')
-      await ctx.author.send(self.utils.get_text(self.language_code, "user_unauthorized_use_command"))
+      await ctx.author.send(self.utils.get_text(ctx.guild.id, "user_unauthorized_use_command"))
       return
     if not role:
       # error
-      await ctx.send(self.utils.get_text(self.language_code, "parameter_is_mandatory").format('<role>'))
+      await ctx.send(self.utils.get_text(ctx.guild.id, "parameter_is_mandatory").format('<role>'))
       await self.logger.log('nickname_log', ctx.author, ctx.message, True)
       return
     role_id = role.id
@@ -146,7 +145,7 @@ class Welcome(commands.Cog):
       return
     if self.utils.is_banned (ctx.command, ctx.author, ctx.guild.id):
       await ctx.message.add_reaction('❌')
-      await ctx.author.send(self.utils.get_text(self.language_code, "user_unauthorized_use_command"))
+      await ctx.author.send(self.utils.get_text(ctx.guild.id, "user_unauthorized_use_command"))
       return
     error = False
     select = f"select * from welcome_channel where guild_id='{guild_id}' ;"
@@ -158,7 +157,7 @@ class Welcome(commands.Cog):
     try:
       self.db.execute_order (sql, [])
     except Exception as e:
-      await ctx.channel.send(self.utils.get_text(self.language_code, "database_writing_error"))
+      await ctx.channel.send(self.utils.get_text(ctx.guild.id, "database_writing_error"))
       print (f'{type(e).__name__} - {e}')
       error = True
     # Log my change
@@ -177,13 +176,13 @@ class Welcome(commands.Cog):
       return
     if self.utils.is_banned (ctx.command, ctx.author, ctx.guild.id):
       await ctx.message.add_reaction('❌')
-      await ctx.author.send(self.utils.get_text(self.language_code, "user_unauthorized_use_command"))
+      await ctx.author.send(self.utils.get_text(ctx.guild.id, "user_unauthorized_use_command"))
       return
     if not role:
       await ctx.message.add_reaction('❌')
-      await ctx.send(self.utils.get_text(self.language_code, "parameter_is_mandatory").format('<role>'))
+      await ctx.send(self.utils.get_text(ctx.guild.id, "parameter_is_mandatory").format('<role>'))
       return
-    await ctx.send(self.utils.get_text(self.language_code, "ask_new_welcome_message"))
+    await ctx.send(self.utils.get_text(ctx.guild.id, "ask_new_welcome_message"))
     check = lambda m: m.channel == ctx.channel and m.author == ctx.author
     msg = await self.bot.wait_for('message', check=check)
     message = msg.content
@@ -198,7 +197,7 @@ class Welcome(commands.Cog):
       self.db.execute_order(sql, [message])
     except Exception as e:
       print (f"{type(e).__name__} - {e}")
-    await ctx.channel.send(self.utils.get_text(self.language_code, "display_new_message").format(message))
+    await ctx.channel.send(self.utils.get_text(ctx.guild.id, "display_new_message").format(message))
     # await self.logger.log('welcome_log', ctx.author, ctx.message, error) # no logs
 
   @commands.command(name='updatewelcome', aliases=['uw'])
@@ -210,12 +209,12 @@ class Welcome(commands.Cog):
       return
     if self.utils.is_banned (ctx.command, ctx.author, ctx.guild.id):
       await ctx.message.add_reaction('❌')
-      await ctx.author.send(self.utils.get_text(self.language_code, "user_unauthorized_use_command"))
+      await ctx.author.send(self.utils.get_text(ctx.guild.id, "user_unauthorized_use_command"))
       return
     select                   = f"select role_id from welcome_role where guild_id='{guild_id}'"
     fetched_all              = self.db.fetch_all_line (select)
     if not fetched_all:
-      await ctx.send(self.utils.get_text(self.language_code, "no_role_defined"))
+      await ctx.send(self.utils.get_text(ctx.guild.id, "no_role_defined"))
       return
     for fetched in fetched_all:
       role_id                = int (fetched [0])
@@ -241,7 +240,7 @@ class Welcome(commands.Cog):
       return
     if self.utils.is_banned (ctx.command, author, ctx.guild.id):
       await ctx.message.add_reaction('❌')
-      await ctx.author.send(self.utils.get_text(self.language_code, "user_unauthorized_use_command"))
+      await ctx.author.send(self.utils.get_text(ctx.guild.id, "user_unauthorized_use_command"))
       return
     member                   = member or author
     delete                   = (   "delete from welcome_user "+

@@ -10,7 +10,6 @@ class Logs(commands.Cog):
     self.bot = bot
     self.db = Database()
     self.utils = Utils()
-    self.language_code = 'fr'
 
   @commands.command(name='setinvitelog', aliases=['setinvite', 'sil', 'invitelog'])
   async def set_invitation_log(self, ctx, channel: discord.TextChannel = None):
@@ -21,7 +20,7 @@ class Logs(commands.Cog):
       return
     if self.utils.is_banned (ctx.command, ctx.author, ctx.guild.id):
       await ctx.message.add_reaction('❌')
-      await ctx.author.send(self.utils.get_text(self.language_code, "user_unauthorized_use_command"))
+      await ctx.author.send(self.utils.get_text(ctx.guild.id, "user_unauthorized_use_command"))
       return
     try:
       log_channel = channel or ctx.message.channel
@@ -32,7 +31,7 @@ class Logs(commands.Cog):
       else:
         sql = f"update invite_log set channel_id='{log_channel.id}' where guild_id='{guild_id}'"
       self.db.execute_order(sql)
-      await log_channel.send(self.utils.get_text(self.language_code, "invitation_log_channel_set"))
+      await log_channel.send(self.utils.get_text(ctx.guild.id, "invitation_log_channel_set"))
     except Exception as e:
       print (f" {type(e).__name__} - {e}")
 
@@ -47,7 +46,7 @@ class Logs(commands.Cog):
       return
     if self.utils.is_banned (ctx.command, ctx.author, ctx.guild.id):
       await ctx.message.add_reaction('❌')
-      await ctx.author.send(self.utils.get_text(self.language_code, "user_unauthorized_use_command"))
+      await ctx.author.send(self.utils.get_text(ctx.guild.id, "user_unauthorized_use_command"))
       return
     try:
       log_channel = channel or ctx.message.channel
@@ -59,7 +58,7 @@ class Logs(commands.Cog):
       else:
         sql = f"update galerie_log set channel_id='{log_channel.id}' where guild_id='{guild_id}'"
       self.db.execute_order(sql, [])
-      await log_channel.send(self.utils.get_text(self.language_code, "gallery_log_channel_set"))
+      await log_channel.send(self.utils.get_text(ctx.guild.id, "gallery_log_channel_set"))
     except Exception as e:
       print (f" {type(e).__name__} - {e}")
 
@@ -72,7 +71,7 @@ class Logs(commands.Cog):
       return
     if self.utils.is_banned (ctx.command, ctx.author, ctx.guild.id):
       await ctx.message.add_reaction('❌')
-      await ctx.author.send(self.utils.get_text(self.language_code, "user_unauthorized_use_command"))
+      await ctx.author.send(self.utils.get_text(ctx.guild.id, "user_unauthorized_use_command"))
       return
     try:
       log_channel = channel or ctx.message.channel
@@ -84,7 +83,7 @@ class Logs(commands.Cog):
       else:
         sql = f"update nickname_log set channel_id='{log_channel.id}' where guild_id='{guild_id}'"
       self.db.execute_order(sql, [])
-      await log_channel.send(self.utils.get_text(self.language_code, "nickname_log_channel_set"))
+      await log_channel.send(self.utils.get_text(ctx.guild.id, "nickname_log_channel_set"))
     except Exception as e:
       print (f" {type(e).__name__} - {e}")
 
@@ -97,7 +96,7 @@ class Logs(commands.Cog):
       return
     if self.utils.is_banned (ctx.command, ctx.author, ctx.guild.id):
       await ctx.message.add_reaction('❌')
-      await ctx.author.send(self.utils.get_text(self.language_code, "user_unauthorized_use_command"))
+      await ctx.author.send(self.utils.get_text(ctx.guild.id, "user_unauthorized_use_command"))
       return
     try:
       log_channel = channel or ctx.message.channel
@@ -109,7 +108,7 @@ class Logs(commands.Cog):
       else:
         sql = f"update vote_log set channel_id='{log_channel.id}' where guild_id='{guild_id}'"
       self.db.execute_order(sql, [])
-      await log_channel.send(self.utils.get_text(self.language_code, "vote_log_channel_set"))
+      await log_channel.send(self.utils.get_text(ctx.guild.id, "vote_log_channel_set"))
     except Exception as e:
       print (f" {type(e).__name__} - {e}")
 
@@ -124,7 +123,7 @@ class Logs(commands.Cog):
       return
     if self.utils.is_banned (ctx.command, ctx.author, ctx.guild.id):
       await ctx.message.add_reaction('❌')
-      await ctx.author.send(self.utils.get_text(self.language_code, "user_unauthorized_use_command"))
+      await ctx.author.send(self.utils.get_text(ctx.guild.id, "user_unauthorized_use_command"))
       return
     try:
       log_channel = channel or ctx.message.channel
@@ -136,7 +135,7 @@ class Logs(commands.Cog):
       else:
         sql = f"update welcome_log set channel_id='{log_channel.id}' where guild_id='{guild_id}'"
       self.db.execute_order(sql, [])
-      await log_channel.send(self.utils.get_text(self.language_code, "welcome_log_channel_set"))
+      await log_channel.send(self.utils.get_text(ctx.guild.id, "welcome_log_channel_set"))
     except Exception as e:
       print (f" {type(e).__name__} - {e}")
 
@@ -150,7 +149,7 @@ class Logs(commands.Cog):
       return
     if self.utils.is_banned(ctx.command, ctx.author, ctx.guild.id):
       await ctx.message.add_reaction('❌')
-      await ctx.author.send(self.utils.get_text(self.language_code, "user_unauthorized_use_command"))
+      await ctx.author.send(self.utils.get_text(ctx.guild.id, "user_unauthorized_use_command"))
       return
     try:
       log_channel = channel or ctx.message.channel
@@ -161,7 +160,7 @@ class Logs(commands.Cog):
       else:
         sql = f"INSERT INTO birthday_log VALUES ('{log_channel.id}', '{guild_id}')"
       self.db.execute_order(sql, [])
-      await log_channel.send(self.utils.get_text(self.language_code, "birthday_log_channel_set"))
+      await log_channel.send(self.utils.get_text(ctx.guild.id, "birthday_log_channel_set"))
     except Exception as e:
       print(f" {type(e).__name__} - {e}")
 
@@ -208,7 +207,7 @@ class Logs(commands.Cog):
       except Exception as e:
         print (f" {type(e).__name__} - {e}")
         if length_or_id == 'id':
-          feedback = await ctx.send(self.utils.get_text(self.language_code, "not_valid_id").format(message_id))
+          feedback = await ctx.send(self.utils.get_text(ctx.guild.id, "not_valid_id").format(message_id))
           await feedback.delete (delay=2)
           return
     if not self.utils.is_authorized (member, guild_id):
@@ -216,7 +215,7 @@ class Logs(commands.Cog):
       return
     if self.utils.is_banned (ctx.command, ctx.author, ctx.guild.id):
       await ctx.message.add_reaction('❌')
-      await ctx.author.send(self.utils.get_text(self.language_code, "user_unauthorized_use_command"))
+      await ctx.author.send(self.utils.get_text(ctx.guild.id, "user_unauthorized_use_command"))
       return
     print ("Let's go !")
     if until_message:
@@ -241,7 +240,7 @@ class Logs(commands.Cog):
     not_is_pin = lambda message : not message.pinned
     # delete all messages except ping
     deleted = await channel.purge(limit=length, check=not_is_pin)
-    feedback = await channel.send(self.utils.get_text(self.language_code, "deleted_messages").format(len(deleted)))
+    feedback = await channel.send(self.utils.get_text(ctx.guild.id, "deleted_messages").format(len(deleted)))
     await feedback.delete (delay=2)
 
   # Get all the DM and log them
@@ -284,7 +283,7 @@ class Logs(commands.Cog):
       return
     if self.utils.is_banned (ctx.command, ctx.author, ctx.guild.id):
       await ctx.message.add_reaction('❌')
-      await ctx.author.send(self.utils.get_text(self.language_code, "user_unauthorized_use_command"))
+      await ctx.author.send(self.utils.get_text(ctx.guild.id, "user_unauthorized_use_command"))
       return
     try:
       log_channel            = channel or ctx.message.channel
@@ -298,7 +297,7 @@ class Logs(commands.Cog):
                                  " where guild_id='{guild_id}' ;"
                                )
       self.db.execute_order(sql)
-      await log_channel.send(self.utils.get_text(self.language_code, "spy_log_channel_set"))
+      await log_channel.send(self.utils.get_text(ctx.guild.id, "spy_log_channel_set"))
     except Exception as e:
       print (f" {type(e).__name__} - {e}")
 
@@ -312,7 +311,7 @@ class Logs(commands.Cog):
       return
     if self.utils.is_banned (ctx.command, ctx.author, ctx.guild.id):
       await ctx.message.add_reaction('❌')
-      await ctx.author.send(self.utils.get_text(self.language_code, "user_unauthorized_use_command"))
+      await ctx.author.send(self.utils.get_text(ctx.guild.id, "user_unauthorized_use_command"))
       return
     try:
       log_channel = channel or ctx.message.channel
@@ -324,7 +323,7 @@ class Logs(commands.Cog):
       else:
         sql = f"update config_log set channel_id='{log_channel.id}' where guild_id='{guild_id}'"
       self.db.execute_order(sql, [])
-      await log_channel.send(self.utils.get_text(self.language_code, "config_log_channel_set"))
+      await log_channel.send(self.utils.get_text(ctx.guild.id, "config_log_channel_set"))
     except Exception as e:
       print (f" {type(e).__name__} - {e}")
 
@@ -338,7 +337,7 @@ class Logs(commands.Cog):
       return
     if self.utils.is_banned (ctx.command, ctx.author, ctx.guild.id):
       await ctx.message.add_reaction('❌')
-      await ctx.author.send(self.utils.get_text(self.language_code, "user_unauthorized_use_command"))
+      await ctx.author.send(self.utils.get_text(ctx.guild.id, "user_unauthorized_use_command"))
       return
     try:
       log_channel = channel or ctx.message.channel
@@ -350,7 +349,7 @@ class Logs(commands.Cog):
       else:
         sql = f"update utip_log set channel_id='{log_channel.id}' where guild_id='{guild_id}'"
       self.db.execute_order(sql, [])
-      await log_channel.send(self.utils.get_text(self.language_code, "utip_log_channel_set"))
+      await log_channel.send(self.utils.get_text(ctx.guild.id, "utip_log_channel_set"))
     except Exception as e:
       print (f" {type(e).__name__} - {e}")
       await ctx.message.add_reaction('❌')

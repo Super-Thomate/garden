@@ -11,7 +11,6 @@ import math
 import random
 
 bot                          = discord.Client()
-language_code = 'fr'
 """
 AUTOBOT
 Manages all recurrent tasks
@@ -20,7 +19,6 @@ Repeat itself every 60 seconds
 # Close proposition phase
 # Close edit phase
 # Close vote phase
-# change language_code according to guild language
 
 """
 run_boy_run                  = True
@@ -135,7 +133,7 @@ async def vote_tasks ():
                     feedback_role_id   = int (fetched [0])
                     feedback_channel_id          = int (fetched [1])
                     feedback_channel   = guild.get_channel (feedback_channel_id)
-                    await feedback_channel.send (utils.get_text(language_code, "proposition_phase_end_2").format(f'<@&{feedback_role_id}>'))
+                    await feedback_channel.send (utils.get_text(guild_id, "proposition_phase_end_2").format(f'<@&{feedback_role_id}>'))
                   else:
                     # nothing => send DM to author
                     await guild.get_member(author_id).send (utils.get_text('fr', 'proposition_phase_end_3'))
@@ -184,7 +182,7 @@ async def vote_tasks ():
                     feedback_role_id   = int (fetched [0])
                     feedback_channel_id          = int (fetched [1])
                     feedback_channel   = guild.get_channel (feedback_channel_id)
-                    await feedback_channel.send(utils.get_text(language_code, "proposition_phase_end_2").format(f'<@&{feedback_role_id}>'))
+                    await feedback_channel.send(utils.get_text(guild_id, "proposition_phase_end_2").format(f'<@&{feedback_role_id}>'))
                   else:
                     # nothing => send DM to author
                     await guild.get_member(author_id).send (utils.get_text('fr', 'vote_phase_end_2'))
@@ -230,7 +228,7 @@ async def utip_tasks ():
             member           = guild.get_member (user_id)
             if member:
               await member.remove_roles(role_utip)
-              await member.send(utils.get_text(language_code, 'user_lost_backer_role'))
+              await member.send(utils.get_text(guild_id, 'user_lost_backer_role'))
               db.execute_order(delete)
               
   except Exception as e:
@@ -282,7 +280,7 @@ def get_birthday_message(guild_id, member_id):
         text = text + current_part
     return text.replace("$member", f"<@{member_id}>")
   else:
-    return utils.get_text(language_code, 'welcome_user_1').format(f"<@{member_id}>")
+    return utils.get_text(guild_id, 'welcome_user_1').format(f"<@{member_id}>")
 
 async def birthday_task():
   db = Database()
@@ -310,7 +308,7 @@ async def birthday_task():
     try:
       db.execute_order(sql, [])
     except Exception as e:
-      await birthday_channel.send(utils.get_text(language_code, 'database_writing_error'))
+      await birthday_channel.send(utils.get_text(guild_id, 'database_writing_error'))
       print(f"{type(e).__name__} - {e}")
 
 

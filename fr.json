@@ -176,6 +176,7 @@
   "message_not_found_in_channel": "L'ID {0} ne correspond à aucun message dans ce channel",
   "database_writing_error": "Erreur d'écriture en base de donnée \uD83D\uDC80",
   "message_id_format_not_valid": "Le paramètre <messageID> doit être un entier",
+  "unknown_language_code": "Le langage `{0}` est inconnu de cette instance.",
   "no_message_defined_for_role": "Aucun message de définit pour le role {0}",
   "parameter_is_mandatory": "Le paramètre {0} est obligatoire.",
   "user_not_in_database": "{0} n'a pas été trouvé.e dans `{1}`",
@@ -193,6 +194,7 @@
 
   "MISCELLANEOUS": "--------------------------------------------------------------------------------------------------",
   "ask_new_welcome_message": "Entrez le message de bienvenue : ",
+  "language_updated": "Langue du bot mise à jour",
   "date_is_before_now": "La date ne peut pas être dans le passé",
   "ask_new_vote_title": "Entrez le nouveau titre du vote:",
   "ask_message_to_send": "Entrez le message à envoyer:",

@@ -7,7 +7,6 @@ class Loader(commands.Cog):
   def __init__(self, bot):
     self.bot = bot
     self.utils = Utils()
-    self.language_code = 'fr'
 
   # Hidden means it won't show up on the default help.
   @commands.command(name='load', hidden=True)
@@ -19,12 +18,12 @@ class Loader(commands.Cog):
       return
     if self.utils.is_banned (ctx.command, ctx.author, ctx.guild.id):
       await ctx.message.add_reaction('❌')
-      await ctx.author.send(self.utils.get_text(self.language_code, "user_unauthorized_use_command"))
+      await ctx.author.send(self.utils.get_text(ctx.guild.id, "user_unauthorized_use_command"))
       return
     try:
       self.bot.load_extension(f'cogs.{cog}')
     except Exception as e:
-      await ctx.send(self.utils.get_text(self.language_code, "exception_error").format(type(e).__name__, e))
+      await ctx.send(self.utils.get_text(ctx.guild.id, "exception_error").format(type(e).__name__, e))
     else:
       await ctx.send(self.utils.get_text('fr', 'success'))
 
@@ -37,12 +36,12 @@ class Loader(commands.Cog):
       return
     if self.utils.is_banned (ctx.command, ctx.author, ctx.guild.id):
       await ctx.message.add_reaction('❌')
-      await ctx.author.send(self.utils.get_text(self.language_code, "user_unauthorized_use_command"))
+      await ctx.author.send(self.utils.get_text(ctx.guild.id, "user_unauthorized_use_command"))
       return
     try:
       self.bot.unload_extension(f'cogs.{cog}')
     except Exception as e:
-      await ctx.send(self.utils.get_text(self.language_code, "exception_error").format(type(e).__name__, e))
+      await ctx.send(self.utils.get_text(ctx.guild.id, "exception_error").format(type(e).__name__, e))
     else:
       await ctx.send(self.utils.get_text('fr', 'success'))
 
@@ -55,13 +54,13 @@ class Loader(commands.Cog):
       return
     if self.utils.is_banned (ctx.command, ctx.author, ctx.guild.id):
       await ctx.message.add_reaction('❌')
-      await ctx.author.send(self.utils.get_text(self.language_code, "user_unauthorized_use_command"))
+      await ctx.author.send(self.utils.get_text(ctx.guild.id, "user_unauthorized_use_command"))
       return
     try:
       self.bot.unload_extension(f'cogs.{cog}')
       self.bot.load_extension(f'cogs.{cog}')
     except Exception as e:
-      await ctx.send(self.utils.get_text(self.language_code, "exception_error").format(type(e).__name__, e))
+      await ctx.send(self.utils.get_text(ctx.guild.id, "exception_error").format(type(e).__name__, e))
     else:
       await ctx.send(self.utils.get_text('fr', 'success'))
 
@@ -74,7 +73,7 @@ class Loader(commands.Cog):
       return
     if self.utils.is_banned (ctx.command, ctx.author, ctx.guild.id):
       await ctx.message.add_reaction('❌')
-      await ctx.author.send(self.utils.get_text(self.language_code, "user_unauthorized_use_command"))
+      await ctx.author.send(self.utils.get_text(ctx.guild.id, "user_unauthorized_use_command"))
       return
     all_loaded = ""
     for name in self.bot.cogs.keys():
@@ -96,7 +95,7 @@ class Loader(commands.Cog):
       return
     if self.utils.is_banned (ctx.command, ctx.author, ctx.guild.id):
       await ctx.message.add_reaction('❌')
-      await ctx.author.send(self.utils.get_text(self.language_code, "user_unauthorized_use_command"))
+      await ctx.author.send(self.utils.get_text(ctx.guild.id, "user_unauthorized_use_command"))
       return
     # `cd ${__dirname}; git branch | grep \\* | awk '{ print $2 }';`
     dir_path = os.path.dirname(os.path.realpath(__file__))+'/'

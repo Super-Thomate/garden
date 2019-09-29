@@ -46,6 +46,7 @@ initial_extensions = [   'cogs.loader'
 
 bot = commands.Bot(command_prefix=get_prefix)
 bot.remove_command("help") # we used our own help command
+db = Database()
 
 # Here we load our extensions(cogs) listed above in [initial_extensions].
 if __name__ == '__main__':
@@ -62,7 +63,7 @@ async def on_guild_join(guild):
    , f"insert into config_delay (`delay`, `type_delay`, `guild_id`) values (0, 'invite', '{guild_id}')"
    , f"insert into config_delay (`delay`, `type_delay`, `guild_id`) values (0, 'utip_role', '{guild_id}')"
                                ]
-  
+
 @bot.event
 async def on_ready():
   print('------')
