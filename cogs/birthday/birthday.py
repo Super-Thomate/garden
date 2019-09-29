@@ -71,18 +71,20 @@ class Birthday(commands.Cog):
     await self.logger.log('birthday_log', ctx.author, ctx.message, error)
 
   @commands.command(name="setbirthdaychannel", aliases=['sbc'])
+  @Utils.require(required=['authorized', 'not_banned'])
   async def set_birthday_channel(self, ctx, channel_id: str = None):
     """Save channel where birthday will be wished. Param: channel ID"""
     guild_id = ctx.guild.id
     channel_id = channel_id or ctx.channel.id
 
-    if not self.utils.is_authorized(ctx.author, guild_id):
+
+    """if not self.utils.is_authorized(ctx.author, guild_id):
       print("Missing permissions")
       return
     if self.utils.is_banned(ctx.command, ctx.author, guild_id):
       await ctx.send("Vous n'êtes pas autorisé à utilisez cette commande pour le moment.")
       await ctx.message.add_reaction('❌')
-      return
+      return"""
 
     sql = f"SELECT channel_id FROM birthday_channel WHERE guild_id='{guild_id}'"
     is_already_set = self.db.fetch_one_line(sql)

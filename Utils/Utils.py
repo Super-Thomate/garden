@@ -7,19 +7,39 @@ import inspect
 from urllib.request import urlopen
 
 class Utils():
-  def is_authorized (self, member, guild_id):
+  @staticmethod
+  def require(required: list):
+    def decorator(f):
+      async def decorated(*args, **kwargs):
+        ctx = args[1]
+        if 'authorized' in required:
+          if not Utils.is_authorized(ctx.author, ctx.guild.id):
+            print("Missing permissions")
+            return
+        if 'not_banned' in required:
+          if Utils.is_banned(ctx.command, ctx.author, ctx.guild.id):
+            await ctx.send("Vous n'êtes pas autorisé à utilisez cette commande pour le moment.")
+            await ctx.message.add_reaction('❌')
+            return
+        return await f(*args, **kwargs)
+      return decorated
+    return decorator
+
+  @staticmethod
+  def is_authorized (member, guild_id):
     #Test server bypasses
     if guild_id == 494812563016777729:
       return True
     # admin can't be blocked
-    if self.is_admin(member):
+    if Utils.is_admin(member):
       return True
     # if perm
-    return self.is_allowed (member, guild_id)
+    return Utils.is_allowed (member, guild_id)
 
-  def is_banned (self, command, member, guild_id):
+  @staticmethod
+  def is_banned (command, member, guild_id):
     # admin can't be blocked
-    if self.is_admin(member):
+    if Utils.is_admin(member):
       return False
     db = Database()
     # ban user
@@ -43,7 +63,7 @@ class Utils():
         except Exception as e:
           print (f"is_banned {type(e).__name__} - {e}")
           return True
-        if self.has_role(role_id, member):
+        if Utils.has_role(role_id, member):
           try:
             until = int (line [0])
           except Exception as e:
@@ -54,7 +74,8 @@ class Utils():
     # neither
     return False
 
-  def is_banned_user (self, command, member, guild_id):
+  @staticmethod
+  def is_banned_user (command, member, guild_id):
     db = Database()
     select = f"select until from ban_command_user where guild_id='{guild_id}' and user_id='{member.id}' and command='{command}' ;"
     fetched = db.fetch_one_line (select)
@@ -67,7 +88,8 @@ class Utils():
       return until > math.floor (time.time()) # still ban
     return False
 
-  def is_banned_role (self, command, member, guild_id):
+  @staticmethod
+  def is_banned_role (command, member, guild_id):
     db = Database()
     select = f"select until,role_id from ban_command_role where guild_id='{guild_id}' and command='{command}' ;"
     fetched = db.fetch_one_line (select)
@@ -77,7 +99,7 @@ class Utils():
       except Exception as e:
         print (f"is_banned {type(e).__name__} - {e}")
         return True
-      if self.has_role(role_id, member):
+      if Utils.has_role(role_id, member):
         try:
           until = int (fetched [0])
         except Exception as e:
@@ -86,23 +108,26 @@ class Utils():
         return until > math.floor (time.time()) # still ban
     return False
 
-  def is_admin (self, member):
+  @staticmethod
+  def is_admin (member):
     # if perm administrator => True
     for perm, value in member.guild_permissions:
       if perm == "administrator" and value:
         return True
     return False
 
-  def is_allowed (self, member, guild_id):
+  @staticmethod
+  def is_allowed (member, guild_id):
     for obj_role in member.roles:
-      if (    (obj_role.id in self.get_roles_modo (guild_id))
+      if (    (obj_role.id in Utils.get_roles_modo (guild_id))
            or (obj_role.name in botconfig.config[str(guild_id)]['roles'])
            or (obj_role.id in botconfig.config[str(guild_id)]['roles'])
          ):
         return True
     return False
 
-  def format_time(self, timestamp):
+  @staticmethod
+  def format_time(timestamp):
     timer = [   ["j", 86400]
               , ["h", 3600]
               , ["m", 60]
@@ -119,7 +144,8 @@ class Utils():
       print ("to ret is empty")
     return to_ret.strip()
 
-  def has_role (self, member, role_id):
+  @staticmethod
+  def has_role (member, role_id):
     try:
       for obj_role in member.roles:
         if obj_role.id == int(role_id):
@@ -128,7 +154,8 @@ class Utils():
       print (f"has_role {type(e).__name__} - {e}")
     return False
 
-  def parse_time(self, timestr):
+  @staticmethod
+  def parse_time(timestr):
     units = {   "j": 86400
               , "h": 3600
               , "m": 60
@@ -149,7 +176,8 @@ class Utils():
         number = number*10 + cast
     return to_ret
 
-  def get_roles_modo (self, guild_id):
+  @staticmethod
+  def get_roles_modo (guild_id):
     db                       = Database()
     all_roles                = []
     select                   = (  "select   role_id "+
@@ -170,7 +198,8 @@ class Utils():
         all_roles.append(int (role_fetched [0]))
     return all_roles
 
-  def debug(self, message):
+  @staticmethod
+  def debug(message):
     """
     Debug function, to use rather than print (message)
     https://stackoverflow.com/questions/6810999/how-to-determine-file-function-and-line-number
@@ -179,7 +208,8 @@ class Utils():
     print (sys._getframe().f_lineno)
     print (info.filename, 'func=%s' % info.function, 'line=%s:' % info.lineno, message)
 
-  def do_invite (self, guild_id):
+  @staticmethod
+  def do_invite (guild_id):
     db                       = Database ()
     select                   = (  "select   do "+
                                   "       , type_do "+
@@ -199,7 +229,8 @@ class Utils():
       return (fetched [0] == 1)
     return False
 
-  def do_token (self, guild_id):
+  @staticmethod
+  def do_token (guild_id):
     db                       = Database ()
     select                   = (  "select   do "+
                                   "       , type_do "+
@@ -219,7 +250,8 @@ class Utils():
       return (fetched [0] == 1)
     return False
 
-  def invite_delay (self, guild_id):
+  @staticmethod
+  def invite_delay (guild_id):
     db                       = Database ()
     select                   = (  "select   delay "+
                                   "       , type_delay "+
@@ -239,7 +271,8 @@ class Utils():
       return fetched [0]
     return None
 
-  def nickname_delay (self, guild_id):
+  @staticmethod
+  def nickname_delay (guild_id):
     db                       = Database ()
     select                   = (  "select   delay "+
                                   "       , type_delay "+
@@ -259,7 +292,8 @@ class Utils():
       return fetched [0]
     return None
 
-  def invite_url (self, guild_id):
+  @staticmethod
+  def invite_url (guild_id):
     db                       = Database ()
     select                   = (  "select   url "+
                                   "       , type_url "+
@@ -276,7 +310,8 @@ class Utils():
       return fetched [0]
     return ""
 
-  def token_url (self, guild_id):
+  @staticmethod
+  def token_url (guild_id):
     db                       = Database ()
     select                   = (  "select   url "+
                                   "       , type_url "+
@@ -293,7 +328,8 @@ class Utils():
       return fetched [0]
     return ""
 
-  def is_valid_url (self, url):
+  @staticmethod
+  def is_valid_url (url):
     import re
     regex = re.compile(
         r'^https?://'  # http:// or https://
@@ -304,8 +340,9 @@ class Utils():
         r'(?:/?|[/?]\S+)$', re.IGNORECASE)
     return url is not None and regex.search(url)
 
-  def is_url_image (self, image_url):
-    if not self.is_valid_url(image_url):
+  @staticmethod
+  def is_url_image (image_url):
+    if not Utils.is_valid_url(image_url):
       return False
     image_formats            = ("image/png", "image/jpeg", "image/jpg")
     try:
@@ -316,7 +353,8 @@ class Utils():
       return False
     return meta["content-type"] in image_formats
 
-  def convert_str_to_time (self, time_string):
+  @staticmethod
+  def convert_str_to_time (time_string):
     time_array = time_string.split(" ")
     print(f"time_array: {time_array}")
     timestamp = 0
