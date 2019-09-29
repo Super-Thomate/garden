@@ -1,6 +1,8 @@
 import discord
 from discord.ext import commands
 
+from Utils import Utils
+
 
 class Poll(commands.Cog):
   def __init__(self, bot):
@@ -8,6 +10,7 @@ class Poll(commands.Cog):
   
   @commands.command(name='poll', aliases=['ask'])
   @commands.guild_only()
+  @Utils.require(required=['authorized', 'not_banned'])
   async def do_poll(self, ctx, *args):
     """ Create a poll
     """

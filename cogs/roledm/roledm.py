@@ -1,8 +1,9 @@
 import discord
 from discord.ext import commands
+
 from Utils import Utils
-from ..logs import Logs
 from database import Database
+from ..logs import Logs
 
 
 class RoleDM(commands.Cog):
@@ -44,19 +45,13 @@ class RoleDM(commands.Cog):
         await before.send (message)
 
   @commands.command(name='setroledm', aliases=['sr', 'roledm'])
+  @Utils.require(required=['authorized', 'not_banned'])
   async def set_roledm_role(self, ctx, *, role: discord.Role = None):
     """
     Set roledm role
     @params discord.Role role
     """
     guild_id = ctx.guild.id
-    if not self.utils.is_authorized (ctx.author, guild_id):
-      print ("Missing permissions")
-      return
-    if self.utils.is_banned (ctx.command, ctx.author, ctx.guild.id):
-      await ctx.message.add_reaction('❌')
-      await ctx.author.send ("Vous n'êtes pas autorisé à utiliser cette commande pour le moment.")
-      return
     if not role:
       # error
       await ctx.send ("Paramètre manquant `role`.")
@@ -77,19 +72,13 @@ class RoleDM(commands.Cog):
       await ctx.message.add_reaction('✅')
 
   @commands.command(name='unsetroledm', aliases=['ur', 'uroledm'])
+  @Utils.require(required=['authorized', 'not_banned'])
   async def unset_roledm_role(self, ctx, *, role: discord.Role = None):
     """
     Unset roledm role
     @params discord.Role role
     """
     guild_id = ctx.guild.id
-    if not self.utils.is_authorized (ctx.author, guild_id):
-      print ("Missing permissions")
-      return
-    if self.utils.is_banned (ctx.command, ctx.author, ctx.guild.id):
-      await ctx.message.add_reaction('❌')
-      await ctx.author.send ("Vous n'êtes pas autorisé à utiliser cette commande pour le moment.")
-      return
     if not role:
       # error
       await ctx.send ("Paramètre manquant `role`.")
@@ -107,16 +96,10 @@ class RoleDM(commands.Cog):
       await ctx.message.add_reaction('❌')
 
   @commands.command(name='setroledmmessage', aliases=['roledmmessage', 'srm'])
+  @Utils.require(required=['authorized', 'not_banned'])
   async def set_roledm_message(self, ctx, *, role: discord.Role = None):
     guild_id = ctx.message.guild.id
     member = ctx.author
-    if not self.utils.is_authorized (member, guild_id):
-      print ("Missing permissions")
-      return
-    if self.utils.is_banned (ctx.command, ctx.author, ctx.guild.id):
-      await ctx.message.add_reaction('❌')
-      await ctx.author.send ("Vous n'êtes pas autorisé à utiliser cette commande pour le moment.")
-      return
     if not role:
       await ctx.send ("Paramètre manquant `role`")
       await ctx.message.add_reaction('❌')
@@ -143,16 +126,9 @@ class RoleDM(commands.Cog):
     await ctx.channel.send (f"Nouveau message : `{message}`")
  
   @commands.command(name='displayroledmmessage', aliases=['drm'])
+  @Utils.require(required=['authorized', 'not_banned'])
   async def display_roledm_message(self, ctx, *, role: discord.Role = None):
     guild_id = ctx.message.guild.id
-    member = ctx.author
-    if not self.utils.is_authorized (member, guild_id):
-      print ("Missing permissions")
-      return
-    if self.utils.is_banned (ctx.command, ctx.author, ctx.guild.id):
-      await ctx.message.add_reaction('❌')
-      await ctx.author.send ("Vous n'êtes pas autorisé à utiliser cette commande pour le moment.")
-      return
     if not role:
       await ctx.send ("Paramètre manquant `role`")
       await ctx.message.add_reaction('❌')

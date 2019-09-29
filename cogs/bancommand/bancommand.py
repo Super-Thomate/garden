@@ -1,13 +1,13 @@
+import math
+import time
+from datetime import datetime
+
 import discord
 from discord.ext import commands
-from datetime import datetime
-from datetime import timezone
-from ..logs import Logs
-from database import Database
+
 from Utils import Utils
-import random
-import time
-import math
+from database import Database
+from ..logs import Logs
 
 
 class Bancommand(commands.Cog):
@@ -30,12 +30,10 @@ class Bancommand(commands.Cog):
     self.db = Database()
 
   @commands.command(name='bancommanduser', aliases=['bcu'])
+  @Utils.require(required=['authorized'])
   async def ban_command_user(self, ctx, command: str = None, user: discord.Member = None, timer: str = None):
     guild_id = ctx.message.guild.id
     author = ctx.author
-    if not self.utils.is_authorized (author, guild_id):
-      print ("Missing permissions")
-      return
     # Check if command exists
     all_commands = self.bot.commands
     cont_after = False
@@ -98,14 +96,12 @@ class Bancommand(commands.Cog):
     except Exception as e:
       print (f'{type(e).__name__} - {e}')
       await ctx.message.add_reaction('❌')
-    
+
   @commands.command(name='unbancommanduser', aliases=['ucu'])
+  @Utils.require(required=['authorized'])
   async def unban_command_user(self, ctx, command: str = None, user: discord.Member = None):
     guild_id = ctx.message.guild.id
     author = ctx.author
-    if not self.utils.is_authorized (author, guild_id):
-      print ("Missing permissions")
-      return
     # Check if command exists
     all_commands = self.bot.commands
     cont_after = False
@@ -132,15 +128,12 @@ class Bancommand(commands.Cog):
     except Exception as e:
       print (f'{type(e).__name__} - {e}')
       await ctx.message.add_reaction('❌')
-    
-    
+
   @commands.command(name='isbanuser', aliases=['ibu'])
+  @Utils.require(required=['authorized'])
   async def is_ban_user(self, ctx, user: discord.Member = None):
     guild_id = ctx.message.guild.id
     author = ctx.author
-    if not self.utils.is_authorized (author, guild_id):
-      print ("Missing permissions")
-      return
     if not user:
       await ctx.send ("Paramètre user manquant")
     select = (   "select command, until, user_id from ban_command_user "+
@@ -181,12 +174,10 @@ class Bancommand(commands.Cog):
     print (f"to_ret: {to_ret}")
     
   @commands.command(name='listbanuser', aliases=['lbu'])
+  @Utils.require(required=['authorized'])
   async def list_ban_user(self, ctx, command: str = None):
     guild_id = ctx.message.guild.id
     author = ctx.author
-    if not self.utils.is_authorized (author, guild_id):
-      print ("Missing permissions")
-      return
     if command:
       # Check if command exists
       all_commands = self.bot.commands
@@ -244,12 +235,10 @@ class Bancommand(commands.Cog):
     print (f"to_ret: {to_ret}")
 
   @commands.command(name='bancommandrole', aliases=['bcr'])
+  @Utils.require(required=['authorized'])
   async def ban_command_role(self, ctx, command: str = None, role: discord.Role = None, timer: str = None):
     guild_id = ctx.message.guild.id
     author = ctx.author
-    if not self.utils.is_authorized (author, guild_id):
-      print ("Missing permissions")
-      return
     # Check if command exists
     all_commands = self.bot.commands
     cont_after = False
@@ -291,12 +280,10 @@ class Bancommand(commands.Cog):
       await ctx.message.add_reaction('❌')
     
   @commands.command(name='unbancommandrole', aliases=['ucr'])
+  @Utils.require(required=['authorized'])
   async def unban_command_role(self, ctx, command: str = None, role: discord.Role = None):
     guild_id = ctx.message.guild.id
     author = ctx.author
-    if not self.utils.is_authorized (author, guild_id):
-      print ("Missing permissions")
-      return
     # Check if command exists
     all_commands = self.bot.commands
     cont_after = False
@@ -326,12 +313,10 @@ class Bancommand(commands.Cog):
     
     
   @commands.command(name='isbanrole', aliases=['ibr'])
+  @Utils.require(required=['authorized'])
   async def is_ban_role(self, ctx, role: discord.Member = None):
     guild_id = ctx.message.guild.id
     author = ctx.author
-    if not self.utils.is_authorized (author, guild_id):
-      print ("Missing permissions")
-      return
     if not role:
       await ctx.send ("Paramètre role manquant")
     select = (   "select command, until, role_id from ban_command_role "+
@@ -372,12 +357,10 @@ class Bancommand(commands.Cog):
     print (f"to_ret: {to_ret}")
     
   @commands.command(name='listbanrole', aliases=['lbr'])
+  @Utils.require(required=['authorized'])
   async def list_ban_role(self, ctx, command: str = None):
     guild_id = ctx.message.guild.id
     author = ctx.author
-    if not self.utils.is_authorized (author, guild_id):
-      print ("Missing permissions")
-      return
     if command:
       # Check if command exists
       all_commands = self.bot.commands

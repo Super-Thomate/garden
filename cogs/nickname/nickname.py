@@ -1,12 +1,15 @@
-import discord
-import botconfig
 import math
-from discord.ext import commands
-from datetime import datetime
 import time
-from ..logs import Logs
-from database import Database
+from datetime import datetime
+
+import discord
+from discord.ext import commands
+
+import botconfig
 from Utils import Utils
+from database import Database
+from ..logs import Logs
+
 
 class Nickname(commands.Cog):
   def __init__(self, bot):
@@ -16,14 +19,11 @@ class Nickname(commands.Cog):
     self.db = Database()
 
   @commands.command(name='nickname', aliases=['pseudo'])
+  @Utils.require(required=['not_banned'])
   async def set_nickname(self, ctx, *, nickname: str = None):
     message = ctx.message
     member = ctx.author
     guild_id = ctx.guild.id
-    if self.utils.is_banned (ctx.command, ctx.author, ctx.guild.id):
-      await ctx.message.add_reaction('❌')
-      await ctx.author.send ("Vous n'êtes pas autorisé à utiliser cette commande pour le moment.")
-      return
     # Check if there is a nickname
     if not nickname:
       await self.logger.log('nickname_log', member, message, True)
@@ -95,16 +95,10 @@ class Nickname(commands.Cog):
 
 
   @commands.command(name='resetnickname', aliases=['rn'])
+  @Utils.require(required=['authorized', 'not_banned'])
   async def reset_nickname(self, ctx, member: discord.Member = None):
     member = member or ctx.author
     guild_id = ctx.guild.id
-    if not self.utils.is_authorized (ctx.author, guild_id):
-      print ("Missing permissions")
-      return
-    if self.utils.is_banned (ctx.command, ctx.author, ctx.guild.id):
-      await ctx.message.add_reaction('❌')
-      await ctx.author.send ("Vous n'êtes pas autorisé à utiliser cette commande pour le moment.")
-      return
     sql = f"delete from last_nickname where guild_id='{guild_id}' and member_id='{member.id}'"
     error = False
     try:
@@ -118,13 +112,10 @@ class Nickname(commands.Cog):
 
 
   @commands.command(name='next', aliases=['nextnickname'])
+  @Utils.require(required=['not_banned'])
   async def next_nickname(self, ctx):
     member = ctx.author
     guild_id = ctx.guild.id
-    if self.utils.is_banned (ctx.command, ctx.author, ctx.guild.id):
-      await ctx.message.add_reaction('❌')
-      await ctx.author.send ("Vous n'êtes pas autorisé à utiliser cette commande pour le moment.")
-      return
     nickname_delay = self.utils.nickname_delay (guild_id) or botconfig.config[str(guild_id)]['nickname_delay']
     sql = f'select  datetime(last_change, \'{nickname_delay}\') from last_nickname where guild_id=\'{guild_id}\' and member_id=\'{member.id}\''
     fetched = self.db.fetch_one_line (sql)
@@ -156,16 +147,10 @@ class Nickname(commands.Cog):
     return
 
   @commands.command(name='updatenickname')
+  @Utils.require(required=['authorized', 'not_banned'])
   async def update_nickname(self, ctx):
     author = ctx.author
     guild_id = ctx.guild.id
-    if not self.utils.is_authorized (author, guild_id):
-      print ("Missing permissions")
-      return
-    if self.utils.is_banned (ctx.command, ctx.author, ctx.guild.id):
-      await ctx.message.add_reaction('❌')
-      await ctx.author.send ("Vous n'êtes pas autorisé à utiliser cette commande pour le moment.")
-      return
     try:
       for member in ctx.guild.members:
         if member.nick:

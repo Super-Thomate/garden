@@ -1,10 +1,10 @@
-import discord
-from discord.ext import commands
-from database import Database
-from Utils import Utils
-from ..logs import Logs
 import datetime
-import re
+
+from discord.ext import commands
+
+from Utils import Utils
+from database import Database
+from ..logs import Logs
 
 
 class Birthday(commands.Cog):
@@ -20,16 +20,12 @@ class Birthday(commands.Cog):
     self.logger = Logs(self.bot)
 
   @commands.command(name="setbirthday", aliases=['sb', 'bd', 'anniversaire', 'birthday'])
+  @Utils.require(required=['not_banned'])
   async def set_birthday(self, ctx):
     """Save user's birthday in database. Format DD/MM"""
     guild_id = ctx.message.guild.id
     member_id = ctx.author.id
     error = False
-
-    if self.utils.is_banned(ctx.command, ctx.author, guild_id):
-      await ctx.send("Vous n'êtes pas autorisé à utiliser cette commande pour le moment.")
-      await ctx.message.add_reaction('❌')
-      return
 
     sql = f"SELECT user_id FROM birthday_user WHERE user_id='{member_id}'"
     data = self.db.fetch_one_line(sql)
@@ -77,15 +73,6 @@ class Birthday(commands.Cog):
     guild_id = ctx.guild.id
     channel_id = channel_id or ctx.channel.id
 
-
-    """if not self.utils.is_authorized(ctx.author, guild_id):
-      print("Missing permissions")
-      return
-    if self.utils.is_banned(ctx.command, ctx.author, guild_id):
-      await ctx.send("Vous n'êtes pas autorisé à utilisez cette commande pour le moment.")
-      await ctx.message.add_reaction('❌')
-      return"""
-
     sql = f"SELECT channel_id FROM birthday_channel WHERE guild_id='{guild_id}'"
     is_already_set = self.db.fetch_one_line(sql)
 
@@ -102,16 +89,11 @@ class Birthday(commands.Cog):
     await ctx.send(f'Le channel <#{channel_id}> a été défini comme channel pour les anniversaires')
 
   @commands.command(name='resetbirthday', aliases=['rb'])
+  @Utils.require(required=['authorized', 'not_banned'])
   async def reset_birthday(self, ctx, member_id: str = None):
     guild_id = ctx.guild.id
     error = False
-    if not self.utils.is_authorized(ctx.author, guild_id):
-      print("Missing permissions")
-      return
-    if self.utils.is_banned(ctx.command, ctx.author, guild_id):
-      await ctx.send("Vous n'êtes pas autorisé à utilisez cette commande pour le moment.")
-      await ctx.message.add_reaction('❌')
-      return
+
     if member_id is None:
       await ctx.send("Le paramètre <member_id> est obligatoire.")
       await ctx.message.add_reaction('❌')

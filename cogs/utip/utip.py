@@ -1,10 +1,13 @@
-import discord
-from discord.ext import commands
-from Utils import Utils
-from ..logs import Logs
-from database import Database
 import math
 import time
+
+import discord
+from discord.ext import commands
+
+from Utils import Utils
+from database import Database
+from ..logs import Logs
+
 
 class Utip(commands.Cog):
   def __init__(self, bot):
@@ -14,13 +17,10 @@ class Utip(commands.Cog):
     self.db = Database()
 
   @commands.command(name='utip')
+  @Utils.require(required=['not_banned'])
   async def utip_send(self, ctx):
     guild_id = ctx.message.guild.id
     author = ctx.author
-    if self.utils.is_banned (ctx.command, author, ctx.guild.id):
-      await ctx.message.add_reaction('❌')
-      await ctx.author.send ("Vous n'êtes pas autorisé à utiliser cette commande pour le moment.")
-      return
     # First get channel, if no channel => big error
     select_channel           = f"select channel_id from utip_channel where guild_id='{guild_id}' ;"
     fetched_channel          = self.db.fetch_one_line (select_channel)
@@ -118,16 +118,10 @@ class Utip(commands.Cog):
     await self.logger.log('utip_log', author, msg, error)
   
   @commands.command(name='setutipchannel', aliases=['utipchannel', 'suc'])
+  @Utils.require(required=['authorized', 'not_banned'])
   async def set_utip_channel(self, ctx, channel: discord.TextChannel = None):
     guild_id                 = ctx.message.guild.id
     author                   = ctx.author
-    if not self.utils.is_authorized (author, guild_id):
-      print ("Missing permissions")
-      return
-    if self.utils.is_banned (ctx.command, ctx.author, ctx.guild.id):
-      await ctx.message.add_reaction('❌')
-      await ctx.author.send ("Vous n'êtes pas autorisé à utiliser cette commande pour le moment.")
-      return
     channel                 = channel or ctx.channel
     if not channel:
       await ctx.send ("Le paramètre <channelid> est obligatoire")
@@ -147,19 +141,10 @@ class Utip(commands.Cog):
       await ctx.message.add_reaction('✅')
 
   @commands.command(name='setutiprole', aliases=['utiprole', 'sur'])
+  @Utils.require(required=['authorized', 'not_banned'])
   async def set_utip_role(self, ctx, role: discord.Role = None):
     guild_id                 = ctx.message.guild.id
     author                   = ctx.author
-    if not self.utils.is_authorized (author, guild_id):
-      print ("Missing permissions")
-      return
-    if self.utils.is_banned (ctx.command, ctx.author, ctx.guild.id):
-      await ctx.message.add_reaction('❌')
-      await ctx.author.send ("Vous n'êtes pas autorisé à utiliser cette commande pour le moment.")
-      return
-    if not role:
-      await ctx.send ("Le paramètre <roleid> est obligatoire")
-      return
     sql                      = f"select role_id from utip_role where guild_id='{guild_id}'"
     prev_galerie_role        = self.db.fetch_one_line (sql)
     if not prev_galerie_role:
@@ -176,16 +161,10 @@ class Utip(commands.Cog):
       await ctx.message.add_reaction('✅')
   
   @commands.command(name='setutipmessage', aliases=['utipmessage', 'sum'])
+  @Utils.require(required=['authorized', 'not_banned'])
   async def set_utip_message(self, ctx):
     guild_id                 = ctx.message.guild.id
     author                   = ctx.author
-    if not self.utils.is_authorized (author, guild_id):
-      print ("Missing permissions")
-      return
-    if self.utils.is_banned (ctx.command, ctx.author, ctx.guild.id):
-      await ctx.message.add_reaction('❌')
-      await ctx.author.send ("Vous n'êtes pas autorisé à utiliser cette commande pour le moment.")
-      return
     await ctx.send ("Entrez le message de feedback pour la commande `!utip` : ")
     check                    = lambda m: m.channel == ctx.channel and m.author == ctx.author
     msg                      = await self.bot.wait_for('message', check=check)
@@ -207,16 +186,10 @@ class Utip(commands.Cog):
       await ctx.channel.send (f"Nouveau message : `{message}`")
   
   @commands.command(name='setutipdelay', aliases=['utipdelay', 'sud'])
+  @Utils.require(required=['authorized', 'not_banned'])
   async def set_utip_delay(self, ctx):
     guild_id                 = ctx.message.guild.id
     author                   = ctx.author
-    if not self.utils.is_authorized (author, guild_id):
-      print ("Missing permissions")
-      return
-    if self.utils.is_banned (ctx.command, ctx.author, ctx.guild.id):
-      await ctx.message.add_reaction('❌')
-      await ctx.author.send ("Vous n'êtes pas autorisé à utiliser cette commande pour le moment.")
-      return
     await ctx.send ("Entrez le délai durant lequel le membre garde le rôle : ")
     check                    = lambda m: m.channel == ctx.channel and m.author == ctx.author
     msg                      = await self.bot.wait_for('message', check=check)

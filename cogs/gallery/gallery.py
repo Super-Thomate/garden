@@ -1,14 +1,14 @@
-import discord
-import botconfig
-import math
 import urllib
-import re
-from discord.ext import commands
 from datetime import datetime
-import time
-from ..logs import Logs
-from database import Database
+
+import discord
+from discord.ext import commands
+
+import botconfig
 from Utils import Utils
+from database import Database
+from ..logs import Logs
+
 try: # check if BeautifulSoup4 is installed
   from bs4 import BeautifulSoup
   soupAvailable = True
@@ -24,17 +24,11 @@ class Gallery(commands.Cog):
     self.db                  = Database()
 
   @commands.command(name='token')
+  @Utils.require(required=['authorized', 'not_banned'])
   async def send_token(self, ctx, member: discord.Member = None):
     """Send the token's link in a DM"""
     member                   = member or ctx.author
     guild_id                 = ctx.guild.id
-    if not self.utils.is_authorized (ctx.author, guild_id):
-      print ("Missing permissions")
-      return
-    if self.utils.is_banned (ctx.command, ctx.author, ctx.guild.id):
-      await ctx.message.add_reaction('❌')
-      await ctx.author.send ("Vous n'êtes pas autorisé à utiliser cette commande pour le moment.")
-      return
     error                    = False
     try:
       colour                 = discord.Colour(0)
@@ -60,15 +54,11 @@ class Gallery(commands.Cog):
     await self.logger.log('galerie_log', ctx.author, ctx.message, error)
 
   @commands.command(name='setgallerychannel', aliases=['sgc'])
+  @Utils.require(required=['authorized', 'not_banned'])
   async def set_gallery_channel(self, ctx, channel: discord.TextChannel = None):
     gallery_channel          = channel or ctx.channel
     member                   = ctx.author
     guild_id                 = ctx.message.guild.id
-    if not self.utils.is_authorized (member, guild_id):
-      print ("Missing permissions")
-      return
-    if not self.utils.do_token (guild_id) and not botconfig.config[str(guild_id)]["do_token"]:
-      return
     if (    self.utils.is_banned_user (ctx.command, ctx.author, ctx.guild.id)
          or self.utils.is_banned_role (ctx.command, ctx.author, ctx.guild.id)
        ):
@@ -85,16 +75,10 @@ class Gallery(commands.Cog):
     await gallery_channel.send ("Request for galerie will be put here")
 
   @commands.command(name='gallerymessage', aliases=['gm'])
+  @Utils.require(required=['authorized', 'not_banned'])
   async def set_gallery_message(self, ctx):
     guild_id                 = ctx.message.guild.id
     member                   = ctx.author
-    if not self.utils.is_authorized (member, guild_id):
-      print ("Missing permissions")
-      return
-    if self.utils.is_banned (ctx.command, ctx.author, ctx.guild.id):
-      await ctx.message.add_reaction('❌')
-      await ctx.author.send ("Vous n'êtes pas autorisé à utiliser cette commande pour le moment.")
-      return
     await ctx.send ("Entrez le message de gallerie : ")
     check                    = lambda m: m.channel == ctx.channel and m.author == ctx.author
     msg                      = await self.bot.wait_for('message', check=check)
@@ -114,16 +98,10 @@ class Gallery(commands.Cog):
 
 
   @commands.command(name='setgallerydelay', aliases=['sgd'])
+  @Utils.require(required=['authorized', 'not_banned'])
   async def set_gallery_delay(self, ctx, delay: str = None):
     author                   = ctx.author
     guild_id                 = ctx.message.guild.id
-    if not self.utils.is_authorized (author, guild_id):
-      print ("Missing permissions")
-      return
-    if self.utils.is_banned (ctx.command, ctx.author, ctx.guild.id):
-      await ctx.message.add_reaction('❌')
-      await ctx.author.send ("Vous n'êtes pas autorisé à utiliser cette commande pour le moment.")
-      return
     try:
       if not delay.isnumeric():
         delay                = self.utils.parse_time(delay)
@@ -157,7 +135,6 @@ class Gallery(commands.Cog):
     await self.logger.log('config_log', author, ctx.message, error)
 
   @commands.Cog.listener('on_message')
-  # @commands.guild_only()
   async def token(self, message):
     """
     Send the token's link in a DM

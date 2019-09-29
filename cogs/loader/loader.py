@@ -1,6 +1,9 @@
-from discord.ext import commands
-from Utils import Utils
 import os
+
+from discord.ext import commands
+
+from Utils import Utils
+
 
 class Loader(commands.Cog):
 
@@ -10,16 +13,10 @@ class Loader(commands.Cog):
 
   # Hidden means it won't show up on the default help.
   @commands.command(name='load', hidden=True)
+  @Utils.require(required=['authorized', 'not_banned'])
   async def do_load(self, ctx, *, cog: str):
     """Command which Loads a Module.
     Remember to use dot path. e.g: cogs.greetings"""
-    if not self.utils.is_authorized (ctx.author, ctx.guild.id):
-      print ("Missing permissions")
-      return
-    if self.utils.is_banned (ctx.command, ctx.author, ctx.guild.id):
-      await ctx.message.add_reaction('❌')
-      await ctx.author.send ("Vous n'êtes pas autorisé à utiliser cette commande pour le moment.")
-      return
     try:
       self.bot.load_extension(f'cogs.{cog}')
     except Exception as e:
@@ -28,16 +25,10 @@ class Loader(commands.Cog):
       await ctx.send('**`SUCCESS`**')
 
   @commands.command(name='unload', hidden=True)
+  @Utils.require(required=['authorized', 'not_banned'])
   async def do_unload(self, ctx, *, cog: str):
     """Command which Unloads a Module.
     Remember to use dot path. e.g: cogs.greetings"""
-    if not self.utils.is_authorized (ctx.author, ctx.guild.id):
-      print ("Missing permissions")
-      return
-    if self.utils.is_banned (ctx.command, ctx.author, ctx.guild.id):
-      await ctx.message.add_reaction('❌')
-      await ctx.author.send ("Vous n'êtes pas autorisé à utiliser cette commande pour le moment.")
-      return
     try:
       self.bot.unload_extension(f'cogs.{cog}')
     except Exception as e:
@@ -46,16 +37,10 @@ class Loader(commands.Cog):
       await ctx.send('**`SUCCESS`**')
 
   @commands.command(name='reload', hidden=True)
+  @Utils.require(required=['authorized', 'not_banned'])
   async def do_reload(self, ctx, *, cog: str):
     """Command which Reloads a Module.
     Remember to use dot path. e.g: cogs.greetings"""
-    if not self.utils.is_authorized (ctx.author, ctx.guild.id):
-      print ("Missing permissions")
-      return
-    if self.utils.is_banned (ctx.command, ctx.author, ctx.guild.id):
-      await ctx.message.add_reaction('❌')
-      await ctx.author.send ("Vous n'êtes pas autorisé à utiliser cette commande pour le moment.")
-      return
     try:
       self.bot.unload_extension(f'cogs.{cog}')
       self.bot.load_extension(f'cogs.{cog}')
@@ -65,16 +50,10 @@ class Loader(commands.Cog):
       await ctx.send('**`SUCCESS`**')
 
   @commands.command(name='listcogs', hidden=True, aliases=['lc'])
+  @Utils.require(required=['authorized', 'not_banned'])
   async def list_load(self, ctx):
     """Command which lists all loaded cogs
     """
-    if not self.utils.is_authorized (ctx.author, ctx.guild.id):
-      print ("Missing permissions")
-      return
-    if self.utils.is_banned (ctx.command, ctx.author, ctx.guild.id):
-      await ctx.message.add_reaction('❌')
-      await ctx.author.send ("Vous n'êtes pas autorisé à utiliser cette commande pour le moment.")
-      return
     all_loaded = ""
     for name in self.bot.cogs.keys():
       all_loaded += f"- **{name}**\n"
@@ -86,17 +65,11 @@ class Loader(commands.Cog):
       print(f'{type(e).__name__} - {e}')
 
   @commands.command(name='patch', hidden=True)
+  @Utils.require(required=['authorized', 'not_banned'])
   async def get_patch(self, ctx):
     """
     Command which give the current patch
     """
-    if not self.utils.is_authorized (ctx.author, ctx.guild.id):
-      print ("Missing permissions")
-      return
-    if self.utils.is_banned (ctx.command, ctx.author, ctx.guild.id):
-      await ctx.message.add_reaction('❌')
-      await ctx.author.send ("Vous n'êtes pas autorisé à utiliser cette commande pour le moment.")
-      return
     # `cd ${__dirname}; git branch | grep \\* | awk '{ print $2 }';`
     dir_path = os.path.dirname(os.path.realpath(__file__))+'/'
     cmd = "cd "+dir_path+"; git branch | grep \\* | awk '{ print $2 }';"

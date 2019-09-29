@@ -1,7 +1,10 @@
-import discord
 from datetime import datetime
+
+import discord
 from discord.ext import commands
+
 from Utils import Utils
+
 
 class Help(commands.Cog):
   def __init__(self, bot):
@@ -9,6 +12,7 @@ class Help(commands.Cog):
     self.utils = Utils()
 
   @commands.command(name='help')
+  @Utils.require(required=['not_banned'])
   async def help(self, ctx, *, cog: str = None):
     """Display help"""
     cog = cog or "global"

@@ -1,13 +1,9 @@
 import discord
 from discord.ext import commands
-from datetime import datetime
-from datetime import timezone
-from ..logs import Logs
-from database import Database
+
 from Utils import Utils
-import random
-import time
-import math
+from database import Database
+from ..logs import Logs
 
 
 class Configuration(commands.Cog):
@@ -40,16 +36,10 @@ class Configuration(commands.Cog):
     self.db = Database()
 
   @commands.command(name='addrolemoderateur', aliases=['addrolemodo', 'arm'])
+  @Utils.require(required=['authorized', 'not_banned'])
   async def add_role_modo (self, ctx, role: discord.Role = None):
     guild_id                 = ctx.message.guild.id
     author                  = ctx.author
-    if not self.utils.is_authorized (author, guild_id):
-      print ("Missing permissions")
-      return
-    if self.utils.is_banned (ctx.command, ctx.author, ctx.guild.id):
-      await ctx.message.add_reaction('❌')
-      await ctx.author.send ("Vous n'êtes pas autorisé à utilisez cette commande pour le moment.")
-      return
     if not role:
       await ctx.send ("Le paramètre `<role>` est obligatoire.")
       return
@@ -69,16 +59,10 @@ class Configuration(commands.Cog):
     await self.logger.log('config_log', author, ctx.message, error)
 
   @commands.command(name='removerolemoderateur', aliases=['removerolemodo', 'rrm'])
+  @Utils.require(required=['authorized', 'not_banned'])
   async def remove_role_modo (self, ctx, role: discord.Role = None):
     guild_id                 = ctx.message.guild.id
     author                  = ctx.author
-    if not self.utils.is_authorized (author, guild_id):
-      print ("Missing permissions")
-      return
-    if self.utils.is_banned (ctx.command, ctx.author, ctx.guild.id):
-      await ctx.message.add_reaction('❌')
-      await ctx.author.send ("Vous n'êtes pas autorisé à utilisez cette commande pour le moment.")
-      return
     if not role:
       await ctx.send ("Le paramètre `<role>` est obligatoire.")
       return
@@ -99,16 +83,10 @@ class Configuration(commands.Cog):
     await self.logger.log('config_log', author, ctx.message, error)
 
   @commands.command(name='addprefix')
+  @Utils.require(required=['authorized', 'not_banned'])
   async def add_prefix (self, ctx, prefix: str = None):
     guild_id                 = ctx.message.guild.id
     author                  = ctx.author
-    if not self.utils.is_authorized (author, guild_id):
-      print ("Missing permissions")
-      return
-    if self.utils.is_banned (ctx.command, ctx.author, ctx.guild.id):
-      await ctx.message.add_reaction('❌')
-      await ctx.author.send ("Vous n'êtes pas autorisé à utilisez cette commande pour le moment.")
-      return
     if not prefix:
       await ctx.send ("Le paramètre `<prefix>` est obligatoire.")
       return
@@ -128,16 +106,10 @@ class Configuration(commands.Cog):
     await self.logger.log('config_log', author, ctx.message, error)
 
   @commands.command(name='removeprefix')
+  @Utils.require(required=['authorized', 'not_banned'])
   async def remove_prefix (self, ctx, prefix: str = None):
     guild_id                 = ctx.message.guild.id
     author                  = ctx.author
-    if not self.utils.is_authorized (author, guild_id):
-      print ("Missing permissions")
-      return
-    if self.utils.is_banned (ctx.command, ctx.author, ctx.guild.id):
-      await ctx.message.add_reaction('❌')
-      await ctx.author.send ("Vous n'êtes pas autorisé à utilisez cette commande pour le moment.")
-      return
     if not prefix:
       await ctx.send ("Le paramètre `<prefix>` est obligatoire.")
       return
@@ -159,16 +131,10 @@ class Configuration(commands.Cog):
     await self.logger.log('config_log', author, ctx.message, error)
 
   @commands.command(name='seturl')
+  @Utils.require(required=['authorized', 'not_banned'])
   async def set_url (self, ctx, type_url: str = None, url: str = None):
     guild_id                 = ctx.message.guild.id
     author                  = ctx.author
-    if not self.utils.is_authorized (author, guild_id):
-      print ("Missing permissions")
-      return
-    if self.utils.is_banned (ctx.command, ctx.author, ctx.guild.id):
-      await ctx.message.add_reaction('❌')
-      await ctx.author.send ("Vous n'êtes pas autorisé à utilisez cette commande pour le moment.")
-      return
     if not type_url:
       await ctx.send ("Le paramètre `<type_url>` est obligatoire.")
       return
@@ -206,16 +172,10 @@ class Configuration(commands.Cog):
     await self.logger.log('config_log', author, ctx.message, error)
 
   @commands.command(name='removeurl')
+  @Utils.require(required=['authorized', 'not_banned'])
   async def remove_url (self, ctx, type_url: str = None):
     guild_id                 = ctx.message.guild.id
     author                  = ctx.author
-    if not self.utils.is_authorized (author, guild_id):
-      print ("Missing permissions")
-      return
-    if self.utils.is_banned (ctx.command, ctx.author, ctx.guild.id):
-      await ctx.message.add_reaction('❌')
-      await ctx.author.send ("Vous n'êtes pas autorisé à utilisez cette commande pour le moment.")
-      return
     if not type_url:
       await ctx.send ("Le paramètre `<type_url>` est obligatoire.")
       return
@@ -235,16 +195,10 @@ class Configuration(commands.Cog):
     await self.logger.log('config_log', author, ctx.message, error)
 
   @commands.command(name='setdelay')
+  @Utils.require(required=['authorized', 'not_banned'])
   async def set_delay (self, ctx, type_delay: str = None, delay: str = None):
     guild_id                 = ctx.message.guild.id
     author                  = ctx.author
-    if not self.utils.is_authorized (author, guild_id):
-      print ("Missing permissions")
-      return
-    if self.utils.is_banned (ctx.command, ctx.author, ctx.guild.id):
-      await ctx.message.add_reaction('❌')
-      await ctx.author.send ("Vous n'êtes pas autorisé à utilisez cette commande pour le moment.")
-      return
     if not type_delay:
       await ctx.send ("Le paramètre `<type_delay>` est obligatoire.")
       return
@@ -284,16 +238,10 @@ class Configuration(commands.Cog):
     await self.logger.log('config_log', author, ctx.message, error)
 
   @commands.command(name='removedelay')
+  @Utils.require(required=['authorized', 'not_banned'])
   async def remove_delay (self, ctx, type_delay: str = None):
     guild_id                 = ctx.message.guild.id
     author                  = ctx.author
-    if not self.utils.is_authorized (author, guild_id):
-      print ("Missing permissions")
-      return
-    if self.utils.is_banned (ctx.command, ctx.author, ctx.guild.id):
-      await ctx.message.add_reaction('❌')
-      await ctx.author.send ("Vous n'êtes pas autorisé à utilisez cette commande pour le moment.")
-      return
     if not type_delay:
       await ctx.send ("Le paramètre `<type_delay>` est obligatoire.")
       return
@@ -313,16 +261,10 @@ class Configuration(commands.Cog):
     await self.logger.log('config_log', author, ctx.message, error)
 
   @commands.command(name='setdo')
+  @Utils.require(required=['authorized', 'not_banned'])
   async def set_do (self, ctx, type_do: str = None, do: str = None):
     guild_id                 = ctx.message.guild.id
     author                  = ctx.author
-    if not self.utils.is_authorized (author, guild_id):
-      print ("Missing permissions")
-      return
-    if self.utils.is_banned (ctx.command, ctx.author, ctx.guild.id):
-      await ctx.message.add_reaction('❌')
-      await ctx.author.send ("Vous n'êtes pas autorisé à utilisez cette commande pour le moment.")
-      return
     if not type_do:
       await ctx.send ("Le paramètre `<type_do>` est obligatoire.")
       return
@@ -360,16 +302,10 @@ class Configuration(commands.Cog):
     await self.logger.log('config_log', author, ctx.message, error)
 
   @commands.command(name='removedo')
+  @Utils.require(required=['authorized', 'not_banned'])
   async def remove_do (self, ctx, type_do: str = None):
     guild_id                 = ctx.message.guild.id
     author                  = ctx.author
-    if not self.utils.is_authorized (author, guild_id):
-      print ("Missing permissions")
-      return
-    if self.utils.is_banned (ctx.command, ctx.author, ctx.guild.id):
-      await ctx.message.add_reaction('❌')
-      await ctx.author.send ("Vous n'êtes pas autorisé à utilisez cette commande pour le moment.")
-      return
     if not type_do:
       await ctx.send ("Le paramètre `<type_do>` est obligatoire.")
       return

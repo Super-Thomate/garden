@@ -1,8 +1,10 @@
 import discord
 from discord.ext import commands
+
 from Utils import Utils
-from ..logs import Logs
 from database import Database
+from ..logs import Logs
+
 
 class Turing(commands.Cog):
 
@@ -26,16 +28,10 @@ class Turing(commands.Cog):
     self.auto_reply          = False
 
   @commands.command(name='answer', aliases=['reply'])
+  @Utils.require(required=['authorized', 'not_banned'])
   async def answer_spy_log(self, ctx, user: discord.User = None):
     guild_id                 = ctx.message.guild.id
     author                  = ctx.author
-    if not self.utils.is_authorized (author, guild_id):
-      print ("Missing permissions")
-      return
-    if self.utils.is_banned (ctx.command, ctx.author, ctx.guild.id):
-      await ctx.message.add_reaction('❌')
-      await ctx.author.send ("Vous n'êtes pas autorisé à utilisez cette commande pour le moment.")
-      return
     if not user:
       await ctx.send ("Le paramètre `<user>` est obligatoire.")
       return
@@ -58,16 +54,10 @@ class Turing(commands.Cog):
       await self.logger.log('spy_log', author, msg, error)
 
   @commands.command(name='say', aliases=['talk', 'speak'])
+  @Utils.require(required=['authorized', 'not_banned'])
   async def say_spy_log(self, ctx, channel: discord.TextChannel = None):
     guild_id                 = ctx.message.guild.id
     author                  = ctx.author
-    if not self.utils.is_authorized (author, guild_id):
-      print ("Missing permissions")
-      return
-    if self.utils.is_banned (ctx.command, ctx.author, ctx.guild.id):
-      await ctx.message.add_reaction('❌')
-      await ctx.author.send ("Vous n'êtes pas autorisé à utilisez cette commande pour le moment.")
-      return
     if not channel:
       await ctx.send ("Le paramètre `<channel>` est obligatoire.")
       return
@@ -89,16 +79,10 @@ class Turing(commands.Cog):
       await self.logger.log('spy_log', author, msg, error)
 
   @commands.command(name='lmute', aliases=['lionmute', 'lotusmute'])
+  @Utils.require(required=['authorized', 'not_banned'])
   async def fake_mute_lion(self, ctx):
     guild_id                 = ctx.message.guild.id
     author                  = ctx.author
-    if not self.utils.is_authorized (author, guild_id):
-      print ("Missing permissions")
-      return
-    if self.utils.is_banned (ctx.command, ctx.author, ctx.guild.id):
-      await ctx.message.add_reaction('❌')
-      await ctx.author.send ("Vous n'êtes pas autorisé à utilisez cette commande pour le moment.")
-      return
     error                    = False
     try:
       await ctx.message.add_reaction('✅')
@@ -109,16 +93,10 @@ class Turing(commands.Cog):
     await self.logger.log('spy_log', author, ctx.message, error)
 
   @commands.command(name='lstart', aliases=['lionstart', 'lotusstart'])
+  @Utils.require(required=['authorized', 'not_banned'])
   async def fake_start_lion(self, ctx):
     guild_id                 = ctx.message.guild.id
     author                  = ctx.author
-    if not self.utils.is_authorized (author, guild_id):
-      print ("Missing permissions")
-      return
-    if self.utils.is_banned (ctx.command, ctx.author, ctx.guild.id):
-      await ctx.message.add_reaction('❌')
-      await ctx.author.send ("Vous n'êtes pas autorisé à utilisez cette commande pour le moment.")
-      return
     error                    = False
     try:
       await ctx.message.add_reaction('✅')
@@ -129,16 +107,10 @@ class Turing(commands.Cog):
     await self.logger.log('spy_log', author, ctx.message, error)
 
   @commands.command(name='sethumor')
+  @Utils.require(required=['authorized', 'not_banned'])
   async def fake_set_humor_lion(self, ctx, percent: str = None):
     guild_id                 = ctx.message.guild.id
     author                  = ctx.author
-    if not self.utils.is_authorized (author, guild_id):
-      print ("Missing permissions")
-      return
-    if self.utils.is_banned (ctx.command, ctx.author, ctx.guild.id):
-      await ctx.message.add_reaction('❌')
-      await ctx.author.send ("Vous n'êtes pas autorisé à utilisez cette commande pour le moment.")
-      return
     error                    = False
     try:
       await ctx.message.add_reaction('✅')
@@ -157,16 +129,10 @@ class Turing(commands.Cog):
     await self.react_to_message (ctx, message_id, emoji, "remove")
 
   @commands.command(name='editmessage')
+  @Utils.require(required=['authorized', 'not_banned'])
   async def edit_message_turing(self, ctx, message_id: int = None):
     guild_id                 = ctx.message.guild.id
     author                  = ctx.author
-    if not self.utils.is_authorized (author, guild_id):
-      print ("Missing permissions")
-      return
-    if self.utils.is_banned (ctx.command, ctx.author, ctx.guild.id):
-      await ctx.message.add_reaction('❌')
-      await ctx.author.send ("Vous n'êtes pas autorisé à utilisez cette commande pour le moment.")
-      return
     if not message_id:
       await ctx.send ("Le paramètre `<message_id>` est obligatoire.")
       return
@@ -196,16 +162,10 @@ class Turing(commands.Cog):
     await self.logger.log('spy_log', author, ctx.message, error)
 
   @commands.command(name='deletemessage')
+  @Utils.require(required=['authorized', 'not_banned'])
   async def delete_message_turing(self, ctx, message_id: int = None):
     guild_id                 = ctx.message.guild.id
     author                  = ctx.author
-    if not self.utils.is_authorized (author, guild_id):
-      print ("Missing permissions")
-      return
-    if self.utils.is_banned (ctx.command, ctx.author, ctx.guild.id):
-      await ctx.message.add_reaction('❌')
-      await ctx.author.send ("Vous n'êtes pas autorisé à utilisez cette commande pour le moment.")
-      return
     if not message_id:
       await ctx.send ("Le paramètre `<message_id>` est obligatoire.")
       return
@@ -224,16 +184,10 @@ class Turing(commands.Cog):
     await self.logger.log('spy_log', author, ctx.message, error)
 
   @commands.command(name='autoreply')
+  @Utils.require(required=['authorized', 'not_banned'])
   async def set_auto_reply(self, ctx, status: str = None):
     guild_id                 = ctx.message.guild.id
     author                  = ctx.author
-    if not self.utils.is_authorized (author, guild_id):
-      print ("Missing permissions")
-      return
-    if self.utils.is_banned (ctx.command, ctx.author, ctx.guild.id):
-      await ctx.message.add_reaction('❌')
-      await ctx.author.send ("Vous n'êtes pas autorisé à utilisez cette commande pour le moment.")
-      return
     if not status:
       await ctx.send ("Le paramètre `<status>` est obligatoire.")
       return
@@ -271,16 +225,10 @@ class Turing(commands.Cog):
           break
     return message
 
+  @Utils.require(required=['authorized', 'not_banned'])
   async def react_to_message (self, ctx, message_id, emoji, react_type):
     guild_id                 = ctx.message.guild.id
     author                  = ctx.author
-    if not self.utils.is_authorized (author, guild_id):
-      print ("Missing permissions")
-      return
-    if self.utils.is_banned (ctx.command, ctx.author, ctx.guild.id):
-      await ctx.message.add_reaction('❌')
-      await ctx.author.send ("Vous n'êtes pas autorisé à utilisez cette commande pour le moment.")
-      return
     if not message_id:
       await ctx.send ("Le paramètre `<message_id>` est obligatoire.")
       return

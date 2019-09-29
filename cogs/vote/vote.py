@@ -1,13 +1,16 @@
-import discord
-from discord.ext import commands
-from Utils import Utils
-from ..logs import Logs
-from database import Database
+import math
+import time
 from datetime import date
 from datetime import datetime
+
+import discord
 from dateutil import parser
-import time
-import math
+from discord.ext import commands
+
+from Utils import Utils
+from database import Database
+from ..logs import Logs
+
 
 class Vote(commands.Cog):
   def __init__(self, bot):
@@ -19,18 +22,12 @@ class Vote(commands.Cog):
 
   @commands.command(name='createvote', aliases=['vote'])
   @commands.guild_only()
+  @Utils.require(required=['authorized', 'not_banned'])
   async def create_vote(self, ctx, *args):
     """ Create a vote
     """
     author = ctx.author
     guild_id = ctx.guild.id
-    if not self.utils.is_authorized (author, guild_id):
-      print ("No permissions")
-      return
-    if self.utils.is_banned (ctx.command, ctx.author, ctx.guild.id):
-      await ctx.message.add_reaction('❌')
-      await ctx.author.send ("Vous n'êtes pas autorisé à utiliser cette commande pour le moment.")
-      return
     # date
     today = date.today()
     month = str (today.month) if today.month > 9 else "0"+str(today.month)
@@ -56,18 +53,12 @@ class Vote(commands.Cog):
 
   @commands.command(name='setvotetype', aliases=['svt'])
   @commands.guild_only()
+  @Utils.require(required=['authorized', 'not_banned'])
   async def set_vote_type(self, ctx, message_id: str = None, type_vote: str = None):
     """ Set a type for a vote message
     """
     author = ctx.author
     guild_id = ctx.guild.id
-    if not self.utils.is_authorized (author, guild_id):
-      print ("No permissions")
-      return
-    if self.utils.is_banned (ctx.command, ctx.author, ctx.guild.id):
-      await ctx.message.add_reaction('❌')
-      await ctx.author.send ("Vous n'êtes pas autorisé à utiliser cette commande pour le moment.")
-      return
     if not message_id:
       await ctx.send ("Paramètre manquant: message_id")
       return
@@ -92,46 +83,31 @@ class Vote(commands.Cog):
 
   @commands.command(name='setdescription', aliases=['setdesc', 'desc', 'sd'])
   @commands.guild_only()
+  @Utils.require(required=['authorized', 'not_banned'])
   async def set_description(self, ctx, message_id: str = None):
     """ Set a description for a vote message
     """
     author = ctx.author
     guild_id = ctx.guild.id
-    if not self.utils.is_authorized (author, guild_id):
-      print ("No permissions")
-      return
-    if self.utils.is_banned (ctx.command, ctx.author, ctx.guild.id):
-      await ctx.message.add_reaction('❌')
-      await ctx.author.send ("Vous n'êtes pas autorisé à utiliser cette commande pour le moment.")
-      return
     await self.handle_result (ctx, message_id, "description", True)
 
   @commands.command(name='settitle', aliases=['title', 'st'])
   @commands.guild_only()
+  @Utils.require(required=['authorized', 'not_banned'])
   async def set_title(self, ctx, message_id: str = None):
     """ Set a title for a vote message
     """
     author = ctx.author
     guild_id = ctx.guild.id
-    if not self.utils.is_authorized (author, guild_id):
-      print ("No permissions")
-      return
-    if self.utils.is_banned (ctx.command, ctx.author, ctx.guild.id):
-      await ctx.message.add_reaction('❌')
-      await ctx.author.send ("Vous n'êtes pas autorisé à utiliser cette commande pour le moment.")
-      return
     await self.handle_result (ctx, message_id, "title", True)
 
   @commands.command(name='addproposition', aliases=['add', 'addprop', 'ap'])
   @commands.guild_only()
+  @Utils.require(required=['not_banned'])
   async def add_proposition(self, ctx, message_id_vote_type: str = None):
     """
     Add a proposition
     """
-    if self.utils.is_banned (ctx.command, ctx.author, ctx.guild.id):
-      await ctx.message.add_reaction('❌')
-      await ctx.author.send ("Vous n'êtes pas autorisé à utiliser cette commande pour le moment.")
-      return
     if not message_id_vote_type:
       # search for the lastest vote in that channel
       select = f"select message_id from vote_message where channel_id={ctx.channel.id} and closed=0"
@@ -162,14 +138,11 @@ class Vote(commands.Cog):
 
   @commands.command(name='editproposition', aliases=['edit', 'editprop', 'ep'])
   @commands.guild_only()
+  @Utils.require(required=['not_banned'])
   async def edit_proposition(self, ctx, message_id_vote_type: str = None):
     """
     Edit a proposition
     """
-    if self.utils.is_banned (ctx.command, ctx.author, ctx.guild.id):
-      await ctx.message.add_reaction('❌')
-      await ctx.author.send ("Vous n'êtes pas autorisé à utiliser cette commande pour le moment.")
-      return
     if not message_id_vote_type:
       # search for the lastest vote in that channel
       select = f"select message_id from vote_message where channel_id={ctx.channel.id} and closed=0"
@@ -201,14 +174,11 @@ class Vote(commands.Cog):
 
   @commands.command(name='removeproposition', aliases=['remove', 'removeprop', 'rp'])
   @commands.guild_only()
+  @Utils.require(required=['not_banned'])
   async def remove_proposition(self, ctx, message_id_vote_type: str = None):
     """
     Remove a proposition
     """
-    if self.utils.is_banned (ctx.command, ctx.author, ctx.guild.id):
-      await ctx.message.add_reaction('❌')
-      await ctx.author.send ("Vous n'êtes pas autorisé à utiliser cette commande pour le moment.")
-      return
     if not message_id_vote_type:
       # search for the lastest vote in that channel
       select = f"select message_id from vote_message where channel_id={ctx.channel.id} and closed=0"
@@ -256,110 +226,64 @@ class Vote(commands.Cog):
 
   @commands.command(name='closeproposition', aliases=['cp'])
   @commands.guild_only()
+  @Utils.require(required=['authorized', 'not_banned'])
   async def close_proposition(self, ctx, message_id: str = None):
     """
     Close propositions
     """
-    author = ctx.author
-    guild_id = ctx.guild.id
-    if not self.utils.is_authorized (author, guild_id):
-      print ("No permissions")
-      return
-    if self.utils.is_banned (ctx.command, ctx.author, ctx.guild.id):
-      await ctx.message.add_reaction('❌')
-      await ctx.author.send ("Vous n'êtes pas autorisé à utiliser cette commande pour le moment.")
-      return
     await self.handle_result (ctx, message_id, "end_proposition", True)
 
   @commands.command(name='closeedit', aliases=['ce'])
   @commands.guild_only()
+  @Utils.require(required=['authorized', 'not_banned'])
   async def close_edit(self, ctx, message_id: str = None):
     """
     Close edit phase
     """
-    author = ctx.author
-    guild_id = ctx.guild.id
-    if not self.utils.is_authorized (author, guild_id):
-      print ("No permissions")
-      return
-    if self.utils.is_banned (ctx.command, ctx.author, ctx.guild.id):
-      await ctx.message.add_reaction('❌')
-      await ctx.author.send ("Vous n'êtes pas autorisé à utiliser cette commande pour le moment.")
-      return
     await self.handle_result (ctx, message_id, "end_edit", True)
 
   @commands.command(name='closevote', aliases=['cv'])
   @commands.guild_only()
+  @Utils.require(required=['authorized', 'not_banned'])
   async def close_vote(self, ctx, message_id: str = None):
     """
     Close vote
     """
-    author = ctx.author
-    guild_id = ctx.guild.id
-    if not self.utils.is_authorized (author, guild_id):
-      print ("No permissions")
-      return
-    if self.utils.is_banned (ctx.command, ctx.author, ctx.guild.id):
-      await ctx.message.add_reaction('❌')
-      await ctx.author.send ("Vous n'êtes pas autorisé à utiliser cette commande pour le moment.")
-      return
     await self.handle_result (ctx, message_id, "close_vote", True)
 
   @commands.command(name='closepropositionat', aliases=['cpa'])
   @commands.guild_only()
+  @Utils.require(required=['authorized', 'not_banned'])
   async def close_proposition_at(self, ctx, message_id: str = None):
     """
     Close propositions at a given date
     """
     author = ctx.author
     guild_id = ctx.guild.id
-    if not self.utils.is_authorized (author, guild_id):
-      print ("No permissions")
-      return
-    if self.utils.is_banned (ctx.command, ctx.author, ctx.guild.id):
-      await ctx.message.add_reaction('❌')
-      await ctx.author.send ("Vous n'êtes pas autorisé à utiliser cette commande pour le moment.")
-      return
     await self.handle_result (ctx, message_id, "end_proposition_at", True)
 
   @commands.command(name='closevoteat', aliases=['cva'])
   @commands.guild_only()
+  @Utils.require(required=['authorized', 'not_banned'])
   async def end_vote_at(self, ctx, message_id: str = None):
     """
     Close vote at a given date
     """
     author = ctx.author
     guild_id = ctx.guild.id
-    if not self.utils.is_authorized (author, guild_id):
-      print ("No permissions")
-      return
-    if self.utils.is_banned (ctx.command, ctx.author, ctx.guild.id):
-      await ctx.message.add_reaction('❌')
-      await ctx.author.send ("Vous n'êtes pas autorisé à utiliser cette commande pour le moment.")
-      return
     await self.handle_result (ctx, message_id, "end_vote_at", True)
 
   @commands.command(name='closeallvote', aliases=['cav'])
   @commands.guild_only()
+  @Utils.require(required=['authorized', 'not_banned'])
   async def close_all_vote(self, ctx, message_id: str = None):
     """
     Close all vote
     """
     author = ctx.author
     guild_id = ctx.guild.id
-    if not self.utils.is_authorized (author, guild_id):
-      print ("No permissions")
-      return
-    if self.utils.is_banned (ctx.command, ctx.author, ctx.guild.id):
-      await ctx.message.add_reaction('❌')
-      await ctx.author.send ("Vous n'êtes pas autorisé à utiliser cette commande pour le moment.")
-      return
     author = ctx.author
     guild_id = ctx.guild.id
-    if not self.utils.is_authorized (author, guild_id):
-      print ("No permissions")
-      await ctx.message.add_reaction ('❌')
-      return
     select = f"select message_id, month, year from vote_message where guild_id='{guild_id}' and closed <> 3 ;"
     fetched = self.db.fetch_all_line (select)
     if fetched:
@@ -390,19 +314,13 @@ class Vote(commands.Cog):
 
   @commands.command(name='setvotechannel', aliases=['svc'])
   @commands.guild_only()
+  @Utils.require(required=['authorized', 'not_banned'])
   async def set_vote_channel(self, ctx, channel_id: str = None):
     """
     Set a channel to ping end of phases
     """
     author = ctx.author
     guild_id = ctx.guild.id
-    if not self.utils.is_authorized (author, guild_id):
-      print ("No permissions")
-      return
-    if self.utils.is_banned (ctx.command, ctx.author, ctx.guild.id):
-      await ctx.message.add_reaction('❌')
-      await ctx.author.send ("Vous n'êtes pas autorisé à utiliser cette commande pour le moment.")
-      return
     channel_id = channel_id or ctx.channel.id
     guild_id = ctx.guild.id
     try:
@@ -427,19 +345,13 @@ class Vote(commands.Cog):
 
   @commands.command(name='setvoterole', aliases=['svr'])
   @commands.guild_only()
+  @Utils.require(required=['authorized', 'not_banned'])
   async def set_vote_role(self, ctx, role_id: str = None):
     """
     Set a role to ping end of phases
     """
     author = ctx.author
     guild_id = ctx.guild.id
-    if not self.utils.is_authorized (author, guild_id):
-      print ("No permissions")
-      return
-    if self.utils.is_banned (ctx.command, ctx.author, ctx.guild.id):
-      await ctx.message.add_reaction('❌')
-      await ctx.author.send ("Vous n'êtes pas autorisé à utiliser cette commande pour le moment.")
-      return
     if not role_id:
       await ctx.send ("Paramètre manquant: role_id")
       await ctx.message.add_reaction ('❌')
@@ -479,33 +391,18 @@ class Vote(commands.Cog):
 
   @commands.command(name='resetvote', aliases=['rv'])
   @commands.guild_only()
+  @Utils.require(required=['authorized', 'not_banned'])
   async def reset_vote(self, ctx, message_id: str = None):
     """
     Reset a vote
     """
-    author = ctx.author
-    guild_id = ctx.guild.id
-    if not self.utils.is_authorized (author, guild_id):
-      print ("No permissions")
-      return
-    if self.utils.is_banned (ctx.command, ctx.author, ctx.guild.id):
-      await ctx.message.add_reaction('❌')
-      await ctx.author.send ("Vous n'êtes pas autorisé à utilisez cette commande pour le moment.")
-      return
     await self.handle_result (ctx, message_id, "reset_vote", True)
 
-
-
-
-
+  @Utils.require(required=['authorized'])
   async def handle_result (self, ctx, message_id, handle, permission_needed):
     author = ctx.author
     guild_id = ctx.guild.id
     error = False
-    is_authorized = self.utils.is_authorized (author, guild_id)
-    if permission_needed and not is_authorized:
-      print ("No permissions")
-      return
     if not message_id:
       # search for the lastest vote in that channel
       select = f"select message_id from vote_message where channel_id={ctx.channel.id} and closed=0 ;"
@@ -565,7 +462,7 @@ class Vote(commands.Cog):
     elif handle == "title":
       ask = await ctx.send ("Entrez le nouveau titre du vote :")
     elif handle == "proposition_line":
-      if (end_proposition and not is_authorized) or end_edit or vote_closed:
+      if end_proposition or end_edit or vote_closed:
         await ctx.send ("La phase de proposition est terminée")
         return
       ask = await ctx.send ("Entrez la proposition :")
@@ -757,7 +654,7 @@ class Vote(commands.Cog):
         await ctx.send ("Paramètre attendu: Nombre entier").delete(delay=0.5)
         error = True
       else:
-        if end_proposition or is_authorized:
+        if end_proposition:
           # modo
           select =  f"select emoji from vote_propositions where message_id='{message_id}' and proposition_id={proposition_id} ;"
         else:

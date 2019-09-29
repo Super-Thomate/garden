@@ -1,12 +1,13 @@
-import discord
-from discord.ext import commands
-from datetime import datetime
-from ..logs import Logs
-from database import Database
-from Utils import Utils
+import math
 import random
 import time
-import math
+
+import discord
+from discord.ext import commands
+
+from Utils import Utils
+from database import Database
+from ..logs import Logs
 
 
 class Welcome(commands.Cog):
@@ -96,18 +97,12 @@ class Welcome(commands.Cog):
           self.db.execute_order (sql)
 
   @commands.command(name='setwelcomerole', aliases=['swr', 'welcomerole'])
+  @Utils.require(required=['authorized', 'not_banned'])
   async def set_welcome_role(self, ctx, *, role: discord.Role = None):
     """
     Set welcome role
     """
     guild_id = ctx.guild.id
-    if not self.utils.is_authorized (ctx.author, guild_id):
-      print ("Missing permissions")
-      return
-    if self.utils.is_banned (ctx.command, ctx.author, ctx.guild.id):
-      await ctx.message.add_reaction('❌')
-      await ctx.author.send ("Vous n'êtes pas autorisé à utiliser cette commande pour le moment.")
-      return
     if not role:
       # error
       await ctx.send ("A role is required.")
@@ -134,19 +129,13 @@ class Welcome(commands.Cog):
     # await self.logger.log('welcome_log', ctx.author, ctx.message, error) # no logs
 
   @commands.command(name='setwelcomechannel', aliases=['swc', 'welcomechannel', 'wc'])
+  @Utils.require(required=['authorized', 'not_banned'])
   async def set_welcome(self, ctx, *, channel: discord.TextChannel = None):
     """
     Set the welcome channel
     """
     channel = channel or ctx.channel
     guild_id = ctx.guild.id
-    if not self.utils.is_authorized (ctx.author, guild_id):
-      print ("Missing permissions")
-      return
-    if self.utils.is_banned (ctx.command, ctx.author, ctx.guild.id):
-      await ctx.message.add_reaction('❌')
-      await ctx.author.send ("Vous n'êtes pas autorisé à utiliser cette commande pour le moment.")
-      return
     error = False
     select = f"select * from welcome_channel where guild_id='{guild_id}' ;"
     fetched = self.db.fetch_one_line (select)
@@ -168,16 +157,10 @@ class Welcome(commands.Cog):
     # await self.logger.log('welcome_log', ctx.author, ctx.message, error) # no logs
 
   @commands.command(name='setwelcomemessage', aliases=['welcomemessage', 'swm'])
+  @Utils.require(required=['authorized', 'not_banned'])
   async def set_welcome_message(self, ctx, role: discord.Role = None):
     guild_id = ctx.message.guild.id
     member = ctx.author
-    if not self.utils.is_authorized (member, guild_id):
-      print ("Missing permissions")
-      return
-    if self.utils.is_banned (ctx.command, ctx.author, ctx.guild.id):
-      await ctx.message.add_reaction('❌')
-      await ctx.author.send ("Vous n'êtes pas autorisé à utiliser cette commande pour le moment.")
-      return
     if not role:
       await ctx.message.add_reaction('❌')
       await ctx.send ("Paramètre <role> obligatoire.")
@@ -201,16 +184,10 @@ class Welcome(commands.Cog):
     # await self.logger.log('welcome_log', ctx.author, ctx.message, error) # no logs
 
   @commands.command(name='updatewelcome', aliases=['uw'])
+  @Utils.require(required=['authorized', 'not_banned'])
   async def update_welcomeuser(self, ctx):
     guild_id = ctx.message.guild.id
     member = ctx.author
-    if not self.utils.is_authorized (member, guild_id):
-      print ("Missing permissions")
-      return
-    if self.utils.is_banned (ctx.command, ctx.author, ctx.guild.id):
-      await ctx.message.add_reaction('❌')
-      await ctx.author.send ("Vous n'êtes pas autorisé à utiliser cette commande pour le moment.")
-      return
     select                   = f"select role_id from welcome_role where guild_id='{guild_id}'"
     fetched_all              = self.db.fetch_all_line (select)
     if not fetched_all:
@@ -232,16 +209,9 @@ class Welcome(commands.Cog):
     await ctx.message.add_reaction('✅')
 
   @commands.command(name='clearwelcome', aliases=['cw'])
+  @Utils.require(required=['authorized', 'not_banned'])
   async def reset_welcomeuser(self, ctx, member: discord.Member = None):
-    guild_id                 = ctx.message.guild.id
     author                   = ctx.author
-    if not self.utils.is_authorized (author, guild_id):
-      print ("Missing permissions")
-      return
-    if self.utils.is_banned (ctx.command, author, ctx.guild.id):
-      await ctx.message.add_reaction('❌')
-      await ctx.author.send ("Vous n'êtes pas autorisé à utiliser cette commande pour le moment.")
-      return
     member                   = member or author
     delete                   = (   "delete from welcome_user "+
                                    " where "+
@@ -255,4 +225,3 @@ class Welcome(commands.Cog):
       print (f'{type(e).__name__} - {e}')
     else:
       await ctx.message.add_reaction('✅')
-      

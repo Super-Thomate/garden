@@ -1,9 +1,11 @@
-import discord
-import botconfig
-from discord.ext import commands
 from datetime import datetime
-from database import Database
+
+import discord
+from discord.ext import commands
+
 from Utils import Utils
+from database import Database
+
 
 class Logs(commands.Cog):
   def __init__ (self, bot):
@@ -12,16 +14,10 @@ class Logs(commands.Cog):
     self.utils = Utils()
 
   @commands.command(name='setinvitelog', aliases=['setinvite', 'sil', 'invitelog'])
+  @Utils.require(required=['authorized', 'not_banned'])
   async def set_invitation_log(self, ctx, channel: discord.TextChannel = None):
     guild_id = ctx.message.guild.id
     member = ctx.author
-    if not self.utils.is_authorized (member, guild_id):
-      print ("Missing permissions")
-      return
-    if self.utils.is_banned (ctx.command, ctx.author, ctx.guild.id):
-      await ctx.message.add_reaction('❌')
-      await ctx.author.send ("Vous n'êtes pas autorisé à utiliser cette commande pour le moment.")
-      return
     try:
       log_channel = channel or ctx.message.channel
       sql = f"select * from invite_log where guild_id='{guild_id}'"
@@ -36,18 +32,10 @@ class Logs(commands.Cog):
       print (f" {type(e).__name__} - {e}")
 
   @commands.command(name='setgallerylog', aliases=['setgallery', 'sgl', 'gallerylog'])
+  @Utils.require(required=['authorized', 'not_banned'])
   async def set_galerie_log(self, ctx, channel: discord.TextChannel = None):
     guild_id = ctx.message.guild.id
     member = ctx.author
-    if not self.utils.is_authorized (member, guild_id):
-      print ("Missing permissions")
-      return
-    if (not self.utils.do_invite (guild_id) and not botconfig.config[str(guild_id)]["do_token"]):
-      return
-    if self.utils.is_banned (ctx.command, ctx.author, ctx.guild.id):
-      await ctx.message.add_reaction('❌')
-      await ctx.author.send ("Vous n'êtes pas autorisé à utiliser cette commande pour le moment.")
-      return
     try:
       log_channel = channel or ctx.message.channel
       guild_id = ctx.message.guild.id
@@ -63,16 +51,10 @@ class Logs(commands.Cog):
       print (f" {type(e).__name__} - {e}")
 
   @commands.command(name='setnicknamelog', aliases=['setnickname', 'snl', 'nicknamelog'])
+  @Utils.require(required=['authorized', 'not_banned'])
   async def set_nickname_log(self, ctx, channel: discord.TextChannel = None):
     guild_id = ctx.message.guild.id
     member = ctx.author
-    if not self.utils.is_authorized (member, guild_id):
-      print ("Missing permissions")
-      return
-    if self.utils.is_banned (ctx.command, ctx.author, ctx.guild.id):
-      await ctx.message.add_reaction('❌')
-      await ctx.author.send ("Vous n'êtes pas autorisé à utiliser cette commande pour le moment.")
-      return
     try:
       log_channel = channel or ctx.message.channel
       guild_id = ctx.message.guild.id
@@ -88,16 +70,10 @@ class Logs(commands.Cog):
       print (f" {type(e).__name__} - {e}")
 
   @commands.command(name='setvotelog', aliases=['setvote', 'svl', 'votelog'])
+  @Utils.require(required=['authorized', 'not_banned'])
   async def set_vote_log(self, ctx, channel: discord.TextChannel = None):
     guild_id = ctx.message.guild.id
     member = ctx.author
-    if not self.utils.is_authorized (member, guild_id):
-      print ("Missing permissions")
-      return
-    if self.utils.is_banned (ctx.command, ctx.author, ctx.guild.id):
-      await ctx.message.add_reaction('❌')
-      await ctx.author.send ("Vous n'êtes pas autorisé à utiliser cette commande pour le moment.")
-      return
     try:
       log_channel = channel or ctx.message.channel
       guild_id = ctx.message.guild.id
@@ -113,18 +89,12 @@ class Logs(commands.Cog):
       print (f" {type(e).__name__} - {e}")
 
   @commands.command(name='setwelcomelog', aliases=['swl', 'welcomelog'])
+  @Utils.require(required=['authorized', 'not_banned'])
   async def set_welcome_log(self, ctx, channel: discord.TextChannel = None):
     # useless
     return
     guild_id = ctx.message.guild.id
     member = ctx.author
-    if not self.utils.is_authorized (member, guild_id):
-      print ("Missing permissions")
-      return
-    if self.utils.is_banned (ctx.command, ctx.author, ctx.guild.id):
-      await ctx.message.add_reaction('❌')
-      await ctx.author.send ("Vous n'êtes pas autorisé à utiliser cette commande pour le moment.")
-      return
     try:
       log_channel = channel or ctx.message.channel
       guild_id = ctx.message.guild.id
@@ -141,16 +111,10 @@ class Logs(commands.Cog):
 
 
   @commands.command(name='setbirthdaylog', aliases=['sbl'])
+  @Utils.require(required=['authorized', 'not_banned'])
   async def set_birthday_log(self, ctx, channel: discord.TextChannel = None):
     guild_id = ctx.guild.id
     member = ctx.author
-    if not self.utils.is_authorized (member, guild_id):
-      print("Missing permissions")
-      return
-    if self.utils.is_banned(ctx.command, ctx.author, ctx.guild.id):
-      await ctx.message.add_reaction('❌')
-      await ctx.author.send("Vous n'êtes pas autorisé à utilisez cette commande pour le moment.")
-      return
     try:
       log_channel = channel or ctx.message.channel
       sql = f"SELECT channel_id FROM birthday_log WHERE guild_id={guild_id}"
@@ -194,6 +158,7 @@ class Logs(commands.Cog):
 
   @commands.command(name='cleanchannel', aliases=['cc'])
   @commands.guild_only()
+  @Utils.require(required=['authorized', 'not_banned'])
   async def cleanchannel(self, ctx, length_or_id: str = None, message_id: int = None):
     """Clean the current channel"""
     channel = ctx.channel
@@ -210,13 +175,6 @@ class Logs(commands.Cog):
           feedback           = await ctx.send (f"{message_id} n'est pas un id valide.")
           await feedback.delete (delay=2)
           return
-    if not self.utils.is_authorized (member, guild_id):
-      print ("Missing permissions")
-      return
-    if self.utils.is_banned (ctx.command, ctx.author, ctx.guild.id):
-      await ctx.message.add_reaction('❌')
-      await ctx.author.send ("Vous n'êtes pas autorisé à utiliser cette commande pour le moment.")
-      return
     print ("Let's go !")
     if until_message:
       # redo length
@@ -275,16 +233,10 @@ class Logs(commands.Cog):
     return
 
   @commands.command(name='setspylog', aliases=['ssl', 'spylog'])
+  @Utils.require(required=['authorized', 'not_banned'])
   async def set_spy_log(self, ctx, channel: discord.TextChannel = None):
     guild_id                 = ctx.message.guild.id
     member                  = ctx.author
-    if not self.utils.is_authorized (member, guild_id):
-      print ("Missing permissions")
-      return
-    if self.utils.is_banned (ctx.command, ctx.author, ctx.guild.id):
-      await ctx.message.add_reaction('❌')
-      await ctx.author.send ("Vous n'êtes pas autorisé à utiliser cette commande pour le moment.")
-      return
     try:
       log_channel            = channel or ctx.message.channel
       guild_id               = ctx.message.guild.id
@@ -303,16 +255,10 @@ class Logs(commands.Cog):
 
 
   @commands.command(name='setconfiglog', aliases=['setconfig', 'scl', 'configlog'])
+  @Utils.require(required=['authorized', 'not_banned'])
   async def set_config_log(self, ctx, channel: discord.TextChannel = None):
     guild_id = ctx.message.guild.id
     member = ctx.author
-    if not self.utils.is_authorized (member, guild_id):
-      print ("Missing permissions")
-      return
-    if self.utils.is_banned (ctx.command, ctx.author, ctx.guild.id):
-      await ctx.message.add_reaction('❌')
-      await ctx.author.send ("Vous n'êtes pas autorisé à utiliser cette commande pour le moment.")
-      return
     try:
       log_channel = channel or ctx.message.channel
       guild_id = ctx.message.guild.id
@@ -329,16 +275,10 @@ class Logs(commands.Cog):
 
 
   @commands.command(name='setutiplog', aliases=['setutip', 'sul', 'utiplog'])
+  @Utils.require(required=['authorized', 'not_banned'])
   async def set_utip_log(self, ctx, channel: discord.TextChannel = None):
     guild_id = ctx.message.guild.id
     member = ctx.author
-    if not self.utils.is_authorized (member, guild_id):
-      print ("Missing permissions")
-      return
-    if self.utils.is_banned (ctx.command, ctx.author, ctx.guild.id):
-      await ctx.message.add_reaction('❌')
-      await ctx.author.send ("Vous n'êtes pas autorisé à utiliser cette commande pour le moment.")
-      return
     try:
       log_channel = channel or ctx.message.channel
       guild_id = ctx.message.guild.id

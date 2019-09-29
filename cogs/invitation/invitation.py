@@ -1,14 +1,15 @@
-import discord
-import botconfig
 import math
-import urllib
-import re
-from discord.ext import commands
-from datetime import datetime
 import time
-from ..logs import Logs
-from database import Database
+from datetime import datetime
+
+import discord
+from discord.ext import commands
+
+import botconfig
 from Utils import Utils
+from database import Database
+from ..logs import Logs
+
 try: # check if BeautifulSoup4 is installed
   from bs4 import BeautifulSoup
   soupAvailable = True
@@ -24,17 +25,11 @@ class Invitation(commands.Cog):
     self.db = Database()
 
   @commands.command(name='inviteuser', aliases=['iu'])
+  @Utils.require(required=['authorized', 'not_banned'])
   async def invite(self, ctx, member: discord.Member = None):
     """Send the invitation's link in a DM"""
     member                   = member or ctx.author
     guild_id                 = ctx.guild.id
-    if not self.utils.is_authorized (ctx.author, guild_id):
-      print ("Missing permissions")
-      return
-    if self.utils.is_banned (ctx.command, ctx.author, ctx.guild.id):
-      await ctx.message.add_reaction('❌')
-      await ctx.author.send ("Vous n'êtes pas autorisé à utiliser cette commande pour le moment.")
-      return
     error                    = False
     colour                   = discord.Colour(0)
     try:
@@ -60,16 +55,10 @@ class Invitation(commands.Cog):
     await self.logger.log('invite_log', ctx.author, ctx.message, error)
 
   @commands.command(name='resetinvite', aliases=['ri'])
+  @Utils.require(required=['authorized', 'not_banned'])
   async def reset_invite(self, ctx, member: discord.Member = None):
     member                   = member or ctx.author
     guild_id                 = ctx.guild.id
-    if not self.utils.is_authorized (ctx.author, guild_id):
-      print ("Missing permissions")
-      return
-    if self.utils.is_banned (ctx.command, ctx.author, ctx.guild.id):
-      await ctx.message.add_reaction('❌')
-      await ctx.author.send ("Vous n'êtes pas autorisé à utiliser cette commande pour le moment.")
-      return
     sql                      = f"delete from last_invite where guild_id='{guild_id}' and member_id='{member.id}'"
     error                    = False
     try:
@@ -82,17 +71,11 @@ class Invitation(commands.Cog):
     await self.logger.log('invite_log', ctx.author, ctx.message, error)
 
   @commands.command(name='setinvitechannel', aliases=['sic'])
+  @Utils.require(required=['authorized', 'not_banned'])
   async def set_invite_channel(self, ctx, channel: discord.TextChannel = None):
     invite_channel           = channel or ctx.channel
     member                   = ctx.author
     guild_id                 = ctx.message.guild.id
-    if not self.utils.is_authorized (member, guild_id):
-      print ("Missing permissions")
-      return
-    if self.utils.is_banned (ctx.command, ctx.author, ctx.guild.id):
-      await ctx.message.add_reaction('❌')
-      await ctx.author.send ("Vous n'êtes pas autorisé à utiliser cette commande pour le moment.")
-      return
     sql                      = f"select * from invite_channel where guild_id='{guild_id}'"
     prev_invite_channel      = self.db.fetch_one_line (sql)
     if not prev_invite_channel:
@@ -103,16 +86,10 @@ class Invitation(commands.Cog):
     await invite_channel.send ("Request for invite will be put here")
 
   @commands.command(name='invitemessage', aliases=['im'])
+  @Utils.require(required=['authorized', 'not_banned'])
   async def set_invite_message(self, ctx):
     guild_id                 = ctx.message.guild.id
     member                   = ctx.author
-    if not self.utils.is_authorized (member, guild_id):
-      print ("Missing permissions")
-      return
-    if self.utils.is_banned (ctx.command, ctx.author, ctx.guild.id):
-      await ctx.message.add_reaction('❌')
-      await ctx.author.send ("Vous n'êtes pas autorisé à utiliser cette commande pour le moment.")
-      return
     await ctx.send ("Entrez le message d'invitation : ")
     check                    = lambda m: m.channel == ctx.channel and m.author == ctx.author
     msg                      = await self.bot.wait_for('message', check=check)
@@ -131,16 +108,10 @@ class Invitation(commands.Cog):
     await ctx.channel.send (f"Nouveau message : `{message}`")
 
   @commands.command(name='setinvitedelay', aliases=['sid'])
+  @Utils.require(required=['authorized', 'not_banned'])
   async def set_invite_delay(self, ctx, delay: str = None):
     author                   = ctx.author
     guild_id                 = ctx.message.guild.id
-    if not self.utils.is_authorized (author, guild_id):
-      print ("Missing permissions")
-      return
-    if self.utils.is_banned (ctx.command, ctx.author, ctx.guild.id):
-      await ctx.message.add_reaction('❌')
-      await ctx.author.send ("Vous n'êtes pas autorisé à utiliser cette commande pour le moment.")
-      return
     try:
       if not delay.isnumeric():
         delay                = self.utils.parse_time(delay)
@@ -174,7 +145,6 @@ class Invitation(commands.Cog):
     await self.logger.log('config_log', author, ctx.message, error)
 
   @commands.Cog.listener('on_message')
-  # @commands.guild_only()
   async def invitation(self, message):
     """
     Send the invitation's link in a DM

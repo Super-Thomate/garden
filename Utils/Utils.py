@@ -1,10 +1,12 @@
+import inspect
 import math
+import sys
+import time
+from urllib.request import urlopen
+
 import botconfig
 from database import Database
-import time
-import sys
-import inspect
-from urllib.request import urlopen
+
 
 class Utils():
   @staticmethod

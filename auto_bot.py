@@ -1,12 +1,11 @@
-import discord
-import sys
-import os
-from discord.ext import commands
-import botconfig
-from database import Database
+import math
 import time
 from datetime import datetime
-import math
+
+import discord
+
+import botconfig
+from database import Database
 
 bot                          = discord.Client()
 """
