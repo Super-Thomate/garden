@@ -22,6 +22,7 @@ class Invitation(commands.Cog):
     self.utils = Utils()
     self.logger = Logs(self.bot)
     self.db = Database()
+    self.language_code = 'fr'
 
   @commands.command(name='inviteuser', aliases=['iu'])
   async def invite(self, ctx, member: discord.Member = None):
@@ -33,7 +34,7 @@ class Invitation(commands.Cog):
       return
     if self.utils.is_banned (ctx.command, ctx.author, ctx.guild.id):
       await ctx.message.add_reaction('❌')
-      await ctx.author.send ("Vous n'êtes pas autorisé à utiliser cette commande pour le moment.")
+      await ctx.author.send(self.utils.get_text(self.language_code, "user_unauthorized_use_command"))
       return
     error                    = False
     colour                   = discord.Colour(0)
@@ -53,7 +54,8 @@ class Invitation(commands.Cog):
       await member.send (content=None, embed=embed)
       await ctx.message.add_reaction('✅')
     except Exception as e:
-      await ctx.message.channel.send (f"Oups il semblerait que {member.display_name} n'ait pas activé l'envoi de messages privés.")
+      await ctx.message.channel.send (self.utils.get_text(self.language_code, "user_disabled_PM").format(member.display_name))
+
       print (f"{type(e).__name__} - {e}")
       await ctx.message.add_reaction('❌')
       error = True
@@ -68,7 +70,7 @@ class Invitation(commands.Cog):
       return
     if self.utils.is_banned (ctx.command, ctx.author, ctx.guild.id):
       await ctx.message.add_reaction('❌')
-      await ctx.author.send ("Vous n'êtes pas autorisé à utiliser cette commande pour le moment.")
+      await ctx.author.send(self.utils.get_text(self.language_code, "user_unauthorized_use_command"))
       return
     sql                      = f"delete from last_invite where guild_id='{guild_id}' and member_id='{member.id}'"
     error                    = False
@@ -91,7 +93,7 @@ class Invitation(commands.Cog):
       return
     if self.utils.is_banned (ctx.command, ctx.author, ctx.guild.id):
       await ctx.message.add_reaction('❌')
-      await ctx.author.send ("Vous n'êtes pas autorisé à utiliser cette commande pour le moment.")
+      await ctx.author.send(self.utils.get_text(self.language_code, "user_unauthorized_use_command"))
       return
     sql                      = f"select * from invite_channel where guild_id='{guild_id}'"
     prev_invite_channel      = self.db.fetch_one_line (sql)
@@ -100,7 +102,7 @@ class Invitation(commands.Cog):
     else:
       sql                    = f"update invite_channel set channel_id='{invite_channel.id}' where guild_id='{guild_id}'"
     self.db.execute_order(sql)
-    await invite_channel.send ("Request for invite will be put here")
+    await invite_channel.send(self.utils.get_text(self.language_code, "invite_channel_set"))
 
   @commands.command(name='invitemessage', aliases=['im'])
   async def set_invite_message(self, ctx):
@@ -111,9 +113,9 @@ class Invitation(commands.Cog):
       return
     if self.utils.is_banned (ctx.command, ctx.author, ctx.guild.id):
       await ctx.message.add_reaction('❌')
-      await ctx.author.send ("Vous n'êtes pas autorisé à utiliser cette commande pour le moment.")
+      await ctx.author.send(self.utils.get_text(self.language_code, "user_unauthorized_use_command"))
       return
-    await ctx.send ("Entrez le message d'invitation : ")
+    await ctx.send(self.utils.get_text(self.language_code, "ask_new_invitation_message"))
     check                    = lambda m: m.channel == ctx.channel and m.author == ctx.author
     msg                      = await self.bot.wait_for('message', check=check)
     message                  = msg.content
@@ -128,7 +130,7 @@ class Invitation(commands.Cog):
       self.db.execute_order(sql, [message])
     except Exception as e:
       print (f"{type(e).__name__} - {e}")
-    await ctx.channel.send (f"Nouveau message : `{message}`")
+    await ctx.channel.send(self.utils.get_text(self.language_code, "display_new_message"))
 
   @commands.command(name='setinvitedelay', aliases=['sid'])
   async def set_invite_delay(self, ctx, delay: str = None):
@@ -139,7 +141,7 @@ class Invitation(commands.Cog):
       return
     if self.utils.is_banned (ctx.command, ctx.author, ctx.guild.id):
       await ctx.message.add_reaction('❌')
-      await ctx.author.send ("Vous n'êtes pas autorisé à utiliser cette commande pour le moment.")
+      await ctx.author.send(self.utils.get_text(self.language_code, "user_unauthorized_use_command"))
       return
     try:
       if not delay.isnumeric():
@@ -209,7 +211,7 @@ class Invitation(commands.Cog):
             if duree > 0:
               await message.add_reaction('❌')
               error          = True
-              feedback       = await message.channel.send(f"Vous avez déjà demandé une invitation récemment.\nIl vous faut attendre encore {self.utils.format_time(duree)}")
+              feedback       = await message.channel.send(self.utils.get_text(self.language_code, "user_already_ask_invitation").format(self.utils.format_time(duree)))
               await self.logger.log_dm('invite_log', self.bot.user, feedback, guild, error)
           if not error:
             try:
@@ -229,7 +231,7 @@ class Invitation(commands.Cog):
               embed.timestamp          = datetime.utcnow()
               await member.send (content=None, embed=embed)
             except Exception as e:
-              await message.channel.send (f"Oups il semblerait que tu n'aies pas activé l'envoi de messages privés.")
+              await message.channel.send(self.utils.get_text(self.language_code, "user_disabled_PM_2"))
               print (f" {type(e).__name__} - {e}")
               error          = True
           if not error:
@@ -280,7 +282,7 @@ class Invitation(commands.Cog):
           if duree > 0:
             await self.logger.log('invite_log', member, message, True)
             await message.add_reaction('❌')
-            await message.channel.send(f"Vous avez déjà demandé une invitation récemment.\nIl vous faut attendre encore {self.utils.format_time(duree)}")
+            await message.channel.send(self.utils.get_text(self.language_code, "user_already_ask_invitation").format(self.utils.format_time(duree)))
             return
         try:
           colour             = discord.Colour(0)
@@ -299,7 +301,7 @@ class Invitation(commands.Cog):
           embed.timestamp    = datetime.utcnow()
           await member.send (content=None, embed=embed)
         except Exception as e:
-          await message.channel.send (f"Oups il semblerait que tu n'aies pas activé l'envoi de messages privés.")
+          await message.channel.send(self.utils.get_text(self.language_code, "user_disabled_PM_2"))
           print (f" {type(e).__name__} - {e}")
           error              = True
         if not error:
@@ -313,7 +315,7 @@ class Invitation(commands.Cog):
           try:
             self.db.execute_order (sql)
           except Exception as e:
-            await message.channel.send (f'Inscription en db fail !')
+            await message.channel.send(self.utils.get_text(self.language_code, "database_writing_error"))
             print (f'{type(e).__name__} - {e}')
             error            = True
         await self.logger.log('invite_log', member, message, error)

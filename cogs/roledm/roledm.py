@@ -19,6 +19,7 @@ class RoleDM(commands.Cog):
     self.utils = Utils()
     self.logger = Logs(self.bot)
     self.db = Database()
+    self.language_code = 'fr'
   
   @commands.Cog.listener()
   async def on_member_update(self, before, after):
@@ -39,7 +40,7 @@ class RoleDM(commands.Cog):
         if fetched:
           message = (fetched [0]).replace("$member", before.mention).replace("$role", f"<@&{role_id}>")
         else:
-          message = f"Bienveue {before.mention} ! Le message de bienvenue n'existe pas encore !"
+          message = self.utils.get_text(self.language_code, 'welcome_user_welcome_message_not_found').format(before.mention)
         # send
         await before.send (message)
 
@@ -55,11 +56,11 @@ class RoleDM(commands.Cog):
       return
     if self.utils.is_banned (ctx.command, ctx.author, ctx.guild.id):
       await ctx.message.add_reaction('❌')
-      await ctx.author.send ("Vous n'êtes pas autorisé à utiliser cette commande pour le moment.")
+      await ctx.author.send(self.utils.get_text(self.language_code, "user_unauthorized_use_command"))
       return
     if not role:
       # error
-      await ctx.send ("Paramètre manquant `role`.")
+      await ctx.send(self.utils.get_text(self.language_code, "parameter_is_mandatory").format('<role>'))
       await ctx.message.add_reaction('❌')
       return
     role_id = role.id
@@ -88,11 +89,11 @@ class RoleDM(commands.Cog):
       return
     if self.utils.is_banned (ctx.command, ctx.author, ctx.guild.id):
       await ctx.message.add_reaction('❌')
-      await ctx.author.send ("Vous n'êtes pas autorisé à utiliser cette commande pour le moment.")
+      await ctx.author.send(self.utils.get_text(self.language_code, "user_unauthorized_use_command"))
       return
     if not role:
       # error
-      await ctx.send ("Paramètre manquant `role`.")
+      await ctx.send(self.utils.get_text(self.language_code, "parameter_is_mandatory").format('<role>'))
       await ctx.message.add_reaction('❌')
       return
     role_id = role.id
@@ -115,13 +116,13 @@ class RoleDM(commands.Cog):
       return
     if self.utils.is_banned (ctx.command, ctx.author, ctx.guild.id):
       await ctx.message.add_reaction('❌')
-      await ctx.author.send ("Vous n'êtes pas autorisé à utiliser cette commande pour le moment.")
+      await ctx.author.send(self.utils.get_text(self.language_code, "user_unauthorized_use_command"))
       return
     if not role:
-      await ctx.send ("Paramètre manquant `role`")
+      await ctx.send(self.utils.get_text(self.language_code, "parameter_is_mandatory").format('<role>'))
       await ctx.message.add_reaction('❌')
       return
-    await ctx.send ("Entrez le message de bienvenue : ")
+    await ctx.send(self.utils.get_text(self.language_code, "ask_new_welcome_message"))
     check = lambda m: m.channel == ctx.channel and m.author == ctx.author
     msg = await self.bot.wait_for('message', check=check)
     message = msg.content
@@ -140,7 +141,7 @@ class RoleDM(commands.Cog):
       print (f"{type(e).__name__} - {e}")
       await ctx.message.add_reaction('❌')
       return
-    await ctx.channel.send (f"Nouveau message : `{message}`")
+    await ctx.channel.send (self.utils.get_text(self.language_code, 'display_new_message').format(message))
  
   @commands.command(name='displayroledmmessage', aliases=['drm'])
   async def display_roledm_message(self, ctx, *, role: discord.Role = None):
@@ -151,16 +152,16 @@ class RoleDM(commands.Cog):
       return
     if self.utils.is_banned (ctx.command, ctx.author, ctx.guild.id):
       await ctx.message.add_reaction('❌')
-      await ctx.author.send ("Vous n'êtes pas autorisé à utiliser cette commande pour le moment.")
+      await ctx.author.send(self.utils.get_text(self.language_code, "user_unauthorized_use_command"))
       return
     if not role:
-      await ctx.send ("Paramètre manquant `role`")
+      await ctx.send(self.utils.get_text(self.language_code, "parameter_is_mandatory").format('<role>'))
       await ctx.message.add_reaction('❌')
       return
     role_id = role.id
     sql = f"select message from roledm_message where guild_id='{guild_id}' and role_id='{role_id}' ;"
     prev_roledm_message = self.db.fetch_one_line (sql)
     if not prev_roledm_message:
-      await ctx.channel.send (f"Aucun message de définit pour le role {role.name}")
+      await ctx.channel.send(self.utils.get_text(self.language_code, "no_message_defined_for_role").format(role.name))
     else:
       await ctx.channel.send (prev_roledm_message[0])

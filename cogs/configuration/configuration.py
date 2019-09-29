@@ -38,6 +38,7 @@ class Configuration(commands.Cog):
     self.utils = Utils()
     self.logger = Logs(self.bot)
     self.db = Database()
+    self.language_code = 'fr'
 
   @commands.command(name='addrolemoderateur', aliases=['addrolemodo', 'arm'])
   async def add_role_modo (self, ctx, role: discord.Role = None):
@@ -48,10 +49,10 @@ class Configuration(commands.Cog):
       return
     if self.utils.is_banned (ctx.command, ctx.author, ctx.guild.id):
       await ctx.message.add_reaction('❌')
-      await ctx.author.send ("Vous n'êtes pas autorisé à utilisez cette commande pour le moment.")
+      await ctx.author.send(self.utils.get_text(self.language_code, "user_unauthorized_use_command"))
       return
     if not role:
-      await ctx.send ("Le paramètre `<role>` est obligatoire.")
+      await ctx.send(self.utils.get_text(self.language_code, "parameter_is_mandatory").format('<rôle>'))
       return
     error                    = False
     try:
@@ -77,10 +78,10 @@ class Configuration(commands.Cog):
       return
     if self.utils.is_banned (ctx.command, ctx.author, ctx.guild.id):
       await ctx.message.add_reaction('❌')
-      await ctx.author.send ("Vous n'êtes pas autorisé à utilisez cette commande pour le moment.")
+      await ctx.author.send(self.utils.get_text(self.language_code, "user_unauthorized_use_command"))
       return
     if not role:
-      await ctx.send ("Le paramètre `<role>` est obligatoire.")
+      await ctx.send(self.utils.get_text(self.language_code, "parameter_is_mandatory").format('**<role>**'))
       return
     error                    = False
     try:
@@ -107,10 +108,10 @@ class Configuration(commands.Cog):
       return
     if self.utils.is_banned (ctx.command, ctx.author, ctx.guild.id):
       await ctx.message.add_reaction('❌')
-      await ctx.author.send ("Vous n'êtes pas autorisé à utilisez cette commande pour le moment.")
+      await ctx.author.send(self.utils.get_text(self.language_code, "user_unauthorized_use_command"))
       return
     if not prefix:
-      await ctx.send ("Le paramètre `<prefix>` est obligatoire.")
+      await ctx.send(self.utils.get_text(self.language_code, "parameter_is_mandatory").format('**<prefix>**'))
       return
     error                    = False
     try:
@@ -136,10 +137,10 @@ class Configuration(commands.Cog):
       return
     if self.utils.is_banned (ctx.command, ctx.author, ctx.guild.id):
       await ctx.message.add_reaction('❌')
-      await ctx.author.send ("Vous n'êtes pas autorisé à utilisez cette commande pour le moment.")
+      await ctx.author.send(self.utils.get_text(self.language_code, "user_unauthorized_use_command"))
       return
     if not prefix:
-      await ctx.send ("Le paramètre `<prefix>` est obligatoire.")
+      await ctx.send(self.utils.get_text(self.language_code, "parameter_is_mandatory").format('**<role>**'))
       return
     error                    = False
     try:
@@ -167,13 +168,13 @@ class Configuration(commands.Cog):
       return
     if self.utils.is_banned (ctx.command, ctx.author, ctx.guild.id):
       await ctx.message.add_reaction('❌')
-      await ctx.author.send ("Vous n'êtes pas autorisé à utilisez cette commande pour le moment.")
+      await ctx.author.send(self.utils.get_text(self.language_code, "user_unauthorized_use_command"))
       return
     if not type_url:
-      await ctx.send ("Le paramètre `<type_url>` est obligatoire.")
+      await ctx.send(self.utils.get_text(self.language_code, "parameter_is_mandatory").format('**<type_url>**'))
       return
     if not url:
-      await ctx.send ("Le paramètre `<url>` est obligatoire.")
+      await ctx.send(self.utils.get_text(self.language_code, "parameter_is_mandatory").format('**<url>**'))
       return
     error                    = False
     try:
@@ -214,10 +215,10 @@ class Configuration(commands.Cog):
       return
     if self.utils.is_banned (ctx.command, ctx.author, ctx.guild.id):
       await ctx.message.add_reaction('❌')
-      await ctx.author.send ("Vous n'êtes pas autorisé à utilisez cette commande pour le moment.")
+      await ctx.author.send(self.utils.get_text(self.language_code, "user_unauthorized_use_command"))
       return
     if not type_url:
-      await ctx.send ("Le paramètre `<type_url>` est obligatoire.")
+      await ctx.send(self.utils.get_text(self.language_code, "parameter_is_mandatory").format('**<type_url>**'))
       return
     error                    = False
     try:
@@ -243,13 +244,13 @@ class Configuration(commands.Cog):
       return
     if self.utils.is_banned (ctx.command, ctx.author, ctx.guild.id):
       await ctx.message.add_reaction('❌')
-      await ctx.author.send ("Vous n'êtes pas autorisé à utilisez cette commande pour le moment.")
+      await ctx.author.send(self.utils.get_text(self.language_code, "user_unauthorized_use_command"))
       return
     if not type_delay:
-      await ctx.send ("Le paramètre `<type_delay>` est obligatoire.")
+      await ctx.send(self.utils.get_text(self.language_code, "parameter_is_mandatory").format('**<type_delay>**'))
       return
     if not delay:
-      await ctx.send ("Le paramètre `<delay>` est obligatoire.")
+      await ctx.send(self.utils.get_text(self.language_code, "parameter_is_mandatory").format('**<delay>**'))
       return
     error                    = False
     try:
@@ -292,10 +293,10 @@ class Configuration(commands.Cog):
       return
     if self.utils.is_banned (ctx.command, ctx.author, ctx.guild.id):
       await ctx.message.add_reaction('❌')
-      await ctx.author.send ("Vous n'êtes pas autorisé à utilisez cette commande pour le moment.")
+      await ctx.author.send(self.utils.get_text(self.language_code, "user_unauthorized_use_command"))
       return
     if not type_delay:
-      await ctx.send ("Le paramètre `<type_delay>` est obligatoire.")
+      await ctx.send(self.utils.get_text(self.language_code, "parameter_is_mandatory").format('**<type_delay>**'))
       return
     error                    = False
     try:
@@ -321,13 +322,13 @@ class Configuration(commands.Cog):
       return
     if self.utils.is_banned (ctx.command, ctx.author, ctx.guild.id):
       await ctx.message.add_reaction('❌')
-      await ctx.author.send ("Vous n'êtes pas autorisé à utilisez cette commande pour le moment.")
+      await ctx.author.send(self.utils.get_text(self.language_code, "user_unauthorized_use_command"))
       return
     if not type_do:
-      await ctx.send ("Le paramètre `<type_do>` est obligatoire.")
+      await ctx.send(self.utils.get_text(self.language_code, "parameter_is_mandatory").format('**<type_do>**'))
       return
     if not do:
-      await ctx.send ("Le paramètre `<do>` est obligatoire.")
+      await ctx.send(self.utils.get_text(self.language_code, "parameter_is_mandatory").format('**<do>**'))
       return
     error                    = False
     try:
@@ -368,10 +369,10 @@ class Configuration(commands.Cog):
       return
     if self.utils.is_banned (ctx.command, ctx.author, ctx.guild.id):
       await ctx.message.add_reaction('❌')
-      await ctx.author.send ("Vous n'êtes pas autorisé à utilisez cette commande pour le moment.")
+      await ctx.author.send(self.utils.get_text(self.language_code, "user_unauthorized_use_command"))
       return
     if not type_do:
-      await ctx.send ("Le paramètre `<type_do>` est obligatoire.")
+      await ctx.send(self.utils.get_text(self.language_code, "parameter_is_mandatory").format('**<type_do>**'))
       return
     error                    = False
     try:

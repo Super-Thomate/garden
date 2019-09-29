@@ -98,6 +98,7 @@ class Database:
       cursor.execute('CREATE TABLE IF NOT EXISTS `birthday_user` (`user_id` VARCHAR(256) NOT NULL, `guild_id` VARCHAR(256) NOT NULL, `user_birthday` VARCHAR(5), `last_year_wished` VARCHAR(4), PRIMARY KEY (`user_id`)) ;')
       cursor.execute('CREATE TABLE IF NOT EXISTS `birthday_channel` (`channel_id` VARCHAR(256) NOT NULL, `guild_id` VARCHAR(256) NOT NULL, PRIMARY KEY (`guild_id`)) ;')
       cursor.execute('CREATE TABLE IF NOT EXISTS `birthday_log` (`channel_id` VARCHAR(256) NOT NULL, `guild_id` VARCHAR(256) NOT NULL, PRIMARY KEY (`guild_id`)) ;')
+      cursor.execute('CREATE TABLE IF NOT EXISTS `birthday_message` (`message` TEXT NOT NULL, `guild_id` VARCHAR(256) NOT NULL, PRIMARY KEY (`guild_id`)) ;')
       # Save modifications
       cnx.commit()
       cursor.close()
