@@ -32,8 +32,8 @@ class Utils():
   @staticmethod
   def is_authorized (member, guild_id):
     #Test server bypasses
-    if guild_id == 494812563016777729:
-      return True
+   # if guild_id == 494812563016777729:
+    #  return True
     # admin can't be blocked
     if Utils.is_admin(member):
       return True
