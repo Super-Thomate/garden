@@ -3,6 +3,7 @@ import math
 import sys
 import time
 from urllib.request import urlopen
+from functools import wraps
 
 import botconfig
 from database import Database
@@ -12,6 +13,7 @@ class Utils():
   @staticmethod
   def require(required: list):
     def decorator(f):
+      @wraps(f)
       async def decorated(*args, **kwargs):
         ctx = args[1]
         if 'authorized' in required:
@@ -20,7 +22,7 @@ class Utils():
             return
         if 'not_banned' in required:
           if Utils.is_banned(ctx.command, ctx.author, ctx.guild.id):
-            await ctx.send("Vous n'êtes pas autorisé à utilisez cette commande pour le moment.")
+            await ctx.send("Vous n'êtes pas autorisé à utiliser cette commande pour le moment.")
             await ctx.message.add_reaction('❌')
             return
         return await f(*args, **kwargs)
