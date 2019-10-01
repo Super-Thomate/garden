@@ -2,8 +2,8 @@ import datetime
 
 from discord.ext import commands
 
-from Utils import Utils
-from database import Database
+import Utils
+import database
 from ..logs import Logs
 
 
@@ -15,8 +15,8 @@ class Birthday(commands.Cog):
   """
   def __init__(self, bot):
     self.bot = bot
-    self.db = Database()
-    self.utils = Utils()
+
+
     self.logger = Logs(self.bot)
 
   @commands.command(name="setbirthday", aliases=['sb', 'bd', 'anniversaire', 'birthday'])
@@ -28,7 +28,7 @@ class Birthday(commands.Cog):
     error = False
 
     sql = f"SELECT user_id FROM birthday_user WHERE user_id='{member_id}'"
-    data = self.db.fetch_one_line(sql)
+    data = database.fetch_one_line(sql)
     if data is not None:
       await ctx.send('Tu as déjà enregistré ton anniversaire.')
       await ctx.message.add_reaction('❌')
@@ -48,13 +48,13 @@ class Birthday(commands.Cog):
       return
 
     sql = f"SELECT user_birthday FROM birthday_user WHERE user_id='{member_id}'"
-    user_already_registered = self.db.fetch_one_line(sql)
+    user_already_registered = database.fetch_one_line(sql)
     if user_already_registered:
       sql = f"UPDATE birthday_user set user_birthday='{birthday}' where user_id='{member_id}'"
     else:
       sql = f"INSERT INTO birthday_user VALUES ('{member_id}', '{guild_id}', '{birthday}', '') ;"
     try:
-      self.db.execute_order(sql, [])
+      database.execute_order(sql, [])
     except Exception as e:
       error = True
       await ctx.send('Erreur d\'écriture en base de donnée 💀')
@@ -74,14 +74,14 @@ class Birthday(commands.Cog):
     channel_id = channel_id or ctx.channel.id
 
     sql = f"SELECT channel_id FROM birthday_channel WHERE guild_id='{guild_id}'"
-    is_already_set = self.db.fetch_one_line(sql)
+    is_already_set = database.fetch_one_line(sql)
 
     if is_already_set:
       sql = f"UPDATE birthday_channel SET channel_id='{channel_id}' WHERE guild_id='{guild_id}'"
     else:
       sql = f"INSERT INTO birthday_channel VALUES ('{channel_id}', '{guild_id}') ;"
     try:
-      self.db.execute_order(sql, [])
+      database.execute_order(sql, [])
     except Exception as e:
       await ctx.send('Erreur d\'écriture en base de donnée 💀')
       print(f"{type(e).__name__} - {e}")
@@ -102,7 +102,7 @@ class Birthday(commands.Cog):
 
     sql = f"DELETE FROM birthday_user WHERE user_id='{member_id}'"
     try:
-      self.db.execute_order(sql, [])
+      database.execute_order(sql, [])
     except Exception as e:
       error = True
       await ctx.send('Erreur d\'écriture en base de donnée 💀')

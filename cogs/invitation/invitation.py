@@ -6,8 +6,8 @@ import discord
 from discord.ext import commands
 
 import botconfig
-from Utils import Utils
-from database import Database
+import Utils
+import database
 from ..logs import Logs
 
 try: # check if BeautifulSoup4 is installed
@@ -20,9 +20,7 @@ import aiohttp
 class Invitation(commands.Cog):
   def __init__(self, bot):
     self.bot = bot
-    self.utils = Utils()
     self.logger = Logs(self.bot)
-    self.db = Database()
 
   @commands.command(name='inviteuser', aliases=['iu'])
   @Utils.require(required=['authorized', 'not_banned'])
@@ -35,7 +33,7 @@ class Invitation(commands.Cog):
     try:
       url                    = "Votre lien d'invitation:\n"+await self.get_invitation_link(guild_id)
       sql                    = f"select message from invite_message where guild_id='{guild_id}'"
-      invite_message         = self.db.fetch_one_line (sql)
+      invite_message         = database.fetch_one_line (sql)
       if invite_message:
         url                  = url+"\n"+invite_message [0]
       colour                 = colour.from_rgb(255, 51, 124)
@@ -62,7 +60,7 @@ class Invitation(commands.Cog):
     sql                      = f"delete from last_invite where guild_id='{guild_id}' and member_id='{member.id}'"
     error                    = False
     try:
-      self.db.execute_order(sql)
+      database.execute_order(sql)
       await ctx.message.add_reaction('✅')
     except Exception as e:
       print (f"{type(e).__name__} - {e}")
@@ -77,12 +75,12 @@ class Invitation(commands.Cog):
     member                   = ctx.author
     guild_id                 = ctx.message.guild.id
     sql                      = f"select * from invite_channel where guild_id='{guild_id}'"
-    prev_invite_channel      = self.db.fetch_one_line (sql)
+    prev_invite_channel      = database.fetch_one_line (sql)
     if not prev_invite_channel:
       sql                    = f"INSERT INTO invite_channel VALUES ('{invite_channel.id}', '{guild_id}')"
     else:
       sql                    = f"update invite_channel set channel_id='{invite_channel.id}' where guild_id='{guild_id}'"
-    self.db.execute_order(sql)
+    database.execute_order(sql)
     await invite_channel.send ("Request for invite will be put here")
 
   @commands.command(name='invitemessage', aliases=['im'])
@@ -96,13 +94,13 @@ class Invitation(commands.Cog):
     message                  = msg.content
     # message = re.escape(message)
     sql                      = f"select message from invite_message where guild_id='{guild_id}'"
-    prev_invite_message      = self.db.fetch_one_line (sql)
+    prev_invite_message      = database.fetch_one_line (sql)
     if not prev_invite_message:
       sql                    = f"INSERT INTO invite_message VALUES (?, '{guild_id}')"
     else:
       sql                    = f"update invite_message set message=? where guild_id='{guild_id}'"
     try:
-      self.db.execute_order(sql, [message])
+      database.execute_order(sql, [message])
     except Exception as e:
       print (f"{type(e).__name__} - {e}")
     await ctx.channel.send (f"Nouveau message : `{message}`")
@@ -114,14 +112,14 @@ class Invitation(commands.Cog):
     guild_id                 = ctx.message.guild.id
     try:
       if not delay.isnumeric():
-        delay                = self.utils.parse_time(delay)
+        delay                = Utils.parse_time(delay)
       type_delay             = "invite"
       select                 = (  "select delay from config_delay"+
                                   " where "+
                                  f" `type_delay`=? and `guild_id`='{guild_id}'"+
                                   ""
                                )
-      fetched                = self.db.fetch_one_line (select, [type_delay])
+      fetched                = database.fetch_one_line (select, [type_delay])
       if fetched:
         order                = (  "update config_delay"+
                                   " set `delay`=? "+
@@ -136,7 +134,7 @@ class Invitation(commands.Cog):
                                  f" (?, ?, '{guild_id}')"+
                                   ""
                                )
-      self.db.execute_order (order, [delay, type_delay])
+      database.execute_order (order, [delay, type_delay])
       await ctx.message.add_reaction('✅')
     except Exception as e:
       print (f" {type(e).__name__} - {e}")
@@ -163,15 +161,15 @@ class Invitation(commands.Cog):
           guild_id           = guild.id
           member             = message.author
           error              = False
-          invite_delay       = self.utils.invite_delay (guild_id) or botconfig.config[str(guild_id)]["invite_delay"]
+          invite_delay       = Utils.invite_delay (guild_id) or botconfig.config[str(guild_id)]["invite_delay"]
           sql                = f"select last from last_invite where guild_id='{guild_id}' and member_id='{member.id}'"
-          last_invite        = self.db.fetch_one_line (sql)
+          last_invite        = database.fetch_one_line (sql)
           if last_invite and last_invite[0]:
             last_timestamp   = time.mktime(datetime.strptime(last_invite [0], "%Y-%m-%d %H:%M:%S").timetuple())
             if str(invite_delay).isnumeric():
               invite_delay   = int(invite_delay)
             else:
-              invite_delay   = self.utils.convert_str_to_time(invite_delay)
+              invite_delay   = Utils.convert_str_to_time(invite_delay)
             print (f"last_timestamp: {last_timestamp}")
             print (f"invite_delay: {invite_delay}")
             duree            = math.floor ((last_timestamp + invite_delay) - time.time())
@@ -179,14 +177,14 @@ class Invitation(commands.Cog):
             if duree > 0:
               await message.add_reaction('❌')
               error          = True
-              feedback       = await message.channel.send(f"Vous avez déjà demandé une invitation récemment.\nIl vous faut attendre encore {self.utils.format_time(duree)}")
+              feedback       = await message.channel.send(f"Vous avez déjà demandé une invitation récemment.\nIl vous faut attendre encore {Utils.format_time(duree)}")
               await self.logger.log_dm('invite_log', self.bot.user, feedback, guild, error)
           if not error:
             try:
               colour         = discord.Colour(0)
               url            = "Votre lien d'invitation:\n"+await self.get_invitation_link(guild_id)
               sql            = f"select message from invite_message where guild_id='{guild_id}'"
-              invite_message =  self.db.fetch_one_line (sql)
+              invite_message =  database.fetch_one_line (sql)
               if invite_message:
                 url          = url+"\n\n"+invite_message [0]
               colour         = colour.from_rgb(255, 51, 124)
@@ -205,13 +203,13 @@ class Invitation(commands.Cog):
           if not error:
             # LOG LAST INVITE
             sql              = f"select * from last_invite where guild_id='{guild_id}' and member_id='{member.id}'"
-            last_invite      = self.db.fetch_one_line (sql)
+            last_invite      = database.fetch_one_line (sql)
             if not last_invite:
               sql            = f"insert into last_invite values ('{member.id}', '{guild_id}', datetime('{datetime.now()}'))"
             else:
               sql            = f"update last_invite set last=datetime('{datetime.now()}') where member_id='{member.id}' and guild_id='{guild_id}'"
             try:
-              self.db.execute_order (sql)
+              database.execute_order (sql)
             except Exception as e:
               print (f'{type(e).__name__} - {e}')
               error          = True
@@ -227,22 +225,22 @@ class Invitation(commands.Cog):
     else:
       guild_id               = message.channel.guild.id
       sql                    = f"select * from invite_channel where guild_id='{message.channel.guild.id}'"
-      invite_channel         = self.db.fetch_one_line (sql)
+      invite_channel         = database.fetch_one_line (sql)
       if invite_channel:
         invite_channel       = int (invite_channel [0])
       member                 = message.author
       error                  = False
       # If I ask for invite, we check for the last time i asked for it
       if (message.channel.id == invite_channel):
-        invite_delay         = self.utils.invite_delay (guild_id) or botconfig.config[str(guild_id)]["invite_delay"]
+        invite_delay         = Utils.invite_delay (guild_id) or botconfig.config[str(guild_id)]["invite_delay"]
         sql                  = f"select last from last_invite where guild_id='{message.guild.id}' and member_id='{member.id}'"
-        last_invite          = self.db.fetch_one_line (sql)
+        last_invite          = database.fetch_one_line (sql)
         if last_invite and last_invite[0]:
           last_timestamp     = time.mktime(datetime.strptime(last_invite [0], "%Y-%m-%d %H:%M:%S").timetuple())
           if str(invite_delay).isnumeric():
             invite_delay     = int(invite_delay)
           else:
-            invite_delay     = self.utils.convert_str_to_time(invite_delay)
+            invite_delay     = Utils.convert_str_to_time(invite_delay)
           print (f"last_timestamp: {last_timestamp}")
           print (f"invite_delay: {invite_delay}")
           duree              = math.floor ((last_timestamp + invite_delay) - time.time())
@@ -250,13 +248,13 @@ class Invitation(commands.Cog):
           if duree > 0:
             await self.logger.log('invite_log', member, message, True)
             await message.add_reaction('❌')
-            await message.channel.send(f"Vous avez déjà demandé une invitation récemment.\nIl vous faut attendre encore {self.utils.format_time(duree)}")
+            await message.channel.send(f"Vous avez déjà demandé une invitation récemment.\nIl vous faut attendre encore {Utils.format_time(duree)}")
             return
         try:
           colour             = discord.Colour(0)
           url                = "Votre lien d'invitation:\n"+await self.get_invitation_link(guild_id)
           sql                = f"select message from invite_message where guild_id='{guild_id}'"
-          invite_message     =  self.db.fetch_one_line (sql)
+          invite_message     =  database.fetch_one_line (sql)
           if invite_message:
             url              = url+"\n\n"+invite_message [0]
           colour             = colour.from_rgb(255, 51, 124)
@@ -275,13 +273,13 @@ class Invitation(commands.Cog):
         if not error:
           # LOG LAST INVITE
           sql                = f"select * from last_invite where guild_id='{message.guild.id}' and member_id='{member.id}'"
-          last_invite        = self.db.fetch_one_line (sql)
+          last_invite        = database.fetch_one_line (sql)
           if not last_invite:
             sql              = f"insert into last_invite values ('{member.id}', '{message.guild.id}', datetime('{datetime.now()}'))"
           else:
             sql              = f"update last_invite set last=datetime('{datetime.now()}') where member_id='{member.id}' and guild_id='{message.guild.id}'"
           try:
-            self.db.execute_order (sql)
+            database.execute_order (sql)
           except Exception as e:
             await message.channel.send (f'Inscription en db fail !')
             print (f'{type(e).__name__} - {e}')
@@ -297,7 +295,7 @@ class Invitation(commands.Cog):
             print (f'{type(e).__name__} - {e}')
 
   async def get_invitation_link (self, guild_id):
-    url                      = self.utils.invite_url(guild_id) or botconfig.config[str(guild_id)]['create_url']['invitation'] #build the web adress
+    url                      = Utils.invite_url(guild_id) or botconfig.config[str(guild_id)]['create_url']['invitation'] #build the web adress
     return await self.get_text(url)
 
   async def get_text(self, url):

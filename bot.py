@@ -4,7 +4,7 @@ import discord
 from discord.ext import commands
 
 import botconfig
-from database import Database
+import database
 
 
 def get_prefix(bot, message):
@@ -12,14 +12,14 @@ def get_prefix(bot, message):
     prefixes = []
     if message.guild:
       prefixes = botconfig.config[str(message.guild.id)]['prefixes']
-      db                     = Database ()
+
       select                 = (   "select   prefix "+
                                    "from     config_prefix "+
                                    " where "+
                                   f"guild_id='{message.guild.id}' ;"+
                                    ""
                                )
-      fetched                = db.fetch_all_line (select)
+      fetched                = database.fetch_all_line (select)
       if fetched:
         for line in fetched:
           prefixes.append (line [0])

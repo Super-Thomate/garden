@@ -3,20 +3,20 @@ from datetime import datetime
 import discord
 from discord.ext import commands
 
-from Utils import Utils
+import Utils
 
 
 class Help(commands.Cog):
   def __init__(self, bot):
     self.bot = bot
-    self.utils = Utils()
+
 
   @commands.command(name='help')
   @Utils.require(required=['not_banned'])
   async def help(self, ctx, *, cog: str = None):
     """Display help"""
     cog = cog or "global"
-    if self.utils.is_banned (ctx.command, ctx.author, ctx.guild.id):
+    if Utils.is_banned (ctx.command, ctx.author, ctx.guild.id):
       await ctx.message.add_reaction('❌')
       await ctx.author.send ("Vous n'êtes pas autorisé à utiliser cette commande pour le moment.")
       return

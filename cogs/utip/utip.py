@@ -4,17 +4,17 @@ import time
 import discord
 from discord.ext import commands
 
-from Utils import Utils
-from database import Database
+import Utils
+import database
 from ..logs import Logs
 
 
 class Utip(commands.Cog):
   def __init__(self, bot):
     self.bot = bot
-    self.utils = Utils()
+
     self.logger = Logs(self.bot)
-    self.db = Database()
+
 
   @commands.command(name='utip')
   @Utils.require(required=['not_banned'])
@@ -23,7 +23,7 @@ class Utip(commands.Cog):
     author = ctx.author
     # First get channel, if no channel => big error
     select_channel           = f"select channel_id from utip_channel where guild_id='{guild_id}' ;"
-    fetched_channel          = self.db.fetch_one_line (select_channel)
+    fetched_channel          = database.fetch_one_line (select_channel)
     if not fetched_channel:
       await ctx.send (":warning: Le salon pour la modération n'est pas définie. "+
                       "Veuillez contacter un modérateur et lui montrer ce message.\n"+
@@ -49,12 +49,12 @@ class Utip(commands.Cog):
       msg                    = await self.bot.wait_for('message', check=check)
       content                = msg.content
       is_attachment          = len(msg.attachments) > 0
-      is_url                 = self.utils.is_url_image(content)
+      is_url                 = Utils.is_url_image(content)
       if is_attachment:
         attachment           = msg.attachments[0].proxy_url
       # FEEDBACK
       if (    (not is_url and not is_attachment)
-           #or (is_url and not self.utils.is_url_image(content) and not is_attachment)
+           #or (is_url and not Utils.is_url_image(content) and not is_attachment)
          ):
         await ctx.message.add_reaction('❌')
         await ask.delete (delay=2)
@@ -63,7 +63,7 @@ class Utip(commands.Cog):
         await self.logger.log('utip_log', author, msg, True)
         return
       select                 = f"select message from utip_message where guild_id='{guild_id}' ;"
-      fetch_utip_message     = self.db.fetch_one_line (select)
+      fetch_utip_message     = database.fetch_one_line (select)
       if fetch_utip_message:
         await author.send (fetch_utip_message [0])
       else:
@@ -106,7 +106,7 @@ class Utip(commands.Cog):
                                  f"('{author.id}', 0, '{modo_message.id}', NULL, NULL, '{guild_id}')"+
                                   ";"
                                )
-      self.db.execute_order (insert_wait)
+      database.execute_order (insert_wait)
       # DELETE
       await ctx.message.delete (delay=2)
       await ask.delete (delay=2)
@@ -127,14 +127,14 @@ class Utip(commands.Cog):
       await ctx.send ("Le paramètre <channelid> est obligatoire")
       return
     sql                      = f"select channel_id from utip_channel where guild_id='{guild_id}'"
-    prev_galerie_channel     = self.db.fetch_one_line (sql)
+    prev_galerie_channel     = database.fetch_one_line (sql)
     if not prev_galerie_channel:
       sql                    = f"insert into utip_channel (`channel_id`, `guild_id`) values (?, '{guild_id}')"
     else:
       sql                    = f"update utip_channel set channel_id=? where guild_id='{guild_id}'"
     # print (sql)
     try:
-      self.db.execute_order (sql, [channel.id])
+      database.execute_order (sql, [channel.id])
     except Exception as e:
       print (f"{type(e).__name__} - {e}")
     else:
@@ -146,14 +146,14 @@ class Utip(commands.Cog):
     guild_id                 = ctx.message.guild.id
     author                   = ctx.author
     sql                      = f"select role_id from utip_role where guild_id='{guild_id}'"
-    prev_galerie_role        = self.db.fetch_one_line (sql)
+    prev_galerie_role        = database.fetch_one_line (sql)
     if not prev_galerie_role:
       sql                    = f"insert into utip_role (`role_id`, `guild_id`) values (?, '{guild_id}')"
     else:
       sql                    = f"update utip_role set role_id=? where guild_id='{guild_id}'"
     # print (sql)
     try:
-      self.db.execute_order (sql, [role.id])
+      database.execute_order (sql, [role.id])
     except Exception as e:
       print (f"{type(e).__name__} - {e}")
       await ctx.message.add_reaction('❌')
@@ -170,14 +170,14 @@ class Utip(commands.Cog):
     msg                      = await self.bot.wait_for('message', check=check)
     message                  = msg.content
     sql                      = f"select message from utip_message where guild_id='{guild_id}'"
-    prev_galerie_message     = self.db.fetch_one_line (sql)
+    prev_galerie_message     = database.fetch_one_line (sql)
     if not prev_galerie_message:
       sql                    = f"insert into utip_message (`message`, `guild_id`) values (?, '{guild_id}')"
     else:
       sql                    = f"update utip_message set message=? where guild_id='{guild_id}'"
     # print (sql)
     try:
-      self.db.execute_order (sql, [message])
+      database.execute_order (sql, [message])
     except Exception as e:
       print (f"{type(e).__name__} - {e}")
       await ctx.message.add_reaction('❌')
@@ -196,19 +196,19 @@ class Utip(commands.Cog):
     message                  = msg.content
     sql                      = f"select delay from config_delay where guild_id='{guild_id}' and type_delay='utip_role' ;"
     try:
-      delay                  = self.utils.parse_time (message)
+      delay                  = Utils.parse_time (message)
     except Exception as e:
       await ctx.message.add_reaction('❌')
       await ctx.channel.send (f"Le délai doit être au format jhms ~~{message}~~")
       return
-    prev_galerie_delay       = self.db.fetch_one_line (sql)
+    prev_galerie_delay       = database.fetch_one_line (sql)
     if not prev_galerie_delay:
       sql                    = f"insert into config_delay (`delay`, `type_delay`, `guild_id`) values (?, 'utip_role', '{guild_id}')"
     else:
       sql                    = f"update config_delay set delay=? where guild_id='{guild_id}' and type_delay='utip_role' ;"
     # print (sql)
     try:
-      self.db.execute_order (sql, [delay])
+      database.execute_order (sql, [delay])
     except Exception as e:
       print (f"{type(e).__name__} - {e}")
       await ctx.message.add_reaction('❌')
@@ -228,8 +228,8 @@ class Utip(commands.Cog):
                                  f"guild_id = '{member.guild.id}'"+
                                   ""
                                )
-      fetched                = self.db.fetch_one_line (select)
-      if self.utils.has_role (member, role_utip.id) or fetched:
+      fetched                = database.fetch_one_line (select)
+      if Utils.has_role (member, role_utip.id) or fetched:
         sql                  = (  "update utip_timer "+
                                  f"set until={until} "+
                                   " where "+
@@ -246,7 +246,7 @@ class Utip(commands.Cog):
                                   ""
                                )
       await member.add_roles(role_utip)
-      self.db.execute_order (sql)
+      database.execute_order (sql)
     except Exception as e:
        print (f"give_role: {type(e).__name__} - {e}")
        error                 = True
@@ -273,7 +273,7 @@ class Utip(commands.Cog):
     if not str(emoji) in ["👍", "👎"]:
       return
     select_waiting           = f"select user_id from utip_waiting where message_id='{message_id}' and status=0;"
-    fetched_waiting          = self.db.fetch_one_line (select_waiting)
+    fetched_waiting          = database.fetch_one_line (select_waiting)
     if not fetched_waiting:
       # print ("Utip reaction listener: Not a utip message !")
       return
@@ -284,7 +284,7 @@ class Utip(commands.Cog):
     member_selected          = guild_select.get_member (user_id)
     author_selected          = guild_select.get_member (author_id)
     select_role              = f"select role_id from utip_role where guild_id='{guild_id}' ;"
-    fetched_role             = self.db.fetch_one_line (select_role)
+    fetched_role             = database.fetch_one_line (select_role)
     if not fetched_role:
       await channel_selected.send ("Erreur: role pour utip non défini")
       return
@@ -292,7 +292,7 @@ class Utip(commands.Cog):
     select_delay             = (  "select delay from config_delay "+
                                  f"where guild_id='{guild_id}' and type_delay='utip_role' ;"
                                )
-    fetched_delay            = self.db.fetch_one_line (select_delay)
+    fetched_delay            = database.fetch_one_line (select_delay)
     if not fetched_delay:
       await channel_selected.send ("Erreur: delay pour utip non défini")
       return
@@ -308,7 +308,7 @@ class Utip(commands.Cog):
       colour                 = colour.from_rgb(56, 255, 56)
       embed.set_footer(text=f"Accepté par {str(author_selected)}")
       feedback_message       = ( ":white_check_mark: Demande validée ! "+
-                                f"Tu dispose du role de backers pendant **{self.utils.format_time(delay)}**."+
+                                f"Tu dispose du role de backers pendant **{Utils.format_time(delay)}**."+
                                 # ":arrow_right: Ton role prendra fin le **XX/XX/XXX** à **XX:XX**"+
                                  ""
                                )
@@ -322,7 +322,7 @@ class Utip(commands.Cog):
       feedback_message       = ( "Votre demande a été refusée."+
                                  ""
                                )
-    self.db.execute_order (update_waiting)
+    database.execute_order (update_waiting)
     embed.colour             = colour
     await message_selected.edit (embed=embed)
     await member_selected.send (feedback_message)
@@ -331,16 +331,16 @@ class Utip(commands.Cog):
   async def test_give_utip(self, ctx, member: discord.Member = None):
     guild_id                 = ctx.message.guild.id
     author                   = ctx.author
-    if not self.utils.is_authorized (author, guild_id):
+    if not Utils.is_authorized (author, guild_id):
       print ("Missing permissions")
       return
-    if self.utils.is_banned (ctx.command, ctx.author, ctx.guild.id):
+    if Utils.is_banned (ctx.command, ctx.author, ctx.guild.id):
       await ctx.message.add_reaction('❌')
       await ctx.author.send ("Vous n'êtes pas autorisé à utiliser cette commande pour le moment.")
       return
     member                   = member or author
     select                   = f"select role_id from utip_role where guild_id='{guild_id}'"
-    fetched                  = self.db.fetch_one_line (select)
+    fetched                  = database.fetch_one_line (select)
     print (f"select: {select}")
     print (f"fetched: {fetched}")
     if not fetched:

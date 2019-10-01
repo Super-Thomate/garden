@@ -1,8 +1,8 @@
 import discord
 from discord.ext import commands
 
-from Utils import Utils
-from database import Database
+import Utils
+import database
 from ..logs import Logs
 
 
@@ -22,9 +22,9 @@ class Turing(commands.Cog):
   """
   def __init__(self, bot):
     self.bot = bot
-    self.utils = Utils()
+
     self.logger = Logs(self.bot)
-    self.db = Database()
+
     self.auto_reply          = False
 
   @commands.command(name='answer', aliases=['reply'])

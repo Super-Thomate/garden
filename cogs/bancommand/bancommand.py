@@ -5,8 +5,8 @@ from datetime import datetime
 import discord
 from discord.ext import commands
 
-from Utils import Utils
-from database import Database
+import Utils
+import database
 from ..logs import Logs
 
 
@@ -25,9 +25,9 @@ class Bancommand(commands.Cog):
   """
   def __init__(self, bot):
     self.bot = bot
-    self.utils = Utils()
+
     self.logger = Logs(self.bot)
-    self.db = Database()
+
 
   @commands.command(name='bancommanduser', aliases=['bcu'])
   @Utils.require(required=['authorized'])
@@ -55,14 +55,14 @@ class Bancommand(commands.Cog):
     # Parse time
     timestamp = None
     if timer:
-      timestamp = math.floor (time.time()) + self.utils.parse_time (timer)
+      timestamp = math.floor (time.time()) + Utils.parse_time (timer)
     print (f"timestamp: {timestamp}")
     if not timestamp:
       timestamp = "NULL"
     # Insert/Update
     # CREATE TABLE IF NOT EXISTS `ban_command_user` (`command` VARCHAR(256) NOT NULL, `until` INTEGER, `user_id` VARCHAR(256) NOT NULL, `guild_id` VARCHAR(256) NOT NULL, PRIMARY KEY (`command`, `user_id`, `guild_id`)) ;
     select = f"select until from ban_command_user where command='{command}' and user_id='{user.id}' and guild_id='{guild_id}' ;"
-    fetched = self.db.fetch_one_line (select)
+    fetched = database.fetch_one_line (select)
     if fetched:
       """
       await ctx.send (f"L'utilisateur {user.display_name} est déjà banni pour la commande {command}. Souhaitez-vous:\n1) Prolonger le banissement de {timer}\n2) Modifier la durée du bannissement à {timer} à partir de maintenant\n3) Annuler")
@@ -75,7 +75,7 @@ class Bancommand(commands.Cog):
         elif timestamp == "NULL":
           await ctx.send ("L'utilisateur est donc banni permanent.")
         else:
-          timestamp = fetched [0] + self.utils.parse_time (timer)
+          timestamp = fetched [0] + Utils.parse_time (timer)
       elif msg.content == '2':
         timestamp = timestamp
       else:
@@ -90,7 +90,7 @@ class Bancommand(commands.Cog):
     else:
       sql = f"insert into ban_command_user values ('{command}', {timestamp}, '{user.id}', '{guild_id}');"
     try:
-      self.db.execute_order (sql)
+      database.execute_order (sql)
       await ctx.send(f"{user.display_name} ne peut plus utiliser la commande `{command}` pour la durée: {timer or '**permanent**'}")
       await ctx.message.add_reaction('✅')
     except Exception as e:
@@ -123,7 +123,7 @@ class Bancommand(commands.Cog):
     # Delete
     delete = f"delete from ban_command_user where command='{command}' and user_id='{user.id}' and guild_id='{guild_id}' ;"
     try:
-      self.db.execute_order (delete)
+      database.execute_order (delete)
       await ctx.message.add_reaction('✅')
     except Exception as e:
       print (f'{type(e).__name__} - {e}')
@@ -142,7 +142,7 @@ class Bancommand(commands.Cog):
                  "order by command ASC"+
                  " ;"
              )
-    fetched = self.db.fetch_all_line (select)
+    fetched = database.fetch_all_line (select)
     if not fetched:
       await ctx.send ("Aucune commande bannie pour l'utilisateur.")
       return
@@ -155,7 +155,7 @@ class Bancommand(commands.Cog):
       temp = ""
       # parse until
       if until:
-        # date = self.utils.format_time (until)
+        # date = Utils.format_time (until)
         date = datetime.utcfromtimestamp(until).strftime("%d/%m/%Y %H:%M:%S")
       else:
         date = "Permanent"
@@ -197,7 +197,7 @@ class Bancommand(commands.Cog):
                  "order by command ASC"+
                  " ;"
              )
-    fetched = self.db.fetch_all_line (select)
+    fetched = database.fetch_all_line (select)
     if not fetched:
       await ctx.send ("Aucune commande bannie pour les utilisateurs."if not command else f"Aucun utilisateur banni pour la commande **{command}**.")
       return
@@ -216,7 +216,7 @@ class Bancommand(commands.Cog):
       user_name = (user.name+" a.k.a."+user.display_name) if user else "user inconnu"
       # parse until
       if until:
-        # date = self.utils.format_time (until)
+        # date = Utils.format_time (until)
         date = datetime.utcfromtimestamp(until).strftime("%d/%m/%Y %H:%M:%S")
       else:
         date = "Permanent"
@@ -260,19 +260,19 @@ class Bancommand(commands.Cog):
     # Parse time
     timestamp = None
     if timer:
-      timestamp = math.floor (time.time()) + self.utils.parse_time (timer)
+      timestamp = math.floor (time.time()) + Utils.parse_time (timer)
     if not timestamp:
       timestamp = "NULL"
     # Insert/Update
     # CREATE TABLE IF NOT EXISTS `ban_command_user` (`command` VARCHAR(256) NOT NULL, `until` INTEGER, `user_id` VARCHAR(256) NOT NULL, `guild_id` VARCHAR(256) NOT NULL, PRIMARY KEY (`command`, `user_id`, `guild_id`)) ;
     select = f"select until from ban_command_role where command='{command}' and role_id='{role.id}' and guild_id='{guild_id}' ;"
-    fetched = self.db.fetch_one_line (select)
+    fetched = database.fetch_one_line (select)
     if fetched:
       sql = f"update ban_command_role set until={timestamp} where command='{command}' and role_id='{role.id}' and guild_id='{guild_id}' ;"
     else:
       sql = f"insert into ban_command_role values ('{command}', {timestamp}, '{role.id}', '{guild_id}');"
     try:
-      self.db.execute_order (sql)
+      database.execute_order (sql)
       await ctx.send(f"{role.name} ne peut plus utiliser la commande `{command}` pour la durée: {timer or '**permanent**'}")
       await ctx.message.add_reaction('✅')
     except Exception as e:
@@ -305,7 +305,7 @@ class Bancommand(commands.Cog):
     # Delete
     delete = f"delete from ban_command_role where command='{command}' and role_id='{role.id}' and guild_id='{guild_id}' ;"
     try:
-      self.db.execute_order (delete)
+      database.execute_order (delete)
       await ctx.message.add_reaction('✅')
     except Exception as e:
       print (f'{type(e).__name__} - {e}')
@@ -325,7 +325,7 @@ class Bancommand(commands.Cog):
                  "order by command ASC"+
                  " ;"
              )
-    fetched = self.db.fetch_all_line (select)
+    fetched = database.fetch_all_line (select)
     if not fetched:
       await ctx.send ("Aucune commande bannie pour l'utilisateur.")
       return
@@ -338,7 +338,7 @@ class Bancommand(commands.Cog):
       temp = ""
       # parse until
       if until:
-        # date = self.utils.format_time (until)
+        # date = Utils.format_time (until)
         date = datetime.utcfromtimestamp(until).strftime("%d/%m/%Y %H:%M:%S")
       else:
         date = "Permanent"
@@ -380,7 +380,7 @@ class Bancommand(commands.Cog):
                  "order by command ASC"+
                  " ;"
              )
-    fetched = self.db.fetch_all_line (select)
+    fetched = database.fetch_all_line (select)
     if not fetched:
       await ctx.send ("Aucune commande bannie pour les utilisateurs."if not command else f"Aucun utilisateur banni pour la commande **{command}**.")
       return
@@ -399,7 +399,7 @@ class Bancommand(commands.Cog):
       role_name = role.name
       # parse until
       if until:
-        # date = self.utils.format_time (until)
+        # date = Utils.format_time (until)
         date = datetime.utcfromtimestamp(until).strftime("%d/%m/%Y %H:%M:%S")
       else:
         date = "Permanent"
@@ -421,5 +421,5 @@ class Bancommand(commands.Cog):
   # parse_time
   @commands.command(name='test', aliases=['t'])
   async def test(self, ctx, timer: str = None):
-    seconds = self.utils.parse_time (timer)
+    seconds = Utils.parse_time (timer)
   """

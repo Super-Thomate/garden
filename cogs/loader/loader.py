@@ -2,14 +2,13 @@ import os
 
 from discord.ext import commands
 
-from Utils import Utils
+import Utils
 
 
 class Loader(commands.Cog):
 
   def __init__(self, bot):
       self.bot = bot
-      self.utils = Utils ()
 
   # Hidden means it won't show up on the default help.
   @commands.command(name='load', hidden=True)

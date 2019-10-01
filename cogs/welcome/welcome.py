@@ -5,8 +5,8 @@ import time
 import discord
 from discord.ext import commands
 
-from Utils import Utils
-from database import Database
+import Utils
+import database
 from ..logs import Logs
 
 
@@ -20,9 +20,9 @@ class Welcome(commands.Cog):
   """
   def __init__(self, bot):
     self.bot = bot
-    self.utils = Utils()
+
     self.logger = Logs(self.bot)
-    self.db = Database()
+
 
   @commands.Cog.listener()
   async def on_member_update(self, before, after):
@@ -31,18 +31,18 @@ class Welcome(commands.Cog):
     unique_welcome = True # to put on config later
     # all roles to listen
     select = f"select role_id from welcome_role where guild_id='{guild_id}'"
-    fetched = self.db.fetch_all_line (select)
+    fetched = database.fetch_all_line (select)
     for line in fetched:
       role_id = int(line [0])
-      if (     not self.utils.has_role (before, role_id)
-           and self.utils.has_role (after, role_id)
+      if (     not Utils.has_role (before, role_id)
+           and Utils.has_role (after, role_id)
          ):
         # The member obtained the role
         print ('The member obtained the role')
         # already welcomed ?
         if unique_welcome:
           select = f"select * from welcome_user where user_id='{before.id}' and guild_id='{guild_id}' and role_id={role_id} ;"
-          fetched = self.db.fetch_one_line (select)
+          fetched = database.fetch_one_line (select)
           if fetched:
             # already welcomed !
             print ('already welcomed')
@@ -50,7 +50,7 @@ class Welcome(commands.Cog):
         # get the channel
         channel = None
         select = f"select channel_id from welcome_channel where guild_id='{guild_id}' ;"
-        fetched = self.db.fetch_one_line (select)
+        fetched = database.fetch_one_line (select)
         if fetched:
            channel_id = fetched [0]
            channel = before.guild.get_channel (int(channel_id))
@@ -59,7 +59,7 @@ class Welcome(commands.Cog):
           channel = before.guild.system_channel
         # get the message
         select = f"select message from welcome_message where guild_id='{guild_id}' and role_id={role_id} ; "
-        fetched = self.db.fetch_one_line (select)
+        fetched = database.fetch_one_line (select)
         if fetched:
            text = ""
            # split around '{'
@@ -94,7 +94,7 @@ class Welcome(commands.Cog):
                    " values "+
                   f"('{before.id}', {role_id}, {math.floor (time.time())}, '{guild_id}') ;"
                 )
-          self.db.execute_order (sql)
+          database.execute_order (sql)
 
   @commands.command(name='setwelcomerole', aliases=['swr', 'welcomerole'])
   @Utils.require(required=['authorized', 'not_banned'])
@@ -110,7 +110,7 @@ class Welcome(commands.Cog):
       return
     role_id = role.id
     select = f"select role_id from welcome_role where guild_id='{guild_id}' and role_id='{role_id}' ;"
-    fetched = self.db.fetch_one_line (select)
+    fetched = database.fetch_one_line (select)
     if fetched:
       sql = f"update welcome_role set role_id='{role_id}' where guild_id='{guild_id}' and role_id='{role_id}' ;"
     else:
@@ -118,7 +118,7 @@ class Welcome(commands.Cog):
     error = False
     print (sql)
     try:
-      self.db.execute_order(sql, [])
+      database.execute_order(sql, [])
     except Exception as e:
       error = True
     # Log my change
@@ -138,13 +138,13 @@ class Welcome(commands.Cog):
     guild_id = ctx.guild.id
     error = False
     select = f"select * from welcome_channel where guild_id='{guild_id}' ;"
-    fetched = self.db.fetch_one_line (select)
+    fetched = database.fetch_one_line (select)
     if not fetched:
       sql = f"insert into welcome_channel values ('{channel.id}', '{guild_id}') ;"
     else:
       sql = f"update welcome_channel set channel_id='{channel.id}' where guild_id='{guild_id}' ;"
     try:
-      self.db.execute_order (sql, [])
+      database.execute_order (sql, [])
     except Exception as e:
       await ctx.channel.send (f'Inscription en db fail !')
       print (f'{type(e).__name__} - {e}')
@@ -170,14 +170,14 @@ class Welcome(commands.Cog):
     msg = await self.bot.wait_for('message', check=check)
     message = msg.content
     sql = f"select message from welcome_message where guild_id='{guild_id}' and role_id={role.id}; "
-    prev_galerie_message = self.db.fetch_one_line (sql)
+    prev_galerie_message = database.fetch_one_line (sql)
     if not prev_galerie_message:
       sql = f"INSERT INTO welcome_message (`message`,`role_id`,`guild_id`) VALUES (?, {role.id},'{guild_id}') ;"
     else:
       sql = f"update welcome_message set message=? where guild_id='{guild_id}' and role_id={role.id} ;"
     print (sql)
     try:
-      self.db.execute_order(sql, [message])
+      database.execute_order(sql, [message])
     except Exception as e:
       print (f"{type(e).__name__} - {e}")
     await ctx.channel.send (f"Nouveau message : `{message}`")
@@ -189,7 +189,7 @@ class Welcome(commands.Cog):
     guild_id = ctx.message.guild.id
     member = ctx.author
     select                   = f"select role_id from welcome_role where guild_id='{guild_id}'"
-    fetched_all              = self.db.fetch_all_line (select)
+    fetched_all              = database.fetch_all_line (select)
     if not fetched_all:
       await ctx.send ("Aucun rôle n'est défini !")
       return
@@ -203,7 +203,7 @@ class Welcome(commands.Cog):
         insert = ("insert into welcome_user (`user_id`, `role_id`, `welcomed_at`, `guild_id`)"+
         f"values ('{member.id}', {role_id},{math.floor (time.time())}, '{guild_id}') ;")
         try:
-          self.db.execute_order (insert)
+          database.execute_order (insert)
         except Exception as e:
           print (f'{type(e).__name__} - {e}')
     await ctx.message.add_reaction('✅')
@@ -219,7 +219,7 @@ class Welcome(commands.Cog):
                                    ""
                                )
     try:
-      self.db.execute_order (delete)
+      database.execute_order (delete)
     except Exception as e:
       await ctx.message.add_reaction('❌')
       print (f'{type(e).__name__} - {e}')

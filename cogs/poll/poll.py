@@ -1,7 +1,7 @@
 import discord
 from discord.ext import commands
 
-from Utils import Utils
+import Utils
 
 
 class Poll(commands.Cog):

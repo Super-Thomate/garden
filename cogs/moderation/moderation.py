@@ -1,20 +1,20 @@
 from discord.ext import commands
 from ..logs import Logs
-from database import Database
-from Utils import Utils
+import database
+import Utils
 from discord.ext import commands
 
-from Utils import Utils
-from database import Database
+import Utils
+import database
 from ..logs import Logs
 
 
 class Moderation(commands.Cog):
   def __init__(self, bot):
     self.bot = bot
-    self.utils = Utils()
+
     self.logger = Logs(self.bot)
-    self.db = Database()
+
 
   @commands.Cog.listener('on_message')
   async def all_caps_emoji(self, message):

@@ -1,8 +1,8 @@
 import discord
 from discord.ext import commands
 
-from Utils import Utils
-from database import Database
+import Utils
+import database
 from ..logs import Logs
 
 
@@ -31,9 +31,9 @@ class Configuration(commands.Cog):
   """
   def __init__(self, bot):
     self.bot = bot
-    self.utils = Utils()
+
     self.logger = Logs(self.bot)
-    self.db = Database()
+
 
   @commands.command(name='addrolemoderateur', aliases=['addrolemodo', 'arm'])
   @Utils.require(required=['authorized', 'not_banned'])
@@ -50,7 +50,7 @@ class Configuration(commands.Cog):
                                   "values "+
                                  f" ('{role.id}', 1, '{guild_id}') ;"
                                )
-      self.db.execute_order (insert)
+      database.execute_order (insert)
       await ctx.message.add_reaction('✅')
     except Exception as e:
       print (f" {type(e).__name__} - {e}")
@@ -74,7 +74,7 @@ class Configuration(commands.Cog):
                                  f" `guild_id` = '{guild_id}' ;"+
                                   ""
                                )
-      self.db.execute_order (delete)
+      database.execute_order (delete)
       await ctx.message.add_reaction('✅')
     except Exception as e:
       print (f" {type(e).__name__} - {e}")
@@ -97,7 +97,7 @@ class Configuration(commands.Cog):
                                   "values "+
                                  f" (?, '{guild_id}') ;"
                                )
-      self.db.execute_order (insert, [prefix])
+      database.execute_order (insert, [prefix])
       await ctx.message.add_reaction('✅')
     except Exception as e:
       print (f" {type(e).__name__} - {e}")
@@ -122,7 +122,7 @@ class Configuration(commands.Cog):
                                  f" `guild_id` = '{guild_id}' ;"+
                                   ""
                                )
-      self.db.execute_order (delete, [prefix])
+      database.execute_order (delete, [prefix])
       await ctx.message.add_reaction('✅')
     except Exception as e:
       print (f" {type(e).__name__} - {e}")
@@ -148,7 +148,7 @@ class Configuration(commands.Cog):
                                  f" `type_url`=? and `guild_id`='{guild_id}'"+
                                   ""
                                )
-      fetched                = self.db.fetch_one_line (select, [type_url])
+      fetched                = database.fetch_one_line (select, [type_url])
       if fetched:
         order                = (  "update config_url"+
                                   " set `url`=? "+
@@ -163,7 +163,7 @@ class Configuration(commands.Cog):
                                  f" (?, ?, '{guild_id}')"+
                                   ""
                                )
-      self.db.execute_order (order, [url, type_url])
+      database.execute_order (order, [url, type_url])
       await ctx.message.add_reaction('✅')
     except Exception as e:
       print (f" {type(e).__name__} - {e}")
@@ -186,7 +186,7 @@ class Configuration(commands.Cog):
                                  f" `type_url`=? and `guild_id`='{guild_id}'"+
                                   ""
                                )
-      self.db.execute_order (delete, [type_url])
+      database.execute_order (delete, [type_url])
       await ctx.message.add_reaction('✅')
     except Exception as e:
       print (f" {type(e).__name__} - {e}")
@@ -208,13 +208,13 @@ class Configuration(commands.Cog):
     error                    = False
     try:
       if not delay.isnumeric():
-        delay                = self.utils.parse_time(delay)
+        delay                = Utils.parse_time(delay)
       select                 = (  "select delay from config_delay"+
                                   " where "+
                                  f" `type_delay`=? and `guild_id`='{guild_id}'"+
                                   ""
                                )
-      fetched                = self.db.fetch_one_line (select, [type_delay])
+      fetched                = database.fetch_one_line (select, [type_delay])
       if fetched:
         order                = (  "update config_delay"+
                                   " set `delay`=? "+
@@ -229,7 +229,7 @@ class Configuration(commands.Cog):
                                  f" (?, ?, '{guild_id}')"+
                                   ""
                                )
-      self.db.execute_order (order, [delay, type_delay])
+      database.execute_order (order, [delay, type_delay])
       await ctx.message.add_reaction('✅')
     except Exception as e:
       print (f" {type(e).__name__} - {e}")
@@ -252,7 +252,7 @@ class Configuration(commands.Cog):
                                  f" `type_delay`=? and `guild_id`='{guild_id}'"+
                                   ""
                                )
-      self.db.execute_order (delete, [type_delay])
+      database.execute_order (delete, [type_delay])
       await ctx.message.add_reaction('✅')
     except Exception as e:
       print (f" {type(e).__name__} - {e}")
@@ -278,7 +278,7 @@ class Configuration(commands.Cog):
                                  f" `type_do`=? and `guild_id`='{guild_id}'"+
                                   ""
                                )
-      fetched                = self.db.fetch_one_line (select, [type_do])
+      fetched                = database.fetch_one_line (select, [type_do])
       if fetched:
         order                = (  "update config_do"+
                                   " set `do`=? "+
@@ -293,7 +293,7 @@ class Configuration(commands.Cog):
                                  f" (?, ?, '{guild_id}')"+
                                   ""
                                )
-      self.db.execute_order (order, [do, type_do])
+      database.execute_order (order, [do, type_do])
       await ctx.message.add_reaction('✅')
     except Exception as e:
       print (f" {type(e).__name__} - {e}")
@@ -316,7 +316,7 @@ class Configuration(commands.Cog):
                                  f" `type_do`=? and `guild_id`='{guild_id}'"+
                                   ""
                                )
-      self.db.execute_order (delete, [type_do])
+      database.execute_order (delete, [type_do])
       await ctx.message.add_reaction('✅')
     except Exception as e:
       print (f" {type(e).__name__} - {e}")

@@ -1,8 +1,8 @@
 import discord
 from discord.ext import commands
 
-from Utils import Utils
-from database import Database
+import Utils
+import database
 from ..logs import Logs
 
 
@@ -17,9 +17,9 @@ class RoleDM(commands.Cog):
   """
   def __init__(self, bot):
     self.bot = bot
-    self.utils = Utils()
+
     self.logger = Logs(self.bot)
-    self.db = Database()
+
   
   @commands.Cog.listener()
   async def on_member_update(self, before, after):
@@ -27,16 +27,16 @@ class RoleDM(commands.Cog):
     guild_id = before.guild.id
     # all roles to listen
     select = f"select role_id from roledm_role where guild_id='{guild_id}'"
-    fetched = self.db.fetch_all_line (select)
+    fetched = database.fetch_all_line (select)
     for line in fetched:
       role_id = line [0]
-      if (     not self.utils.has_role (before, role_id)
-           and self.utils.has_role (after, role_id)
+      if (     not Utils.has_role (before, role_id)
+           and Utils.has_role (after, role_id)
          ):
         # The member obtained the role
         print ('The member obtained the role')
         select = f"select message from roledm_message where guild_id='{guild_id}'and role_id='{role_id}' ;"
-        fetched = self.db.fetch_one_line (select)
+        fetched = database.fetch_one_line (select)
         if fetched:
           message = (fetched [0]).replace("$member", before.mention).replace("$role", f"<@&{role_id}>")
         else:
@@ -62,7 +62,7 @@ class RoleDM(commands.Cog):
     error = False
     print (sql)
     try:
-      self.db.execute_order(sql, [])
+      database.execute_order(sql, [])
     except Exception as e:
       error = True
     # Log my change
@@ -89,7 +89,7 @@ class RoleDM(commands.Cog):
     error = False
     print (sql)
     try:
-      self.db.execute_order(sql, [])
+      database.execute_order(sql, [])
       await ctx.message.add_reaction('✅')
     except Exception as e:
       error = True
@@ -110,14 +110,14 @@ class RoleDM(commands.Cog):
     message = msg.content
     role_id = role.id
     sql = f"select message from roledm_message where guild_id='{guild_id}' and role_id='{role_id}' ;"
-    prev_roledm_message = self.db.fetch_one_line (sql)
+    prev_roledm_message = database.fetch_one_line (sql)
     if not prev_roledm_message:
       sql = f"INSERT INTO roledm_message VALUES (?, '{role_id}', '{guild_id}') ;"
     else:
       sql = f"update roledm_message set message=? where guild_id='{guild_id}'and role_id='{role_id}' ;"
     print (sql)
     try:
-      self.db.execute_order(sql, [message])
+      database.execute_order(sql, [message])
       await ctx.message.add_reaction('✅')
     except Exception as e:
       print (f"{type(e).__name__} - {e}")
@@ -135,7 +135,7 @@ class RoleDM(commands.Cog):
       return
     role_id = role.id
     sql = f"select message from roledm_message where guild_id='{guild_id}' and role_id='{role_id}' ;"
-    prev_roledm_message = self.db.fetch_one_line (sql)
+    prev_roledm_message = database.fetch_one_line (sql)
     if not prev_roledm_message:
       await ctx.channel.send (f"Aucun message de définit pour le role {role.name}")
     else:
