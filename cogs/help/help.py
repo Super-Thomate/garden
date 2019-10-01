@@ -17,8 +17,8 @@ class Help(commands.Cog):
       await ctx.author.send(self.utils.get_text(ctx.guild.id, "user_unauthorized_use_command"))
       return
     try:
-      method = getattr(self, "help_"+cog.lower(ctx.guild.id))
-      embed = method()
+      method = getattr(self, "help_"+cog.lower())
+      embed = method(ctx.guild.id)
       await ctx.channel.send (content=None, embed=embed)
     except AttributeError as e:
       await ctx.channel.send (self.utils.get_text(ctx.guild.id, "unknow_cog").format(cog))
