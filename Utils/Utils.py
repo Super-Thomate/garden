@@ -1,12 +1,17 @@
 import math
 import botconfig
-from database import Database
 import time
 import sys
 import inspect
+import json
+from database import Database
 from urllib.request import urlopen
 
 class Utils():
+  def __init__(self):
+    self.text = self.init_text()
+    self.db = Database()
+
   def is_authorized (self, member, guild_id):
     #Test server bypasses
     if guild_id == 494812563016777729:
@@ -141,7 +146,7 @@ class Utils():
         cast = int (elem)
       except Exception as e:
         # is it a letter in units ?
-        if not elem in units:
+        if elem not in units:
           raise Exception (f"Unknown element: {elem}")
           return -1
         to_ret = to_ret + number * units [elem]
@@ -336,3 +341,20 @@ class Utils():
         current                = 0
     print(f"timestamp: {timestamp}")
     return timestamp
+
+  def get_text(self, guild_id: int, text_key: str) -> str:
+    try:
+        language_code = self.db.fetch_one_line(f"SELECT language_code FROM config_lang WHERE guild_id='{guild_id}'")[0]
+    except Exception: # if not found in DB, look in config
+      language_code = botconfig.config[str(guild_id)]["default_language"]
+    try:
+      return self.text[language_code][text_key]
+    except KeyError:
+      return f"**keyError** for `{text_key}` in language `{language_code}`. Show this message to a moderator."
+
+  def init_text(self):
+    text = {}
+    for language in botconfig.config["languages"]:
+      with open(f'{language}.json', 'r') as file:
+        text[language] = json.load(file)
+    return text

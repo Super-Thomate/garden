@@ -4,9 +4,11 @@ import os
 from discord.ext import commands
 import botconfig
 from database import Database
+from Utils import Utils
 import time
 from datetime import datetime
 import math
+import random
 
 bot                          = discord.Client()
 """
@@ -21,6 +23,7 @@ Repeat itself every 60 seconds
 """
 run_boy_run                  = True
 sleepy_time                  = 60
+utils = Utils()
 @bot.event
 async def on_ready():
   print (  ( "------\n"+
@@ -133,17 +136,10 @@ async def vote_tasks ():
                     feedback_role_id   = int (fetched [0])
                     feedback_channel_id          = int (fetched [1])
                     feedback_channel   = guild.get_channel (feedback_channel_id)
-                    await feedback_channel.send (f"<@&{feedback_role_id}>"+
-                                                  " La phase de proposition"+
-                                                  " est terminée."
-                                                )
+                    await feedback_channel.send (utils.get_text(guild_id, "proposition_phase_end_2").format(f'<@&{feedback_role_id}>'))
                   else:
                     # nothing => send DM to author
-                    await guild.get_member(author_id).send (
-                          "La phase de proposition est terminée.\n"+
-                          "Vous recevez ce message car le salon et/ou le rôle "+
-                          "de vote ne sont pas correctements définis ou manquants."
-                                                           )
+                    await guild.get_member(author_id).send (utils.get_text('fr', 'proposition_phase_end_3'))
                 else:
                   print ("ERROR: NO MESSAGE FOUND")
               else:
@@ -189,14 +185,10 @@ async def vote_tasks ():
                     feedback_role_id   = int (fetched [0])
                     feedback_channel_id          = int (fetched [1])
                     feedback_channel   = guild.get_channel (feedback_channel_id)
-                    await feedback_channel.send (f"<@&{feedback_role_id}> La phase de vote est terminée.")
+                    await feedback_channel.send(utils.get_text(guild_id, "proposition_phase_end_2").format(f'<@&{feedback_role_id}>'))
                   else:
                     # nothing => send DM to author
-                    await guild.get_member(author_id).send (
-                          "La phase de vote est terminée.\n"+
-                          "Vous recevez ce message car le salon et/ou le rôle de vote ne sont pas"+
-                          " correctements définis ou manquants."
-                                                           )
+                    await guild.get_member(author_id).send (utils.get_text('fr', 'vote_phase_end_2'))
                 else:
                   print ("ERROR: NO MESSAGE FOUND")
               else:
@@ -239,9 +231,7 @@ async def utip_tasks ():
             member           = guild.get_member (user_id)
             if member:
               await member.remove_roles(role_utip)
-              await member.send("Vous n'avez plus le rôle de backers."+
-                                " Si vous souhaitez le récupérer, faîtes une nouvelle demande."
-                               )
+              await member.send(utils.get_text(guild_id, 'user_lost_backer_role'))
               db.execute_order(delete)
               
   except Exception as e:
@@ -273,6 +263,28 @@ def embed_get_result (message_id, guild_id, embed):
   embed.add_field (name=field.name, value=new_value, inline=False)
   return embed
 
+def get_birthday_message(guild_id, member_id):
+  db = Database()
+  select = f"SELECT message FROM birthday_message WHERE guild_id='{guild_id}';"
+  fetched = db.fetch_one_line(select)
+  if fetched:
+    text = ""
+    # split around '{'
+    text_rand = (fetched[0]).split('{')
+    print(f"text_rand: {text_rand}")
+    for current in text_rand:
+      parts = current.split('}')
+      print(f"parts: {parts}")
+      for part in parts:
+        all_rand = part.split("|")
+        print(f"all_rand: {all_rand}")
+        current_part = all_rand[random.randint(0, len(all_rand) - 1)]
+        print(f"current_part: {current_part}")
+        text = text + current_part
+    return text.replace("$member", f"<@{member_id}>")
+  else:
+    return utils.get_text(guild_id, 'welcome_user_1').format(f"<@{member_id}>")
+
 async def birthday_task():
   db = Database()
   date = datetime.now().strftime('%d/%m')
@@ -286,19 +298,20 @@ async def birthday_task():
   birthday_channel = bot.get_channel(int(channel_id[0]))
 
   for line in data:
-    member_id = line[0]
-    last_year_wished = line[2]
+    member_id, guild_id, last_year_wished = line[0], line[1], line[2]
     current_year = datetime.now().strftime('%Y')
     if current_year == last_year_wished:
       continue
 
-    await birthday_channel.send(f'Joyeux anniversaire a <@{member_id}> !! :confetti_ball:')
+    get_birthday_message(guild_id, member_id)
+
+    await birthday_channel.send(get_birthday_message(guild_id, member_id))
     sql = f"UPDATE birthday_user SET last_year_wished='{current_year}' WHERE user_id='{member_id}'"
 
     try:
       db.execute_order(sql, [])
     except Exception as e:
-      await birthday_channel.send('Erreur d\'écriture en base de donnée 💀')
+      await birthday_channel.send(utils.get_text(guild_id, 'database_writing_error'))
       print(f"{type(e).__name__} - {e}")
 
 

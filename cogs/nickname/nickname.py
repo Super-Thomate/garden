@@ -22,13 +22,13 @@ class Nickname(commands.Cog):
     guild_id = ctx.guild.id
     if self.utils.is_banned (ctx.command, ctx.author, ctx.guild.id):
       await ctx.message.add_reaction('❌')
-      await ctx.author.send ("Vous n'êtes pas autorisé à utiliser cette commande pour le moment.")
+      await ctx.author.send(self.utils.get_text(ctx.guild.id, "user_unauthorized_use_command"))
       return
     # Check if there is a nickname
     if not nickname:
       await self.logger.log('nickname_log', member, message, True)
       await ctx.message.add_reaction('❌')
-      await ctx.channel.send (f"Vous n'avez pas donné de pseudo.")
+      await ctx.channel.send(self.utils.get_text(ctx.guild.id, "no_nickname_given"))
       return
     # Check if I can change my nickname
     nickname_delay           = self.utils.nickname_delay (guild_id)
@@ -48,7 +48,10 @@ class Nickname(commands.Cog):
         total_seconds        = duree
         await self.logger.log('nickname_log', member, message, True)
         await ctx.message.add_reaction('❌')
-        await ctx.channel.send (f"Vous avez changé de pseudo récemment.\nIl vous faut attendre encore {self.utils.format_time(total_seconds)}")
+        await ctx.channel.send(self.utils.get_text(
+                                ctx.guild.id,
+                                "user_already_changed_nickname")
+                              .format(self.utils.format_time(total_seconds)))
         return
     # Change my Nickname
     error = False
@@ -68,7 +71,7 @@ class Nickname(commands.Cog):
       try:
         self.db.execute_order (sql, [])
       except Exception as e:
-        await message.channel.send (f'Inscription en db fail !')
+        await message.channel.send(self.utils.get_text(ctx.guild.id, "database_writing_error"))
         print (f'{type(e).__name__} - {e}')
         error = True
     if not error:
@@ -83,7 +86,7 @@ class Nickname(commands.Cog):
       try:
         self.db.execute_order (sql, [nickname])
       except Exception as e:
-        await message.channel.send (f'Inscription en db fail !')
+        await message.channel.send(self.utils.get_text(ctx.guild.id, "database_writing_error"))
         print (f'{type(e).__name__} - {e}')
         error = True
     # Log my change
@@ -103,7 +106,7 @@ class Nickname(commands.Cog):
       return
     if self.utils.is_banned (ctx.command, ctx.author, ctx.guild.id):
       await ctx.message.add_reaction('❌')
-      await ctx.author.send ("Vous n'êtes pas autorisé à utiliser cette commande pour le moment.")
+      await ctx.author.send(self.utils.get_text(ctx.guild.id, "user_unauthorized_use_command"))
       return
     sql = f"delete from last_nickname where guild_id='{guild_id}' and member_id='{member.id}'"
     error = False
@@ -123,7 +126,7 @@ class Nickname(commands.Cog):
     guild_id = ctx.guild.id
     if self.utils.is_banned (ctx.command, ctx.author, ctx.guild.id):
       await ctx.message.add_reaction('❌')
-      await ctx.author.send ("Vous n'êtes pas autorisé à utiliser cette commande pour le moment.")
+      await ctx.author.send(self.utils.get_text(ctx.guild.id, "user_unauthorized_use_command"))
       return
     nickname_delay = self.utils.nickname_delay (guild_id) or botconfig.config[str(guild_id)]['nickname_delay']
     sql = f'select  datetime(last_change, \'{nickname_delay}\') from last_nickname where guild_id=\'{guild_id}\' and member_id=\'{member.id}\''
@@ -138,9 +141,12 @@ class Nickname(commands.Cog):
         total_seconds = duree.days*86400+duree.seconds
         print (f"duree.days: {duree.days}")
         print (f"total_seconds: {total_seconds}")
-        await ctx.send (f"Il vous faut attendre encore {self.utils.format_time(total_seconds)}")
+        await ctx.channel.send(self.utils.get_text(
+                                ctx.guild.id,
+                                "delay_between_nickname")
+                               .format(self.utils.format_time(total_seconds)))
         return
-    await ctx.send (f"Vous pouvez changer de pseudo dès maintenant")
+    await ctx.send(self.utils.get_text(ctx.guild.id, "user_can_change_nickname"))
     
     
   @commands.Cog.listener()
@@ -164,7 +170,7 @@ class Nickname(commands.Cog):
       return
     if self.utils.is_banned (ctx.command, ctx.author, ctx.guild.id):
       await ctx.message.add_reaction('❌')
-      await ctx.author.send ("Vous n'êtes pas autorisé à utiliser cette commande pour le moment.")
+      await ctx.author.send(self.utils.get_text(ctx.guild.id, "user_unauthorized_use_command"))
       return
     try:
       for member in ctx.guild.members:
@@ -185,7 +191,7 @@ class Nickname(commands.Cog):
                   )
           if len (sql):
             self.db.execute_order (sql)
-      await ctx.send ("Nickname updated")
+      await ctx.send(self.utils.get_text(ctx.guild.id, "nickname_updated"))
     except Exception as e:
-      await ctx.send ("An error occured")
+      await ctx.send(self.utils.get_text(ctx.guild.id, "error_occured").format(f"{type(e).__name__}",  f"{e}"))
       print (f"{type(e).__name__} - {e}")

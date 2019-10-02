@@ -23,7 +23,7 @@ class Turing(commands.Cog):
     self.utils = Utils()
     self.logger = Logs(self.bot)
     self.db = Database()
-    self.auto_reply          = False
+    self.auto_reply = False
 
   @commands.command(name='answer', aliases=['reply'])
   async def answer_spy_log(self, ctx, user: discord.User = None):
@@ -34,15 +34,15 @@ class Turing(commands.Cog):
       return
     if self.utils.is_banned (ctx.command, ctx.author, ctx.guild.id):
       await ctx.message.add_reaction('❌')
-      await ctx.author.send ("Vous n'êtes pas autorisé à utilisez cette commande pour le moment.")
+      await ctx.author.send(self.utils.get_text(ctx.guild.id, "user_unauthorized_use_command"))
       return
     if not user:
-      await ctx.send ("Le paramètre `<user>` est obligatoire.")
+      await ctx.send(self.utils.get_text(ctx.guild.id, "parameter_is_mandatory").format('<User>'))
       return
     print (f"user obj: {user.id}")
     error                    = False
     try:
-      ask                    = await ctx.send ("Entrez le message à envoyer:")
+      ask                    = await ctx.send(self.utils.get_text(ctx.guild.id, "ask_message_to_send"))
       check                  = lambda m: m.channel == ctx.channel and m.author == ctx.author
       msg                    = await self.bot.wait_for('message', check=check)
       message                = msg.content
@@ -66,14 +66,14 @@ class Turing(commands.Cog):
       return
     if self.utils.is_banned (ctx.command, ctx.author, ctx.guild.id):
       await ctx.message.add_reaction('❌')
-      await ctx.author.send ("Vous n'êtes pas autorisé à utilisez cette commande pour le moment.")
+      await ctx.author.send(self.utils.get_text(ctx.guild.id, "user_unauthorized_use_command"))
       return
     if not channel:
-      await ctx.send ("Le paramètre `<channel>` est obligatoire.")
+      await ctx.send(self.utils.get_text(ctx.guild.id, "parameter_is_mandatory").format('<Channel>'))
       return
     error                    = False
     try:
-      ask                    = await ctx.send ("Entrez le message à envoyer:")
+      ask                    = await ctx.send(self.utils.get_text(ctx.guild.id, "ask_message_to_send"))
       check                  = lambda m: m.channel == ctx.channel and m.author == ctx.author
       msg                    = await self.bot.wait_for('message', check=check)
       message                = msg.content
@@ -97,12 +97,12 @@ class Turing(commands.Cog):
       return
     if self.utils.is_banned (ctx.command, ctx.author, ctx.guild.id):
       await ctx.message.add_reaction('❌')
-      await ctx.author.send ("Vous n'êtes pas autorisé à utilisez cette commande pour le moment.")
+      await ctx.author.send(self.utils.get_text(ctx.guild.id, "user_unauthorized_use_command"))
       return
     error                    = False
     try:
       await ctx.message.add_reaction('✅')
-      await ctx.send ("`FONCTION AUTOREPONSE DESACTIVEE`")
+      await ctx.send(self.utils.get_text(ctx.guild.id, "auto_answer_mode_disabled"))
     except Exception as e:
       print (f" {type(e).__name__} - {e}")
       error                  = True
@@ -117,12 +117,12 @@ class Turing(commands.Cog):
       return
     if self.utils.is_banned (ctx.command, ctx.author, ctx.guild.id):
       await ctx.message.add_reaction('❌')
-      await ctx.author.send ("Vous n'êtes pas autorisé à utilisez cette commande pour le moment.")
+      await ctx.author.send(self.utils.get_text(ctx.guild.id, "user_unauthorized_use_command"))
       return
     error                    = False
     try:
       await ctx.message.add_reaction('✅')
-      await ctx.send ("`FONCTION AUTOREPONSE ACTIVEE`")
+      await ctx.send(self.utils.get_text(ctx.guild.id, "auto_answer_mode_enabled"))
     except Exception as e:
       print (f" {type(e).__name__} - {e}")
       error                  = True
@@ -137,12 +137,12 @@ class Turing(commands.Cog):
       return
     if self.utils.is_banned (ctx.command, ctx.author, ctx.guild.id):
       await ctx.message.add_reaction('❌')
-      await ctx.author.send ("Vous n'êtes pas autorisé à utilisez cette commande pour le moment.")
+      await ctx.author.send(self.utils.get_text(ctx.guild.id, "user_unauthorized_use_command"))
       return
     error                    = False
     try:
       await ctx.message.add_reaction('✅')
-      await ctx.send (f"**`HUMOUR REGLE A {percent}`**")
+      await ctx.send(self.utils.get_text(ctx.guild.id, "set_humor_to").format(percent))
     except Exception as e:
       print (f" {type(e).__name__} - {e}")
       error                  = True
@@ -165,18 +165,18 @@ class Turing(commands.Cog):
       return
     if self.utils.is_banned (ctx.command, ctx.author, ctx.guild.id):
       await ctx.message.add_reaction('❌')
-      await ctx.author.send ("Vous n'êtes pas autorisé à utilisez cette commande pour le moment.")
+      await ctx.author.send(self.utils.get_text(ctx.guild.id, "user_unauthorized_use_command"))
       return
     if not message_id:
-      await ctx.send ("Le paramètre `<message_id>` est obligatoire.")
+      await ctx.send(self.utils.get_text(ctx.guild.id, "parameter_is_mandatory").format('<messageID>'))
       return
     error                    = False
     try:
       message                = await self.get_message_general (ctx, message_id)
       if message:
-        old_content_title    = await ctx.send ("Ancien message:")
+        old_content_title    = await ctx.send(self.utils.get_text(ctx.guild.id, "old_message"))
         old_content          = await ctx.send (message.content)
-        ask                  = await ctx.send ("Entrez le nouveau message:")
+        ask                  = await ctx.send(self.utils.get_text(ctx.guild.id, "ask_new_message"))
         check                = lambda m: m.channel == ctx.channel and m.author == ctx.author
         msg                  = await self.bot.wait_for('message', check=check)
         new_content          = msg.content
@@ -187,7 +187,7 @@ class Turing(commands.Cog):
         await ask.delete (delay=2)
         await msg.delete (delay=2)
       else:
-        await ctx.send ("Message not found")
+        await ctx.send(self.utils.get_text(ctx.guild.id, "message_not_found"))
         error                = True
       # await ctx.message.delete (delay=2)
     except Exception as e:
@@ -204,10 +204,10 @@ class Turing(commands.Cog):
       return
     if self.utils.is_banned (ctx.command, ctx.author, ctx.guild.id):
       await ctx.message.add_reaction('❌')
-      await ctx.author.send ("Vous n'êtes pas autorisé à utilisez cette commande pour le moment.")
+      await ctx.author.send(self.utils.get_text(ctx.guild.id, "user_unauthorized_use_command"))
       return
     if not message_id:
-      await ctx.send ("Le paramètre `<message_id>` est obligatoire.")
+      await ctx.send(self.utils.get_text(ctx.guild.id, "parameter_is_mandatory").format('<messageID>'))
       return
     error                    = False
     try:
@@ -215,7 +215,7 @@ class Turing(commands.Cog):
       if message:
         await message.delete ()
       else:
-        await ctx.send ("Message not found")
+        await ctx.send(self.utils.get_text(ctx.guild.id, "message_not_found"))
         error                = True
       # await ctx.message.delete (delay=2)
     except Exception as e:
@@ -232,10 +232,10 @@ class Turing(commands.Cog):
       return
     if self.utils.is_banned (ctx.command, ctx.author, ctx.guild.id):
       await ctx.message.add_reaction('❌')
-      await ctx.author.send ("Vous n'êtes pas autorisé à utilisez cette commande pour le moment.")
+      await ctx.author.send(self.utils.get_text(ctx.guild.id, "user_unauthorized_use_command"))
       return
     if not status:
-      await ctx.send ("Le paramètre `<status>` est obligatoire.")
+      await ctx.send(self.utils.get_text(ctx.guild.id, "parameter_is_mandatory").format('<status>'))
       return
     error                    = False
     try:
@@ -254,9 +254,9 @@ class Turing(commands.Cog):
     if message.guild:
       return
     if self.auto_reply:
-      await message.author.send (f"Bonjour. {self.bot.user.name} n'est pas disponible pour le moment.\n"+
-                                  "Raison : :tools: Maintenance :tools:")
-
+      await message.author.send(self.utils.get_text(
+                                '283243816448819200', "bot_DM_is_unavailable") # DM are in the default language 'french' until better solution
+                                .format(self.bot.user.name))
 
   # UTILS
   async def get_message_general (self, ctx, message_id):
@@ -279,13 +279,13 @@ class Turing(commands.Cog):
       return
     if self.utils.is_banned (ctx.command, ctx.author, ctx.guild.id):
       await ctx.message.add_reaction('❌')
-      await ctx.author.send ("Vous n'êtes pas autorisé à utilisez cette commande pour le moment.")
+      await ctx.author.send(self.utils.get_text(ctx.guild.id, "user_unauthorized_use_command"))
       return
     if not message_id:
-      await ctx.send ("Le paramètre `<message_id>` est obligatoire.")
+      await ctx.send(self.utils.get_text(ctx.guild.id, "parameter_is_mandatory").format('<messageID>'))
       return
     if not emoji:
-      await ctx.send ("Le paramètre `<emoji>` est obligatoire.")
+      await ctx.send(self.utils.get_text(ctx.guild.id, "parameter_is_mandatory").format('<emoji>'))
       return
     error                    = False
     print (f"emoji: {emoji}")
@@ -297,7 +297,7 @@ class Turing(commands.Cog):
         else:
           await message.remove_reaction(emoji, self.bot.user)
       else:
-        await ctx.send ("Message not found")
+        await ctx.send(self.utils.get_text(ctx.guild.id, "message_not_found"))
         error                = True
       # await ctx.message.delete (delay=2)
     except Exception as e:

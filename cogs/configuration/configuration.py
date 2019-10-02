@@ -1,5 +1,6 @@
 import discord
 from discord.ext import commands
+import botconfig
 from datetime import datetime
 from datetime import timezone
 from ..logs import Logs
@@ -48,10 +49,10 @@ class Configuration(commands.Cog):
       return
     if self.utils.is_banned (ctx.command, ctx.author, ctx.guild.id):
       await ctx.message.add_reaction('❌')
-      await ctx.author.send ("Vous n'êtes pas autorisé à utilisez cette commande pour le moment.")
+      await ctx.author.send(self.utils.get_text(ctx.guild.id, "user_unauthorized_use_command"))
       return
     if not role:
-      await ctx.send ("Le paramètre `<role>` est obligatoire.")
+      await ctx.send(self.utils.get_text(ctx.guild.id, "parameter_is_mandatory").format('<rôle>'))
       return
     error                    = False
     try:
@@ -77,10 +78,10 @@ class Configuration(commands.Cog):
       return
     if self.utils.is_banned (ctx.command, ctx.author, ctx.guild.id):
       await ctx.message.add_reaction('❌')
-      await ctx.author.send ("Vous n'êtes pas autorisé à utilisez cette commande pour le moment.")
+      await ctx.author.send(self.utils.get_text(ctx.guild.id, "user_unauthorized_use_command"))
       return
     if not role:
-      await ctx.send ("Le paramètre `<role>` est obligatoire.")
+      await ctx.send(self.utils.get_text(ctx.guild.id, "parameter_is_mandatory").format('**<role>**'))
       return
     error                    = False
     try:
@@ -107,10 +108,10 @@ class Configuration(commands.Cog):
       return
     if self.utils.is_banned (ctx.command, ctx.author, ctx.guild.id):
       await ctx.message.add_reaction('❌')
-      await ctx.author.send ("Vous n'êtes pas autorisé à utilisez cette commande pour le moment.")
+      await ctx.author.send(self.utils.get_text(ctx.guild.id, "user_unauthorized_use_command"))
       return
     if not prefix:
-      await ctx.send ("Le paramètre `<prefix>` est obligatoire.")
+      await ctx.send(self.utils.get_text(ctx.guild.id, "parameter_is_mandatory").format('**<prefix>**'))
       return
     error                    = False
     try:
@@ -136,10 +137,10 @@ class Configuration(commands.Cog):
       return
     if self.utils.is_banned (ctx.command, ctx.author, ctx.guild.id):
       await ctx.message.add_reaction('❌')
-      await ctx.author.send ("Vous n'êtes pas autorisé à utilisez cette commande pour le moment.")
+      await ctx.author.send(self.utils.get_text(ctx.guild.id, "user_unauthorized_use_command"))
       return
     if not prefix:
-      await ctx.send ("Le paramètre `<prefix>` est obligatoire.")
+      await ctx.send(self.utils.get_text(ctx.guild.id, "parameter_is_mandatory").format('**<role>**'))
       return
     error                    = False
     try:
@@ -167,13 +168,13 @@ class Configuration(commands.Cog):
       return
     if self.utils.is_banned (ctx.command, ctx.author, ctx.guild.id):
       await ctx.message.add_reaction('❌')
-      await ctx.author.send ("Vous n'êtes pas autorisé à utilisez cette commande pour le moment.")
+      await ctx.author.send(self.utils.get_text(ctx.guild.id, "user_unauthorized_use_command"))
       return
     if not type_url:
-      await ctx.send ("Le paramètre `<type_url>` est obligatoire.")
+      await ctx.send(self.utils.get_text(ctx.guild.id, "parameter_is_mandatory").format('**<type_url>**'))
       return
     if not url:
-      await ctx.send ("Le paramètre `<url>` est obligatoire.")
+      await ctx.send(self.utils.get_text(ctx.guild.id, "parameter_is_mandatory").format('**<url>**'))
       return
     error                    = False
     try:
@@ -214,10 +215,10 @@ class Configuration(commands.Cog):
       return
     if self.utils.is_banned (ctx.command, ctx.author, ctx.guild.id):
       await ctx.message.add_reaction('❌')
-      await ctx.author.send ("Vous n'êtes pas autorisé à utilisez cette commande pour le moment.")
+      await ctx.author.send(self.utils.get_text(ctx.guild.id, "user_unauthorized_use_command"))
       return
     if not type_url:
-      await ctx.send ("Le paramètre `<type_url>` est obligatoire.")
+      await ctx.send(self.utils.get_text(ctx.guild.id, "parameter_is_mandatory").format('**<type_url>**'))
       return
     error                    = False
     try:
@@ -243,13 +244,13 @@ class Configuration(commands.Cog):
       return
     if self.utils.is_banned (ctx.command, ctx.author, ctx.guild.id):
       await ctx.message.add_reaction('❌')
-      await ctx.author.send ("Vous n'êtes pas autorisé à utilisez cette commande pour le moment.")
+      await ctx.author.send(self.utils.get_text(ctx.guild.id, "user_unauthorized_use_command"))
       return
     if not type_delay:
-      await ctx.send ("Le paramètre `<type_delay>` est obligatoire.")
+      await ctx.send(self.utils.get_text(ctx.guild.id, "parameter_is_mandatory").format('**<type_delay>**'))
       return
     if not delay:
-      await ctx.send ("Le paramètre `<delay>` est obligatoire.")
+      await ctx.send(self.utils.get_text(ctx.guild.id, "parameter_is_mandatory").format('**<delay>**'))
       return
     error                    = False
     try:
@@ -292,10 +293,10 @@ class Configuration(commands.Cog):
       return
     if self.utils.is_banned (ctx.command, ctx.author, ctx.guild.id):
       await ctx.message.add_reaction('❌')
-      await ctx.author.send ("Vous n'êtes pas autorisé à utilisez cette commande pour le moment.")
+      await ctx.author.send(self.utils.get_text(ctx.guild.id, "user_unauthorized_use_command"))
       return
     if not type_delay:
-      await ctx.send ("Le paramètre `<type_delay>` est obligatoire.")
+      await ctx.send(self.utils.get_text(ctx.guild.id, "parameter_is_mandatory").format('**<type_delay>**'))
       return
     error                    = False
     try:
@@ -321,13 +322,13 @@ class Configuration(commands.Cog):
       return
     if self.utils.is_banned (ctx.command, ctx.author, ctx.guild.id):
       await ctx.message.add_reaction('❌')
-      await ctx.author.send ("Vous n'êtes pas autorisé à utilisez cette commande pour le moment.")
+      await ctx.author.send(self.utils.get_text(ctx.guild.id, "user_unauthorized_use_command"))
       return
     if not type_do:
-      await ctx.send ("Le paramètre `<type_do>` est obligatoire.")
+      await ctx.send(self.utils.get_text(ctx.guild.id, "parameter_is_mandatory").format('**<type_do>**'))
       return
     if not do:
-      await ctx.send ("Le paramètre `<do>` est obligatoire.")
+      await ctx.send(self.utils.get_text(ctx.guild.id, "parameter_is_mandatory").format('**<do>**'))
       return
     error                    = False
     try:
@@ -368,10 +369,10 @@ class Configuration(commands.Cog):
       return
     if self.utils.is_banned (ctx.command, ctx.author, ctx.guild.id):
       await ctx.message.add_reaction('❌')
-      await ctx.author.send ("Vous n'êtes pas autorisé à utilisez cette commande pour le moment.")
+      await ctx.author.send(self.utils.get_text(ctx.guild.id, "user_unauthorized_use_command"))
       return
     if not type_do:
-      await ctx.send ("Le paramètre `<type_do>` est obligatoire.")
+      await ctx.send(self.utils.get_text(ctx.guild.id, "parameter_is_mandatory").format('**<type_do>**'))
       return
     error                    = False
     try:
@@ -387,4 +388,36 @@ class Configuration(commands.Cog):
       error                  = True
       await ctx.message.add_reaction('❌')
     await self.logger.log('config_log', author, ctx.message, error)
+
+  @commands.command(name='setlanguage')
+  async def set_language(self, ctx, lang_code: str):
+    guild_id = ctx.guild.id
+    lang_code = lang_code.lower()
+    if not self.utils.is_authorized (ctx.author, guild_id):
+      print ("Missing permissions")
+      return
+    if self.utils.is_banned (ctx.command, ctx.author, ctx.guild.id):
+      await ctx.message.add_reaction('❌')
+      await ctx.author.send(self.utils.get_text(ctx.guild.id, "user_unauthorized_use_command"))
+      return
+    if lang_code not in botconfig.config["languages"]:
+      await ctx.message.add_reaction('❌')
+      await ctx.send(self.utils.get_text(ctx.guild.id, "unknown_language_code").format(lang_code))
+      return
+
+    sql = f"SELECT language_code FROM config_lang WHERE guild_id='{guild_id}' ;"
+    already_set = self.db.fetch_one_line(sql)
+    if already_set:
+      sql = f"UPDATE config_lang set language_code='{lang_code}' WHERE guild_id='{guild_id}' ;"
+    else:
+      sql = f"INSERT INTO config_lang VALUES ('{lang_code}', '{guild_id}') ;"
+    try:
+      self.db.execute_order(sql, [])
+    except Exception as e:
+      await ctx.send(self.utils.get_text(ctx.guild.id, 'database_writing_error'))
+      print(f"{type(e).__name__} - {e}")
+
+    await ctx.send(self.utils.get_text(ctx.guild.id, 'language_updated'))
+
+
 

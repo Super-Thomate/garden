@@ -1,5 +1,5 @@
 __pycache__
-garden.db
 *.db
 config.json
 .idea/
+stop_*.sh

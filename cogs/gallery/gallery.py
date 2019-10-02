@@ -33,12 +33,12 @@ class Gallery(commands.Cog):
       return
     if self.utils.is_banned (ctx.command, ctx.author, ctx.guild.id):
       await ctx.message.add_reaction('❌')
-      await ctx.author.send ("Vous n'êtes pas autorisé à utiliser cette commande pour le moment.")
+      await ctx.author.send(self.utils.get_text(ctx.guild.id, "user_unauthorized_use_command"))
       return
     error                    = False
     try:
       colour                 = discord.Colour(0)
-      url                    = "Votre jeton:\n"+await self.get_galerie_link(guild_id, member)
+      url                    = self.utils.get_text('fr', 'your_token')+await self.get_galerie_link(guild_id, member)
       sql                    = f"select message from galerie_message where guild_id='{guild_id}'"
       galerie_message        = self.db.fetch_one_line (sql)
       if galerie_message:
@@ -53,7 +53,7 @@ class Gallery(commands.Cog):
       await member.send (content=None, embed=embed)
       await ctx.message.add_reaction('✅')
     except Exception as e:
-      await ctx.message.channel.send (f"Oups il semblerait que {member.display_name} n'ait pas activé l'envoi de messages privés.")
+      await ctx.message.channel.send (self.utils.get_text(ctx.guild.id, 'user_disabled_PM').format(member.display_name))
       print (f" {type(e).__name__} - {e}")
       await ctx.message.add_reaction('❌')
       error                  = True
@@ -73,7 +73,7 @@ class Gallery(commands.Cog):
          or self.utils.is_banned_role (ctx.command, ctx.author, ctx.guild.id)
        ):
       await ctx.message.add_reaction('❌')
-      await ctx.author.send ("Vous n'êtes pas autorisé à utiliser cette commande pour le moment.")
+      await ctx.author.send(self.utils.get_text(ctx.guild.id, "user_unauthorized_use_command"))
       return
     sql                      = f"select * from galerie_channel where guild_id='{guild_id}'"
     prev_gallery_channel     = self.db.fetch_one_line (sql)
@@ -82,7 +82,7 @@ class Gallery(commands.Cog):
     else:
       sql                    = f"update galerie_channel set channel_id='{gallery_channel.id}' where guild_id='{guild_id}'"
     self.db.execute_order(sql)
-    await gallery_channel.send ("Request for galerie will be put here")
+    await gallery_channel.send(self.utils.get_text(ctx.guild.id, "gallery_channel_set"))
 
   @commands.command(name='gallerymessage', aliases=['gm'])
   async def set_gallery_message(self, ctx):
@@ -93,9 +93,9 @@ class Gallery(commands.Cog):
       return
     if self.utils.is_banned (ctx.command, ctx.author, ctx.guild.id):
       await ctx.message.add_reaction('❌')
-      await ctx.author.send ("Vous n'êtes pas autorisé à utiliser cette commande pour le moment.")
+      await ctx.author.send(self.utils.get_text(ctx.guild.id, "user_unauthorized_use_command"))
       return
-    await ctx.send ("Entrez le message de gallerie : ")
+    await ctx.send(self.utils.get_text(ctx.guild.id, "ask_new_gallery_message"))
     check                    = lambda m: m.channel == ctx.channel and m.author == ctx.author
     msg                      = await self.bot.wait_for('message', check=check)
     message                  = msg.content
@@ -110,7 +110,7 @@ class Gallery(commands.Cog):
       self.db.execute_order(sql, [message])
     except Exception as e:
       print (f"{type(e).__name__} - {e}")
-    await ctx.channel.send (f"Nouveau message : `{message}`")
+    await ctx.channel.send(self.utils.get_text(ctx.guild.id, "display_new_message").format(message))
 
 
   @commands.command(name='setgallerydelay', aliases=['sgd'])
@@ -122,7 +122,7 @@ class Gallery(commands.Cog):
       return
     if self.utils.is_banned (ctx.command, ctx.author, ctx.guild.id):
       await ctx.message.add_reaction('❌')
-      await ctx.author.send ("Vous n'êtes pas autorisé à utiliser cette commande pour le moment.")
+      await ctx.author.send(self.utils.get_text(ctx.guild.id, "user_unauthorized_use_command"))
       return
     try:
       if not delay.isnumeric():
@@ -229,7 +229,7 @@ class Gallery(commands.Cog):
           embed.timestamp    = datetime.utcnow()
           await member.send (content=None, embed=embed)
         except Exception as e:
-          await message.channel.send (f"Oups il semblerait que tu n'aies pas activé l'envoi de messages privés.")
+          await message.channel.send (self.utils.get_text(guild_id, 'user_disabled_PM_2'))
           print (f" {type(e).__name__} - {e}")
           error              = True
         await self.logger.log('galerie_log', member, message, error)
