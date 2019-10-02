@@ -117,9 +117,6 @@ class Help(commands.Cog):
     colour = colour.from_rgb(176, 255, 176)
     embed = discord.Embed(colour=colour, title=Utils.get_text(guild_id, 'help_welcome_title'))
     embed.description = Utils.get_text(guild_id, 'help_welcome_description')
-    embed.add_field (   name=Utils.get_text(guild_id, 'user_unauthorized_use_command')
-                      , value=Utils.get_text(guild_id, 'user_unauthorized_use_command')
-                      , inline=False)
     embed.add_field (   name=Utils.get_text(guild_id, 'help_admin_command')
                       , value=Utils.get_text(guild_id, 'help_welcome_admin_command')
                       , inline=False
@@ -184,7 +181,7 @@ class Help(commands.Cog):
     embed.set_author(icon_url=infos.avatar_url, name=str(infos))
     embed.timestamp = datetime.today()
     return embed
-  
+
   def help_global (self, guild_id):
     line_cogs = ""
     line_cogs_2 = ""
