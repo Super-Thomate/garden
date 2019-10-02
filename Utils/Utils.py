@@ -1,6 +1,7 @@
 import inspect
 import json
 import math
+import os
 import sys
 import time
 from functools import wraps
@@ -8,9 +9,10 @@ from urllib.request import urlopen
 import botconfig
 import database
 
+dir_path = os.path.dirname(os.path.realpath(__file__))+'/'
 strings = {}
 for language in botconfig.config["languages"]:
-  with open(f'{language}.json', 'r') as file:
+  with open(f'{dir_path}{language}.json', 'r') as file:
     strings[language] = json.load(file)
 
 
