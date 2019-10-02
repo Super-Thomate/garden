@@ -1,14 +1,11 @@
-import discord
-import sys
-import os
-from discord.ext import commands
-import botconfig
-from database import Database
-from Utils import Utils
-import time
-from datetime import datetime
 import math
 import random
+import time
+from datetime import datetime
+import discord
+import botconfig
+import Utils
+import database
 
 bot                          = discord.Client()
 """
@@ -23,7 +20,6 @@ Repeat itself every 60 seconds
 """
 run_boy_run                  = True
 sleepy_time                  = 60
-utils = Utils()
 @bot.event
 async def on_ready():
   print (  ( "------\n"+
@@ -46,7 +42,7 @@ async def on_ready():
 
 async def vote_tasks ():
   try:
-    db                       = Database ()
+
     guilds                   = bot.guilds
     # print (f"guilds: {guilds}")
     # CLOSE PHASES"
@@ -62,7 +58,7 @@ async def vote_tasks ():
                                  " where "+
                                 f" guild_id='{guild_id}' and (closed <> 3) ;"
                                )
-      fetched_all            = db.fetch_all_line (select)
+      fetched_all            = database.fetch_all_line (select)
       if fetched_all:
         # print (f"fetched_all: {fetched_all}")
         for line in fetched_all:
@@ -79,7 +75,7 @@ async def vote_tasks ():
                                  "vote_ended_at from vote_time where "+
                                 f"message_id='{message_id}' ;"
                                )
-          fetch_ended_at     = db.fetch_one_line (sql)
+          fetch_ended_at     = database.fetch_one_line (sql)
           # print (f"fetch_ended_at: {fetch_ended_at}")
           if fetch_ended_at:
             proposition_ended_at       = fetch_ended_at [0]
@@ -120,7 +116,7 @@ async def vote_tasks ():
                   update     = ( "update vote_message set closed = 1 where "+
                                 f"message_id='{message_id}' ;"
                                )
-                  db.execute_order(update)
+                  database.execute_order(update)
                   #send feedback
                   select     = ( "select a.role_id, b.channel_id"+
                                  " from vote_role as a, vote_channel as b"+
@@ -130,16 +126,16 @@ async def vote_tasks ():
                                 f" a.guild_id='{guild_id}' ;"
                                )
                   # print (f"select: {select}")
-                  fetched    = db.fetch_one_line(select)
+                  fetched    = database.fetch_one_line(select)
                   # print (f"fetched: {fetched}")
                   if fetched:
                     feedback_role_id   = int (fetched [0])
                     feedback_channel_id          = int (fetched [1])
                     feedback_channel   = guild.get_channel (feedback_channel_id)
-                    await feedback_channel.send (utils.get_text(guild_id, "proposition_phase_end_2").format(f'<@&{feedback_role_id}>'))
+                    await feedback_channel.send (Utils.get_text(guild_id, "proposition_phase_end_2").format(f'<@&{feedback_role_id}>'))
                   else:
                     # nothing => send DM to author
-                    await guild.get_member(author_id).send (utils.get_text('fr', 'proposition_phase_end_3'))
+                    await guild.get_member(author_id).send (Utils.get_text('fr', 'proposition_phase_end_3'))
                 else:
                   print ("ERROR: NO MESSAGE FOUND")
               else:
@@ -172,23 +168,23 @@ async def vote_tasks ():
                   update     = (f"update vote_message set closed = 3 "+
                                 f"where message_id='{message_id}' ;"
                                )
-                  db.execute_order(update)
+                  database.execute_order(update)
                   #send feedback
                   select     = ( "select a.role_id, b.channel_id"+
                                  " from vote_role as a, vote_channel as b"+
                                 f" where a.guild_id=b.guild_id and a.guild_id='{guild_id}' ;"
                                )
                   # print (f"select: {select}")
-                  fetched    = db.fetch_one_line(select)
+                  fetched    = database.fetch_one_line(select)
                   # print (f"fetched: {fetched}")
                   if fetched:
                     feedback_role_id   = int (fetched [0])
                     feedback_channel_id          = int (fetched [1])
                     feedback_channel   = guild.get_channel (feedback_channel_id)
-                    await feedback_channel.send(utils.get_text(guild_id, "proposition_phase_end_2").format(f'<@&{feedback_role_id}>'))
+                    await feedback_channel.send(Utils.get_text(guild_id, "proposition_phase_end_2").format(f'<@&{feedback_role_id}>'))
                   else:
                     # nothing => send DM to author
-                    await guild.get_member(author_id).send (utils.get_text('fr', 'vote_phase_end_2'))
+                    await guild.get_member(author_id).send (Utils.get_text('fr', 'vote_phase_end_2'))
                 else:
                   print ("ERROR: NO MESSAGE FOUND")
               else:
@@ -198,7 +194,7 @@ async def vote_tasks ():
 
 async def utip_tasks ():
   try:
-    db                       = Database ()
+
     guilds                   = bot.guilds
     # print (f"guilds: {guilds}")
     # CLOSE PHASES"
@@ -213,10 +209,10 @@ async def utip_tasks ():
                                  " (until is not null and until <>0) "+
                                  " ;"
                                )
-      fetched_all            = db.fetch_all_line (select)
+      fetched_all            = database.fetch_all_line (select)
       if fetched_all:
         select_role          = f"select role_id from utip_role where guild_id='{guild_id}' ;"
-        fetched_role         = db.fetch_one_line (select_role)
+        fetched_role         = database.fetch_one_line (select_role)
         role_utip            = guild.get_role (int (fetched_role [0]))
         for utiper in fetched_all:
           user_id            = int (utiper [0])
@@ -231,20 +227,20 @@ async def utip_tasks ():
             member           = guild.get_member (user_id)
             if member:
               await member.remove_roles(role_utip)
-              await member.send(utils.get_text(guild_id, 'user_lost_backer_role'))
-              db.execute_order(delete)
-              
+              await member.send(Utils.get_text(guild_id, 'user_lost_backer_role'))
+              database.execute_order(delete)
+
   except Exception as e:
     print (f"auto task {type(e).__name__} - {e}")
 
+
 def embed_get_result (message_id, guild_id, embed):
-  db                         = Database ()
   field                      = embed.fields [0]
   select                     = ( "select proposition_id,emoji,proposition,ballot"+
                                  " from vote_propositions"+
                                 f" where message_id='{message_id}' order by proposition_id asc ;"
                                 )
-  fetched                    = db.fetch_all_line (select)
+  fetched                    = database.fetch_all_line (select)
   if not fetched:
     new_value                = "\uFEFF"
   else:
@@ -263,10 +259,10 @@ def embed_get_result (message_id, guild_id, embed):
   embed.add_field (name=field.name, value=new_value, inline=False)
   return embed
 
+
 def get_birthday_message(guild_id, member_id):
-  db = Database()
   select = f"SELECT message FROM birthday_message WHERE guild_id='{guild_id}';"
-  fetched = db.fetch_one_line(select)
+  fetched = database.fetch_one_line(select)
   if fetched:
     text = ""
     # split around '{'
@@ -283,16 +279,16 @@ def get_birthday_message(guild_id, member_id):
         text = text + current_part
     return text.replace("$member", f"<@{member_id}>")
   else:
-    return utils.get_text(guild_id, 'welcome_user_1').format(f"<@{member_id}>")
+    return Utils.get_text(guild_id, 'welcome_user_1').format(f"<@{member_id}>")
+
 
 async def birthday_task():
-  db = Database()
   date = datetime.now().strftime('%d/%m')
   sql = f"SELECT user_id, guild_id, last_year_wished FROM birthday_user WHERE user_birthday='{date}'"
-  data = db.fetch_all_line(sql)
+  data = database.fetch_all_line(sql)
   sql = f"SELECT channel_id FROM birthday_channel"
 
-  channel_id = db.fetch_one_line(sql)
+  channel_id = database.fetch_one_line(sql)
   if not channel_id:
     raise RuntimeError('Birthday channel is not set !')
   birthday_channel = bot.get_channel(int(channel_id[0]))
@@ -309,9 +305,9 @@ async def birthday_task():
     sql = f"UPDATE birthday_user SET last_year_wished='{current_year}' WHERE user_id='{member_id}'"
 
     try:
-      db.execute_order(sql, [])
+      database.execute_order(sql, [])
     except Exception as e:
-      await birthday_channel.send(utils.get_text(guild_id, 'database_writing_error'))
+      await birthday_channel.send(Utils.get_text(guild_id, 'database_writing_error'))
       print(f"{type(e).__name__} - {e}")
 
 

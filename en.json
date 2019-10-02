@@ -43,7 +43,7 @@
   "help_welcome_description": "*The commands of this cog can only be used by administrators or moderators specified to the bot.*",
   "help_logs_description": "*The commands of this cog can only be used by administrators or moderators specified to the bot.*",
   "help_global_description": "*This bot is split into several **cogs**. Select wich help you want to display.*",
-  "help_birthday_user_command": "- `-setbirthday (-bd)` - Sets the birthday of a user. Format **JJ/MM**",
+  "help_birthday_user_command": "- `-setbirthday (-bd)` - Sets the birthday of a user. Format **DD/MM**",
   "help_logs_general": "- `-setnicknamelog (-snl)` - Sets current channel as log channel for nicknames.",
   "help_vote_description": ":warning: MessageID is referecing to the the vote embed message ID.",
   "help_logs_suf": "- `-setinvitelog (-sil)` - Sets current channel as log channel for invitations.",

@@ -1,6 +1,6 @@
 import json
-import sys
 import os
+import sys
 
 # get the path to project root
 dir_path = os.path.dirname(os.path.realpath(__file__))+'/'

@@ -1,13 +1,13 @@
+import math
+import time
+from datetime import datetime
+
 import discord
 from discord.ext import commands
-from datetime import datetime
-from datetime import timezone
+
+import Utils
+import database
 from ..logs import Logs
-from database import Database
-from Utils import Utils
-import random
-import time
-import math
 
 
 class Bancommand(commands.Cog):
@@ -25,17 +25,15 @@ class Bancommand(commands.Cog):
   """
   def __init__(self, bot):
     self.bot = bot
-    self.utils = Utils()
+
     self.logger = Logs(self.bot)
-    self.db = Database()
+
 
   @commands.command(name='bancommanduser', aliases=['bcu'])
+  @Utils.require(required=['authorized'])
   async def ban_command_user(self, ctx, command: str = None, user: discord.Member = None, timer: str = None):
     guild_id = ctx.message.guild.id
     author = ctx.author
-    if not self.utils.is_authorized (author, guild_id):
-      print ("Missing permissions")
-      return
     # Check if command exists
     all_commands = self.bot.commands
     cont_after = False
@@ -46,25 +44,25 @@ class Bancommand(commands.Cog):
       if cont_after:
         break
     if not cont_after:
-      await ctx.send (self.utils.get_text(ctx.guild.id, "command_unknow").format(command))
+      await ctx.send (Utils.get_text(ctx.guild.id, "command_unknow").format(command))
       await ctx.message.add_reaction('❌')
       return
     # Check if user exists
     if not user:
-      await ctx.send (self.utils.get_text(ctx.guild.id, "parameter_is_mandatory").format('User'))
+      await ctx.send (Utils.get_text(ctx.guild.id, "parameter_is_mandatory").format('User'))
       await ctx.message.add_reaction('❌')
       return
     # Parse time
     timestamp = None
     if timer:
-      timestamp = math.floor (time.time()) + self.utils.parse_time (timer)
+      timestamp = math.floor (time.time()) + Utils.parse_time (timer)
     print (f"timestamp: {timestamp}")
     if not timestamp:
       timestamp = "NULL"
     # Insert/Update
     # CREATE TABLE IF NOT EXISTS `ban_command_user` (`command` VARCHAR(256) NOT NULL, `until` INTEGER, `user_id` VARCHAR(256) NOT NULL, `guild_id` VARCHAR(256) NOT NULL, PRIMARY KEY (`command`, `user_id`, `guild_id`)) ;
     select = f"select until from ban_command_user where command='{command}' and user_id='{user.id}' and guild_id='{guild_id}' ;"
-    fetched = self.db.fetch_one_line (select)
+    fetched = database.fetch_one_line (select)
     if fetched:
       """
       await ctx.send (f"L'utilisateur {user.display_name} est déjà banni pour la commande {command}. Souhaitez-vous:\n1) Prolonger le banissement de {timer}\n2) Modifier la durée du bannissement à {timer} à partir de maintenant\n3) Annuler")
@@ -72,12 +70,12 @@ class Bancommand(commands.Cog):
       msg = await self.bot.wait_for('message', check=check)
       if msg.content == '1':
         if not fetched [0]:
-          await ctx.send(self.utils.get_text(self.language_code, "STRING_TO_CHANGE"))
+          await ctx.send ("L'utilisateur est déjà banni permanent.")
           timestamp = "NULL"
         elif timestamp == "NULL":
-          await ctx.send(self.utils.get_text(self.language_code, "STRING_TO_CHANGE"))
+          await ctx.send ("L'utilisateur est donc banni permanent.")
         else:
-          timestamp = fetched [0] + self.utils.parse_time (timer)
+          timestamp = fetched [0] + Utils.parse_time (timer)
       elif msg.content == '2':
         timestamp = timestamp
       else:
@@ -92,22 +90,20 @@ class Bancommand(commands.Cog):
     else:
       sql = f"insert into ban_command_user values ('{command}', {timestamp}, '{user.id}', '{guild_id}');"
     try:
-      self.db.execute_order (sql)
-      await ctx.send(self.utils.get_text(ctx.guild.id, "user_is_ban_from_command").format(user.display_name,
+      database.execute_order (sql)
+      await ctx.send(Utils.get_text(ctx.guild.id, "user_is_ban_from_command").format(user.display_name,
                                                                                                 command,
-                                                                                                timer or self.utils.get_text(ctx.guild.id, "permanent")))
+                                                                                                timer or Utils.get_text(ctx.guild.id, "permanent")))
       await ctx.message.add_reaction('✅')
     except Exception as e:
       print (f'{type(e).__name__} - {e}')
       await ctx.message.add_reaction('❌')
-    
+
   @commands.command(name='unbancommanduser', aliases=['ucu'])
+  @Utils.require(required=['authorized'])
   async def unban_command_user(self, ctx, command: str = None, user: discord.Member = None):
     guild_id = ctx.message.guild.id
     author = ctx.author
-    if not self.utils.is_authorized (author, guild_id):
-      print ("Missing permissions")
-      return
     # Check if command exists
     all_commands = self.bot.commands
     cont_after = False
@@ -118,42 +114,39 @@ class Bancommand(commands.Cog):
       if cont_after:
         break
     if not cont_after:
-      await ctx.send (self.utils.get_text(ctx.guild.id, "command_unknow").format(command))
+      await ctx.send (Utils.get_text(ctx.guild.id, "command_unknow").format(command))
       await ctx.message.add_reaction('❌')
       return
     # Check if user exists
     if not user:
-      await ctx.send (self.utils.get_text(ctx.guild.id, "parameter_is_mandatory").format('User'))
+      await ctx.send (Utils.get_text(ctx.guild.id, "parameter_is_mandatory").format('User'))
       await ctx.message.add_reaction('❌')
       return
     # Delete
     delete = f"delete from ban_command_user where command='{command}' and user_id='{user.id}' and guild_id='{guild_id}' ;"
     try:
-      self.db.execute_order (delete)
+      database.execute_order (delete)
       await ctx.message.add_reaction('✅')
     except Exception as e:
       print (f'{type(e).__name__} - {e}')
       await ctx.message.add_reaction('❌')
-    
-    
+
   @commands.command(name='isbanuser', aliases=['ibu'])
+  @Utils.require(required=['authorized'])
   async def is_ban_user(self, ctx, user: discord.Member = None):
     guild_id = ctx.message.guild.id
     author = ctx.author
-    if not self.utils.is_authorized (author, guild_id):
-      print ("Missing permissions")
-      return
     if not user:
-      await ctx.send(self.utils.get_text(ctx.guild.id, "parameter_is_mandatory").format('User'))
+      await ctx.send(Utils.get_text(ctx.guild.id, "parameter_is_mandatory").format('User'))
     select = (   "select command, until, user_id from ban_command_user "+
                 f"where guild_id='{guild_id}' "+
                 f"and user_id='{user.id}'"+
                  "order by command ASC"+
                  " ;"
              )
-    fetched = self.db.fetch_all_line (select)
+    fetched = database.fetch_all_line (select)
     if not fetched:
-      await ctx.send(self.utils.get_text(ctx.guild.id, "no_command_banned_for_user"))
+      await ctx.send(Utils.get_text(ctx.guild.id, "no_command_banned_for_user"))
       return
     to_ret = []
     user_name = (user.name+" a.k.a."+user.display_name) if user else "user inconnu"
@@ -164,10 +157,10 @@ class Bancommand(commands.Cog):
       temp = ""
       # parse until
       if until:
-        # date = self.utils.format_time (until)
-        date = datetime.utcfromtimestamp(until).strftime(self.utils.get_text(ctx.guild.id, 'date_format'))
+        # date = Utils.format_time (until)
+        date = datetime.utcfromtimestamp(until).strftime(Utils.get_text(ctx.guild.id, 'date_format'))
       else:
-        date = self.utils.get_text(ctx.guild.id, 'permanent')
+        date = Utils.get_text(ctx.guild.id, 'permanent')
       temp = ( f"{command} ["+
                f"{date}]"
              )
@@ -183,12 +176,10 @@ class Bancommand(commands.Cog):
     print (f"to_ret: {to_ret}")
     
   @commands.command(name='listbanuser', aliases=['lbu'])
+  @Utils.require(required=['authorized'])
   async def list_ban_user(self, ctx, command: str = None):
     guild_id = ctx.message.guild.id
     author = ctx.author
-    if not self.utils.is_authorized (author, guild_id):
-      print ("Missing permissions")
-      return
     if command:
       # Check if command exists
       all_commands = self.bot.commands
@@ -200,7 +191,7 @@ class Bancommand(commands.Cog):
         if cont_after:
           break
       if not cont_after:
-        await ctx.send (self.utils.get_text(ctx.guild.id, "command_unknow").format(command))
+        await ctx.send (Utils.get_text(ctx.guild.id, "command_unknow").format(command))
         return
     select = (   "select command, until, user_id from ban_command_user "+
                 f"where guild_id='{guild_id}' "+
@@ -208,12 +199,12 @@ class Bancommand(commands.Cog):
                  "order by command ASC"+
                  " ;"
              )
-    fetched = self.db.fetch_all_line (select)
+    fetched = database.fetch_all_line (select)
     if not fetched:
       if not command:
-        await ctx.send(self.utils.get_text(ctx.guild.id, "no_command_banned_for_users"))
+        await ctx.send(Utils.get_text(ctx.guild.id, "no_command_banned_for_users"))
       else:
-        await ctx.send(self.utils.get_text(ctx.guild.id, "no_user_banned_from_command").format(f'**{command}**'))
+        await ctx.send(Utils.get_text(ctx.guild.id, "no_user_banned_from_command").format(f'**{command}**'))
       return
     to_ret = []
     to_ret_string = ""
@@ -230,10 +221,10 @@ class Bancommand(commands.Cog):
       user_name = (user.name+" a.k.a."+user.display_name) if user else "user inconnu"
       # parse until
       if until:
-        # date = self.utils.format_time (until)
-        date = datetime.utcfromtimestamp(until).strftime(self.utils.get_text(ctx.guild.id, 'date_format'))
+        # date = Utils.format_time (until)
+        date = datetime.utcfromtimestamp(until).strftime(Utils.get_text(ctx.guild.id, 'date_format'))
       else:
-        date = self.utils.get_text(ctx.guild.id, 'permanent')
+        date = Utils.get_text(ctx.guild.id, 'permanent')
       temp = ( f"{user_name} ["+
                f"{date}]"
              )
@@ -249,12 +240,10 @@ class Bancommand(commands.Cog):
     print (f"to_ret: {to_ret}")
 
   @commands.command(name='bancommandrole', aliases=['bcr'])
+  @Utils.require(required=['authorized'])
   async def ban_command_role(self, ctx, command: str = None, role: discord.Role = None, timer: str = None):
     guild_id = ctx.message.guild.id
     author = ctx.author
-    if not self.utils.is_authorized (author, guild_id):
-      print ("Missing permissions")
-      return
     # Check if command exists
     all_commands = self.bot.commands
     cont_after = False
@@ -265,45 +254,43 @@ class Bancommand(commands.Cog):
       if cont_after:
         break
     if not cont_after:
-      await ctx.send (self.utils.get_text(ctx.guild.id, "command_unknow").format(command))
+      await ctx.send (Utils.get_text(ctx.guild.id, "command_unknow").format(command))
       await ctx.message.add_reaction('❌')
       return
     # Check if user exists
     if not role:
-      await ctx.send (self.utils.get_text(ctx.guild.id, "parameter_is_mandatory").format('User'))
+      await ctx.send (Utils.get_text(ctx.guild.id, "parameter_is_mandatory").format('User'))
       await ctx.message.add_reaction('❌')
       return
     # Parse time
     timestamp = None
     if timer:
-      timestamp = math.floor (time.time()) + self.utils.parse_time (timer)
+      timestamp = math.floor (time.time()) + Utils.parse_time (timer)
     if not timestamp:
       timestamp = "NULL"
     # Insert/Update
     # CREATE TABLE IF NOT EXISTS `ban_command_user` (`command` VARCHAR(256) NOT NULL, `until` INTEGER, `user_id` VARCHAR(256) NOT NULL, `guild_id` VARCHAR(256) NOT NULL, PRIMARY KEY (`command`, `user_id`, `guild_id`)) ;
     select = f"select until from ban_command_role where command='{command}' and role_id='{role.id}' and guild_id='{guild_id}' ;"
-    fetched = self.db.fetch_one_line (select)
+    fetched = database.fetch_one_line (select)
     if fetched:
       sql = f"update ban_command_role set until={timestamp} where command='{command}' and role_id='{role.id}' and guild_id='{guild_id}' ;"
     else:
       sql = f"insert into ban_command_role values ('{command}', {timestamp}, '{role.id}', '{guild_id}');"
     try:
-      self.db.execute_order (sql)
-      await ctx.send(self.utils.get_text(ctx.guild.id, "user_is_ban_from_command").format(role.name,
+      database.execute_order (sql)
+      await ctx.send(Utils.get_text(ctx.guild.id, "user_is_ban_from_command").format(role.name,
                                                                                                 command,
-                                                                                                timer or self.utils.get_text(ctx.guild.id, "permanent")))
+                                                                                                timer or Utils.get_text(ctx.guild.id, "permanent")))
       await ctx.message.add_reaction('✅')
     except Exception as e:
       print (f'{type(e).__name__} - {e}')
       await ctx.message.add_reaction('❌')
     
   @commands.command(name='unbancommandrole', aliases=['ucr'])
+  @Utils.require(required=['authorized'])
   async def unban_command_role(self, ctx, command: str = None, role: discord.Role = None):
     guild_id = ctx.message.guild.id
     author = ctx.author
-    if not self.utils.is_authorized (author, guild_id):
-      print ("Missing permissions")
-      return
     # Check if command exists
     all_commands = self.bot.commands
     cont_after = False
@@ -314,18 +301,18 @@ class Bancommand(commands.Cog):
       if cont_after:
         break
     if not cont_after:
-      await ctx.send (self.utils.get_text(ctx.guild.id, "command_unknow").format(command))
+      await ctx.send (Utils.get_text(ctx.guild.id, "command_unknow").format(command))
       await ctx.message.add_reaction('❌')
       return
     # Check if role exists
     if not role:
-      await ctx.send (self.utils.get_text(ctx.guild.id, "parameter_is_mandatory").format('User'))
+      await ctx.send (Utils.get_text(ctx.guild.id, "parameter_is_mandatory").format('User'))
       await ctx.message.add_reaction('❌')
       return
     # Delete
     delete = f"delete from ban_command_role where command='{command}' and role_id='{role.id}' and guild_id='{guild_id}' ;"
     try:
-      self.db.execute_order (delete)
+      database.execute_order (delete)
       await ctx.message.add_reaction('✅')
     except Exception as e:
       print (f'{type(e).__name__} - {e}')
@@ -333,23 +320,21 @@ class Bancommand(commands.Cog):
     
     
   @commands.command(name='isbanrole', aliases=['ibr'])
+  @Utils.require(required=['authorized'])
   async def is_ban_role(self, ctx, role: discord.Member = None):
     guild_id = ctx.message.guild.id
     author = ctx.author
-    if not self.utils.is_authorized (author, guild_id):
-      print ("Missing permissions")
-      return
     if not role:
-      await ctx.send(self.utils.get_text(ctx.guild.id, "parameter_is_mandatory").format('Rôle'))
+      await ctx.send(Utils.get_text(ctx.guild.id, "parameter_is_mandatory").format('Rôle'))
     select = (   "select command, until, role_id from ban_command_role "+
                 f"where guild_id='{guild_id}' "+
                 f"and role_id='{role.id}'"+
                  "order by command ASC"+
                  " ;"
              )
-    fetched = self.db.fetch_all_line (select)
+    fetched = database.fetch_all_line (select)
     if not fetched:
-      await ctx.send(self.utils.get_text(ctx.guild.id, "no_command_banned_for_user"))
+      await ctx.send(Utils.get_text(ctx.guild.id, "no_command_banned_for_user"))
       return
     to_ret = []
     role_name = role.name
@@ -360,10 +345,10 @@ class Bancommand(commands.Cog):
       temp = ""
       # parse until
       if until:
-        # date = self.utils.format_time (until)
-        date = datetime.utcfromtimestamp(until).strftime(self.utils.get_text(ctx.guild.id, 'date_format'))
+        # date = Utils.format_time (until)
+        date = datetime.utcfromtimestamp(until).strftime(Utils.get_text(ctx.guild.id, 'date_format'))
       else:
-        date = self.utils.get_text(ctx.guild.id, 'permanent')
+        date = Utils.get_text(ctx.guild.id, 'permanent')
       temp = ( f"{command} ["+
                f"{date}]"
              )
@@ -379,12 +364,10 @@ class Bancommand(commands.Cog):
     print (f"to_ret: {to_ret}")
     
   @commands.command(name='listbanrole', aliases=['lbr'])
+  @Utils.require(required=['authorized'])
   async def list_ban_role(self, ctx, command: str = None):
     guild_id = ctx.message.guild.id
     author = ctx.author
-    if not self.utils.is_authorized (author, guild_id):
-      print ("Missing permissions")
-      return
     if command:
       # Check if command exists
       all_commands = self.bot.commands
@@ -396,7 +379,7 @@ class Bancommand(commands.Cog):
         if cont_after:
           break
       if not cont_after:
-        await ctx.send (self.utils.get_text(ctx.guild.id, "command_unknow").format(command))
+        await ctx.send (Utils.get_text(ctx.guild.id, "command_unknow").format(command))
         return
     select = (   "select command, until, role_id from ban_command_role "+
                 f"where guild_id='{guild_id}' "+
@@ -404,12 +387,12 @@ class Bancommand(commands.Cog):
                  "order by command ASC"+
                  " ;"
              )
-    fetched = self.db.fetch_all_line (select)
+    fetched = database.fetch_all_line (select)
     if not fetched:
       if not command:
-        await ctx.send(self.utils.get_text(ctx.guild.id, "no_command_banned_for_user"))
+        await ctx.send(Utils.get_text(ctx.guild.id, "no_command_banned_for_user"))
       else:
-        await ctx.send(self.utils.get_text(ctx.guild.id, "no_user_banned_from_command").format(f'**{command}**'))
+        await ctx.send(Utils.get_text(ctx.guild.id, "no_user_banned_from_command").format(f'**{command}**'))
 
       return
     to_ret = []
@@ -427,10 +410,10 @@ class Bancommand(commands.Cog):
       role_name = role.name
       # parse until
       if until:
-        # date = self.utils.format_time (until)
-        date = datetime.utcfromtimestamp(until).strftime(self.utils.get_text(ctx.guild.id, 'date_format'))
+        # date = Utils.format_time (until)
+        date = datetime.utcfromtimestamp(until).strftime(Utils.get_text(ctx.guild.id, 'date_format'))
       else:
-        date = self.utils.get_text(ctx.guild.id, 'permanent')
+        date = Utils.get_text(ctx.guild.id, 'permanent')
       temp = ( f"{role_name} ["+
                f"{date}]"
              )
@@ -449,5 +432,5 @@ class Bancommand(commands.Cog):
   # parse_time
   @commands.command(name='test', aliases=['t'])
   async def test(self, ctx, timer: str = None):
-    seconds = self.utils.parse_time (timer)
+    seconds = Utils.parse_time (timer)
   """

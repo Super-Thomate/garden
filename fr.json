@@ -193,6 +193,7 @@
 
   "MISCELLANEOUS": "--------------------------------------------------------------------------------------------------",
   "ask_new_welcome_message": "Entrez le message de bienvenue : ",
+  "language_updated": "Langage du bot mis à jour",
   "date_is_before_now": "La date ne peut pas être dans le passé",
   "ask_new_vote_title": "Entrez le nouveau titre du vote:",
   "ask_message_to_send": "Entrez le message à envoyer:",

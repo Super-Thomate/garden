@@ -1,9 +1,10 @@
-import discord
 import sys
-import os
+
+import discord
 from discord.ext import commands
-from database import Database
+
 import botconfig
+import database
 
 
 def get_prefix(bot, message):
@@ -11,14 +12,14 @@ def get_prefix(bot, message):
     prefixes = []
     if message.guild:
       prefixes = botconfig.config[str(message.guild.id)]['prefixes']
-      db                     = Database ()
+
       select                 = (   "select   prefix "+
                                    "from     config_prefix "+
                                    " where "+
                                   f"guild_id='{message.guild.id}' ;"+
                                    ""
                                )
-      fetched                = db.fetch_all_line (select)
+      fetched                = database.fetch_all_line (select)
       if fetched:
         for line in fetched:
           prefixes.append (line [0])
@@ -46,7 +47,6 @@ initial_extensions = [   'cogs.loader'
 
 bot = commands.Bot(command_prefix=get_prefix)
 bot.remove_command("help") # we used our own help command
-db = Database()
 
 # Here we load our extensions(cogs) listed above in [initial_extensions].
 if __name__ == '__main__':

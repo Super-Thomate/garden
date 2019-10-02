@@ -1,46 +1,45 @@
-import discord
-import botconfig
 import math
-from discord.ext import commands
-from datetime import datetime
 import time
+from datetime import datetime
+
+import discord
+from discord.ext import commands
+
+import Utils
+import botconfig
+import database
 from ..logs import Logs
-from database import Database
-from Utils import Utils
+
 
 class Nickname(commands.Cog):
   def __init__(self, bot):
     self.bot = bot
-    self.utils = Utils()
     self.logger = Logs(self.bot)
-    self.db = Database()
+
 
   @commands.command(name='nickname', aliases=['pseudo'])
+  @Utils.require(required=['not_banned'])
   async def set_nickname(self, ctx, *, nickname: str = None):
     message = ctx.message
     member = ctx.author
     guild_id = ctx.guild.id
-    if self.utils.is_banned (ctx.command, ctx.author, ctx.guild.id):
-      await ctx.message.add_reaction('❌')
-      await ctx.author.send(self.utils.get_text(ctx.guild.id, "user_unauthorized_use_command"))
-      return
     # Check if there is a nickname
     if not nickname:
       await self.logger.log('nickname_log', member, message, True)
       await ctx.message.add_reaction('❌')
-      await ctx.channel.send(self.utils.get_text(ctx.guild.id, "no_nickname_given"))
+      await ctx.channel.send(Utils.get_text(ctx.guild.id, "no_nickname_given"))
       return
     # Check if I can change my nickname
-    nickname_delay           = self.utils.nickname_delay (guild_id)
+    nickname_delay           = Utils.nickname_delay (guild_id)
     sql = f'select last_change from last_nickname where guild_id=\'{guild_id}\' and member_id=\'{member.id}\''
-    fetched = self.db.fetch_one_line (sql)
+    fetched = database.fetch_one_line (sql)
     print (f"for {sql}\nget {fetched}")
     if nickname_delay and fetched and fetched[0]:
       last_change            = time.mktime(datetime.strptime (fetched [0], '%Y-%m-%d %H:%M:%S').timetuple())
       if str(nickname_delay).isnumeric():
         nickname_delay = int(nickname_delay)
       else:
-        nickname_delay = self.utils.convert_str_to_time(nickname_delay)
+        nickname_delay = Utils.convert_str_to_time(nickname_delay)
       print(f"nickname_delay: {nickname_delay}")
       duree                  = math.floor ((last_change + nickname_delay) - time.time())
       if duree > 0:
@@ -48,10 +47,10 @@ class Nickname(commands.Cog):
         total_seconds        = duree
         await self.logger.log('nickname_log', member, message, True)
         await ctx.message.add_reaction('❌')
-        await ctx.channel.send(self.utils.get_text(
+        await ctx.channel.send(Utils.get_text(
                                 ctx.guild.id,
                                 "user_already_changed_nickname")
-                              .format(self.utils.format_time(total_seconds)))
+                              .format(Utils.format_time(total_seconds)))
         return
     # Change my Nickname
     error = False
@@ -63,30 +62,30 @@ class Nickname(commands.Cog):
     if not error:
       # write in db last_time
       select = f"select * from last_nickname where guild_id='{guild_id}' and member_id='{member.id}'"
-      fetched = self.db.fetch_one_line (select)
+      fetched = database.fetch_one_line (select)
       if not fetched:
         sql = f"insert into last_nickname values ('{member.id}', '{guild_id}', datetime('{datetime.now()}'))"
       else:
         sql = f"update last_nickname set last_change=datetime('{datetime.now()}') where member_id='{member.id}' and guild_id='{guild_id}'"
       try:
-        self.db.execute_order (sql, [])
+        database.execute_order (sql, [])
       except Exception as e:
-        await message.channel.send(self.utils.get_text(ctx.guild.id, "database_writing_error"))
+        await message.channel.send(Utils.get_text(ctx.guild.id, "database_writing_error"))
         print (f'{type(e).__name__} - {e}')
         error = True
     if not error:
       # write in db current nickanme
       select = f"select * from nickname_current where guild_id='{guild_id}' and member_id='{member.id}' ;"
-      fetched = self.db.fetch_one_line (select)
+      fetched = database.fetch_one_line (select)
       print (f"fetched: {fetched}")
       if not fetched:
         sql = f"insert into nickname_current values ('{member.id}', '{guild_id}', ?) ;"
       else:
         sql = f"update nickname_current set nickname=? where member_id='{member.id}' and guild_id='{guild_id}' ;"
       try:
-        self.db.execute_order (sql, [nickname])
+        database.execute_order (sql, [nickname])
       except Exception as e:
-        await message.channel.send(self.utils.get_text(ctx.guild.id, "database_writing_error"))
+        await message.channel.send(Utils.get_text(ctx.guild.id, "database_writing_error"))
         print (f'{type(e).__name__} - {e}')
         error = True
     # Log my change
@@ -98,20 +97,14 @@ class Nickname(commands.Cog):
 
 
   @commands.command(name='resetnickname', aliases=['rn'])
+  @Utils.require(required=['authorized', 'not_banned'])
   async def reset_nickname(self, ctx, member: discord.Member = None):
     member = member or ctx.author
     guild_id = ctx.guild.id
-    if not self.utils.is_authorized (ctx.author, guild_id):
-      print ("Missing permissions")
-      return
-    if self.utils.is_banned (ctx.command, ctx.author, ctx.guild.id):
-      await ctx.message.add_reaction('❌')
-      await ctx.author.send(self.utils.get_text(ctx.guild.id, "user_unauthorized_use_command"))
-      return
     sql = f"delete from last_nickname where guild_id='{guild_id}' and member_id='{member.id}'"
     error = False
     try:
-      self.db.execute_order(sql, [])
+      database.execute_order(sql, [])
       await ctx.message.add_reaction('✅')
     except Exception as e:
       print (f"{type(e).__name__} - {e}")
@@ -121,16 +114,13 @@ class Nickname(commands.Cog):
 
 
   @commands.command(name='next', aliases=['nextnickname'])
+  @Utils.require(required=['not_banned'])
   async def next_nickname(self, ctx):
     member = ctx.author
     guild_id = ctx.guild.id
-    if self.utils.is_banned (ctx.command, ctx.author, ctx.guild.id):
-      await ctx.message.add_reaction('❌')
-      await ctx.author.send(self.utils.get_text(ctx.guild.id, "user_unauthorized_use_command"))
-      return
-    nickname_delay = self.utils.nickname_delay (guild_id) or botconfig.config[str(guild_id)]['nickname_delay']
+    nickname_delay = Utils.nickname_delay (guild_id) or botconfig.config[str(guild_id)]['nickname_delay']
     sql = f'select  datetime(last_change, \'{nickname_delay}\') from last_nickname where guild_id=\'{guild_id}\' and member_id=\'{member.id}\''
-    fetched = self.db.fetch_one_line (sql)
+    fetched = database.fetch_one_line (sql)
     print (f"for {sql}\nget {fetched}")
     await self.logger.log('nickname_log', member, ctx.message, False)
     if fetched:
@@ -141,18 +131,18 @@ class Nickname(commands.Cog):
         total_seconds = duree.days*86400+duree.seconds
         print (f"duree.days: {duree.days}")
         print (f"total_seconds: {total_seconds}")
-        await ctx.channel.send(self.utils.get_text(
+        await ctx.channel.send(Utils.get_text(
                                 ctx.guild.id,
                                 "delay_between_nickname")
-                               .format(self.utils.format_time(total_seconds)))
+                               .format(Utils.format_time(total_seconds)))
         return
-    await ctx.send(self.utils.get_text(ctx.guild.id, "user_can_change_nickname"))
+    await ctx.send(Utils.get_text(ctx.guild.id, "user_can_change_nickname"))
     
     
   @commands.Cog.listener()
   async def on_member_join(self, member):
     select = f"select nickname from nickname_current where guild_id='{member.guild.id}' and member_id='{member.id}' ;"
-    fetched = self.db.fetch_one_line (select)
+    fetched = database.fetch_one_line (select)
     if fetched:
       nickname = fetched [0]
       try:
@@ -162,23 +152,17 @@ class Nickname(commands.Cog):
     return
 
   @commands.command(name='updatenickname')
+  @Utils.require(required=['authorized', 'not_banned'])
   async def update_nickname(self, ctx):
     author = ctx.author
     guild_id = ctx.guild.id
-    if not self.utils.is_authorized (author, guild_id):
-      print ("Missing permissions")
-      return
-    if self.utils.is_banned (ctx.command, ctx.author, ctx.guild.id):
-      await ctx.message.add_reaction('❌')
-      await ctx.author.send(self.utils.get_text(ctx.guild.id, "user_unauthorized_use_command"))
-      return
     try:
       for member in ctx.guild.members:
         if member.nick:
           select = (   f"select nickname from nickname_current"+
                        f" where guild_id='{guild_id}' and member_id='{member.id}' ;"
                    )
-          fetched = self.db.fetch_one_line (select)
+          fetched = database.fetch_one_line (select)
           sql = ""
           if not fetched:
             sql = (   f"insert into nickname_current values ('{member.id}', "+
@@ -190,8 +174,8 @@ class Nickname(commands.Cog):
                       f" where guild_id='{guild_id}' and member_id='{member.id}' ;"
                   )
           if len (sql):
-            self.db.execute_order (sql)
-      await ctx.send(self.utils.get_text(ctx.guild.id, "nickname_updated"))
+            database.execute_order (sql)
+      await ctx.send(Utils.get_text(ctx.guild.id, "nickname_updated"))
     except Exception as e:
-      await ctx.send(self.utils.get_text(ctx.guild.id, "error_occured").format(f"{type(e).__name__}",  f"{e}"))
+      await ctx.send(Utils.get_text(ctx.guild.id, "error_occured").format(f"{type(e).__name__}",  f"{e}"))
       print (f"{type(e).__name__} - {e}")

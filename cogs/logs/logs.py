@@ -1,166 +1,130 @@
-import discord
-import botconfig
-from discord.ext import commands
 from datetime import datetime
-from database import Database
-from Utils import Utils
+
+import discord
+from discord.ext import commands
+
+import Utils
+import database
+
 
 class Logs(commands.Cog):
   def __init__ (self, bot):
     self.bot = bot
-    self.db = Database()
-    self.utils = Utils()
+
+
 
   @commands.command(name='setinvitelog', aliases=['setinvite', 'sil', 'invitelog'])
+  @Utils.require(required=['authorized', 'not_banned'])
   async def set_invitation_log(self, ctx, channel: discord.TextChannel = None):
     guild_id = ctx.message.guild.id
     member = ctx.author
-    if not self.utils.is_authorized (member, guild_id):
-      print ("Missing permissions")
-      return
-    if self.utils.is_banned (ctx.command, ctx.author, ctx.guild.id):
-      await ctx.message.add_reaction('❌')
-      await ctx.author.send(self.utils.get_text(ctx.guild.id, "user_unauthorized_use_command"))
-      return
     try:
       log_channel = channel or ctx.message.channel
       sql = f"select * from invite_log where guild_id='{guild_id}'"
-      prev_log_channel = self.db.fetch_one_line (sql)
+      prev_log_channel = database.fetch_one_line (sql)
       if not prev_log_channel:
         sql = "INSERT INTO invite_log VALUES ('{0}', '{1}')".format(log_channel.id, guild_id)
       else:
         sql = f"update invite_log set channel_id='{log_channel.id}' where guild_id='{guild_id}'"
-      self.db.execute_order(sql)
-      await log_channel.send(self.utils.get_text(ctx.guild.id, "invitation_log_channel_set"))
+      database.execute_order(sql)
+      await log_channel.send(Utils.get_text(ctx.guild.id, "invitation_log_channel_set"))
     except Exception as e:
       print (f" {type(e).__name__} - {e}")
 
   @commands.command(name='setgallerylog', aliases=['setgallery', 'sgl', 'gallerylog'])
+  @Utils.require(required=['authorized', 'not_banned'])
   async def set_galerie_log(self, ctx, channel: discord.TextChannel = None):
     guild_id = ctx.message.guild.id
     member = ctx.author
-    if not self.utils.is_authorized (member, guild_id):
-      print ("Missing permissions")
-      return
-    if (not self.utils.do_invite (guild_id) and not botconfig.config[str(guild_id)]["do_token"]):
-      return
-    if self.utils.is_banned (ctx.command, ctx.author, ctx.guild.id):
-      await ctx.message.add_reaction('❌')
-      await ctx.author.send(self.utils.get_text(ctx.guild.id, "user_unauthorized_use_command"))
-      return
     try:
       log_channel = channel or ctx.message.channel
       guild_id = ctx.message.guild.id
       sql = f"select * from galerie_log where guild_id='{guild_id}'"
-      prev_log_channel = self.db.fetch_one_line (sql)
+      prev_log_channel = database.fetch_one_line (sql)
       if not prev_log_channel:
         sql = "INSERT INTO galerie_log VALUES ('{0}', '{1}')".format(log_channel.id, guild_id)
       else:
         sql = f"update galerie_log set channel_id='{log_channel.id}' where guild_id='{guild_id}'"
-      self.db.execute_order(sql, [])
-      await log_channel.send(self.utils.get_text(ctx.guild.id, "gallery_log_channel_set"))
+      database.execute_order(sql, [])
+      await log_channel.send(Utils.get_text(ctx.guild.id, "gallery_log_channel_set"))
     except Exception as e:
       print (f" {type(e).__name__} - {e}")
 
   @commands.command(name='setnicknamelog', aliases=['setnickname', 'snl', 'nicknamelog'])
+  @Utils.require(required=['authorized', 'not_banned'])
   async def set_nickname_log(self, ctx, channel: discord.TextChannel = None):
     guild_id = ctx.message.guild.id
     member = ctx.author
-    if not self.utils.is_authorized (member, guild_id):
-      print ("Missing permissions")
-      return
-    if self.utils.is_banned (ctx.command, ctx.author, ctx.guild.id):
-      await ctx.message.add_reaction('❌')
-      await ctx.author.send(self.utils.get_text(ctx.guild.id, "user_unauthorized_use_command"))
-      return
     try:
       log_channel = channel or ctx.message.channel
       guild_id = ctx.message.guild.id
       sql = f"select * from nickname_log where guild_id='{guild_id}'"
-      prev_log_channel = self.db.fetch_one_line (sql)
+      prev_log_channel = database.fetch_one_line (sql)
       if not prev_log_channel:
         sql = "INSERT INTO nickname_log VALUES ('{0}', '{1}')".format(log_channel.id, guild_id)
       else:
         sql = f"update nickname_log set channel_id='{log_channel.id}' where guild_id='{guild_id}'"
-      self.db.execute_order(sql, [])
-      await log_channel.send(self.utils.get_text(ctx.guild.id, "nickname_log_channel_set"))
+      database.execute_order(sql, [])
+      await log_channel.send(Utils.get_text(ctx.guild.id, "nickname_log_channel_set"))
     except Exception as e:
       print (f" {type(e).__name__} - {e}")
 
   @commands.command(name='setvotelog', aliases=['setvote', 'svl', 'votelog'])
+  @Utils.require(required=['authorized', 'not_banned'])
   async def set_vote_log(self, ctx, channel: discord.TextChannel = None):
     guild_id = ctx.message.guild.id
     member = ctx.author
-    if not self.utils.is_authorized (member, guild_id):
-      print ("Missing permissions")
-      return
-    if self.utils.is_banned (ctx.command, ctx.author, ctx.guild.id):
-      await ctx.message.add_reaction('❌')
-      await ctx.author.send(self.utils.get_text(ctx.guild.id, "user_unauthorized_use_command"))
-      return
     try:
       log_channel = channel or ctx.message.channel
       guild_id = ctx.message.guild.id
       sql = f"select * from vote_log where guild_id='{guild_id}'"
-      prev_log_channel = self.db.fetch_one_line (sql)
+      prev_log_channel = database.fetch_one_line (sql)
       if not prev_log_channel:
         sql = "INSERT INTO vote_log VALUES ('{0}', '{1}')".format(log_channel.id, guild_id)
       else:
         sql = f"update vote_log set channel_id='{log_channel.id}' where guild_id='{guild_id}'"
-      self.db.execute_order(sql, [])
-      await log_channel.send(self.utils.get_text(ctx.guild.id, "vote_log_channel_set"))
+      database.execute_order(sql, [])
+      await log_channel.send(Utils.get_text(ctx.guild.id, "vote_log_channel_set"))
     except Exception as e:
       print (f" {type(e).__name__} - {e}")
 
   @commands.command(name='setwelcomelog', aliases=['swl', 'welcomelog'])
+  @Utils.require(required=['authorized', 'not_banned'])
   async def set_welcome_log(self, ctx, channel: discord.TextChannel = None):
     # useless
     return
     guild_id = ctx.message.guild.id
     member = ctx.author
-    if not self.utils.is_authorized (member, guild_id):
-      print ("Missing permissions")
-      return
-    if self.utils.is_banned (ctx.command, ctx.author, ctx.guild.id):
-      await ctx.message.add_reaction('❌')
-      await ctx.author.send(self.utils.get_text(ctx.guild.id, "user_unauthorized_use_command"))
-      return
     try:
       log_channel = channel or ctx.message.channel
       guild_id = ctx.message.guild.id
       sql = f"select * from welcome_log where guild_id='{guild_id}'"
-      prev_log_channel = self.db.fetch_one_line (sql)
+      prev_log_channel = database.fetch_one_line (sql)
       if not prev_log_channel:
         sql = "INSERT INTO welcome_log VALUES ('{0}', '{1}')".format(log_channel.id, guild_id)
       else:
         sql = f"update welcome_log set channel_id='{log_channel.id}' where guild_id='{guild_id}'"
-      self.db.execute_order(sql, [])
-      await log_channel.send(self.utils.get_text(ctx.guild.id, "welcome_log_channel_set"))
+      database.execute_order(sql, [])
+      await log_channel.send(Utils.get_text(ctx.guild.id, "welcome_log_channel_set"))
     except Exception as e:
       print (f" {type(e).__name__} - {e}")
 
 
   @commands.command(name='setbirthdaylog', aliases=['sbl'])
+  @Utils.require(required=['authorized', 'not_banned'])
   async def set_birthday_log(self, ctx, channel: discord.TextChannel = None):
     guild_id = ctx.guild.id
     member = ctx.author
-    if not self.utils.is_authorized (member, guild_id):
-      print("Missing permissions")
-      return
-    if self.utils.is_banned(ctx.command, ctx.author, ctx.guild.id):
-      await ctx.message.add_reaction('❌')
-      await ctx.author.send(self.utils.get_text(ctx.guild.id, "user_unauthorized_use_command"))
-      return
     try:
       log_channel = channel or ctx.message.channel
       sql = f"SELECT channel_id FROM birthday_log WHERE guild_id={guild_id}"
-      channel_already_set = self.db.fetch_one_line(sql)
+      channel_already_set = database.fetch_one_line(sql)
       if channel_already_set:
         sql = f"UPDATE birthday_log set channel_id='{log_channel.id}' WHERE guild_id='{guild_id}'"
       else:
         sql = f"INSERT INTO birthday_log VALUES ('{log_channel.id}', '{guild_id}')"
-      self.db.execute_order(sql, [])
-      await log_channel.send(self.utils.get_text(ctx.guild.id, "birthday_log_channel_set"))
+      database.execute_order(sql, [])
+      await log_channel.send(Utils.get_text(ctx.guild.id, "birthday_log_channel_set"))
     except Exception as e:
       print(f" {type(e).__name__} - {e}")
 
@@ -168,7 +132,7 @@ class Logs(commands.Cog):
   async def log(self, db, member, message, error, params = None):
     guild_id = message.channel.guild.id
     sql = f"select channel_id from {db} where guild_id='{guild_id}'"
-    db_log_channel = self.db.fetch_one_line (sql)
+    db_log_channel = database.fetch_one_line (sql)
     print (db_log_channel)
     if not db_log_channel:
       log_channel = message.channel
@@ -194,6 +158,7 @@ class Logs(commands.Cog):
 
   @commands.command(name='cleanchannel', aliases=['cc'])
   @commands.guild_only()
+  @Utils.require(required=['authorized', 'not_banned'])
   async def cleanchannel(self, ctx, length_or_id: str = None, message_id: int = None):
     """Clean the current channel"""
     channel = ctx.channel
@@ -207,16 +172,9 @@ class Logs(commands.Cog):
       except Exception as e:
         print (f" {type(e).__name__} - {e}")
         if length_or_id == 'id':
-          feedback = await ctx.send(self.utils.get_text(ctx.guild.id, "not_valid_id").format(message_id))
+          feedback = await ctx.send(Utils.get_text(ctx.guild.id, "not_valid_id").format(message_id))
           await feedback.delete (delay=2)
           return
-    if not self.utils.is_authorized (member, guild_id):
-      print ("Missing permissions")
-      return
-    if self.utils.is_banned (ctx.command, ctx.author, ctx.guild.id):
-      await ctx.message.add_reaction('❌')
-      await ctx.author.send(self.utils.get_text(ctx.guild.id, "user_unauthorized_use_command"))
-      return
     print ("Let's go !")
     if until_message:
       # redo length
@@ -240,7 +198,7 @@ class Logs(commands.Cog):
     not_is_pin = lambda message : not message.pinned
     # delete all messages except ping
     deleted = await channel.purge(limit=length, check=not_is_pin)
-    feedback = await channel.send(self.utils.get_text(ctx.guild.id, "deleted_messages").format(len(deleted)))
+    feedback = await channel.send(Utils.get_text(ctx.guild.id, "deleted_messages").format(len(deleted)))
     await feedback.delete (delay=2)
 
   # Get all the DM and log them
@@ -254,7 +212,7 @@ class Logs(commands.Cog):
       return
     # log for dm
     sql                      = f"select channel_id,guild_id from spy_log ;"
-    fetched_log_channel      = self.db.fetch_all_line (sql)
+    fetched_log_channel      = database.fetch_all_line (sql)
     # print (f"fetched_log_channel: {fetched_log_channel}")
     if fetched_log_channel:
       for db_log_channel in fetched_log_channel:
@@ -275,81 +233,63 @@ class Logs(commands.Cog):
     return
 
   @commands.command(name='setspylog', aliases=['ssl', 'spylog'])
+  @Utils.require(required=['authorized', 'not_banned'])
   async def set_spy_log(self, ctx, channel: discord.TextChannel = None):
     guild_id                 = ctx.message.guild.id
     member                  = ctx.author
-    if not self.utils.is_authorized (member, guild_id):
-      print ("Missing permissions")
-      return
-    if self.utils.is_banned (ctx.command, ctx.author, ctx.guild.id):
-      await ctx.message.add_reaction('❌')
-      await ctx.author.send(self.utils.get_text(ctx.guild.id, "user_unauthorized_use_command"))
-      return
     try:
       log_channel            = channel or ctx.message.channel
       guild_id               = ctx.message.guild.id
       sql                    = f"select * from spy_log where guild_id='{guild_id}'"
-      prev_log_channel       = self.db.fetch_one_line (sql)
+      prev_log_channel       = database.fetch_one_line (sql)
       if not prev_log_channel:
         sql                  = f"insert into spy_log values ('{log_channel.id}', '{guild_id}') ;"
       else:
         sql                  = (f"update spy_log set channel_id='{log_channel.id}'"+
                                  " where guild_id='{guild_id}' ;"
                                )
-      self.db.execute_order(sql)
-      await log_channel.send(self.utils.get_text(ctx.guild.id, "spy_log_channel_set"))
+      database.execute_order(sql)
+      await log_channel.send(Utils.get_text(ctx.guild.id, "spy_log_channel_set"))
     except Exception as e:
       print (f" {type(e).__name__} - {e}")
 
 
   @commands.command(name='setconfiglog', aliases=['setconfig', 'scl', 'configlog'])
+  @Utils.require(required=['authorized', 'not_banned'])
   async def set_config_log(self, ctx, channel: discord.TextChannel = None):
     guild_id = ctx.message.guild.id
     member = ctx.author
-    if not self.utils.is_authorized (member, guild_id):
-      print ("Missing permissions")
-      return
-    if self.utils.is_banned (ctx.command, ctx.author, ctx.guild.id):
-      await ctx.message.add_reaction('❌')
-      await ctx.author.send(self.utils.get_text(ctx.guild.id, "user_unauthorized_use_command"))
-      return
     try:
       log_channel = channel or ctx.message.channel
       guild_id = ctx.message.guild.id
       sql = f"select * from config_log where guild_id='{guild_id}'"
-      prev_log_channel = self.db.fetch_one_line (sql)
+      prev_log_channel = database.fetch_one_line (sql)
       if not prev_log_channel:
         sql = "INSERT INTO config_log VALUES ('{0}', '{1}')".format(log_channel.id, guild_id)
       else:
         sql = f"update config_log set channel_id='{log_channel.id}' where guild_id='{guild_id}'"
-      self.db.execute_order(sql, [])
-      await log_channel.send(self.utils.get_text(ctx.guild.id, "config_log_channel_set"))
+      database.execute_order(sql, [])
+      await log_channel.send(Utils.get_text(ctx.guild.id, "config_log_channel_set"))
     except Exception as e:
       print (f" {type(e).__name__} - {e}")
 
 
   @commands.command(name='setutiplog', aliases=['setutip', 'sul', 'utiplog'])
+  @Utils.require(required=['authorized', 'not_banned'])
   async def set_utip_log(self, ctx, channel: discord.TextChannel = None):
     guild_id = ctx.message.guild.id
     member = ctx.author
-    if not self.utils.is_authorized (member, guild_id):
-      print ("Missing permissions")
-      return
-    if self.utils.is_banned (ctx.command, ctx.author, ctx.guild.id):
-      await ctx.message.add_reaction('❌')
-      await ctx.author.send(self.utils.get_text(ctx.guild.id, "user_unauthorized_use_command"))
-      return
     try:
       log_channel = channel or ctx.message.channel
       guild_id = ctx.message.guild.id
       sql = f"select * from utip_log where guild_id='{guild_id}'"
-      prev_log_channel = self.db.fetch_one_line (sql)
+      prev_log_channel = database.fetch_one_line (sql)
       if not prev_log_channel:
         sql = "INSERT INTO utip_log VALUES ('{0}', '{1}')".format(log_channel.id, guild_id)
       else:
         sql = f"update utip_log set channel_id='{log_channel.id}' where guild_id='{guild_id}'"
-      self.db.execute_order(sql, [])
-      await log_channel.send(self.utils.get_text(ctx.guild.id, "utip_log_channel_set"))
+      database.execute_order(sql, [])
+      await log_channel.send(Utils.get_text(ctx.guild.id, "utip_log_channel_set"))
     except Exception as e:
       print (f" {type(e).__name__} - {e}")
       await ctx.message.add_reaction('❌')
@@ -359,7 +299,7 @@ class Logs(commands.Cog):
   async def log_dm (self, db, member, message, guild, error, params = None):
     if guild.get_member(member.id):
       sql                    = f"select channel_id from {db} where guild_id='{guild.id}'"
-      db_log_channel         = self.db.fetch_one_line (sql)
+      db_log_channel         = database.fetch_one_line (sql)
       if not db_log_channel:
         return
       log_channel            = guild.get_channel (int (db_log_channel[0]))
