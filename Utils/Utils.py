@@ -12,7 +12,7 @@ import database
 dir_path = os.path.dirname(os.path.realpath(__file__))+'/'
 strings = {}
 for language in botconfig.config["languages"]:
-  with open(f'{dir_path}{language}.json', 'r') as file:
+  with open(f'{dir_path}../{language}.json', 'r') as file:
     strings[language] = json.load(file)
 
 
