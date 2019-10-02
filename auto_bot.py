@@ -32,9 +32,12 @@ async def on_ready():
         )
   while run_boy_run:
     print (f"[{datetime.now().strftime('%d-%m-%Y %H:%M:%S')}] Running task")
-    await vote_tasks()
-    await utip_tasks ()
-    await birthday_task ()
+    try:
+      await vote_tasks()
+      await utip_tasks ()
+      await birthday_task ()
+    except Exception as e:
+      print (f"{type(e).__name__} - {e}")
     time.sleep(sleepy_time)
     # sys.exit(0)
 
