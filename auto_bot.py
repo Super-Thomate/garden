@@ -298,6 +298,7 @@ async def birthday_task():
         raise RuntimeError('Birthday channel is not set !')
       birthday_channel = bot.get_channel(int(channel_id[0]))
       print ("birthday_channel: {}".format(birthday_channel))
+      print (f"data: {data}")
       for line in data:
         member_id, guild_id, last_year_wished = line[0], line[1], line[2]
         current_year = datetime.now().strftime('%Y')
@@ -306,6 +307,7 @@ async def birthday_task():
         get_birthday_message(guild_id, member_id)
         await birthday_channel.send(get_birthday_message(guild_id, member_id))
         sql = f"UPDATE birthday_user SET last_year_wished='{current_year}' WHERE user_id='{member_id}' and guild_id='{guild_id}' ;"
+        print (f"sql: {sql}")
         try:
           database.execute_order(sql, [])
         except Exception as e:
