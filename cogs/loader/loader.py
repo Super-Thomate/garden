@@ -21,7 +21,7 @@ class Loader(commands.Cog):
     except Exception as e:
       await ctx.send(Utils.get_text(ctx.guild.id, "exception_error").format(type(e).__name__, e))
     else:
-      await ctx.send(Utils.get_text((ctx.guild.id, 'success'))
+      await ctx.send(Utils.get_text(ctx.guild.id, 'success'))
 
   @commands.command(name='unload', hidden=True)
   @Utils.require(required=['authorized', 'not_banned'])
@@ -33,7 +33,7 @@ class Loader(commands.Cog):
     except Exception as e:
       await ctx.send(Utils.get_text(ctx.guild.id, "exception_error").format(type(e).__name__, e))
     else:
-      await ctx.send(Utils.get_text((ctx.guild.id, 'success'))
+      await ctx.send(Utils.get_text(ctx.guild.id, 'success'))
 
   @commands.command(name='reload', hidden=True)
   @Utils.require(required=['authorized', 'not_banned'])
@@ -46,7 +46,7 @@ class Loader(commands.Cog):
     except Exception as e:
       await ctx.send(Utils.get_text(ctx.guild.id, "exception_error").format(type(e).__name__, e))
     else:
-      await ctx.send(Utils.get_text((ctx.guild.id, 'success'))
+      await ctx.send(Utils.get_text(ctx.guild.id, 'success'))
 
   @commands.command(name='listcogs', hidden=True, aliases=['lc'])
   @Utils.require(required=['authorized', 'not_banned'])
