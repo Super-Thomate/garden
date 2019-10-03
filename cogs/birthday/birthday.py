@@ -41,7 +41,7 @@ class Birthday(commands.Cog):
       already_registered = await ctx.send(Utils.get_text(ctx.guild.id, 'user_already_registered_birthday'))
       await Utils.delete_messages(already_registered, ctx.message)
       return
-    if not date: # user did not set date after !bd
+    if not date: # user did not write date after !bd
       one_line = False
       ask = await ctx.send(Utils.get_text(ctx.guild.id, 'ask_user_register_birthday'))
       response = await self.bot.wait_for('message', check=lambda m: m.channel == ctx.channel and m.author.id == member_id)
