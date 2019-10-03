@@ -1,7 +1,20 @@
 from discord.ext import commands
+import discord
 from ..logs import Logs
 import Utils
 
+rules = {
+  "1⃣": "1",
+  "2⃣": "2",
+  "3⃣": "3",
+  "4⃣": "4",
+  "5⃣": "5",
+  "6⃣": "6",
+  "7⃣": "7",
+  "8⃣": "8",
+  "9⃣": "9",
+  "🔟": "10",
+}
 
 class Moderation(commands.Cog):
   def __init__(self, bot):
@@ -33,13 +46,15 @@ class Moderation(commands.Cog):
       await after.remove_reaction ("<:CapsLock:621629196359303168>", self.bot.user)
     return
 
-  @commands.command(name='rule')
-  @Utils.require(required=['authorized', 'not_banned'])
-  async def display_rule(self, ctx, rule_number: str = None):
-    if not rule_number:
-      await ctx.send(Utils.get_text(ctx.guild.id, "parameter_is_mandatory").format('<rule_index>'))
-      return
-    if not (1 <= int(rule_number) <= 10):
-      await ctx.send(Utils.get_text(ctx.guild.id, "bad_rule_index"))
-      return
-    await ctx.send(Utils.get_text(ctx.guild.id, f"rule{rule_number}"))
+  @commands.Cog.listener('on_raw_reaction_add')
+  async def display_rule(self, payload):
+    member = self.bot.get_user(payload.user_id)
+    if not Utils.is_authorized(member, payload.guild_id):
+      pass
+    try:
+      rule_number = rules[payload.emoji.name]
+    except KeyError:
+      pass
+    channel = self.bot.get_channel(payload.channel_id)
+    message = await channel.fetch_message(payload.message_id)
+    await message.author.send(Utils.get_text(payload.guild_id, f"rule{rule_number}"))
