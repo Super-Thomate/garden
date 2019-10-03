@@ -17,7 +17,7 @@ class Birthday(commands.Cog):
     self.logger = Logs(self.bot)
 
   def validate_date(self, date):
-    if date in ('29/02', '29/2', '29 02', '29 2'):
+    if date in ('29/02', '29/2', '29.02', '29.2', '29-02', '29-2'):
       return True
     for frmt in ("%d/%m", "%d.%m", "%d-%m"):
       try:
@@ -34,6 +34,7 @@ class Birthday(commands.Cog):
     guild_id = ctx.message.guild.id
     member_id = ctx.author.id
     error = False
+    one_line = True
     sql = f"SELECT user_id FROM birthday_user WHERE user_id='{member_id}' and guild_id='{guild_id}' ;"
     data = database.fetch_one_line(sql)
     if data is not None:
@@ -41,6 +42,7 @@ class Birthday(commands.Cog):
       await Utils.delete_messages(already_registered, ctx.message)
       return
     if not date: # user did not set date after !bd
+      one_line = False
       ask = await ctx.send(Utils.get_text(ctx.guild.id, 'ask_user_register_birthday'))
       response = await self.bot.wait_for('message', check=lambda m: m.channel == ctx.channel and m.author.id == member_id)
       date = response.content
@@ -50,7 +52,7 @@ class Birthday(commands.Cog):
       invalid = await ctx.send(Utils.get_text(ctx.guild.id, 'birthday_format_invalid'))
       await Utils.delete_messages(invalid, ctx.message)
       # Log command
-      ctx.message.content += '\n' + date
+      ctx.message.content += f"\n{date}" if one_line is False else ""
       await self.logger.log('birthday_log', ctx.author, ctx.message, True)
     else:
       sql = f"INSERT INTO birthday_user VALUES ('{member_id}', '{guild_id}', '{date}', '') ;"
@@ -63,7 +65,7 @@ class Birthday(commands.Cog):
       accepted = await ctx.send(Utils.get_text(ctx.guild.id, 'user_birthday_registered').format(ctx.author.display_name))
       await Utils.delete_messages(accepted, ctx.message)
       # Log command
-      ctx.message.content += '\n' + date
+      ctx.message.content += f"\n{date}" if one_line is False else ""
       await self.logger.log('birthday_log', ctx.author, ctx.message, error)
 
   @commands.command(name="setbirthdaychannel", aliases=['sbc'])
