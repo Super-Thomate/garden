@@ -54,7 +54,7 @@ class Moderation(commands.Cog):
     try:
       rule_number = rules[payload.emoji.name]
     except KeyError:
-      pass
+      return
     channel = self.bot.get_channel(payload.channel_id)
     message = await channel.fetch_message(payload.message_id)
     await message.author.send(Utils.get_text(payload.guild_id, f"rule{rule_number}"))
