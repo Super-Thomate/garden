@@ -45,6 +45,7 @@ class Birthday(commands.Cog):
       invalid = await ctx.send(Utils.get_text(ctx.guild.id, 'birthday_format_invalid'))
       await response.add_reaction('❌')
       await invalid.delete(delay=2)
+      await response.delete(delay=2)
       await ctx.message.delete(delay=2)
       ctx.message.content += '\n' + birthday
       await self.logger.log('birthday_log', ctx.author, ctx.message, True)
