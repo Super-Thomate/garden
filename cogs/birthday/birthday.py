@@ -63,9 +63,10 @@ class Birthday(commands.Cog):
 
     accepted = await ctx.send(Utils.get_text(ctx.guild.id, 'user_birthday_registered').format(ctx.author.display_name))
     await response.add_reaction('✅')
-    accepted.delete(delay=2)
-    ask.delete(delay=2)
-    response.delete(delay=2)
+    await ctx.message.delete(delay=2)
+    await accepted.delete(delay=2)
+    await ask.delete(delay=2)
+    await response.delete(delay=2)
     # Log command
     ctx.message.content += '\n' + birthday
     await self.logger.log('birthday_log', ctx.author, ctx.message, error)
