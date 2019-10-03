@@ -289,7 +289,7 @@ async def birthday_task():
       sql                    = (   "SELECT user_id, guild_id, last_year_wished"+
                                    " FROM birthday_user "+
                                   f"WHERE user_birthday='{date}'"+
-                                  f"and guil_id='{guild_id}' ;"
+                                  f"and guild_id='{guild_id}' ;"
                                )
       data = database.fetch_all_line(sql)
       sql = f"SELECT channel_id FROM birthday_channel where guild_id='{guild_id}' ;"
