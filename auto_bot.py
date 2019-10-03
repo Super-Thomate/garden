@@ -194,7 +194,6 @@ async def vote_tasks ():
 
 async def utip_tasks ():
   try:
-
     guilds                   = bot.guilds
     # print (f"guilds: {guilds}")
     # CLOSE PHASES"
@@ -283,32 +282,35 @@ def get_birthday_message(guild_id, member_id):
 
 
 async def birthday_task():
-  date = datetime.now().strftime('%d/%m')
-  sql = f"SELECT user_id, guild_id, last_year_wished FROM birthday_user WHERE user_birthday='{date}'"
-  data = database.fetch_all_line(sql)
-  sql = f"SELECT channel_id FROM birthday_channel"
-
-  channel_id = database.fetch_one_line(sql)
-  if not channel_id:
-    raise RuntimeError('Birthday channel is not set !')
-  birthday_channel = bot.get_channel(int(channel_id[0]))
-
-  for line in data:
-    member_id, guild_id, last_year_wished = line[0], line[1], line[2]
-    current_year = datetime.now().strftime('%Y')
-    if current_year == last_year_wished:
-      continue
-
-    get_birthday_message(guild_id, member_id)
-
-    await birthday_channel.send(get_birthday_message(guild_id, member_id))
-    sql = f"UPDATE birthday_user SET last_year_wished='{current_year}' WHERE user_id='{member_id}'"
-
-    try:
-      database.execute_order(sql, [])
-    except Exception as e:
-      await birthday_channel.send(Utils.get_text(guild_id, 'database_writing_error'))
-      print(f"{type(e).__name__} - {e}")
-
+  try:
+    for guild in bot.guilds:
+      guild_id               = guild.id
+      date                   = datetime.now().strftime('%d/%m')
+      sql                    = (   "SELECT user_id, guild_id, last_year_wished"+
+                                   " FROM birthday_user "+
+                                  f"WHERE user_birthday='{date}'"+
+                                  f"and guil_id='{guild_id}' ;"
+                               )
+      data = database.fetch_all_line(sql)
+      sql = f"SELECT channel_id FROM birthday_channel where guild_id='{guild_id}' ;"
+      channel_id = database.fetch_one_line(sql)
+      if not channel_id:
+        raise RuntimeError('Birthday channel is not set !')
+      birthday_channel = bot.get_channel(int(channel_id[0]))
+      for line in data:
+        member_id, guild_id, last_year_wished = line[0], line[1], line[2]
+        current_year = datetime.now().strftime('%Y')
+        if current_year == last_year_wished:
+          continue
+        get_birthday_message(guild_id, member_id)
+        await birthday_channel.send(get_birthday_message(guild_id, member_id))
+        sql = f"UPDATE birthday_user SET last_year_wished='{current_year}' WHERE user_id='{member_id}' and guild_id='{guild_id}' ;"
+        try:
+          database.execute_order(sql, [])
+        except Exception as e:
+          await birthday_channel.send(Utils.get_text(guild_id, 'database_writing_error'))
+          print(f"{type(e).__name__} - {e}")
+  except Exception as e:
+    print(f"{type(e).__name__} - {e}")
 
 bot.run(botconfig.config['token'])

@@ -14,8 +14,6 @@ class Birthday(commands.Cog):
   """
   def __init__(self, bot):
     self.bot = bot
-
-
     self.logger = Logs(self.bot)
 
   @commands.command(name="setbirthday", aliases=['sb', 'bd', 'anniversaire', 'birthday'])
@@ -25,8 +23,7 @@ class Birthday(commands.Cog):
     guild_id = ctx.message.guild.id
     member_id = ctx.author.id
     error = False
-
-    sql = f"SELECT user_id FROM birthday_user WHERE user_id='{member_id}'"
+    sql = f"SELECT user_id FROM birthday_user WHERE user_id='{member_id}' and guild_id='{guild_id}' ;"
     data = database.fetch_one_line(sql)
     if data is not None:
       refused = await ctx.send(Utils.get_text(ctx.guild.id, 'user_already_registered_birthday'))
@@ -34,11 +31,9 @@ class Birthday(commands.Cog):
       await refused.delete(delay=2)
       await ctx.message.delete(delay=2)
       return
-
     ask = await ctx.send(Utils.get_text(ctx.guild.id, 'ask_user_register_birthday'))
     response = await self.bot.wait_for('message', check=lambda m: m.channel == ctx.channel and m.author.id == member_id)
     birthday = response.content
-
     try:
       valid = True if birthday == "29/02" else datetime.datetime.strptime(birthday, '%d/%m')
     except ValueError:
@@ -50,11 +45,10 @@ class Birthday(commands.Cog):
       ctx.message.content += '\n' + birthday
       await self.logger.log('birthday_log', ctx.author, ctx.message, True)
       return
-
     sql = f"SELECT user_birthday FROM birthday_user WHERE user_id='{member_id}'"
     user_already_registered = database.fetch_one_line(sql)
     if user_already_registered:
-      sql = f"UPDATE birthday_user set user_birthday='{birthday}' where user_id='{member_id}'"
+      sql = f"UPDATE birthday_user set user_birthday='{birthday}' where user_id='{member_id}' and guild_id='{guild_id}' ;"
     else:
       sql = f"INSERT INTO birthday_user VALUES ('{member_id}', '{guild_id}', '{birthday}', '') ;"
     try:
@@ -63,7 +57,6 @@ class Birthday(commands.Cog):
       error = True
       await ctx.send(Utils.get_text(ctx.guild.id, 'database_writing_error'))
       print(f"{type(e).__name__} - {e}")
-
     accepted = await ctx.send(Utils.get_text(ctx.guild.id, 'user_birthday_registered').format(ctx.author.display_name))
     await response.add_reaction('✅')
     await ctx.message.delete(delay=2)
@@ -103,42 +96,31 @@ class Birthday(commands.Cog):
     guild_id = ctx.guild.id
     error = False
     member = member or ctx.author
-
     if member is None:
       await ctx.send("Le paramètre <member> est obligatoire.")
       await ctx.message.add_reaction('❌')
       await self.logger.log('birthday_log', ctx.author, ctx.message, True)
       return
-
     sql = f"SELECT user_id FROM birthday_user WHERE user_id={member.id} and guild_id={ctx.guild.id}"
     member_in_db = database.fetch_one_line(sql)
     if not member_in_db:
       await ctx.send(Utils.get_text(ctx.guild.id, "user_not_in_database").format(member.mention, 'birthday_user'))
       return
-
-
-    sql = f"DELETE FROM birthday_user WHERE user_id='{member.id}'"
+    sql = f"DELETE FROM birthday_user WHERE user_id='{member.id}' and guild_id={ctx.guild.id} ;"
     try:
       database.execute_order(sql, [])
     except Exception as e:
       error = True
       await ctx.send(Utils.get_text(ctx.guild.id, 'database_writing_error'))
       print(f"{type(e).__name__} - {e}")
-
     await ctx.send(Utils.get_text(ctx.guild.id, 'user_birthday_reset').format(member.mention))
     await self.logger.log('birthday_log', ctx.author, ctx.message, error)
 
   @commands.command(name='setbirthdaymessage', aliases=['birthdaymessage', 'sbm'])
+  @Utils.require(required=['authorized', 'not_banned'])
   async def set_birthday_message(self, ctx):
     guild_id = ctx.message.guild.id
     member = ctx.author
-    if not Utils.is_authorized(member, guild_id):
-      print("Missing permissions")
-      return
-    if Utils.is_banned(ctx.command, ctx.author, ctx.guild.id):
-      await ctx.message.add_reaction('❌')
-      await ctx.author.send(Utils.get_text(ctx.guild.id, "user_unauthorized_use_command"))
-      return
     await ctx.send(Utils.get_text(ctx.guild.id, "ask_new_birthday_message"))
     check = lambda m: m.channel == ctx.channel and m.author == ctx.author
     msg = await self.bot.wait_for('message', check=check)
