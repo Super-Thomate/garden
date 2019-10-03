@@ -14,7 +14,7 @@
   "user_already_registered_birthday": " You already registered your birthday.\n*If you made a mistake, ask a mod to reset your birthday.*",
   "user_birthday_reset": "{0} has been removed from the birthday database.",
   "ask_new_birthday_message": "Enter the birthday message(s):",
-  "ask_user_register_birthday": "Enter your birthday (format: JJ/MM)",
+  "ask_user_register_birthday": "Enter your birthday (format: DD/MM)",
 
 
   "GALLERY": "--------------------------------------------------------------------------------------------------",
