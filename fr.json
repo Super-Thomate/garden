@@ -191,6 +191,20 @@
   "unknow_cog": "Cog **{0}** inconnu",
 
 
+  "MODERATION": "--------------------------------------------------------------------------------------------------",
+  "bad_rule_index": "L'index de la règle doit se trouver entre 1 et 10",
+  "rule1": ":one: **Soyez respectueux.**\nLes blagues et taquineries sont acceptées mais restez respectueux. **TOUT** commentaire raciste, extrémiste, homophobe, transphobe, insulte, injure, harcèlement, troll ou **quoi que ce soit de discriminatoire** (appropriation culturelle comprise) est punissable.",
+  "rule2": ":two: **AUCUN contenu \"NSFW\" (gore, violence graphique, contenu sexuel suggéré ou graphique) n'est autorisé sur le serveur.**\nCe serveur suit le code de conduite PEGI 12 :PEGI_12:  Plus d'infos sur <https://pegi.info/fr/page/que-signifient-les-logos>",
+  "rule3": ":three: **Essayez de discuter dans les bons channels.**\nAttention aux spoilers ! Pensez à lire les pins/épingles :pushpin: et les descriptions des channels. **Aucun spoiler** dans le <#283243816448819200> ou <#595703633224531992> , utilisez les salons dédiés à chaque série, les titres de chansons et noms de personnages **hors contexte** ne sont pas considérés comme du spoil.",
+  "rule4": ":four: **Attention à éviter les abus visuels et textuels.**\nPrière de ne pas spam et flood (Majuscules, images, emojis compris) ainsi que de ne pas abuser des mentions/tag. Le \"langage SMS\" est interdit.",
+  "rule5": ":five: **Les pseudos et avatars ne respectant pas les règles 1 et 2 sont interdits.**\nCela inclut les pseudos et avatars extrémistes et discriminatoire.",
+  "rule6": ":six: **Respectez l'identité et la vie privée des autres.**\nPrière de ne pas usurper l'identité ou le pseudo des autres ni de révéler des informations privées sans consentement (ou autorisation des parents chez les mineurs).",
+  "rule7": ":seven: **Coopérez avec le staff.**\nSignalez tout comportement suspect ou blessant. Vous pouvez également aider au partage de contenu et news. L'abus de mentions/tag inutiles sera néanmoins sanctionné.",
+  "rule8": ":eight: **Toute publicité est interdite.**\nCela inclut vos projets personnels et liens d'invitation discord et les messages privés non désirés. (Un partenariat peut être négocié avec la plateforme).",
+  "rule9": ":nine: **Évitez de demander quand sera disponible le prochain contenu de la plateforme.**\nNous traduisons les comics, les épisodes, les news et réalisons tout autre projet aussi rapidement que possible. Nous vous préviendrons dès que nous aurons des informations supplémentaires, pas la peine de demander.",
+  "rule10": ":keycap_ten: **Suivez la Charte d'Utilisation Discord**\nhttps://discordapp.com/terms",
+
+
   "MISCELLANEOUS": "--------------------------------------------------------------------------------------------------",
   "ask_new_welcome_message": "Entrez le message de bienvenue : ",
   "language_updated": "Langage du bot mis à jour",
