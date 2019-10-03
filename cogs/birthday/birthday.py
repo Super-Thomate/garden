@@ -31,7 +31,8 @@ class Birthday(commands.Cog):
     if data is not None:
       refused = await ctx.send(Utils.get_text(ctx.guild.id, 'user_already_registered_birthday'))
       await ctx.message.add_reaction('❌')
-      refused.delete(delay=2)
+      await refused.delete(delay=2)
+      await ctx.message.delete(delay=2)
       return
 
     ask = await ctx.send(Utils.get_text(ctx.guild.id, 'ask_user_register_birthday'))
@@ -43,7 +44,8 @@ class Birthday(commands.Cog):
     except ValueError:
       invalid = await ctx.send(Utils.get_text(ctx.guild.id, 'birthday_format_invalid'))
       await response.add_reaction('❌')
-      invalid.delete(delay=2)
+      await invalid.delete(delay=2)
+      await ctx.message.delete(delay=2)
       ctx.message.content += '\n' + birthday
       await self.logger.log('birthday_log', ctx.author, ctx.message, True)
       return
