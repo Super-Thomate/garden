@@ -262,24 +262,22 @@ def embed_get_result (message_id, guild_id, embed):
 def get_birthday_message(guild_id, member_id):
   select = f"SELECT message FROM birthday_message WHERE guild_id='{guild_id}';"
   fetched = database.fetch_one_line(select)
-  if fetched:
-    text = ""
-    # split around '{'
-    text_rand = (fetched[0]).split('{')
-    print(f"text_rand: {text_rand}")
-    for current in text_rand:
-      parts = current.split('}')
-      print(f"parts: {parts}")
-      for part in parts:
-        all_rand = part.split("|")
-        print(f"all_rand: {all_rand}")
-        current_part = all_rand[random.randint(0, len(all_rand) - 1)]
-        print(f"current_part: {current_part}")
-        text = text + current_part
-    return text.replace("$member", f"<@{member_id}>")
-  else:
-    return Utils.get_text(guild_id, 'welcome_user_1').format(f"<@{member_id}>")
-
+  if not fetched:
+    raise RuntimeError('birthday message is not set !')
+  text = ""
+  # split around '{'
+  text_rand = (fetched[0]).split('{')
+  print(f"text_rand: {text_rand}")
+  for current in text_rand:
+    parts = current.split('}')
+    print(f"parts: {parts}")
+    for part in parts:
+      all_rand = part.split("|")
+      print(f"all_rand: {all_rand}")
+      current_part = all_rand[random.randint(0, len(all_rand) - 1)]
+      print(f"current_part: {current_part}")
+      text = text + current_part
+  return text.replace("$member", f"<@{member_id}>")
 
 async def birthday_task():
   try:
