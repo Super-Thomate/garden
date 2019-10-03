@@ -67,10 +67,11 @@ class Birthday(commands.Cog):
 
   @commands.command(name="setbirthdaychannel", aliases=['sbc'])
   @Utils.require(required=['authorized', 'not_banned'])
-  async def set_birthday_channel(self, ctx, channel_id: discord.TextChannel = None):
+  async def set_birthday_channel(self, ctx, channel: discord.TextChannel = None):
     """Save channel where birthday will be wished. Param: channel ID"""
     guild_id = ctx.guild.id
-    channel_id = channel_id.id or ctx.channel.id
+    channel                  = channel or ctx.channel
+    channel_id               = channel.id
 
     sql = f"SELECT channel_id FROM birthday_channel WHERE guild_id='{guild_id}'"
     is_already_set = database.fetch_one_line(sql)
