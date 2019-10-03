@@ -16,8 +16,9 @@ class Loader(commands.Cog):
   @commands.command(name='cogload', hidden=True)
   @Utils.require(required=['authorized', 'not_banned'])
   async def do_load(self, ctx, *, cog: str):
-    """Command which Loads a Module.
-    Remember to use dot path. e.g: cogs.greetings"""
+    """
+    Load a cog for Garden
+    """
     try:
       self.bot.load_extension(f'cogs.{cog}')
     except Exception as e:
@@ -28,8 +29,9 @@ class Loader(commands.Cog):
   @commands.command(name='cogunload', hidden=True)
   @Utils.require(required=['authorized', 'not_banned'])
   async def do_unload(self, ctx, *, cog: str):
-    """Command which Unloads a Module.
-    Remember to use dot path. e.g: cogs.greetings"""
+    """
+    Unload a cog for Garden
+    """
     try:
       self.bot.unload_extension(f'cogs.{cog}')
     except Exception as e:
@@ -40,8 +42,9 @@ class Loader(commands.Cog):
   @commands.command(name='cogreload', hidden=True)
   @Utils.require(required=['authorized', 'not_banned'])
   async def do_reload(self, ctx, *, cog: str):
-    """Command which Reloads a Module.
-    Remember to use dot path. e.g: cogs.greetings"""
+    """
+    Reload a cog for Garden
+    """
     try:
       self.bot.unload_extension(f'cogs.{cog}')
       self.bot.load_extension(f'cogs.{cog}')
@@ -53,7 +56,8 @@ class Loader(commands.Cog):
   @commands.command(name='cogs', hidden=True)
   @Utils.require(required=['authorized', 'not_banned'])
   async def list_load(self, ctx):
-    """Command which lists all loaded cogs
+    """
+    Command which lists all loaded cogs
     """
     all_loaded = ""
     for name in self.bot.cogs.keys():

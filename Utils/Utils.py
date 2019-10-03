@@ -373,6 +373,7 @@ def get_text(guild_id: int, text_key: str) -> str:
     
 def is_loaded (cog, guild_id):
   try:
+    guild_id                 = int (guild_id)
     select                   = (   "select   status "
                                    "from     config_cog "+
                                    "where "+
