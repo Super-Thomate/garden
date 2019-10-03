@@ -29,19 +29,21 @@ class Birthday(commands.Cog):
     sql = f"SELECT user_id FROM birthday_user WHERE user_id='{member_id}'"
     data = database.fetch_one_line(sql)
     if data is not None:
-      await ctx.send(Utils.get_text(ctx.guild.id, 'user_already_registered_birthday'))
+      refused = await ctx.send(Utils.get_text(ctx.guild.id, 'user_already_registered_birthday'))
       await ctx.message.add_reaction('❌')
+      refused.delete(delay=2)
       return
 
-    await ctx.send(Utils.get_text(ctx.guild.id, 'ask_user_register_birthday'))
+    ask = await ctx.send(Utils.get_text(ctx.guild.id, 'ask_user_register_birthday'))
     response = await self.bot.wait_for('message', check=lambda m: m.channel == ctx.channel and m.author.id == member_id)
     birthday = response.content
 
     try:
       valid = True if birthday == "29/02" else datetime.datetime.strptime(birthday, '%d/%m')
     except ValueError:
-      await ctx.send(Utils.get_text(ctx.guild.id, 'birthday_format_invalid'))
+      invalid = await ctx.send(Utils.get_text(ctx.guild.id, 'birthday_format_invalid'))
       await response.add_reaction('❌')
+      invalid.delete(delay=2)
       ctx.message.content += '\n' + birthday
       await self.logger.log('birthday_log', ctx.author, ctx.message, True)
       return
@@ -59,8 +61,11 @@ class Birthday(commands.Cog):
       await ctx.send(Utils.get_text(ctx.guild.id, 'database_writing_error'))
       print(f"{type(e).__name__} - {e}")
 
-    await ctx.send(Utils.get_text(ctx.guild.id, 'user_birthday_registered').format(ctx.author.display_name))
+    accepted = await ctx.send(Utils.get_text(ctx.guild.id, 'user_birthday_registered').format(ctx.author.display_name))
     await response.add_reaction('✅')
+    accepted.delete(delay=2)
+    ask.delete(delay=2)
+    response.delete(delay=2)
     # Log command
     ctx.message.content += '\n' + birthday
     await self.logger.log('birthday_log', ctx.author, ctx.message, error)
