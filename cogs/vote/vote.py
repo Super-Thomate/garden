@@ -21,7 +21,7 @@ class Vote(commands.Cog):
 
   @commands.command(name='createvote', aliases=['vote'])
   @commands.guild_only()
-  @Utils.require(required=['authorized', 'not_banned'])
+  @Utils.require(required=['authorized', 'not_banned', 'cog_loaded'])
   async def create_vote(self, ctx, *args):
     """ Create a vote
     """
@@ -52,7 +52,7 @@ class Vote(commands.Cog):
 
   @commands.command(name='setvotetype', aliases=['svt'])
   @commands.guild_only()
-  @Utils.require(required=['authorized', 'not_banned'])
+  @Utils.require(required=['authorized', 'not_banned', 'cog_loaded'])
   async def set_vote_type(self, ctx, message_id: str = None, type_vote: str = None):
     """ Set a type for a vote message
     """
@@ -82,7 +82,7 @@ class Vote(commands.Cog):
 
   @commands.command(name='setdescription', aliases=['setdesc', 'desc', 'sd'])
   @commands.guild_only()
-  @Utils.require(required=['authorized', 'not_banned'])
+  @Utils.require(required=['authorized', 'not_banned', 'cog_loaded'])
   async def set_description(self, ctx, message_id: str = None):
     """ Set a description for a vote message
     """
@@ -92,7 +92,7 @@ class Vote(commands.Cog):
 
   @commands.command(name='settitle', aliases=['title', 'st'])
   @commands.guild_only()
-  @Utils.require(required=['authorized', 'not_banned'])
+  @Utils.require(required=['authorized', 'not_banned', 'cog_loaded'])
   async def set_title(self, ctx, message_id: str = None):
     """ Set a title for a vote message
     """
@@ -102,7 +102,7 @@ class Vote(commands.Cog):
 
   @commands.command(name='addproposition', aliases=['add', 'addprop', 'ap'])
   @commands.guild_only()
-  @Utils.require(required=['not_banned'])
+  @Utils.require(required=['not_banned', 'cog_loaded'])
   async def add_proposition(self, ctx, message_id_vote_type: str = None):
     """
     Add a proposition
@@ -137,7 +137,7 @@ class Vote(commands.Cog):
 
   @commands.command(name='editproposition', aliases=['edit', 'editprop', 'ep'])
   @commands.guild_only()
-  @Utils.require(required=['not_banned'])
+  @Utils.require(required=['not_banned', 'cog_loaded'])
   async def edit_proposition(self, ctx, message_id_vote_type: str = None):
     """
     Edit a proposition
@@ -173,7 +173,7 @@ class Vote(commands.Cog):
 
   @commands.command(name='removeproposition', aliases=['remove', 'removeprop', 'rp'])
   @commands.guild_only()
-  @Utils.require(required=['not_banned'])
+  @Utils.require(required=['not_banned', 'cog_loaded'])
   async def remove_proposition(self, ctx, message_id_vote_type: str = None):
     """
     Remove a proposition
@@ -225,7 +225,7 @@ class Vote(commands.Cog):
 
   @commands.command(name='closeproposition', aliases=['cp'])
   @commands.guild_only()
-  @Utils.require(required=['authorized', 'not_banned'])
+  @Utils.require(required=['authorized', 'not_banned', 'cog_loaded'])
   async def close_proposition(self, ctx, message_id: str = None):
     """
     Close propositions
@@ -234,7 +234,7 @@ class Vote(commands.Cog):
 
   @commands.command(name='closeedit', aliases=['ce'])
   @commands.guild_only()
-  @Utils.require(required=['authorized', 'not_banned'])
+  @Utils.require(required=['authorized', 'not_banned', 'cog_loaded'])
   async def close_edit(self, ctx, message_id: str = None):
     """
     Close edit phase
@@ -243,7 +243,7 @@ class Vote(commands.Cog):
 
   @commands.command(name='closevote', aliases=['cv'])
   @commands.guild_only()
-  @Utils.require(required=['authorized', 'not_banned'])
+  @Utils.require(required=['authorized', 'not_banned', 'cog_loaded'])
   async def close_vote(self, ctx, message_id: str = None):
     """
     Close vote
@@ -252,7 +252,7 @@ class Vote(commands.Cog):
 
   @commands.command(name='closepropositionat', aliases=['cpa'])
   @commands.guild_only()
-  @Utils.require(required=['authorized', 'not_banned'])
+  @Utils.require(required=['authorized', 'not_banned', 'cog_loaded'])
   async def close_proposition_at(self, ctx, message_id: str = None):
     """
     Close propositions at a given date
@@ -263,7 +263,7 @@ class Vote(commands.Cog):
 
   @commands.command(name='closevoteat', aliases=['cva'])
   @commands.guild_only()
-  @Utils.require(required=['authorized', 'not_banned'])
+  @Utils.require(required=['authorized', 'not_banned', 'cog_loaded'])
   async def end_vote_at(self, ctx, message_id: str = None):
     """
     Close vote at a given date
@@ -274,7 +274,7 @@ class Vote(commands.Cog):
 
   @commands.command(name='closeallvote', aliases=['cav'])
   @commands.guild_only()
-  @Utils.require(required=['authorized', 'not_banned'])
+  @Utils.require(required=['authorized', 'not_banned', 'cog_loaded'])
   async def close_all_vote(self, ctx, message_id: str = None):
     """
     Close all vote
@@ -313,7 +313,7 @@ class Vote(commands.Cog):
 
   @commands.command(name='setvotechannel', aliases=['svc'])
   @commands.guild_only()
-  @Utils.require(required=['authorized', 'not_banned'])
+  @Utils.require(required=['authorized', 'not_banned', 'cog_loaded'])
   async def set_vote_channel(self, ctx, channel_id: str = None):
     """
     Set a channel to ping end of phases
@@ -344,7 +344,7 @@ class Vote(commands.Cog):
 
   @commands.command(name='setvoterole', aliases=['svr'])
   @commands.guild_only()
-  @Utils.require(required=['authorized', 'not_banned'])
+  @Utils.require(required=['authorized', 'not_banned', 'cog_loaded'])
   async def set_vote_role(self, ctx, role_id: str = None):
     """
     Set a role to ping end of phases
@@ -390,7 +390,7 @@ class Vote(commands.Cog):
 
   @commands.command(name='resetvote', aliases=['rv'])
   @commands.guild_only()
-  @Utils.require(required=['authorized', 'not_banned'])
+  @Utils.require(required=['authorized', 'not_banned', 'cog_loaded'])
   async def reset_vote(self, ctx, message_id: str = None):
     """
     Reset a vote
@@ -804,6 +804,8 @@ class Vote(commands.Cog):
   async def on_reaction_add(self, reaction, user):
     if not reaction.message.guild:
       return
+    if not Utils.is_loaded("vote", reaction.message.guild.id):
+      return
     message_id               = reaction.message.id
     guild_id                 = reaction.message.guild.id
     emoji                    = reaction.emoji
@@ -819,6 +821,8 @@ class Vote(commands.Cog):
 
   @commands.Cog.listener()
   async def on_raw_reaction_add(self, payload):
+    if not Utils.is_loaded("vote", payload.guild_id):
+      return
     message_id               = payload.message_id
     guild_id                 = payload.guild_id
     channel_id               = payload.channel_id
@@ -838,6 +842,8 @@ class Vote(commands.Cog):
 
   @commands.Cog.listener()
   async def on_reaction_remove(self, reaction, user):
+    if not Utils.is_loaded("vote", reaction.message.guild.id):
+      return
     message_id               = reaction.message.id
     guild_id                 = reaction.message.guild.id
     emoji                    = reaction.emoji
@@ -849,6 +855,8 @@ class Vote(commands.Cog):
 
   @commands.Cog.listener()
   async def on_raw_reaction_remove(self, payload):
+    if not Utils.is_loaded("vote", payload.guild_id):
+      return
     message_id               = payload.message_id
     guild_id                 = payload.guild_id
     channel_id               = payload.channel_id

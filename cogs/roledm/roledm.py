@@ -24,6 +24,8 @@ class RoleDM(commands.Cog):
   async def on_member_update(self, before, after):
     # guild id
     guild_id = before.guild.id
+    if not Utils.is_loaded ("roledm", guild_id):
+      return
     # all roles to listen
     select = f"select role_id from roledm_role where guild_id='{guild_id}'"
     fetched = database.fetch_all_line (select)
@@ -44,7 +46,7 @@ class RoleDM(commands.Cog):
         await before.send (message)
 
   @commands.command(name='setroledm', aliases=['sr', 'roledm'])
-  @Utils.require(required=['authorized', 'not_banned'])
+  @Utils.require(required=['authorized', 'not_banned', 'cog_loaded'])
   async def set_roledm_role(self, ctx, *, role: discord.Role = None):
     """
     Set roledm role
@@ -71,7 +73,7 @@ class RoleDM(commands.Cog):
       await ctx.message.add_reaction('✅')
 
   @commands.command(name='unsetroledm', aliases=['ur', 'uroledm'])
-  @Utils.require(required=['authorized', 'not_banned'])
+  @Utils.require(required=['authorized', 'not_banned', 'cog_loaded'])
   async def unset_roledm_role(self, ctx, *, role: discord.Role = None):
     """
     Unset roledm role
@@ -95,7 +97,7 @@ class RoleDM(commands.Cog):
       await ctx.message.add_reaction('❌')
 
   @commands.command(name='setroledmmessage', aliases=['roledmmessage', 'srm'])
-  @Utils.require(required=['authorized', 'not_banned'])
+  @Utils.require(required=['authorized', 'not_banned', 'cog_loaded'])
   async def set_roledm_message(self, ctx, *, role: discord.Role = None):
     guild_id = ctx.message.guild.id
     member = ctx.author
@@ -125,7 +127,7 @@ class RoleDM(commands.Cog):
     await ctx.channel.send (Utils.get_text(ctx.guild.id, 'display_new_message').format(message))
  
   @commands.command(name='displayroledmmessage', aliases=['drm'])
-  @Utils.require(required=['authorized', 'not_banned'])
+  @Utils.require(required=['authorized', 'not_banned', 'cog_loaded'])
   async def display_roledm_message(self, ctx, *, role: discord.Role = None):
     guild_id = ctx.message.guild.id
     if not role:

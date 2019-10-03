@@ -16,7 +16,7 @@ class Utip(commands.Cog):
 
 
   @commands.command(name='utip')
-  @Utils.require(required=['not_banned'])
+  @Utils.require(required=['not_banned', 'cog_loaded'])
   async def utip_send(self, ctx):
     guild_id = ctx.message.guild.id
     author = ctx.author
@@ -108,7 +108,7 @@ class Utip(commands.Cog):
     await self.logger.log('utip_log', author, msg, error)
   
   @commands.command(name='setutipchannel', aliases=['utipchannel', 'suc'])
-  @Utils.require(required=['authorized', 'not_banned'])
+  @Utils.require(required=['authorized', 'not_banned', 'cog_loaded'])
   async def set_utip_channel(self, ctx, channel: discord.TextChannel = None):
     guild_id                 = ctx.message.guild.id
     author                   = ctx.author
@@ -131,7 +131,7 @@ class Utip(commands.Cog):
       await ctx.message.add_reaction('✅')
 
   @commands.command(name='setutiprole', aliases=['utiprole', 'sur'])
-  @Utils.require(required=['authorized', 'not_banned'])
+  @Utils.require(required=['authorized', 'not_banned', 'cog_loaded'])
   async def set_utip_role(self, ctx, role: discord.Role = None):
     guild_id                 = ctx.message.guild.id
     author                   = ctx.author
@@ -151,7 +151,7 @@ class Utip(commands.Cog):
       await ctx.message.add_reaction('✅')
   
   @commands.command(name='setutipmessage', aliases=['utipmessage', 'sum'])
-  @Utils.require(required=['authorized', 'not_banned'])
+  @Utils.require(required=['authorized', 'not_banned', 'cog_loaded'])
   async def set_utip_message(self, ctx):
     guild_id                 = ctx.message.guild.id
     author                   = ctx.author
@@ -176,7 +176,7 @@ class Utip(commands.Cog):
       await ctx.channel.send(Utils.get_text(ctx.guild.id, "display_new_message").format(message))
   
   @commands.command(name='setutipdelay', aliases=['utipdelay', 'sud'])
-  @Utils.require(required=['authorized', 'not_banned'])
+  @Utils.require(required=['authorized', 'not_banned', 'cog_loaded'])
   async def set_utip_delay(self, ctx):
     guild_id                 = ctx.message.guild.id
     author                   = ctx.author

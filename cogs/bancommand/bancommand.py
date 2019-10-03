@@ -26,7 +26,7 @@ class Bancommand(commands.Cog):
 
 
   @commands.command(name='bancommanduser', aliases=['bcu'])
-  @Utils.require(required=['authorized'])
+  @Utils.require(required=['authorized', 'cog_loaded'])
   async def ban_command_user(self, ctx, command: str = None, user: discord.Member = None, timer: str = None):
     guild_id = ctx.message.guild.id
     author = ctx.author
@@ -95,7 +95,7 @@ class Bancommand(commands.Cog):
       await ctx.message.add_reaction('❌')
 
   @commands.command(name='unbancommanduser', aliases=['ucu'])
-  @Utils.require(required=['authorized'])
+  @Utils.require(required=['authorized', 'cog_loaded'])
   async def unban_command_user(self, ctx, command: str = None, user: discord.Member = None):
     guild_id = ctx.message.guild.id
     author = ctx.author
@@ -127,7 +127,7 @@ class Bancommand(commands.Cog):
       await ctx.message.add_reaction('❌')
 
   @commands.command(name='isbanuser', aliases=['ibu'])
-  @Utils.require(required=['authorized'])
+  @Utils.require(required=['authorized', 'cog_loaded'])
   async def is_ban_user(self, ctx, user: discord.Member = None):
     guild_id = ctx.message.guild.id
     author = ctx.author
@@ -170,7 +170,7 @@ class Bancommand(commands.Cog):
     print (f"to_ret: {to_ret}")
     
   @commands.command(name='listbanuser', aliases=['lbu'])
-  @Utils.require(required=['authorized'])
+  @Utils.require(required=['authorized', 'cog_loaded'])
   async def list_ban_user(self, ctx, command: str = None):
     guild_id = ctx.message.guild.id
     author = ctx.author
@@ -233,7 +233,7 @@ class Bancommand(commands.Cog):
     print (f"to_ret: {to_ret}")
 
   @commands.command(name='bancommandrole', aliases=['bcr'])
-  @Utils.require(required=['authorized'])
+  @Utils.require(required=['authorized', 'cog_loaded'])
   async def ban_command_role(self, ctx, command: str = None, role: discord.Role = None, timer: str = None):
     guild_id = ctx.message.guild.id
     author = ctx.author
@@ -280,7 +280,7 @@ class Bancommand(commands.Cog):
       await ctx.message.add_reaction('❌')
     
   @commands.command(name='unbancommandrole', aliases=['ucr'])
-  @Utils.require(required=['authorized'])
+  @Utils.require(required=['authorized', 'cog_loaded'])
   async def unban_command_role(self, ctx, command: str = None, role: discord.Role = None):
     guild_id = ctx.message.guild.id
     author = ctx.author
@@ -313,7 +313,7 @@ class Bancommand(commands.Cog):
     
     
   @commands.command(name='isbanrole', aliases=['ibr'])
-  @Utils.require(required=['authorized'])
+  @Utils.require(required=['authorized', 'cog_loaded'])
   async def is_ban_role(self, ctx, role: discord.Member = None):
     guild_id = ctx.message.guild.id
     author = ctx.author
@@ -357,7 +357,7 @@ class Bancommand(commands.Cog):
     print (f"to_ret: {to_ret}")
     
   @commands.command(name='listbanrole', aliases=['lbr'])
-  @Utils.require(required=['authorized'])
+  @Utils.require(required=['authorized', 'cog_loaded'])
   async def list_ban_role(self, ctx, command: str = None):
     guild_id = ctx.message.guild.id
     author = ctx.author

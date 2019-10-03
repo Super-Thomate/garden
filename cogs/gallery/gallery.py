@@ -24,7 +24,7 @@ class Gallery(commands.Cog):
 
 
   @commands.command(name='token')
-  @Utils.require(required=['authorized', 'not_banned'])
+  @Utils.require(required=['authorized', 'not_banned', 'cog_loaded'])
   async def send_token(self, ctx, member: discord.Member = None):
     """Send the token's link in a DM"""
     member                   = member or ctx.author
@@ -32,7 +32,7 @@ class Gallery(commands.Cog):
     error                    = False
     try:
       colour                 = discord.Colour(0)
-      url                    = Utils.get_text('fr', 'your_token')+await self.get_galerie_link(guild_id, member)
+      url                    = Utils.get_text(guild_id, 'your_token')+await self.get_galerie_link(guild_id, member)
       sql                    = f"select message from galerie_message where guild_id='{guild_id}'"
       galerie_message        = database.fetch_one_line (sql)
       if galerie_message:
@@ -54,7 +54,7 @@ class Gallery(commands.Cog):
     await self.logger.log('galerie_log', ctx.author, ctx.message, error)
 
   @commands.command(name='setgallerychannel', aliases=['sgc'])
-  @Utils.require(required=['authorized', 'not_banned'])
+  @Utils.require(required=['authorized', 'not_banned', 'cog_loaded'])
   async def set_gallery_channel(self, ctx, channel: discord.TextChannel = None):
     gallery_channel          = channel or ctx.channel
     member                   = ctx.author
@@ -75,7 +75,7 @@ class Gallery(commands.Cog):
     await gallery_channel.send(Utils.get_text(ctx.guild.id, "gallery_channel_set"))
 
   @commands.command(name='gallerymessage', aliases=['gm'])
-  @Utils.require(required=['authorized', 'not_banned'])
+  @Utils.require(required=['authorized', 'not_banned', 'cog_loaded'])
   async def set_gallery_message(self, ctx):
     guild_id                 = ctx.message.guild.id
     member                   = ctx.author
@@ -98,7 +98,7 @@ class Gallery(commands.Cog):
 
 
   @commands.command(name='setgallerydelay', aliases=['sgd'])
-  @Utils.require(required=['authorized', 'not_banned'])
+  @Utils.require(required=['authorized', 'not_banned', 'cog_loaded'])
   async def set_gallery_delay(self, ctx, delay: str = None):
     author                   = ctx.author
     guild_id                 = ctx.message.guild.id
@@ -149,12 +149,12 @@ class Gallery(commands.Cog):
     if (message.guild == None):
       # DM => debile-proof
       author                 = message.author
-      await author.trigger_typing() # add some tension !!
       for guild in self.bot.guilds:
-        if guild.get_member(author.id):
+        if Utils.is_loaded ("gallery", guild.id) and guild.get_member(author.id):
           error              = False
           guild_id           = guild.id
           try:
+            await author.trigger_typing() # add some tension !!
             colour           = discord.Colour(0)
             url              = "Votre jeton:\n"+await self.get_galerie_link(guild_id, author)
             sql              = f"select message from galerie_message where guild_id='{guild_id}'"
@@ -182,6 +182,8 @@ class Gallery(commands.Cog):
           except Exception as e:
               print (f'{type(e).__name__} - {e}')
     else:
+      if not Utils.is_loaded ("gallery", message.guild.id):
+        return
       guild_id               = message.channel.guild.id
       sql                    = f"select * from galerie_channel where guild_id='{message.channel.guild.id}'"
       galerie_channel        = database.fetch_one_line (sql)

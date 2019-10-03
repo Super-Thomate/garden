@@ -31,7 +31,7 @@ def require(required: list):
           await ctx.message.add_reaction('❌')
           return
       if 'cog_loaded' in required:
-        if not is_loaded (ctx):
+        if not is_loaded (ctx.cog, ctx.guild.id):
           if is_authorized(ctx.author, ctx.guild.id):
             await ctx.send (get_text(ctx.guild.id, "not_loaded").format(ctx.command, ctx.cog.qualified_name.lower()))
             await ctx.message.add_reaction('❌')
@@ -371,9 +371,7 @@ def get_text(guild_id: int, text_key: str) -> str:
   except KeyError:
     return f"**keyError** for `{text_key}` in language `{language_code}`. Show this message to a moderator."
     
-def is_loaded (ctx):
-  cog                        = ctx.cog.qualified_name.lower()
-  guild_id                   = ctx.guild.id
+def is_loaded (cog, guild_id):
   try:
     select                   = (   "select   status "
                                    "from     config_cog "+
