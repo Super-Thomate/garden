@@ -19,3 +19,4 @@ from .Utils import parse_time
 from .Utils import require
 from .Utils import token_url
 from .Utils import get_text
+from .Utils import delete_messages

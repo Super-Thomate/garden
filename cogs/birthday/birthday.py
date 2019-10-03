@@ -16,57 +16,55 @@ class Birthday(commands.Cog):
     self.bot = bot
     self.logger = Logs(self.bot)
 
-  @commands.command(name="setbirthday", aliases=['sb', 'bd', 'anniversaire', 'birthday'])
+  def validate_date(self, date):
+    if date in ('29/02', '29/2', '29 02', '29 2'):
+      return True
+    for frmt in ("%d/%m", "%d.%m", "%d-%m"):
+      try:
+        return datetime.datetime.strptime(date, frmt)
+      except ValueError:
+        continue
+    return None
+
+  @commands.command(name="setbirthday", aliases=['bd'])
+  @commands.guild_only()
   @Utils.require(required=['not_banned'])
-  async def set_birthday(self, ctx):
-    """Save user's birthday in database. Format DD/MM"""
+  async def set_birthday(self, ctx, date: str = None):
+    """Save user's birthday in database."""
     guild_id = ctx.message.guild.id
     member_id = ctx.author.id
     error = False
     sql = f"SELECT user_id FROM birthday_user WHERE user_id='{member_id}' and guild_id='{guild_id}' ;"
     data = database.fetch_one_line(sql)
     if data is not None:
-      refused = await ctx.send(Utils.get_text(ctx.guild.id, 'user_already_registered_birthday'))
-      await ctx.message.add_reaction('❌')
-      await refused.delete(delay=2)
-      await ctx.message.delete(delay=2)
+      already_registered = await ctx.send(Utils.get_text(ctx.guild.id, 'user_already_registered_birthday'))
+      await Utils.delete_messages(already_registered, ctx.message)
       return
-    ask = await ctx.send(Utils.get_text(ctx.guild.id, 'ask_user_register_birthday'))
-    response = await self.bot.wait_for('message', check=lambda m: m.channel == ctx.channel and m.author.id == member_id)
-    birthday = response.content
-    try:
-      valid = True if birthday == "29/02" else datetime.datetime.strptime(birthday, '%d/%m')
-    except ValueError:
+    if not date: # user did not set date after !bd
+      ask = await ctx.send(Utils.get_text(ctx.guild.id, 'ask_user_register_birthday'))
+      response = await self.bot.wait_for('message', check=lambda m: m.channel == ctx.channel and m.author.id == member_id)
+      date = response.content
+      await Utils.delete_messages(ask, response)
+    valid = self.validate_date(date)
+    if not valid:
       invalid = await ctx.send(Utils.get_text(ctx.guild.id, 'birthday_format_invalid'))
-      await response.add_reaction('❌')
-      await invalid.delete(delay=2)
-      await response.delete(delay=2)
-      await ask.delete(delay=2)
-      await ctx.message.delete(delay=2)
-      ctx.message.content += '\n' + birthday
+      await Utils.delete_messages(invalid, ctx.message)
+      # Log command
+      ctx.message.content += '\n' + date
       await self.logger.log('birthday_log', ctx.author, ctx.message, True)
-      return
-    sql = f"SELECT user_birthday FROM birthday_user WHERE user_id='{member_id}'"
-    user_already_registered = database.fetch_one_line(sql)
-    if user_already_registered:
-      sql = f"UPDATE birthday_user set user_birthday='{birthday}' where user_id='{member_id}' and guild_id='{guild_id}' ;"
     else:
-      sql = f"INSERT INTO birthday_user VALUES ('{member_id}', '{guild_id}', '{birthday}', '') ;"
-    try:
-      database.execute_order(sql, [])
-    except Exception as e:
-      error = True
-      await ctx.send(Utils.get_text(ctx.guild.id, 'database_writing_error'))
-      print(f"{type(e).__name__} - {e}")
-    accepted = await ctx.send(Utils.get_text(ctx.guild.id, 'user_birthday_registered').format(ctx.author.display_name))
-    await response.add_reaction('✅')
-    await ctx.message.delete(delay=2)
-    await accepted.delete(delay=2)
-    await ask.delete(delay=2)
-    await response.delete(delay=2)
-    # Log command
-    ctx.message.content += '\n' + birthday
-    await self.logger.log('birthday_log', ctx.author, ctx.message, error)
+      sql = f"INSERT INTO birthday_user VALUES ('{member_id}', '{guild_id}', '{date}', '') ;"
+      try:
+        database.execute_order(sql, [])
+      except Exception as e:
+        error = True
+        await ctx.send(Utils.get_text(ctx.guild.id, 'database_writing_error'))
+        print(f"{type(e).__name__} - {e}")
+      accepted = await ctx.send(Utils.get_text(ctx.guild.id, 'user_birthday_registered').format(ctx.author.display_name))
+      await Utils.delete_messages(accepted, ctx.message)
+      # Log command
+      ctx.message.content += '\n' + date
+      await self.logger.log('birthday_log', ctx.author, ctx.message, error)
 
   @commands.command(name="setbirthdaychannel", aliases=['sbc'])
   @Utils.require(required=['authorized', 'not_banned'])

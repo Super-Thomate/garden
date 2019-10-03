@@ -373,3 +373,7 @@ def get_text(guild_id: int, text_key: str) -> str:
     return strings[language_code][text_key]
   except KeyError:
     return f"**keyError** for `{text_key}` in language `{language_code}`. Show this message to a moderator."
+
+async def delete_messages(*args):
+  for msg in args:
+    await msg.delete(delay=2)
