@@ -204,5 +204,6 @@
   "old_message": "Ancien message :",
   "your_token": "Votre jeton :\n",
   "permanent": "Permanent",
-  "success": "**`SUCCESS`**"
+  "success": "**`SUCCESS`**",
+  "not_loaded": "La commande `{0}` n'a pas pu être exécutée. Vérifiez que le cog `{1}` est bien chargé."
 }

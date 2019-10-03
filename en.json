@@ -204,5 +204,6 @@
   "old_message": "Old message:",
   "your_token": "Your token:\n",
   "permanent": "Permanent",
-  "success": "**`SUCCESS`**"
+  "success": "**`SUCCESS`**",
+  "not_loaded": "The command `{0}` could not be executed. Check if  cog `{1}` is loaded."
 }

@@ -106,14 +106,11 @@ class Birthday(commands.Cog):
       await ctx.message.add_reaction('❌')
       await self.logger.log('birthday_log', ctx.author, ctx.message, True)
       return
-
     sql = f"SELECT user_id FROM birthday_user WHERE user_id={member.id} and guild_id={ctx.guild.id}"
     member_in_db = database.fetch_one_line(sql)
     if not member_in_db:
       await ctx.send(Utils.get_text(ctx.guild.id, "user_not_in_database").format(member.mention, 'birthday_user'))
       return
-
-
     sql = f"DELETE FROM birthday_user WHERE user_id='{member.id}'"
     try:
       database.execute_order(sql, [])
@@ -126,6 +123,7 @@ class Birthday(commands.Cog):
     await self.logger.log('birthday_log', ctx.author, ctx.message, error)
 
   @commands.command(name='setbirthdaymessage', aliases=['birthdaymessage', 'sbm'])
+  @Utils.require(required=['authorized', 'not_banned'])
   async def set_birthday_message(self, ctx):
     guild_id = ctx.message.guild.id
     member = ctx.author

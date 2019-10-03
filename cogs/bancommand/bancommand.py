@@ -1,14 +1,11 @@
 import math
 import time
 from datetime import datetime
-
 import discord
 from discord.ext import commands
-
 import Utils
 import database
 from ..logs import Logs
-
 
 class Bancommand(commands.Cog):
 
@@ -25,7 +22,6 @@ class Bancommand(commands.Cog):
   """
   def __init__(self, bot):
     self.bot = bot
-
     self.logger = Logs(self.bot)
 
 
@@ -60,7 +56,6 @@ class Bancommand(commands.Cog):
     if not timestamp:
       timestamp = "NULL"
     # Insert/Update
-    # CREATE TABLE IF NOT EXISTS `ban_command_user` (`command` VARCHAR(256) NOT NULL, `until` INTEGER, `user_id` VARCHAR(256) NOT NULL, `guild_id` VARCHAR(256) NOT NULL, PRIMARY KEY (`command`, `user_id`, `guild_id`)) ;
     select = f"select until from ban_command_user where command='{command}' and user_id='{user.id}' and guild_id='{guild_id}' ;"
     fetched = database.fetch_one_line (select)
     if fetched:
@@ -170,7 +165,6 @@ class Bancommand(commands.Cog):
       to_ret_string = to_ret_string + temp + "\n"
     if len (to_ret_string):
       to_ret.append (to_ret_string)
-  
     for message_to_ret in to_ret:
       await ctx.send (message_to_ret)
     print (f"to_ret: {to_ret}")
@@ -234,7 +228,6 @@ class Bancommand(commands.Cog):
       to_ret_string = to_ret_string + temp + "\n"
     if len (to_ret_string):
       to_ret.append (to_ret_string)
-  
     for message_to_ret in to_ret:
       await ctx.send (message_to_ret)
     print (f"to_ret: {to_ret}")
@@ -393,7 +386,6 @@ class Bancommand(commands.Cog):
         await ctx.send(Utils.get_text(ctx.guild.id, "no_command_banned_for_user"))
       else:
         await ctx.send(Utils.get_text(ctx.guild.id, "no_user_banned_from_command").format(f'**{command}**'))
-
       return
     to_ret = []
     to_ret_string = ""
@@ -427,10 +419,3 @@ class Bancommand(commands.Cog):
     for message_to_ret in to_ret:
       await ctx.send (message_to_ret)
     print (f"to_ret: {to_ret}")
-    
-  """  
-  # parse_time
-  @commands.command(name='test', aliases=['t'])
-  async def test(self, ctx, timer: str = None):
-    seconds = Utils.parse_time (timer)
-  """

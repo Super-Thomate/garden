@@ -18,7 +18,7 @@ class Nickname(commands.Cog):
 
 
   @commands.command(name='nickname', aliases=['pseudo'])
-  @Utils.require(required=['not_banned'])
+  @Utils.require(required=['not_banned', 'cog_loaded'])
   async def set_nickname(self, ctx, *, nickname: str = None):
     message = ctx.message
     member = ctx.author
@@ -97,7 +97,7 @@ class Nickname(commands.Cog):
 
 
   @commands.command(name='resetnickname', aliases=['rn'])
-  @Utils.require(required=['authorized', 'not_banned'])
+  @Utils.require(required=['authorized', 'not_banned', 'cog_loaded'])
   async def reset_nickname(self, ctx, member: discord.Member = None):
     member = member or ctx.author
     guild_id = ctx.guild.id
@@ -114,7 +114,7 @@ class Nickname(commands.Cog):
 
 
   @commands.command(name='next', aliases=['nextnickname'])
-  @Utils.require(required=['not_banned'])
+  @Utils.require(required=['not_banned', 'cog_loaded'])
   async def next_nickname(self, ctx):
     member = ctx.author
     guild_id = ctx.guild.id
@@ -152,7 +152,7 @@ class Nickname(commands.Cog):
     return
 
   @commands.command(name='updatenickname')
-  @Utils.require(required=['authorized', 'not_banned'])
+  @Utils.require(required=['authorized', 'not_banned', 'cog_loaded'])
   async def update_nickname(self, ctx):
     author = ctx.author
     guild_id = ctx.guild.id

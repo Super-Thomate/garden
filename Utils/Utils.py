@@ -30,6 +30,12 @@ def require(required: list):
           await ctx.send("Vous n'êtes pas autorisé à utiliser cette commande pour le moment.")
           await ctx.message.add_reaction('❌')
           return
+      if 'cog_loaded' in required:
+        if not is_loaded (ctx):
+          if is_authorized(ctx.author, ctx.guild.id):
+            await ctx.send (get_text(ctx.guild.id, "not_loaded").format(ctx.command, ctx.cog.qualified_name.lower()))
+            await ctx.message.add_reaction('❌')
+          return False
       return await f(*args, **kwargs)
     return decorated
   return decorator
@@ -48,7 +54,6 @@ def is_banned (command, member, guild_id):
   # admin can't be blocked
   if is_admin(member):
     return False
-
   # ban user
   select = f"select until from ban_command_user where guild_id='{guild_id}' and user_id='{member.id}' and command='{command}' ;"
   fetched = database.fetch_one_line (select)
@@ -82,7 +87,6 @@ def is_banned (command, member, guild_id):
   return False
 
 def is_banned_user (command, member, guild_id):
-
   select = f"select until from ban_command_user where guild_id='{guild_id}' and user_id='{member.id}' and command='{command}' ;"
   fetched = database.fetch_one_line (select)
   if fetched:
@@ -95,7 +99,6 @@ def is_banned_user (command, member, guild_id):
   return False
 
 def is_banned_role (command, member, guild_id):
-
   select = f"select until,role_id from ban_command_role where guild_id='{guild_id}' and command='{command}' ;"
   fetched = database.fetch_one_line (select)
   if fetched:
@@ -177,7 +180,6 @@ def parse_time(timestr):
   return to_ret
 
 def get_roles_modo (guild_id):
-
   all_roles                = []
   select                   = (  "select   role_id "+
                                 "from     config_role "+
@@ -227,7 +229,6 @@ def do_invite (guild_id):
   return False
 
 def do_token (guild_id):
-
   select                   = (  "select   do "+
                                 "       , type_do "+
                                 "from     config_do "+
@@ -247,7 +248,6 @@ def do_token (guild_id):
   return False
 
 def invite_delay (guild_id):
-
   select                   = (  "select   delay "+
                                 "       , type_delay "+
                                 "from     config_delay "+
@@ -267,7 +267,6 @@ def invite_delay (guild_id):
   return None
 
 def nickname_delay (guild_id):
-
   select                   = (  "select   delay "+
                                 "       , type_delay "+
                                 "from     config_delay "+
@@ -287,7 +286,6 @@ def nickname_delay (guild_id):
   return None
 
 def invite_url (guild_id):
-
   select                   = (  "select   url "+
                                 "       , type_url "+
                                 "from     config_url "+
@@ -304,7 +302,6 @@ def invite_url (guild_id):
   return ""
 
 def token_url (guild_id):
-
   select                   = (  "select   url "+
                                 "       , type_url "+
                                 "from     config_url "+
@@ -373,3 +370,21 @@ def get_text(guild_id: int, text_key: str) -> str:
     return strings[language_code][text_key]
   except KeyError:
     return f"**keyError** for `{text_key}` in language `{language_code}`. Show this message to a moderator."
+    
+def is_loaded (ctx):
+  cog                        = ctx.cog.qualified_name.lower()
+  guild_id                   = ctx.guild.id
+  try:
+    select                   = (   "select   status "
+                                   "from     config_cog "+
+                                   "where "+
+                                   "cog=? "+
+                                   " and "+
+                                   "guild_id=? ;"+
+                                   ""
+                               )
+    fetched                  = database.fetch_one_line (select, [cog, guild_id])
+    return (fetched and fetched [0]==1) or (cog in ["configuration", "help", "loader", "logs"])
+  except Exception as e:
+     print (f"{type(e).__name__} - {e}")
+     return False
