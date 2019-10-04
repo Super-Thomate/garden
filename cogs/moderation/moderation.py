@@ -2,6 +2,20 @@ from discord.ext import commands
 from ..logs import Logs
 import Utils
 
+rules = {
+  "1⃣": "1",
+  "2⃣": "2",
+  "3⃣": "3",
+  "4⃣": "4",
+  "5⃣": "5",
+  "6⃣": "6",
+  "7⃣": "7",
+  "8⃣": "8",
+  "9⃣": "9",
+  "🔟": "10",
+}
+reacted_message = []
+
 class Moderation(commands.Cog):
   def __init__(self, bot):
     self.bot = bot
@@ -10,7 +24,7 @@ class Moderation(commands.Cog):
 
   @commands.Cog.listener('on_message')
   async def all_caps_emoji(self, message):
-    if (message.guild == None):
+    if (message.guild is None):
       return
     if (message.author.id == self.bot.user.id):
       return
@@ -22,7 +36,7 @@ class Moderation(commands.Cog):
 
   @commands.Cog.listener('on_message_edit')
   async def all_caps_emoji_edit(self, before, after):
-    if (before.guild == None) or (after.guild == None):
+    if (before.guild is None) or (after.guild is None):
       return
     if (before.author.id == self.bot.user.id):
       return
@@ -35,3 +49,21 @@ class Moderation(commands.Cog):
        ):
       await after.remove_reaction ("<:CapsLock:621629196359303168>", self.bot.user)
     return
+
+  @commands.Cog.listener('on_raw_reaction_add')
+  async def display_rule(self, payload):
+    member = self.bot.get_user(payload.user_id)
+    if not payload.guild_id or not Utils.is_authorized(member, payload.guild_id):
+      return
+    try:
+      rule_number = rules[payload.emoji.name]
+    except KeyError:
+      return
+    if (payload.message_id, rule_number) in reacted_message:
+      print(f"Message {payload.message_id} has already been rule-reacted by a moderator")
+      return
+    channel = self.bot.get_channel(payload.channel_id)
+    message = await channel.fetch_message(payload.message_id)
+    await message.author.send(Utils.get_text(payload.guild_id, f"rule{rule_number}"))
+    reacted_message.append((payload.message_id, rule_number))
+    print(f'Sent DM about rule number {rule_number} to {message.author.display_name}')
