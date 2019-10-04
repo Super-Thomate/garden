@@ -27,6 +27,8 @@ class Welcome(commands.Cog):
   async def on_member_update(self, before, after):
     # guild id
     guild_id = before.guild.id
+    if not Utils.is_loaded("vote",guild_id):
+      return
     unique_welcome = True # to put on config later
     # all roles to listen
     select = f"select role_id from welcome_role where guild_id='{guild_id}'"
@@ -96,7 +98,7 @@ class Welcome(commands.Cog):
           database.execute_order (sql)
 
   @commands.command(name='setwelcomerole', aliases=['swr', 'welcomerole'])
-  @Utils.require(required=['authorized', 'not_banned'])
+  @Utils.require(required=['authorized', 'not_banned', 'cog_loaded'])
   async def set_welcome_role(self, ctx, *, role: discord.Role = None):
     """
     Set welcome role
@@ -128,7 +130,7 @@ class Welcome(commands.Cog):
     # await self.logger.log('welcome_log', ctx.author, ctx.message, error) # no logs
 
   @commands.command(name='setwelcomechannel', aliases=['swc', 'welcomechannel', 'wc'])
-  @Utils.require(required=['authorized', 'not_banned'])
+  @Utils.require(required=['authorized', 'not_banned', 'cog_loaded'])
   async def set_welcome(self, ctx, *, channel: discord.TextChannel = None):
     """
     Set the welcome channel
@@ -156,7 +158,7 @@ class Welcome(commands.Cog):
     # await self.logger.log('welcome_log', ctx.author, ctx.message, error) # no logs
 
   @commands.command(name='setwelcomemessage', aliases=['welcomemessage', 'swm'])
-  @Utils.require(required=['authorized', 'not_banned'])
+  @Utils.require(required=['authorized', 'not_banned', 'cog_loaded'])
   async def set_welcome_message(self, ctx, role: discord.Role = None):
     guild_id = ctx.message.guild.id
     member = ctx.author
@@ -183,7 +185,7 @@ class Welcome(commands.Cog):
     # await self.logger.log('welcome_log', ctx.author, ctx.message, error) # no logs
 
   @commands.command(name='updatewelcome', aliases=['uw'])
-  @Utils.require(required=['authorized', 'not_banned'])
+  @Utils.require(required=['authorized', 'not_banned', 'cog_loaded'])
   async def update_welcomeuser(self, ctx):
     guild_id = ctx.message.guild.id
     member = ctx.author
@@ -208,7 +210,7 @@ class Welcome(commands.Cog):
     await ctx.message.add_reaction('✅')
 
   @commands.command(name='clearwelcome', aliases=['cw'])
-  @Utils.require(required=['authorized', 'not_banned'])
+  @Utils.require(required=['authorized', 'not_banned', 'cog_loaded'])
   async def reset_welcomeuser(self, ctx, member: discord.Member = None):
     guild_id                 = ctx.message.guild.id
     author                   = ctx.author

@@ -60,6 +60,7 @@
   "cog_highlight_description": "Manages messages highlight",
   "help_global_field_available_1": "__**Available cogs (1/2)**__",
   "help_global_field_available_2": "__**Available cogs (2/2)**__",
+  "help_global_field_available": "__**Available cogs ({0}/{1})**__",
   "cog_utip_description": "Manages role giving for Utip backers\"",
   "cog_invitation_description": "Manages invitations/tokens",
   "cog_logs_description": "Manages logs of the cogs",
@@ -204,5 +205,6 @@
   "old_message": "Old message:",
   "your_token": "Your token:\n",
   "permanent": "Permanent",
-  "success": "**`SUCCESS`**"
+  "success": "**`SUCCESS`**",
+  "not_loaded": "The command `{0}` could not be executed. Check if  cog `{1}` is loaded."
 }

@@ -25,7 +25,7 @@ class Turing(commands.Cog):
     self.auto_reply          = False
 
   @commands.command(name='answer', aliases=['reply'])
-  @Utils.require(required=['authorized', 'not_banned'])
+  @Utils.require(required=['authorized', 'not_banned', 'cog_loaded'])
   async def answer_spy_log(self, ctx, user: discord.User = None):
     guild_id                 = ctx.message.guild.id
     author                  = ctx.author
@@ -51,7 +51,7 @@ class Turing(commands.Cog):
       await self.logger.log('spy_log', author, msg, error)
 
   @commands.command(name='say', aliases=['talk', 'speak'])
-  @Utils.require(required=['authorized', 'not_banned'])
+  @Utils.require(required=['authorized', 'not_banned', 'cog_loaded'])
   async def say_spy_log(self, ctx, channel: discord.TextChannel = None):
     guild_id                 = ctx.message.guild.id
     author                  = ctx.author
@@ -76,7 +76,7 @@ class Turing(commands.Cog):
       await self.logger.log('spy_log', author, msg, error)
 
   @commands.command(name='lmute', aliases=['lionmute', 'lotusmute'])
-  @Utils.require(required=['authorized', 'not_banned'])
+  @Utils.require(required=['authorized', 'not_banned', 'cog_loaded'])
   async def fake_mute_lion(self, ctx):
     guild_id                 = ctx.message.guild.id
     author                  = ctx.author
@@ -90,7 +90,7 @@ class Turing(commands.Cog):
     await self.logger.log('spy_log', author, ctx.message, error)
 
   @commands.command(name='lstart', aliases=['lionstart', 'lotusstart'])
-  @Utils.require(required=['authorized', 'not_banned'])
+  @Utils.require(required=['authorized', 'not_banned', 'cog_loaded'])
   async def fake_start_lion(self, ctx):
     guild_id                 = ctx.message.guild.id
     author                  = ctx.author
@@ -104,7 +104,7 @@ class Turing(commands.Cog):
     await self.logger.log('spy_log', author, ctx.message, error)
 
   @commands.command(name='sethumor')
-  @Utils.require(required=['authorized', 'not_banned'])
+  @Utils.require(required=['authorized', 'not_banned', 'cog_loaded'])
   async def fake_set_humor_lion(self, ctx, percent: str = None):
     guild_id                 = ctx.message.guild.id
     author                  = ctx.author
@@ -126,7 +126,7 @@ class Turing(commands.Cog):
     await self.react_to_message (ctx, message_id, emoji, "remove")
 
   @commands.command(name='editmessage')
-  @Utils.require(required=['authorized', 'not_banned'])
+  @Utils.require(required=['authorized', 'not_banned', 'cog_loaded'])
   async def edit_message_turing(self, ctx, message_id: int = None):
     guild_id                 = ctx.message.guild.id
     author                  = ctx.author
@@ -159,7 +159,7 @@ class Turing(commands.Cog):
     await self.logger.log('spy_log', author, ctx.message, error)
 
   @commands.command(name='deletemessage')
-  @Utils.require(required=['authorized', 'not_banned'])
+  @Utils.require(required=['authorized', 'not_banned', 'cog_loaded'])
   async def delete_message_turing(self, ctx, message_id: int = None):
     guild_id                 = ctx.message.guild.id
     author                  = ctx.author
@@ -181,7 +181,7 @@ class Turing(commands.Cog):
     await self.logger.log('spy_log', author, ctx.message, error)
 
   @commands.command(name='autoreply')
-  @Utils.require(required=['authorized', 'not_banned'])
+  @Utils.require(required=['authorized', 'not_banned', 'cog_loaded'])
   async def set_auto_reply(self, ctx, status: str = None):
     guild_id                 = ctx.message.guild.id
     author                  = ctx.author
@@ -222,7 +222,7 @@ class Turing(commands.Cog):
           break
     return message
 
-  @Utils.require(required=['authorized', 'not_banned'])
+  @Utils.require(required=['authorized', 'not_banned', 'cog_loaded'])
   async def react_to_message (self, ctx, message_id, emoji, react_type):
     guild_id                 = ctx.message.guild.id
     author                  = ctx.author

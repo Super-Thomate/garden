@@ -58,10 +58,10 @@ async def on_guild_join(guild):
   guild_id                   = guild.id
   # Create default config
   insert                     = [
-     f"insert into config_prefix (`prefix`, `guild_id`) values ('!', '{guild_id}')"
-   , f"insert into config_delay (`delay`, `type_delay`, `guild_id`) values (0, 'nickname', '{guild_id}')"
-   , f"insert into config_delay (`delay`, `type_delay`, `guild_id`) values (0, 'invite', '{guild_id}')"
-   , f"insert into config_delay (`delay`, `type_delay`, `guild_id`) values (0, 'utip_role', '{guild_id}')"
+     f"insert into config_prefix (`prefix`, `guild_id`) values ('!', '{guild_id}') ;"
+   , f"insert into config_delay (`delay`, `type_delay`, `guild_id`) values (0, 'nickname', '{guild_id}') ;"
+   , f"insert into config_delay (`delay`, `type_delay`, `guild_id`) values (0, 'invite', '{guild_id}') ;"
+   , f"insert into config_delay (`delay`, `type_delay`, `guild_id`) values (0, 'utip_role', '{guild_id}') ;"
                                ]
 
 @bot.event

@@ -23,7 +23,7 @@ class Invitation(commands.Cog):
     self.logger = Logs(self.bot)
 
   @commands.command(name='inviteuser', aliases=['iu'])
-  @Utils.require(required=['authorized', 'not_banned'])
+  @Utils.require(required=['authorized', 'not_banned', 'cog_loaded'])
   async def invite(self, ctx, member: discord.Member = None):
     """Send the invitation's link in a DM"""
     member                   = member or ctx.author
@@ -54,7 +54,7 @@ class Invitation(commands.Cog):
     await self.logger.log('invite_log', ctx.author, ctx.message, error)
 
   @commands.command(name='resetinvite', aliases=['ri'])
-  @Utils.require(required=['authorized', 'not_banned'])
+  @Utils.require(required=['authorized', 'not_banned', 'cog_loaded'])
   async def reset_invite(self, ctx, member: discord.Member = None):
     member                   = member or ctx.author
     guild_id                 = ctx.guild.id
@@ -70,7 +70,7 @@ class Invitation(commands.Cog):
     await self.logger.log('invite_log', ctx.author, ctx.message, error)
 
   @commands.command(name='setinvitechannel', aliases=['sic'])
-  @Utils.require(required=['authorized', 'not_banned'])
+  @Utils.require(required=['authorized', 'not_banned', 'cog_loaded'])
   async def set_invite_channel(self, ctx, channel: discord.TextChannel = None):
     invite_channel           = channel or ctx.channel
     member                   = ctx.author
@@ -92,7 +92,7 @@ class Invitation(commands.Cog):
     await invite_channel.send(Utils.get_text(ctx.guild.id, "invite_channel_set"))
 
   @commands.command(name='invitemessage', aliases=['im'])
-  @Utils.require(required=['authorized', 'not_banned'])
+  @Utils.require(required=['authorized', 'not_banned', 'cog_loaded'])
   async def set_invite_message(self, ctx):
     guild_id                 = ctx.message.guild.id
     member                   = ctx.author
@@ -114,7 +114,7 @@ class Invitation(commands.Cog):
     await ctx.channel.send(Utils.get_text(ctx.guild.id, "display_new_message"))
 
   @commands.command(name='setinvitedelay', aliases=['sid'])
-  @Utils.require(required=['authorized', 'not_banned'])
+  @Utils.require(required=['authorized', 'not_banned', 'cog_loaded'])
   async def set_invite_delay(self, ctx, delay: str = None):
     author                   = ctx.author
     guild_id                 = ctx.message.guild.id
@@ -165,10 +165,11 @@ class Invitation(commands.Cog):
     if (message.guild == None):
       # DM => debile-proof
       for guild in self.bot.guilds:
-        if guild.get_member(message.author.id):
+        if Utils.is_loaded ("invitation", guild.id) and guild.get_member(message.author.id):
           guild_id           = guild.id
           member             = message.author
           error              = False
+          await author.trigger_typing() # add some tension !!
           invite_delay       = Utils.invite_delay (guild_id) or botconfig.config[str(guild_id)]["invite_delay"]
           sql                = f"select last from last_invite where guild_id='{guild_id}' and member_id='{member.id}'"
           last_invite        = database.fetch_one_line (sql)
@@ -231,6 +232,8 @@ class Invitation(commands.Cog):
           except Exception as e:
               print (f'{type(e).__name__} - {e}')
     else:
+      if not Utils.is_loaded ("invitation", message.guild.id):
+        return
       guild_id               = message.channel.guild.id
       sql                    = f"select * from invite_channel where guild_id='{message.channel.guild.id}'"
       invite_channel         = database.fetch_one_line (sql)

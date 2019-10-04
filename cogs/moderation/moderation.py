@@ -1,12 +1,10 @@
 from discord.ext import commands
-
 from ..logs import Logs
-
+import Utils
 
 class Moderation(commands.Cog):
   def __init__(self, bot):
     self.bot = bot
-
     self.logger = Logs(self.bot)
 
 
@@ -15,6 +13,8 @@ class Moderation(commands.Cog):
     if (message.guild == None):
       return
     if (message.author.id == self.bot.user.id):
+      return
+    if not Utils.is_loaded ("moderation", message.guild.id):
       return
     if len (message.content) > 5 and message.content.isupper():
       await message.add_reaction ("<:CapsLock:621629196359303168>")
@@ -25,6 +25,8 @@ class Moderation(commands.Cog):
     if (before.guild == None) or (after.guild == None):
       return
     if (before.author.id == self.bot.user.id):
+      return
+    if not Utils.is_loaded ("moderation", before.guild.id):
       return
     if len (after.content) > 5 and after.content.isupper():
       await after.add_reaction ("<:CapsLock:621629196359303168>")

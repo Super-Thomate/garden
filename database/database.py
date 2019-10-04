@@ -82,6 +82,7 @@ def create_table():
     cursor.execute('CREATE TABLE IF NOT EXISTS `config_do` (`do` INTEGER NOT NULL, `type_do` VARCHAR(128) NOT NULL, `guild_id` VARCHAR(256) NOT NULL, PRIMARY KEY (`type_do`, `guild_id`)) ;')
     cursor.execute('CREATE TABLE IF NOT EXISTS `config_log` (`channel_id` VARCHAR(256) NOT NULL, `guild_id` VARCHAR(256) NOT NULL, PRIMARY KEY (`guild_id`)) ;')
     cursor.execute('CREATE TABLE IF NOT EXISTS `config_lang` (`language_code` VARCHAR(2) NOT NULL, `guild_id` VARCHAR(256) NOT NULL, PRIMARY KEY (`guild_id`)) ;')
+    cursor.execute('CREATE TABLE IF NOT EXISTS `config_cog` (`cog` varchar(256) not null, `guild_id` int not null, `status` int not null, primary key (`cog`, `guild_id`)) ;')
     # UTIP COG
     cursor.execute('CREATE TABLE IF NOT EXISTS `utip_role` (`role_id` VARCHAR(256) NOT NULL, `guild_id` VARCHAR(256) NOT NULL, PRIMARY KEY (`role_id`, `guild_id`)) ;')
     cursor.execute('CREATE TABLE IF NOT EXISTS `utip_timer` (`user_id` VARCHAR(256) NOT NULL, `until` INTEGER NOT NULL, `guild_id` VARCHAR(256) NOT NULL, PRIMARY KEY (`user_id`, `guild_id`)) ;')

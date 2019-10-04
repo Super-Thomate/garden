@@ -28,7 +28,7 @@ class Birthday(commands.Cog):
 
   @commands.command(name="setbirthday", aliases=['bd'])
   @commands.guild_only()
-  @Utils.require(required=['not_banned'])
+  @Utils.require(required=['not_banned', 'cog_loaded'])
   async def set_birthday(self, ctx, date: str = None):
     """Save user's birthday in database."""
     guild_id = ctx.message.guild.id
@@ -69,7 +69,7 @@ class Birthday(commands.Cog):
       await self.logger.log('birthday_log', ctx.author, ctx.message, error)
 
   @commands.command(name="setbirthdaychannel", aliases=['sbc'])
-  @Utils.require(required=['authorized', 'not_banned'])
+  @Utils.require(required=['authorized', 'not_banned', 'cog_loaded'])
   async def set_birthday_channel(self, ctx, channel: discord.TextChannel = None):
     """Save channel where birthday will be wished. Param: channel ID"""
     guild_id = ctx.guild.id
@@ -92,7 +92,7 @@ class Birthday(commands.Cog):
     await ctx.send(Utils.get_text(ctx.guild.id, 'birthday_channel_set').format(f'<#{channel_id}>'))
 
   @commands.command(name='resetbirthday', aliases=['rb'])
-  @Utils.require(required=['authorized', 'not_banned'])
+  @Utils.require(required=['authorized', 'not_banned', 'cog_loaded'])
   async def reset_birthday(self, ctx, member: discord.Member = None):
     guild_id = ctx.guild.id
     error = False
@@ -118,7 +118,7 @@ class Birthday(commands.Cog):
     await self.logger.log('birthday_log', ctx.author, ctx.message, error)
 
   @commands.command(name='setbirthdaymessage', aliases=['birthdaymessage', 'sbm'])
-  @Utils.require(required=['authorized', 'not_banned'])
+  @Utils.require(required=['authorized', 'not_banned', 'cog_loaded'])
   async def set_birthday_message(self, ctx):
     guild_id = ctx.message.guild.id
     member = ctx.author

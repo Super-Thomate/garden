@@ -59,6 +59,7 @@
   "cog_highlight_description": "Gère les mises en valeurs de message",
   "help_global_field_available_1": "__**Cogs Disponibles (1/2)**__",
   "help_global_field_available_2": "__**Cogs Disponibles (2/2)**__",
+  "help_global_field_available": "__**Cogs Disponibles ({0}/{1})**__",
   "cog_utip_description": "Gère l'attribution de rôle pour les backers Utip\"",
   "cog_invitation_description": "Gère les invitations/jetons",
   "cog_logs_description": "Gère les logs des différents cogs",
@@ -204,5 +205,6 @@
   "old_message": "Ancien message :",
   "your_token": "Votre jeton :\n",
   "permanent": "Permanent",
-  "success": "**`SUCCESS`**"
+  "success": "**`SUCCESS`**",
+  "not_loaded": "La commande `{0}` n'a pas pu être exécutée. Vérifiez que le cog `{1}` est bien chargé."
 }

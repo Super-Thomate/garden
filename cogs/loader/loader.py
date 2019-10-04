@@ -1,8 +1,10 @@
+
 import os
 
 from discord.ext import commands
 
 import Utils
+import database
 
 
 class Loader(commands.Cog):
@@ -11,11 +13,12 @@ class Loader(commands.Cog):
       self.bot = bot
 
   # Hidden means it won't show up on the default help.
-  @commands.command(name='load', hidden=True)
+  @commands.command(name='cogload', hidden=True)
   @Utils.require(required=['authorized', 'not_banned'])
   async def do_load(self, ctx, *, cog: str):
-    """Command which Loads a Module.
-    Remember to use dot path. e.g: cogs.greetings"""
+    """
+    Load a cog for Garden
+    """
     try:
       self.bot.load_extension(f'cogs.{cog}')
     except Exception as e:
@@ -23,11 +26,12 @@ class Loader(commands.Cog):
     else:
       await ctx.send(Utils.get_text(ctx.guild.id, 'success'))
 
-  @commands.command(name='unload', hidden=True)
+  @commands.command(name='cogunload', hidden=True)
   @Utils.require(required=['authorized', 'not_banned'])
   async def do_unload(self, ctx, *, cog: str):
-    """Command which Unloads a Module.
-    Remember to use dot path. e.g: cogs.greetings"""
+    """
+    Unload a cog for Garden
+    """
     try:
       self.bot.unload_extension(f'cogs.{cog}')
     except Exception as e:
@@ -35,11 +39,12 @@ class Loader(commands.Cog):
     else:
       await ctx.send(Utils.get_text(ctx.guild.id, 'success'))
 
-  @commands.command(name='reload', hidden=True)
+  @commands.command(name='cogreload', hidden=True)
   @Utils.require(required=['authorized', 'not_banned'])
   async def do_reload(self, ctx, *, cog: str):
-    """Command which Reloads a Module.
-    Remember to use dot path. e.g: cogs.greetings"""
+    """
+    Reload a cog for Garden
+    """
     try:
       self.bot.unload_extension(f'cogs.{cog}')
       self.bot.load_extension(f'cogs.{cog}')
@@ -48,10 +53,11 @@ class Loader(commands.Cog):
     else:
       await ctx.send(Utils.get_text(ctx.guild.id, 'success'))
 
-  @commands.command(name='listcogs', hidden=True, aliases=['lc'])
+  @commands.command(name='cogs', hidden=True)
   @Utils.require(required=['authorized', 'not_banned'])
   async def list_load(self, ctx):
-    """Command which lists all loaded cogs
+    """
+    Command which lists all loaded cogs
     """
     all_loaded = ""
     for name in self.bot.cogs.keys():
@@ -75,5 +81,117 @@ class Loader(commands.Cog):
     current_patch = os.popen(cmd).read()
     try:
       await ctx.send (current_patch)
+    except Exception as e:
+      print(f'{type(e).__name__} - {e}')
+  
+
+  @commands.command(name='load', hidden=True)
+  @Utils.require(required=['authorized', 'not_banned'])
+  async def do_load(self, ctx, *, cog: str):
+    """
+    Load cogs for this guild
+    """
+    author                   = ctx.author
+    guild_id                 = ctx.guild.id
+    if not cog:
+      await ctx.message.add_reaction('❌')
+      await ctx.send ("Paramètre <cog> obligatoire.")
+      return
+    try:
+      select                 = (   "select   status "
+                                   "from     config_cog "+
+                                   "where "+
+                                   "cog=? "+
+                                   " and "+
+                                   "guild_id=? ;"+
+                                   ""
+                               )
+      fetched                = database.fetch_one_line (select, [cog, guild_id])
+      sql                    = ""
+      if fetched:
+        status               = fetched [0]
+        if status == 0:
+          sql                = "update config_cog set status=1 where cog=? and guild_id=? ;"
+      else:
+        sql                  = "insert into config_cog (`cog`, `guild_id`, `status`) values (?,?,1) ;"
+      print (sql)
+      if len(sql):
+        database.execute_order (sql, [cog, guild_id])
+    except Exception as e:
+      await ctx.message.add_reaction('❌')
+      print (f"{type(e).__name__} - {e}")
+    else:
+      await ctx.message.add_reaction('✅')
+
+  @commands.command(name='unload', hidden=True)
+  @Utils.require(required=['authorized', 'not_banned'])
+  async def do_unload(self, ctx, *, cog: str):
+    """
+    Unload cogs for this guild
+    """
+    author                   = ctx.author
+    guild_id                 = ctx.guild.id
+    if not cog:
+      await ctx.message.add_reaction('❌')
+      await ctx.send ("Paramètre <cog> obligatoire.")
+      return
+    if cog in ["configuration", "help", "loader", "logs"]:
+      await ctx.message.add_reaction('❌')
+      await ctx.send ("Vous ne pouvez pas désactiver le cog `{0}`.".format(cog))
+      return
+    try:
+      select                 = (   "select   status "
+                                   "from     config_cog "+
+                                   "where "+
+                                   "cog=? "+
+                                   " and "+
+                                   "guild_id=? ;"+
+                                   ""
+                               )
+      fetched                = database.fetch_one_line (select, [cog, guild_id])
+      sql                    = ""
+      if fetched:
+        status               = fetched [0]
+        if status == 1:
+          sql                = "update config_cog set status=0 where cog=? and guild_id=? ;"
+      else:
+        sql                  = "insert into config_cog (`cog`, `guild_id`, `status`) values (?,?,0) ;"
+      if len(sql):
+        database.execute_order (sql, [cog, guild_id])
+    except Exception as e:
+      await ctx.message.add_reaction('❌')
+      print (f"{type(e).__name__} - {e}")
+    else:
+      await ctx.message.add_reaction('✅')
+
+  @commands.command(name='listcogs', hidden=True, aliases=['lc'])
+  @Utils.require(required=['authorized', 'not_banned'])
+  async def list_cogs_guild(self, ctx):
+    """
+    Command which lists all loaded cogs for this guild
+    """
+    author                   = ctx.author
+    guild_id                 = ctx.guild.id
+    all_loaded = ""
+    for name in self.bot.cogs.keys():
+      cog                    = name.lower()
+      try:
+        select               = (   "select   status "
+                                   "from     config_cog "+
+                                   "where "+
+                                   "cog=? "+
+                                   " and "+
+                                   "guild_id=? ;"+
+                                   ""
+                               )
+        fetched              = database.fetch_one_line (select, [cog, guild_id])
+        if (fetched and fetched[0]==1) or (cog in ["configuration", "help", "loader", "logs"]):
+          all_loaded += f"- **{name}**\n"
+      except Exception as e:
+        print (f"{type(e).__name__} - {e}")
+    if not len (all_loaded):
+      all_loaded = "**NONE**"
+    try:
+      await ctx.send (all_loaded)
     except Exception as e:
       print(f'{type(e).__name__} - {e}')

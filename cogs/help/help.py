@@ -184,7 +184,7 @@ class Help(commands.Cog):
 
   def help_global (self, guild_id):
     line_cogs = ""
-    line_cogs_2 = ""
+    all_lines                = []
     all_cogs = {
              "Birthday": {"status":0, "desc": Utils.get_text(guild_id, 'cog_birthday_description')}
       ,    "Bancommand": {"status":0, "desc": Utils.get_text(guild_id, 'cog_bancommand_description')}
@@ -194,9 +194,7 @@ class Help(commands.Cog):
       ,    "Invitation": {"status":0, "desc": Utils.get_text(guild_id, 'cog_invitation_description')}
       ,          "Link": {"status":0, "desc": Utils.get_text(guild_id, 'cog_link_description')}
       ,        "Loader": {"status":0, "desc": Utils.get_text(guild_id, 'cog_loader_description')}
-    }
-    all_cogs_2               = {
-                 "Logs": {"status":0, "desc": Utils.get_text(guild_id, 'cog_logs_description')}
+      ,          "Logs": {"status":0, "desc": Utils.get_text(guild_id, 'cog_logs_description')}
       ,      "Nickname": {"status":0, "desc": Utils.get_text(guild_id, 'cog_nickname_description')}
       ,    "Moderation": {"status":0, "desc": Utils.get_text(guild_id, 'cog_moderation_description')}
       ,        "RoleDM": {"status":0, "desc": Utils.get_text(guild_id, 'cog_roleDM_description')}
@@ -205,27 +203,29 @@ class Help(commands.Cog):
       ,          "Vote": {"status":0, "desc": Utils.get_text(guild_id, 'cog_vote_description')}
       ,       "Welcome": {"status":0, "desc": Utils.get_text(guild_id, 'cog_welcome_description')}
     }
-    for name in self.bot.cogs.keys():
-      if name in all_cogs :
+    for name in all_cogs.keys():
+      if Utils.is_loaded(name.lower(), guild_id):
         all_cogs [name]["status"] = 1
-      elif name in all_cogs_2:
-        all_cogs_2 [name]["status"] = 1
-
+    
     for cog, dicog in all_cogs.items():
-      emoji = ":white_check_mark:" if dicog["status"] else ":x:"
-      line_cogs += f"-  **{cog}** {emoji}  - *{dicog ['desc']}*\n"
-    for cog, dicog in all_cogs_2.items():
-      emoji = ":white_check_mark:" if dicog["status"] else ":x:"
-      line_cogs_2 += f"-  **{cog}** {emoji}  - *{dicog ['desc']}*\n"
-
+      emoji                  = ":white_check_mark:" if dicog["status"] else ":x:"
+      line                   = f"-  **{cog}** {emoji}  - *{dicog ['desc']}*\n"
+      if (len(line_cogs) + len(line) > 1024):
+        all_lines.append (line_cogs)
+        line_cogs            = ""
+      line_cogs             += line
+    all_lines.append (line_cogs)
+    
     infos = self.bot.user
     colour = discord.Colour(0)
     colour = colour.from_rgb(176, 255, 176)
     embed = discord.Embed(colour=colour, title=Utils.get_text(guild_id, 'help_global_title'))
     embed.description = Utils.get_text(guild_id, 'help_global_description')
     embed.add_field (name=Utils.get_text(guild_id, 'help_global_field_general'), value=Utils.get_text(guild_id, 'help_global_field_general_value'), inline=False)
-    embed.add_field (name=Utils.get_text(guild_id, 'help_global_field_available_1'), value=line_cogs, inline=False)
-    embed.add_field (name=Utils.get_text(guild_id, 'help_global_field_available_2'), value=line_cogs_2, inline=False)
+    num                      = 0
+    for line_cogs in all_lines:
+      num                   += 1
+      embed.add_field (name=Utils.get_text(guild_id, 'help_global_field_available').format(num, len(all_lines)), value=line_cogs, inline=False)
     embed.set_author(icon_url=infos.avatar_url, name=str(infos))
     embed.timestamp = datetime.today()
     return embed
