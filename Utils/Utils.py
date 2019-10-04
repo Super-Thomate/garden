@@ -31,7 +31,7 @@ def require(required: list):
           await ctx.message.add_reaction('❌')
           return
       if 'cog_loaded' in required:
-        if not is_loaded (ctx.cog, ctx.guild.id):
+        if not is_loaded (ctx.cog.qualified_name.lower(), ctx.guild.id):
           if is_authorized(ctx.author, ctx.guild.id):
             await ctx.send (get_text(ctx.guild.id, "not_loaded").format(ctx.command, ctx.cog.qualified_name.lower()))
             await ctx.message.add_reaction('❌')
@@ -387,9 +387,6 @@ def is_loaded (cog, guild_id):
                                    ""
                                )
     fetched                  = database.fetch_one_line (select, [str(cog), guild_id])
-    print (f"is_loaded cog: {cog}")
-    print (f"is_loaded guild_id: {guild_id}")
-    print (f"is_loaded fetched: {fetched}")
     return (fetched and fetched [0]==1) or (cog in ["configuration", "help", "loader", "logs"])
   except Exception as e:
      print (f"{type(e).__name__} - {e}")
