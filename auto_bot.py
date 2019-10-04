@@ -42,12 +42,13 @@ async def on_ready():
 
 async def vote_tasks ():
   try:
-
     guilds                   = bot.guilds
     # print (f"guilds: {guilds}")
     # CLOSE PHASES"
     for guild in guilds:
       guild_id               = guild.id
+      if not Utils.is_loaded("vote", guild_id):
+        continue
       select                 = ( "select   message_id"+
                                  "       , channel_id"+
                                  "       , month"+
@@ -199,6 +200,8 @@ async def utip_tasks ():
     # CLOSE PHASES"
     for guild in guilds:
       guild_id               = guild.id
+      if not Utils.is_loaded("utip", guild_id):
+        continue
       select                 = ( "select   user_id"+
                                  "       , until"+
                                  " from utip_timer "+
@@ -232,7 +235,6 @@ async def utip_tasks ():
   except Exception as e:
     print (f"auto task {type(e).__name__} - {e}")
 
-
 def embed_get_result (message_id, guild_id, embed):
   field                      = embed.fields [0]
   select                     = ( "select proposition_id,emoji,proposition,ballot"+
@@ -258,7 +260,6 @@ def embed_get_result (message_id, guild_id, embed):
   embed.add_field (name=field.name, value=new_value, inline=False)
   return embed
 
-
 def get_birthday_message(guild_id, member_id):
   select = f"SELECT message FROM birthday_message WHERE guild_id='{guild_id}';"
   fetched = database.fetch_one_line(select)
@@ -283,6 +284,8 @@ async def birthday_task():
   try:
     for guild in bot.guilds:
       guild_id               = guild.id
+      if not Utils.is_loaded("birthday", guild_id):
+        continue
       date                   = datetime.now().strftime('%d/%m')
       sql                    = (   "SELECT user_id, guild_id, last_year_wished"+
                                    " FROM birthday_user "+
