@@ -15,10 +15,11 @@ class Loader(commands.Cog):
   # Hidden means it won't show up on the default help.
   @commands.command(name='cogload', hidden=True)
   @Utils.require(required=['authorized', 'not_banned'])
-  async def do_load(self, ctx, *, cog: str):
+  async def do_load_cog(self, ctx, *, cog: str):
     """
     Load a cog for Garden
     """
+    cog                      = cog.lower()
     try:
       self.bot.load_extension(f'cogs.{cog}')
     except Exception as e:
@@ -28,10 +29,11 @@ class Loader(commands.Cog):
 
   @commands.command(name='cogunload', hidden=True)
   @Utils.require(required=['authorized', 'not_banned'])
-  async def do_unload(self, ctx, *, cog: str):
+  async def do_unload_cog(self, ctx, *, cog: str):
     """
     Unload a cog for Garden
     """
+    cog                      = cog.lower()
     try:
       self.bot.unload_extension(f'cogs.{cog}')
     except Exception as e:
@@ -41,10 +43,11 @@ class Loader(commands.Cog):
 
   @commands.command(name='cogreload', hidden=True)
   @Utils.require(required=['authorized', 'not_banned'])
-  async def do_reload(self, ctx, *, cog: str):
+  async def do_reload_cog(self, ctx, *, cog: str):
     """
     Reload a cog for Garden
     """
+    cog                      = cog.lower()
     try:
       self.bot.unload_extension(f'cogs.{cog}')
       self.bot.load_extension(f'cogs.{cog}')
@@ -97,6 +100,7 @@ class Loader(commands.Cog):
       await ctx.message.add_reaction('❌')
       await ctx.send ("Paramètre <cog> obligatoire.")
       return
+    cog                      = cog.lower()
     try:
       select                 = (   "select   status "
                                    "from     config_cog "+
@@ -135,6 +139,7 @@ class Loader(commands.Cog):
       await ctx.message.add_reaction('❌')
       await ctx.send ("Paramètre <cog> obligatoire.")
       return
+    cog                      = cog.lower()
     if cog in ["configuration", "help", "loader", "logs"]:
       await ctx.message.add_reaction('❌')
       await ctx.send ("Vous ne pouvez pas désactiver le cog `{0}`.".format(cog))
