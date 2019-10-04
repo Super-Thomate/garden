@@ -387,6 +387,7 @@ def is_loaded (cog, guild_id):
                                    ""
                                )
     fetched                  = database.fetch_one_line (select, [str(cog), guild_id])
+    print (f"is_loaded fetched: {fetched}")
     return (fetched and fetched [0]==1) or (cog in ["configuration", "help", "loader", "logs"])
   except Exception as e:
      print (f"{type(e).__name__} - {e}")
