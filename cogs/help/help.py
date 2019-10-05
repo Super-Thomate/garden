@@ -189,6 +189,7 @@ class Help(commands.Cog):
              "Birthday": {"status":0, "desc": Utils.get_text(guild_id, 'cog_birthday_description')}
       ,    "Bancommand": {"status":0, "desc": Utils.get_text(guild_id, 'cog_bancommand_description')}
       , "Configuration": {"status":0, "desc": Utils.get_text(guild_id, 'cog_config_description')}
+      ,       "Gallery": {"status":0, "desc": Utils.get_text(guild_id, 'cog_gallery_description')}
       ,          "Help": {"status":0, "desc": Utils.get_text(guild_id, 'cog_help_description')}
       ,     "Highlight": {"status":0, "desc": Utils.get_text(guild_id, 'cog_highlight_description')}
       ,    "Invitation": {"status":0, "desc": Utils.get_text(guild_id, 'cog_invitation_description')}
@@ -206,7 +207,7 @@ class Help(commands.Cog):
     for name in all_cogs.keys():
       if Utils.is_loaded(name.lower(), guild_id):
         all_cogs [name]["status"] = 1
-    
+
     for cog, dicog in all_cogs.items():
       emoji                  = ":white_check_mark:" if dicog["status"] else ":x:"
       line                   = f"-  **{cog}** {emoji}  - *{dicog ['desc']}*\n"
@@ -215,7 +216,7 @@ class Help(commands.Cog):
         line_cogs            = ""
       line_cogs             += line
     all_lines.append (line_cogs)
-    
+
     infos = self.bot.user
     colour = discord.Colour(0)
     colour = colour.from_rgb(176, 255, 176)
