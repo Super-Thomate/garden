@@ -52,7 +52,12 @@ class Moderation(commands.Cog):
 
   @commands.Cog.listener('on_raw_reaction_add')
   async def display_rule(self, payload):
-    member = self.bot.get_user(payload.user_id)
+    # member = self.bot.get_user(payload.user_id)
+    # Attention get_user renvoie un discord.User qui n'est pas la même chose
+    # qu'un discord.Member. Notamment un User n'a pas de rôle, on ne peut donc
+    # pas appeler is_authorized dessus.
+    guild                    = self.bot.get_guild (payload.guild_id)
+    member                   = guild.get_member (payload.user_id)
     if not payload.guild_id or not Utils.is_authorized(member, payload.guild_id):
       return
     try:
