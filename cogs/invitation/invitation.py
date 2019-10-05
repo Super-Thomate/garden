@@ -170,7 +170,7 @@ class Invitation(commands.Cog):
           guild_id           = guild.id
           member             = message.author
           error              = False
-          await author.trigger_typing() # add some tension !!
+          await member.trigger_typing() # add some tension !!
           invite_delay       = Utils.invite_delay (guild_id) or botconfig.config[str(guild_id)]["invite_delay"]
           sql                = f"select last from last_invite where guild_id='{guild_id}' and member_id='{member.id}'"
           last_invite        = database.fetch_one_line (sql)
