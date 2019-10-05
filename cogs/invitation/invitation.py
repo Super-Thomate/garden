@@ -166,6 +166,7 @@ class Invitation(commands.Cog):
       # DM => debile-proof
       for guild in self.bot.guilds:
         if Utils.is_loaded ("invitation", guild.id) and guild.get_member(message.author.id):
+          print (f"HERE ! on guild {guild.id}")
           guild_id           = guild.id
           member             = message.author
           error              = False
