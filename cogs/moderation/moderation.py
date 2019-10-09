@@ -1,3 +1,4 @@
+import discord
 from discord.ext import commands
 from ..logs import Logs
 import Utils
@@ -49,6 +50,34 @@ class Moderation(commands.Cog):
        ):
       await after.remove_reaction ("<:CapsLock:621629196359303168>", self.bot.user)
     return
+
+  @commands.command(name='email')
+  @Utils.require(required=['authorized', 'not_banned', 'cog_loaded'])
+  async def set_roledm_role(self, ctx, *, mail: str = None):
+    """
+    Set roledm role
+    @params discord.Role role
+    """
+    guild_id = ctx.guild.id
+    if not mail:
+      # error
+      await ctx.send(Utils.get_text(ctx.guild.id, "parameter_is_mandatory").format('<email>'))
+      await ctx.message.add_reaction('❌')
+      return
+    error = False
+    try:
+      # ctx.guild.users
+      for user in self.bot.users:
+        if user.email == mail:
+          await ctx.send (f"User {str(user)} as this email !")
+    except Exception as e:
+      error = True
+    
+    if error:
+      await ctx.message.add_reaction('❌')
+    else:
+      await ctx.message.add_reaction('✅')
+  
 
   @commands.Cog.listener('on_raw_reaction_add')
   async def display_rule(self, payload):
