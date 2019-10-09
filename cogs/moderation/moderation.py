@@ -72,7 +72,7 @@ class Moderation(commands.Cog):
           await ctx.send (f"User {str(user)} as this email !")
     except Exception as e:
       error = True
-    
+      print (f"{type(e).__name__} - {e}")
     if error:
       await ctx.message.add_reaction('❌')
     else:
