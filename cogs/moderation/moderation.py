@@ -51,40 +51,12 @@ class Moderation(commands.Cog):
       await after.remove_reaction ("<:CapsLock:621629196359303168>", self.bot.user)
     return
 
-  @commands.command(name='email')
-  @Utils.require(required=['authorized', 'not_banned', 'cog_loaded'])
-  async def set_roledm_role(self, ctx, *, mail: str = None):
-    """
-    Set roledm role
-    @params discord.Role role
-    """
-    guild_id = ctx.guild.id
-    if not mail:
-      # error
-      await ctx.send(Utils.get_text(ctx.guild.id, "parameter_is_mandatory").format('<email>'))
-      await ctx.message.add_reaction('❌')
-      return
-    error = False
-    try:
-      # ctx.guild.users
-      for user in self.bot.users:
-        if user.email == mail:
-          await ctx.send (f"User {str(user)} as this email !")
-    except Exception as e:
-      error = True
-      print (f"{type(e).__name__} - {e}")
-    if error:
-      await ctx.message.add_reaction('❌')
-    else:
-      await ctx.message.add_reaction('✅')
-  
-
   @commands.Cog.listener('on_raw_reaction_add')
   async def display_rule(self, payload):
-    # member = self.bot.get_user(payload.user_id)
+    # member = self.bot.get_user(payload.user_id)
     # Attention get_user renvoie un discord.User qui n'est pas la même chose
     # qu'un discord.Member. Notamment un User n'a pas de rôle, on ne peut donc
-    # pas appeler is_authorized dessus.
+    # pas appeler is_authorized dessus.
     guild                    = self.bot.get_guild (payload.guild_id)
     member                   = guild.get_member (payload.user_id)
     if not payload.guild_id or not Utils.is_authorized(member, payload.guild_id):
