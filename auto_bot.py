@@ -297,9 +297,12 @@ async def birthday_task():
       channel_id = database.fetch_one_line(sql)
       if not channel_id:
         raise RuntimeError('Birthday channel is not set !')
-      birthday_channel = bot.get_channel(int(channel_id[0]))
+      birthday_channel = guild.get_channel(int(channel_id[0]))
       print ("birthday_channel: {}".format(birthday_channel))
       print (f"data: {data}")
+      if (not birthday_channel):
+        print ("!! birthday_channel not defined for guild {0}".format(guild.name))
+        continue
       for line in data:
         member_id, guild_id, last_year_wished = line[0], line[1], line[2]
         current_year = datetime.now().strftime('%Y')
