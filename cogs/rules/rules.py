@@ -51,7 +51,9 @@ class Rules(commands.Cog):
       await ctx.message.add_reaction('✅')
     except Exception as e:
       print(f"{type(e).__name__} - {e}")
-    await ctx.send(Utils.get_text(ctx.guild.id, "rule_registered"))
+    confirm = await ctx.send(Utils.get_text(ctx.guild.id, "rule_registered"))
+    await ctx.message.delete()
+    await confirm.delete(delay=2)
 
   @commands.command(name='removerule', aliases=['rmr'])
   @Utils.require(required=['authorized', 'not_banned', 'cog_loaded'])
@@ -112,7 +114,7 @@ class Rules(commands.Cog):
     print (rules)
     for rule in rules:
       rule_text              = rule[0]
-      if (rule_text > 500):
+      if (len(rule_text) > 500):
         rule_text            = rule_text[:500]+"[...]"
       current_line           = "["+rule[1]+"] "+rule_text+"\n"
       if len (line_rule+current_line) > 1024:
@@ -231,7 +233,7 @@ class Rules(commands.Cog):
     await message.author.send(">>> "+message.content)
     await message.author.send(rule)
     self.set_already_warned_messages (payload.message_id, str(payload.emoji), payload.guild_id)
-    message_warned_content   = message.content
+    message_warned_content   = len(message.content)
     if message_warned_content > 512:
       message_warned_content = message_warned_content [:512]+"[...]"
     message.content          = f"**Member {message.author} warned**:\n{message.content}\nReaction: {payload.emoji}"
