@@ -133,7 +133,7 @@ class Logs(commands.Cog):
     guild_id = message.channel.guild.id
     sql = f"select channel_id from {db} where guild_id='{guild_id}'"
     db_log_channel = database.fetch_one_line (sql)
-    print (db_log_channel)
+    print ("db_log_channel: {}".format(db_log_channel))
     if not db_log_channel:
       log_channel = message.channel
     else:
