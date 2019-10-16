@@ -95,6 +95,19 @@ def create_table():
     cursor.execute('CREATE TABLE IF NOT EXISTS `birthday_channel` (`channel_id` VARCHAR(256) NOT NULL, `guild_id` VARCHAR(256) NOT NULL, PRIMARY KEY (`guild_id`)) ;')
     cursor.execute('CREATE TABLE IF NOT EXISTS `birthday_log` (`channel_id` VARCHAR(256) NOT NULL, `guild_id` VARCHAR(256) NOT NULL, PRIMARY KEY (`guild_id`)) ;')
     cursor.execute('CREATE TABLE IF NOT EXISTS `birthday_message` (`message` TEXT NOT NULL, `guild_id` VARCHAR(256) NOT NULL, PRIMARY KEY (`guild_id`)) ;')
+    ### SOURCE COG
+    cursor.execute('CREATE TABLE IF NOT EXISTS `source_channel` (`channel_id` VARCHAR(256) NOT NULL, `guild_id` VARCHAR(256) NOT NULL, PRIMARY KEY (`channel_id`)) ;')
+    cursor.execute('CREATE TABLE IF NOT EXISTS `source_message` (`message` TEXT NOT NULL, `guild_id` VARCHAR(256) NOT NULL, PRIMARY KEY (`guild_id`)) ;')
+    ### RULES COG
+    """
+    alter table `rules_table` rename to zob ;
+    CREATE TABLE IF NOT EXISTS `rules_table` (`rule` TEXT NOT NULL, `emoji_text` VARCHAR(64) NOT NULL, `guild_id` VARCHAR(256) NOT NULL, PRIMARY KEY (`emoji_text`, `guild_id`)) ;
+    insert into rules_table select rule,emoji_text,guild_id from zob ;
+    drop table zob ;
+    """
+    cursor.execute('CREATE TABLE IF NOT EXISTS `rules_table` (`rule` TEXT NOT NULL, `emoji_text` VARCHAR(64) NOT NULL, `guild_id` VARCHAR(256) NOT NULL, PRIMARY KEY (`emoji_text`, `guild_id`)) ;')
+    cursor.execute('CREATE TABLE IF NOT EXISTS `rules_message` (`message_id` TEXT NOT NULL, `emoji_text` VARCHAR(64) NOT NULL, `guild_id` VARCHAR(256) NOT NULL, PRIMARY KEY (`message_id`, `emoji_text`, `guild_id`)) ;')
+    cursor.execute('CREATE TABLE IF NOT EXISTS `rules_log` (`channel_id` VARCHAR(256) NOT NULL, `guild_id` VARCHAR(256) NOT NULL, PRIMARY KEY (`guild_id`)) ;')
     # Save modifications
     cnx.commit()
     cursor.close()
@@ -106,7 +119,7 @@ def create_table():
 def execute_order (sql, params=[]):
   cnx = sqlite3.connect (path)
   cursor = cnx.cursor()
-  print (f"params: {params}")
+  print (f"execute_order params: {params}")
   try:
     cursor.execute(sql, (params))
     cnx.commit()
@@ -114,7 +127,7 @@ def execute_order (sql, params=[]):
   except Exception as e:
     cursor.close()
     print (f'execute_order ERROR: {type(e).__name__} - {e}')
-    print (f'sql: {sql}')
+    print (f'execute_order sql: {sql}')
   cnx.close()
 
 def fetch_one_line (sql, params=[]):
@@ -128,16 +141,16 @@ def fetch_one_line (sql, params=[]):
   except Exception as e:
     cursor.close()
     print (f'fetch_one_line ERROR: {type(e).__name__} - {e}')
-    print (f'sql: {sql}')
+    print (f'fetch_one_line sql: {sql}')
   cnx.close()
   return line
 
-def fetch_all_line (sql):
+def fetch_all_line (sql, params=[]):
   cnx = sqlite3.connect (path)
   cursor = cnx.cursor()
   lines = None
   try:
-    cursor.execute(sql)
+    cursor.execute(sql, (params))
     lines = cursor.fetchall()
     cursor.close()
   except Exception as e:

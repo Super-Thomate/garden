@@ -6,13 +6,14 @@ import sys
 import time
 from functools import wraps
 from urllib.request import urlopen
+
 import botconfig
 import database
 
 dir_path = os.path.dirname(os.path.realpath(__file__))+'/'
 strings = {}
 for language in botconfig.config["languages"]:
-  with open(f'{dir_path}../{language}.json', 'r') as file:
+  with open(f'{dir_path}../language_files/{language}.json', 'r') as file:
     strings[language] = json.load(file)
 
 
@@ -376,6 +377,7 @@ async def delete_messages(*args):
     await msg.delete(delay=2)
     
 def is_loaded (cog, guild_id):
+  print (f"check is_loaded {cog} in {guild_id}")
   try:
     guild_id                 = int (guild_id)
     select                   = (   "select   status "
@@ -387,7 +389,25 @@ def is_loaded (cog, guild_id):
                                    ""
                                )
     fetched                  = database.fetch_one_line (select, [str(cog), guild_id])
+    print (fetched)
     return (fetched and fetched [0]==1) or (cog in ["configuration", "help", "loader", "logs"])
   except Exception as e:
      print (f"{type(e).__name__} - {e}")
      return False
+
+def set_log_channel(table: str, channel_id: int, guild_id: int):
+  sql = f"SELECT channel_id FROM {table} WHERE guild_id='{guild_id}'"
+  is_already_set = database.fetch_one_line(sql)
+  if is_already_set:
+    sql = f"UPDATE {table} SET channel_id='{channel_id}' WHERE guild_id='{guild_id}'"
+  else:
+    sql = f"INSERT INTO {table} VALUES ('{channel_id}', '{guild_id}') ;"
+  try:
+    database.execute_order(sql, [])
+  except Exception as e:
+    print(f"{type(e).__name__} - {e}")
+    return False
+  return True
+
+def is_custom_emoji (emoji):
+  return False

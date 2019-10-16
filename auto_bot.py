@@ -2,9 +2,11 @@ import math
 import random
 import time
 from datetime import datetime
+
 import discord
-import botconfig
+
 import Utils
+import botconfig
 import database
 
 bot                          = discord.Client()

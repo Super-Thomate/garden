@@ -24,6 +24,20 @@ class RoleDM(commands.Cog):
   async def on_member_update(self, before, after):
     # guild id
     guild_id = before.guild.id
+    print (   "roledm on_member_update => "+
+             f"{before.display_name}\n"+
+             "  Before:\n"+
+            f"    Status: {before.status}\n"+
+            f"    Activity: {before.activities}\n"+
+            f"    Nickname: {before.nick}\n"+
+            f"    Roles: {before.roles}\n"+
+             "  After:\n"+
+            f"    Status: {after.status}\n"+
+            f"    Activity: {after.activities}\n"+
+            f"    Nickname: {after.nick}\n"+
+            f"    Roles: {after.roles}\n"+
+             ""
+          )
     if not Utils.is_loaded ("roledm", guild_id):
       return
     # all roles to listen

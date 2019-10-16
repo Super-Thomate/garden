@@ -36,7 +36,7 @@ class Help(commands.Cog):
     colour = discord.Colour(0)
     colour = colour.from_rgb(176, 255, 176)
     embed = discord.Embed(colour=colour, title=Utils.get_text(guild_id, 'help_invitation_title'))
-    embed.description = Utils.get_text(guild_id, 'help_invitation_description')
+    embed.description = Utils.get_text(guild_id, 'help_moderator_only')
     embed.add_field (name="**SUF :**", value=Utils.get_text(guild_id, 'help_invitation_suf'), inline=False)
     embed.add_field (name="**AR :**", value=Utils.get_text(guild_id, 'help_invitation_ar'), inline=False)
     embed.add_field (name="**Général :**", value=Utils.get_text(guild_id, 'help_invitation_general'), inline=False)
@@ -49,7 +49,7 @@ class Help(commands.Cog):
     colour = discord.Colour(0)
     colour = colour.from_rgb(176, 255, 176)
     embed = discord.Embed(colour=colour, title=Utils.get_text(guild_id, 'help_logs_title'))
-    embed.description = Utils.get_text(guild_id, 'help_logs_description')
+    embed.description = Utils.get_text(guild_id, 'help_moderator_only')
     embed.add_field (name="**SUF :**", value=Utils.get_text(guild_id, 'help_logs_suf'), inline=False)
     embed.add_field (name="**AR :**", value=Utils.get_text(guild_id, 'help_logs_ar'), inline=False)
     embed.add_field (name="**Général :**", value=Utils.get_text(guild_id, 'help_logs_general'), inline=False)
@@ -116,7 +116,11 @@ class Help(commands.Cog):
     colour = discord.Colour(0)
     colour = colour.from_rgb(176, 255, 176)
     embed = discord.Embed(colour=colour, title=Utils.get_text(guild_id, 'help_welcome_title'))
-    embed.description = Utils.get_text(guild_id, 'help_welcome_description')
+    embed.description = Utils.get_text(guild_id, 'help_moderator_only')
+    embed.add_field (   name=Utils.get_text(guild_id, "help_variable_title")
+                      , value=Utils.get_text(guild_id, "help_welcome_variable")
+                      , inline=False
+                    )
     embed.add_field (   name=Utils.get_text(guild_id, 'help_admin_command')
                       , value=Utils.get_text(guild_id, 'help_welcome_admin_command')
                       , inline=False
@@ -182,6 +186,38 @@ class Help(commands.Cog):
     embed.timestamp = datetime.today()
     return embed
 
+  def help_source(self, guild_id):
+    infos = self.bot.user
+    colour = discord.Colour(0)
+    colour = colour.from_rgb(176, 255, 176)
+    embed = discord.Embed(colour=colour, title=Utils.get_text(guild_id, 'help_source_title'))
+    embed.description = Utils.get_text(guild_id, 'help_moderator_only')
+    embed.add_field(name=Utils.get_text(guild_id, 'help_admin_command'),
+                    value=Utils.get_text(guild_id, 'help_source_admin_command'),
+                    inline=False)
+    embed.set_author(icon_url=infos.avatar_url, name=str(infos))
+    embed.timestamp = datetime.today()
+    return embed
+
+  def help_rules(self, guild_id):
+    infos = self.bot.user
+    colour = discord.Colour(0)
+    colour = colour.from_rgb(176, 255, 176)
+    embed = discord.Embed(colour=colour, title=Utils.get_text(guild_id, 'help_rules_title'))
+    embed.description = Utils.get_text(guild_id, 'help_moderator_only')
+    embed.add_field ( name=Utils.get_text(guild_id, "help_variable_title")
+                    , value=Utils.get_text(guild_id, "help_rules_variable")
+                    , inline=False
+                    )
+    embed.add_field ( name=Utils.get_text(guild_id, 'help_admin_command')
+                    , value=Utils.get_text(guild_id, 'help_rules_admin_command').format("!")
+                    , inline=False
+                    )
+    embed.set_author(icon_url=infos.avatar_url, name=str(infos))
+    embed.timestamp = datetime.today()
+    return embed
+
+
   def help_global (self, guild_id):
     line_cogs = ""
     all_lines                = []
@@ -203,6 +239,8 @@ class Help(commands.Cog):
       ,          "Utip": {"status":0, "desc": Utils.get_text(guild_id, 'cog_utip_description')}
       ,          "Vote": {"status":0, "desc": Utils.get_text(guild_id, 'cog_vote_description')}
       ,       "Welcome": {"status":0, "desc": Utils.get_text(guild_id, 'cog_welcome_description')}
+      ,        "Source": {"status":0, "desc": Utils.get_text(guild_id, 'cog_source_description')}
+      ,        "Rules":  {"status":0, "desc": Utils.get_text(guild_id, 'cog_rules_description')}
     }
     for name in all_cogs.keys():
       if Utils.is_loaded(name.lower(), guild_id):

@@ -8,7 +8,6 @@ import database
 
 
 class Loader(commands.Cog):
-
   def __init__(self, bot):
       self.bot = bot
 
@@ -163,6 +162,34 @@ class Loader(commands.Cog):
         sql                  = "insert into config_cog (`cog`, `guild_id`, `status`) values (?,?,0) ;"
       if len(sql):
         database.execute_order (sql, [cog, guild_id])
+    except Exception as e:
+      await ctx.message.add_reaction('❌')
+      print (f"{type(e).__name__} - {e}")
+    else:
+      await ctx.message.add_reaction('✅')
+
+
+  @commands.command(name='unloadall', hidden=True)
+  @Utils.require(required=['authorized', 'not_banned'])
+  async def do_unload_all(self, ctx):
+    """
+    Unload cogs for this guild
+    """
+    author                   = ctx.author
+    guild_id                 = ctx.guild.id
+    try:
+      select                 = (   "select   status "
+                                   "from     config_cog "+
+                                   "where "+
+                                   "guild_id=? ;"+
+                                   ""
+                               )
+      fetched                = database.fetch_all_line (select, [guild_id])
+      if fetched:
+        for line in fetched:
+          if line [0] == 1:
+            update           = "update config_cog set status=0 where guild_id=? ;"
+            database.execute_order (update, [guild_id])
     except Exception as e:
       await ctx.message.add_reaction('❌')
       print (f"{type(e).__name__} - {e}")
