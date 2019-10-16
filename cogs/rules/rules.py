@@ -27,6 +27,7 @@ class Rules(commands.Cog):
     await msg_rule.delete(delay=1.5)
     await ask_emoji.delete(delay=1.5)
     await msg_emoji.delete(delay=1.5)
+    await ctx.message.delete()
     # Try to react with the emoji
     try:
       print (f"emoji_text: {emoji_text}")
@@ -52,7 +53,6 @@ class Rules(commands.Cog):
     except Exception as e:
       print(f"{type(e).__name__} - {e}")
     confirm = await ctx.send(Utils.get_text(ctx.guild.id, "rule_registered"))
-    await ctx.message.delete()
     await confirm.delete(delay=2)
 
   @commands.command(name='removerule', aliases=['rmr'])
@@ -136,6 +136,7 @@ class Rules(commands.Cog):
   @Utils.require(required=['authorized', 'not_banned', 'cog_loaded'])
   async def get_rule(self, ctx: commands.Context, emoji_text: str = None):
     guild_id                 = ctx.guild.id
+    await ctx.message.delete()
     if not emoji_text:
       await ctx.send(Utils.get_text(ctx.guild.id, "parameter_is_mandatory").format('<emoji>'))
       await ctx.message.add_reaction('❌')
