@@ -330,7 +330,7 @@ class Configuration(commands.Cog):
     except Exception as e:
       await ctx.send(Utils.get_text(ctx.guild.id, 'database_writing_error'))
       print(f"{type(e).__name__} - {e}")
-    botconfig.__languages__     [str (guild_id)] = lang_code
+    botconfig.__language__      [str (guild_id)] = lang_code
     await ctx.send(Utils.get_text(ctx.guild.id, 'language_updated'))
 
 

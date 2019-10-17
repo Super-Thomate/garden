@@ -369,7 +369,7 @@ def get_text(guild_id: int, text_key: str) -> str:
   except Exception: # if not found in DB, look in config
     language_code = botconfig.config[str(guild_id)]["default_language"]
   """
-  language_code              = botconfig.__languages__ [str (guild_id)]
+  language_code              = botconfig.__language__ [str (guild_id)]
   try:
     return strings[language_code][text_key]
   except KeyError:

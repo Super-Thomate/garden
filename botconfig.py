@@ -14,4 +14,4 @@ with open(dir_path+'config.json') as json_file:
 # print (config)
 config         ["languages"] = ["en", "fr"]
 # define global
-__languages__                = {}
+__language__                 = {}

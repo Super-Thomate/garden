@@ -66,7 +66,7 @@ async def on_guild_join(guild):
                                ]
   for insert in inserts:
     database.execute_order(insert, [guild_id])
-  botconfig.__languages__        [str(guild_id)] = "en"
+  botconfig.__language__         [str(guild_id)] = "en"
 
 @bot.event
 async def on_ready():
@@ -83,7 +83,7 @@ async def on_ready():
     for guild in bot.guilds:
       select                 = "select language_code from config_lang where guild_id=? ;"
       language_code          = database.fetch_one_line(select, [guild.id])
-      botconfig.__languages__    [str(guild.id)] = language_code [0] if language_code else "en"
+      botconfig.__language__     [str(guild.id)] = language_code [0] if language_code else "en"
   except TypeError as type_err:
     print ("Error TypeError : {}".format(type_err))
     sys.exit(0)
