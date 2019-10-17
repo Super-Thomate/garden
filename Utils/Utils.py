@@ -363,10 +363,13 @@ def convert_str_to_time (time_string):
   return timestamp
 
 def get_text(guild_id: int, text_key: str) -> str:
+  """
   try:
     language_code = database.fetch_one_line(f"SELECT language_code FROM config_lang WHERE guild_id='{guild_id}'")[0]
   except Exception: # if not found in DB, look in config
     language_code = botconfig.config[str(guild_id)]["default_language"]
+  """
+  language_code              = botconfig.__languages__ [str (guild_id)]
   try:
     return strings[language_code][text_key]
   except KeyError:

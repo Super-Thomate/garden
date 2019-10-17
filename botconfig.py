@@ -12,3 +12,6 @@ with open(dir_path+'config.json') as json_file:
   config = json.load(json_file)[instance]
 
 # print (config)
+config         ["languages"] = ["en", "fr"]
+# define global
+__languages__                = {}

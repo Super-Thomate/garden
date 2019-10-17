@@ -1,8 +1,6 @@
 import sys
-
 import discord
 from discord.ext import commands
-
 import botconfig
 import database
 
@@ -49,6 +47,7 @@ initial_extensions = [   'cogs.loader'
 bot = commands.Bot(command_prefix=get_prefix)
 bot.remove_command("help") # we used our own help command
 
+
 # Here we load our extensions(cogs) listed above in [initial_extensions].
 if __name__ == '__main__':
   for extension in initial_extensions:
@@ -58,12 +57,16 @@ if __name__ == '__main__':
 async def on_guild_join(guild):
   guild_id                   = guild.id
   # Create default config
-  insert                     = [
-     f"insert into config_prefix (`prefix`, `guild_id`) values ('!', '{guild_id}') ;"
-   , f"insert into config_delay (`delay`, `type_delay`, `guild_id`) values (0, 'nickname', '{guild_id}') ;"
-   , f"insert into config_delay (`delay`, `type_delay`, `guild_id`) values (0, 'invite', '{guild_id}') ;"
-   , f"insert into config_delay (`delay`, `type_delay`, `guild_id`) values (0, 'utip_role', '{guild_id}') ;"
+  inserts                    = [
+     "insert into config_prefix (`prefix`, `guild_id`) values ('!', ?) ;"
+   , "insert into config_delay (`delay`, `type_delay`, `guild_id`) values (0, 'nickname', ?) ;"
+   , "insert into config_delay (`delay`, `type_delay`, `guild_id`) values (0, 'invite', ?) ;"
+   , "insert into config_delay (`delay`, `type_delay`, `guild_id`) values (0, 'utip_role', ?) ;"
+   , "insert into config_lang (`language_code`, `guild_id`) values ('en', ?) ;"
                                ]
+  for insert in inserts:
+    database.execute_order(insert, [guild_id])
+  botconfig.__languages__        [str(guild_id)] = "en"
 
 @bot.event
 async def on_ready():
@@ -77,6 +80,10 @@ async def on_ready():
   print('------')
   try:
     await bot.change_presence(activity=discord.Game(name=botconfig.config['activity']))
+    for guild in bot.guilds:
+      select                 = "select language_code from config_lang where guild_id=? ;"
+      language_code          = database.fetch_one_line(select, [guild.id])
+      botconfig.__languages__    [str(guild.id)] = language_code [0] if language_code else "en"
   except TypeError as type_err:
     print ("Error TypeError : {}".format(type_err))
     sys.exit(0)
