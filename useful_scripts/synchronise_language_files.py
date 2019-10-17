@@ -6,10 +6,10 @@ slaves_files_name = ['en.json']
 
 dir_path = os.path.dirname(os.path.realpath(__file__))+'/'
 if __name__ == '__main__':
-    master_file = open(f'{dir_path}../language_files/{master_file_name}', 'r')
+    master_file = open(f'{dir_path}../language_files/{master_file_name}', 'r', encoding='utf-8')
     slaves_files = []
     for name in slaves_files_name:
-      slaves_files.append(open(f'{dir_path}../language_files/{name}', 'r'))
+      slaves_files.append(open(f'{dir_path}../language_files/{name}', 'r', encoding='utf-8'))
 
     master = json.load(master_file)
     slaves = []
@@ -28,7 +28,7 @@ if __name__ == '__main__':
         except Exception as e:
           print(e)
       if len(new_slave) != 0:
-        with open(f'{dir_path}../language_files/NEW_{slaves_files_name[index]}', 'w+') as new_file:
+        with open(f'{dir_path}../language_files/NEW_{slaves_files_name[index]}', 'w+', encoding='utf-8') as new_file:
           json.dump(new_slave, new_file)
 
     master_file.close()
