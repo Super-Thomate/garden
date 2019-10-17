@@ -119,24 +119,26 @@ class Nickname(commands.Cog):
     member = ctx.author
     guild_id = ctx.guild.id
     nickname_delay = Utils.nickname_delay (guild_id) or botconfig.config[str(guild_id)]['nickname_delay']
-    sql = f'select  datetime(last_change, \'{nickname_delay}\') from last_nickname where guild_id=\'{guild_id}\' and member_id=\'{member.id}\''
-    fetched = database.fetch_one_line (sql)
+    sql            = f'select last_change from last_nickname where guild_id=\'{guild_id}\' and member_id=\'{member.id}\''
+    fetched        = database.fetch_one_line (sql)
     print (f"for {sql}\nget {fetched}")
-    await self.logger.log('nickname_log', member, ctx.message, False)
+    error = False
     if fetched:
-      last_change = fetched [0]
-      last_change_datetime = datetime.strptime (last_change, '%Y-%m-%d %H:%M:%S')
-      duree = last_change_datetime - datetime.now()
-      if duree.seconds > 1 and duree.days >= 0:
-        total_seconds = duree.days*86400+duree.seconds
-        print (f"duree.days: {duree.days}")
-        print (f"total_seconds: {total_seconds}")
+      last_timestamp         = time.mktime(datetime.strptime(fetched [0], "%Y-%m-%d %H:%M:%S").timetuple())
+      if str(nickname_delay).isnumeric():
+        nickname_delay       = int(nickname_delay)
+      else:
+        nickname_delay       = Utils.convert_str_to_time(nickname_delay)
+      duree                  = math.floor ((last_timestamp + nickname_delay) - time.time())
+      if duree > 0:
         await ctx.channel.send(Utils.get_text(
                                 ctx.guild.id,
                                 "delay_between_nickname")
-                               .format(Utils.format_time(total_seconds)))
-        return
-    await ctx.send(Utils.get_text(ctx.guild.id, "user_can_change_nickname"))
+                               .format(Utils.format_time(duree)))
+        error = True
+    if not error:
+      await ctx.send(Utils.get_text(ctx.guild.id, "user_can_change_nickname"))
+    await self.logger.log('nickname_log', member, ctx.message, error)
     
     
   @commands.Cog.listener()
