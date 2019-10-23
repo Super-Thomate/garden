@@ -105,7 +105,13 @@ def create_table():
     insert into rules_table select rule,emoji_text,guild_id from zob ;
     drop table zob ;
     """
-    cursor.execute('CREATE TABLE IF NOT EXISTS `rules_table` (`rule` TEXT NOT NULL, `emoji_text` VARCHAR(64) NOT NULL, `guild_id` VARCHAR(256) NOT NULL, PRIMARY KEY (`emoji_text`, `guild_id`)) ;')
+    """
+    alter table `rules_table` rename to zob ;
+    CREATE TABLE IF NOT EXISTS `rules_table` (`rule` TEXT NOT NULL, `emoji_text` VARCHAR(64), `emoji_id` VARCHAR(64), `guild_id` VARCHAR(256) NOT NULL, PRIMARY KEY (`emoji_text`, `emoji_id`, `guild_id`)) ;
+    insert into rules_table (rule, emoji_text, guild_id) select rule,emoji_text,guild_id from zob ;
+    drop table zob ;
+    """
+    cursor.execute('CREATE TABLE IF NOT EXISTS `rules_table` (`rule` TEXT NOT NULL, `emoji_text` VARCHAR(64), `emoji_id` VARCHAR(64), `guild_id` VARCHAR(256) NOT NULL, PRIMARY KEY (`emoji_text`, `emoji_id`, `guild_id`)) ;')
     cursor.execute('CREATE TABLE IF NOT EXISTS `rules_message` (`message_id` TEXT NOT NULL, `emoji_text` VARCHAR(64) NOT NULL, `guild_id` VARCHAR(256) NOT NULL, PRIMARY KEY (`message_id`, `emoji_text`, `guild_id`)) ;')
     cursor.execute('CREATE TABLE IF NOT EXISTS `rules_log` (`channel_id` VARCHAR(256) NOT NULL, `guild_id` VARCHAR(256) NOT NULL, PRIMARY KEY (`guild_id`)) ;')
     # Save modifications

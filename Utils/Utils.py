@@ -412,5 +412,9 @@ def set_log_channel(table: str, channel_id: int, guild_id: int):
     return False
   return True
 
-def is_custom_emoji (emoji):
-  return False
+
+def is_custom_emoji(emoji_text: str):
+  split = emoji_text.split(':')
+  if len(split) == 3:
+    return split[2][:-1]  # remove '>' at the end
+  return None
