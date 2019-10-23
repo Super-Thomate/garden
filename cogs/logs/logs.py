@@ -1,11 +1,9 @@
 from datetime import datetime
-
 import discord
 from discord.ext import commands
-
 import Utils
 import database
-
+import re
 
 class Logs(commands.Cog):
   def __init__ (self, bot):
@@ -166,9 +164,17 @@ class Logs(commands.Cog):
     guild_id = ctx.guild.id
     await ctx.message.delete ()
     until_message            = None
+    message_id_pattern       = re.compile("\d{16,}")
+    if (     length_or_id != "id"
+         and length_or_id.isnumeric()
+         and message_id_pattern.match(length_or_id)
+       ):
+      message_id             = int(length_or_id)
+      length_or_id           = "id"
     if message_id and length_or_id == 'id':
       try:
         until_message          = await channel.fetch_message (message_id)
+        print ("DELETE UNTIL MESSAGE")
       except Exception as e:
         print (f" {type(e).__name__} - {e}")
         if length_or_id == 'id':
@@ -198,6 +204,7 @@ class Logs(commands.Cog):
     not_is_pin = lambda message : not message.pinned
     # delete all messages except ping
     deleted = await channel.purge(limit=length, check=not_is_pin)
+    #deleted = []
     feedback = await channel.send(Utils.get_text(ctx.guild.id, "deleted_messages").format(len(deleted)))
     await feedback.delete (delay=2)
 
