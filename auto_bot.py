@@ -213,9 +213,11 @@ async def utip_tasks ():
                                  " (until is not null and until <>0) "+
                                  " ;"
                                )
+      print (f"select: {select}")
       fetched_all            = database.fetch_all_line (select)
       if fetched_all:
         select_role          = f"select role_id from utip_role where guild_id='{guild_id}' ;"
+        print (f"select_role: {select_role}")
         fetched_role         = database.fetch_one_line (select_role)
         role_utip            = guild.get_role (int (fetched_role [0]))
         for utiper in fetched_all:
@@ -228,14 +230,15 @@ async def utip_tasks ():
                                  f" guild_id='{guild_id}' ;"+
                                   ""
                                )
+            print (f"delete: {delete}")
             member           = guild.get_member (user_id)
             if member:
               await member.remove_roles(role_utip)
               await member.send(Utils.get_text(guild_id, 'user_lost_backer_role'))
-              database.execute_order(delete)
+            database.execute_order(delete)
 
   except Exception as e:
-    print (f"auto task {type(e).__name__} - {e}")
+    print (f"utip_tasks {type(e).__name__} - {e}")
 
 def embed_get_result (message_id, guild_id, embed):
   field                      = embed.fields [0]
