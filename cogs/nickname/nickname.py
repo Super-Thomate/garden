@@ -55,6 +55,12 @@ class Nickname(commands.Cog):
     # Change my Nickname
     error = False
     try:
+      print ("member.name: {0}".format (member.name))
+      print ("nickname: {0}".format (nickname))
+      if member.name == nickname:
+        # nickname = nickname+"\uFEFF_"
+        nickname             = nickname[0]+"\u17b5"+nickname[1:]
+        print ("tweaking")
       await member.edit(nick = nickname)
     except Exception as e:
       error = True
@@ -181,3 +187,12 @@ class Nickname(commands.Cog):
     except Exception as e:
       await ctx.send(Utils.get_text(ctx.guild.id, "error_occured").format(f"{type(e).__name__}",  f"{e}"))
       print (f"{type(e).__name__} - {e}")
+
+  @commands.command(name='checknickname')
+  @Utils.require(required=['authorized', 'not_banned', 'cog_loaded'])
+  async def check_nickname(self, ctx, member: discord.Member = None):
+    member = member or ctx.author
+    if member.nick:
+      await ctx.send ("{0} a.k.a. {1}".format(str(member), member.nick))
+    else:
+     await ctx.send ("{0} with no nickname".format(str(member)))
