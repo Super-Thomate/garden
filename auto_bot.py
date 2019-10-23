@@ -233,7 +233,7 @@ async def utip_tasks ():
             print (f"delete: {delete}")
             member           = guild.get_member (user_id)
             print(f"member: {str(member)}")
-            print(f"role_utip: {str(role_utip)}")
+            print(f"role_utip: {role_utip.name} [{role_utip.id}]")
             if member:
               await member.remove_roles(role_utip)
               await member.send(Utils.get_text(guild_id, 'user_lost_backer_role'))
