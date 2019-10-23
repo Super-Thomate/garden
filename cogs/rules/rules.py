@@ -120,7 +120,17 @@ class Rules(commands.Cog):
     print (rules)
     for rule in rules:
       rule_text              = rule[0]
-      emoji = rule[1] or str(await ctx.guild.fetch_emoji(int(rule[2])))
+      emoji                  = None
+      if rule[1]:
+        emoji                = rule[1] 
+      else:
+       for guild in self.bot.guilds:
+         try:
+           emoji             = str(await guild.fetch_emoji(int(rule[2])))
+         except Exception as e:
+           print(f"{type(e).__name__} - {e}")
+      if not emoji:
+        raise Exception('Emoji not found', f'id = {rule[2]}')
       print(f"EMOJI {emoji}")
       if (len(rule_text) > 500):
         rule_text            = rule_text[:500]+"[...]"
