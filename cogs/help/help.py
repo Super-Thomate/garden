@@ -237,13 +237,13 @@ class Help(commands.Cog):
       ,      "Nickname": {"status":0, "desc": Utils.get_text(guild_id, 'cog_nickname_description')}
       ,    "Moderation": {"status":0, "desc": Utils.get_text(guild_id, 'cog_moderation_description')}
       ,        "RoleDM": {"status":0, "desc": Utils.get_text(guild_id, 'cog_roleDM_description')}
+      ,      "RoleLink": {"status":0, "desc": Utils.get_text(guild_id, 'cog_rolelink_description')}
+      ,         "Rules": {"status":0, "desc": Utils.get_text(guild_id, 'cog_rules_description')}
       ,        "Source": {"status":0, "desc": Utils.get_text(guild_id, 'cog_source_description')}
       ,        "Turing": {"status":0, "desc": Utils.get_text(guild_id, 'cog_turing_description')}
       ,          "Utip": {"status":0, "desc": Utils.get_text(guild_id, 'cog_utip_description')}
       ,          "Vote": {"status":0, "desc": Utils.get_text(guild_id, 'cog_vote_description')}
       ,       "Welcome": {"status":0, "desc": Utils.get_text(guild_id, 'cog_welcome_description')}
-      ,        "Source": {"status":0, "desc": Utils.get_text(guild_id, 'cog_source_description')}
-      ,        "Rules":  {"status":0, "desc": Utils.get_text(guild_id, 'cog_rules_description')}
     }
     for name in all_cogs.keys():
       if Utils.is_loaded(name.lower(), guild_id):

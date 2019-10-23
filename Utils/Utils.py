@@ -378,7 +378,7 @@ def get_text(guild_id: int, text_key: str) -> str:
 async def delete_messages(*args):
   for msg in args:
     await msg.delete(delay=2)
-    
+
 def is_loaded (cog, guild_id):
   print (f"check is_loaded {cog} in {guild_id}")
   try:
@@ -412,9 +412,20 @@ def set_log_channel(table: str, channel_id: int, guild_id: int):
     return False
   return True
 
-
 def is_custom_emoji(emoji_text: str):
   split = emoji_text.split(':')
   if len(split) == 3:
     return split[2][:-1]  # remove '>' at the end
   return None
+
+def get_role (message):
+  if len(message.role_mentions):
+    return message.role_mentions[0]
+  content                    = message.content
+  guild                      = message.guild
+  if content.isnumeric():
+    return guild.get_role(int(content))
+  for role in guild.roles:
+    if role.name.lower() == content.lower():
+      return role
+  return False

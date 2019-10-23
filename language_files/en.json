@@ -86,6 +86,7 @@
   "help_logs_title": "**LOGS COG HELP**",
   "cog_gallery_description": "Gallery cog",
   "cog_source_description": "Cog for asking the source of an attachment",
+  "cog_rolelink_description": "Manages links between roles",
 
 
   "INVITATION": "--------------------------------------------------------------------------------------------------",
@@ -228,4 +229,8 @@
   , "help_source_title": "**SOURCE COG HELP**"
   , "help_source_admin_command": "- `{0}addsourcechannel (asc) [<channel_id>]` - add current channel or channel_id to source monitor list\n- `{0}removesourcechannel (rms) [<channel_id>]` - remove current channel or channel_id to source monitor list\n- `{0}setsourcemessage (ssm)` - Set message to post when source is asked\n- `{0}listsourcechannels (lsc)` - list source-monitored channels\n- `{0}adddomain (adm) [<domain>]` - add domain to blacklist\n- `{0}removedomain (rmd) [<domain>]` - remove domain to blacklist\n- `{0}listdomains (lsd)` - list blacklisted domains\n- `{0}help source ` - show this message"
 
+  , "ROLELINK": "--------------------------------------------------------------------------------------------------"
+  , "instruction_role_linked": "Adding roles to link.\nEnter `done` to validate. Enter `cancel` to cancel."
+  , "ask_role_linked": "Enter the role to link to this role:"
+  , "bad_role": "Role {0} does not exist"
 }

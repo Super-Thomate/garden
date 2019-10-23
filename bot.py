@@ -41,6 +41,7 @@ initial_extensions = [   'cogs.loader'
                        , 'cogs.birthday'
                        , 'cogs.gallery'
                        , 'cogs.utip'
+                       , 'cogs.rolelink'
                        , 'cogs.rules'
                        , 'cogs.source'
                      ]

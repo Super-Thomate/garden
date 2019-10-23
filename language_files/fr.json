@@ -87,6 +87,7 @@
   "help_logs_title": "**LOGS COG HELP**",
   "help_utip_title": "**UTIP COG HELP**",
   "help_vote_title": "**VOTE COG HELP**",
+  "cog_rolelink_description": "Gère les liens entres les différents rôle",
   "cog_gallery_description": "Configuration pour le cog de galerie",
   "cog_source_description": "Cog pour demander la source d'un attachement",
 
@@ -218,6 +219,14 @@
   "permanent": "Permanent",
   "success": "**`SUCCESS`**",
   "not_loaded": "La commande `{0}` n'a pas pu être exécutée. Vérifiez que le cog `{1}` est bien chargé."
+
+
+  , "ROLELINK": "--------------------------------------------------------------------------------------------------"
+  , "instruction_role_linked": "Ajouter des rôles à joindre.\nEntrez `valider` pour valider. Entrez `annuler` pour annuler."
+  , "ask_role_linked": "Entrez le rôle à joindre à ce rôle :"
+  , "bad_role": "Le rôle {0} n'existe pas"
+  , "instruction_unset_rolelink": "Mode de suppression des liens entre rôles.\nChoisissez le lien à supprimer."
+  , "instruction_edit_rolelink": "Mode d'édition des liens entre rôles.\nChoisissez le lien à éditer."
   
   , "SOURCE": "--------------------------------------------------------------------------------------------------"
   , "wrong_domain_format": "Le paramètre doit contenir uniquement le nom de domaine. Exemple: `https://facebook.com` -> `facebook`"
