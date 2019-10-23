@@ -129,6 +129,8 @@ class Rules(commands.Cog):
            emoji             = str(await guild.fetch_emoji(int(rule[2])))
          except Exception as e:
            print(f"{type(e).__name__} - {e}")
+         else:
+           break
       if not emoji:
         raise Exception('Emoji not found', f'id = {rule[2]}')
       print(f"EMOJI {emoji}")
