@@ -31,6 +31,10 @@ async def on_ready():
              "------"
            )
         )
+  for guild in bot.guilds:
+      select                 = "select language_code from config_lang where guild_id=? ;"
+      language_code          = database.fetch_one_line(select, [guild.id])
+      botconfig.__language__     [str(guild.id)] = language_code [0] if language_code else "en"
   while run_boy_run:
     print (f"[{datetime.now().strftime('%d-%m-%Y %H:%M:%S')}] Running task")
     try:
@@ -236,7 +240,7 @@ async def utip_tasks ():
             print(f"role_utip: {role_utip.name} [{role_utip.id}]")
             if member:
               await member.remove_roles(role_utip)
-              await member.send(Utils.get_text(guild_id, 'user_lost_backer_role'))
+              await member.send(Utils.get_text(int(guild_id), 'user_lost_backer_role'))
             database.execute_order(delete)
 
   except Exception as e:
