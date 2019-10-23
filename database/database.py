@@ -98,6 +98,7 @@ def create_table():
     ### SOURCE COG
     cursor.execute('CREATE TABLE IF NOT EXISTS `source_channel` (`channel_id` VARCHAR(256) NOT NULL, `guild_id` VARCHAR(256) NOT NULL, PRIMARY KEY (`channel_id`)) ;')
     cursor.execute('CREATE TABLE IF NOT EXISTS `source_message` (`message` TEXT NOT NULL, `guild_id` VARCHAR(256) NOT NULL, PRIMARY KEY (`guild_id`)) ;')
+    cursor.execute('CREATE TABLE IF NOT EXISTS `source_domain` (`domain` VARCHAR(256) NOT NULL, `guild_id` VARCHAR(256) NOT NULL, PRIMARY KEY (`domain`, `guild_id`)) ;')
     ### RULES COG
     """
     alter table `rules_table` rename to zob ;

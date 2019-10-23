@@ -88,6 +88,7 @@
   "help_utip_title": "**UTIP COG HELP**",
   "help_vote_title": "**VOTE COG HELP**",
   "cog_gallery_description": "Configuration pour le cog de galerie",
+  "cog_source_description": "Cog pour demander la source d'un attachement",
 
 
 
@@ -217,4 +218,17 @@
   "permanent": "Permanent",
   "success": "**`SUCCESS`**",
   "not_loaded": "La commande `{0}` n'a pas pu être exécutée. Vérifiez que le cog `{1}` est bien chargé."
+  
+  , "SOURCE": "--------------------------------------------------------------------------------------------------"
+  , "wrong_domain_format": "Le paramètre doit contenir uniquement le nom de domaine. Exemple: `https://facebook.com` -> `facebook`"
+  , "domain_list_empty": "Il n'y a pas de domaine blacklisté"
+  , "no_domain_found": "Le domaine {0} n'est pas dans la liste des domaines blacklistés"
+  , "domain_blacklisted": "Le domaine {0} a été ajouté à la liste des domaines blacklistés"
+  , "domain_removed": "Le domaine {0} a été retiré de la liste des domaines blacklistés"
+  , "domain_already_blacklisted": "Le domaine {0} est déjà présent dans la liste des domaines blacklistés"
+  , "source_channel_added": "Le channel {0} a été ajouté à la liste des demande de source"
+  , "source_channel_removed": "Le channel {0} a été retiré à la liste des demande de source"
+  , "source_channel_list_empty": "Aucun channel n'est présent dans la liste des demande de source"
+  , "help_source_title": "**SOURCE COG HELP**"
+  , "help_source_admin_command": "- `{0}addsourcechannel (asc) [<channel_id>]` - ajoute le channel courant ou channel_id à la liste de surveillance des sources\n- `{0}removesourcechannel (rms) [<channel_id>]` - enlève le channel courant ou channel_id  de la liste de surveillances des sources\n- `{0}setsourcemessage (ssm)` - crée le message à poster lors d'une demande de source\n- `{0}listsourcechannels (lsc)` - liste les channels de source\n- `{0}adddomain (adm) [<domain>]` - ajoute un domaine à la blacklist\n- `{0}removedomain (rmd) [<domain>]` - retire un domaine de la blacklist\n- `{0}listdomains (lsd)` - liste les domaines blacklistés\n- `{0}help source ` - montre ce message"
 }

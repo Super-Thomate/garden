@@ -1,5 +1,6 @@
 import inspect
 import json
+import re
 import math
 import os
 import sys
@@ -319,7 +320,6 @@ def token_url (guild_id):
   return ""
 
 def is_valid_url (url):
-  import re
   regex = re.compile(
       r'^https?://'  # http:// or https://
       r'(?:(?:[A-Z0-9](?:[A-Z0-9-]{0,61}[A-Z0-9])?\.)+[A-Z]{2,6}\.?|'  # domain...
@@ -332,7 +332,7 @@ def is_valid_url (url):
 def is_url_image (image_url):
   if not is_valid_url(image_url):
     return False
-  image_formats            = ("image/png", "image/jpeg", "image/jpg")
+  image_formats            = ("image/png", "image/jpeg", "image/jpg", "image/gif")
   try:
     site                   = urlopen(image_url)
     meta                   = site.info()  # get header of the http request

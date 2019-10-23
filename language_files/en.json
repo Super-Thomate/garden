@@ -85,6 +85,9 @@
   "help_logs_ar": "- `-setgallerylog (-sgl)` - Sets current channel as log channel for tokens.",
   "help_logs_title": "**LOGS COG HELP**",
   "cog_gallery_description": "Gallery cog",
+  "cog_source_description": "Cog for asking the source of an attachment",
+
+
   "INVITATION": "--------------------------------------------------------------------------------------------------",
   "user_already_ask_invitation": "You already asked for an invitation recently.\nYou still need to wait {0}",
   "ask_user_register_birthday": "Enter your birthday (format: DD/MM)",
@@ -211,4 +214,18 @@
   "permanent": "Permanent",
   "success": "**`SUCCESS`**",
   "not_loaded": "The command `{0}` could not be executed. Check if  cog `{1}` is loaded."
+  
+  , "SOURCE": "--------------------------------------------------------------------------------------------------"
+  , "wrong_domain_format": "The pameter must only contain the domain name. Example: `https://facebook.com` -> `facebook`"
+  , "domain_list_empty": "There is no blacklisted domain"
+  , "no_domain_found": "Domain {0} is not blacklisted"
+  , "domain_blacklisted": "Domain {0} has been blacklisted"
+  , "domain_removed": "Domain {0} has been removed from blacklist"
+  , "domain_already_blacklisted": "Domain {0} is already blacklisted"
+  , "source_channel_added": "Channel {0} was added to source monitoring list"
+  , "source_channel_removed": "Channel {0} was removed to source monitoring list"
+  , "source_channel_list_empty": "No channel is present in the source monitoring list"
+  , "help_source_title": "**SOURCE COG HELP**"
+  , "help_source_admin_command": "- `{0}addsourcechannel (asc) [<channel_id>]` - add current channel or channel_id to source monitor list\n- `{0}removesourcechannel (rms) [<channel_id>]` - remove current channel or channel_id to source monitor list\n- `{0}setsourcemessage (ssm)` - Set message to post when source is asked\n- `{0}listsourcechannels (lsc)` - list source-monitored channels\n- `{0}adddomain (adm) [<domain>]` - add domain to blacklist\n- `{0}removedomain (rmd) [<domain>]` - remove domain to blacklist\n- `{0}listdomains (lsd)` - list blacklisted domains\n- `{0}help source ` - show this message"
+
 }

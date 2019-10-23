@@ -186,15 +186,17 @@ class Help(commands.Cog):
     embed.timestamp = datetime.today()
     return embed
 
-  def help_source(self, guild_id):
+  def help_source (self, guild_id):
     infos = self.bot.user
     colour = discord.Colour(0)
     colour = colour.from_rgb(176, 255, 176)
     embed = discord.Embed(colour=colour, title=Utils.get_text(guild_id, 'help_source_title'))
     embed.description = Utils.get_text(guild_id, 'help_moderator_only')
-    embed.add_field(name=Utils.get_text(guild_id, 'help_admin_command'),
-                    value=Utils.get_text(guild_id, 'help_source_admin_command'),
-                    inline=False)
+    embed.add_field (   name=Utils.get_text(guild_id, 'help_admin_command')
+                      , value=Utils.get_text(guild_id, 'help_source_admin_command').format('!')
+                      , inline=False
+                    )
+                    
     embed.set_author(icon_url=infos.avatar_url, name=str(infos))
     embed.timestamp = datetime.today()
     return embed
@@ -235,6 +237,7 @@ class Help(commands.Cog):
       ,      "Nickname": {"status":0, "desc": Utils.get_text(guild_id, 'cog_nickname_description')}
       ,    "Moderation": {"status":0, "desc": Utils.get_text(guild_id, 'cog_moderation_description')}
       ,        "RoleDM": {"status":0, "desc": Utils.get_text(guild_id, 'cog_roleDM_description')}
+      ,        "Source": {"status":0, "desc": Utils.get_text(guild_id, 'cog_source_description')}
       ,        "Turing": {"status":0, "desc": Utils.get_text(guild_id, 'cog_turing_description')}
       ,          "Utip": {"status":0, "desc": Utils.get_text(guild_id, 'cog_utip_description')}
       ,          "Vote": {"status":0, "desc": Utils.get_text(guild_id, 'cog_vote_description')}
