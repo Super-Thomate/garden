@@ -35,6 +35,175 @@ class RoleLink(commands.Cog):
     validate your creation or cancel to cancel it (no recuperation).
   => edit_role_link
   """
+
+  @commands.command(name='createrolelink', aliases=['createlink'])
+  @Utils.require(required=['authorized', 'not_banned', 'cog_loaded'])
+  async def create_rolelink_role(self, ctx, *, link_id: str):
+    """
+    Create rolelink link
+    @params str link_id
+    """
+    guild_id                 = ctx.guild.id
+    if not link_id:
+      # error
+      await ctx.send(Utils.get_text(ctx.guild.id, "parameter_is_mandatory").format('<link_id>'))
+      await ctx.message.add_reaction('❌')
+      return
+    select                   = "select count(*) from rolelink_link where link_id=? and guild_id=? ;"
+    fetched                  = database.fetch_one_line (select, [link_id, guild_id])
+    if fetched and fetched [0] > 0:
+      # error
+      await ctx.send(Utils.get_text(ctx.guild.id, "rolelink_link_already").format(link_id))
+      await ctx.message.add_reaction('❌')
+      return
+    insert                   = "insert into rolelink_link (`link_id`, `role_id`, `guild_id`) values (?, NULL, ?) ;"
+    try:
+      database.execute_order (insert, [link_id, guild_id])
+    except Exception as e:
+      print(f"{type(e).__name__} - {e}")
+      await ctx.message.add_reaction('❌')
+      await ctx.send (Utils.get_text(ctx.guild.id, "rolelink_error").format(type(e).__name__))
+    else:
+      await ctx.message.add_reaction('✅')
+      feedback               = await ctx.send (Utils.get_text(ctx.guild.id, "create_link_success").format(link_id))
+      await feedback.delete (delay=2)
+      await ctx.message.delete (delay=2)
+      
+  @commands.command(name='setroleparent', aliases=['setparent', 'setrolelinkparent'])
+  @Utils.require(required=['authorized', 'not_banned', 'cog_loaded'])
+  async def set_rolelink_parent_role(self, ctx, link_id: str, role_parent: discord.Role):
+    """
+    Set rolelink parent role
+    @params str link_id
+    @params discord.Role role_parent
+    """
+    guild_id                 = ctx.guild.id
+    if not link_id:
+      # error
+      await ctx.send(Utils.get_text(ctx.guild.id, "parameter_is_mandatory").format('<link_id>'))
+      await ctx.message.add_reaction('❌')
+      return
+    if not role_parent:
+      # error
+      await ctx.send(Utils.get_text(ctx.guild.id, "parameter_is_mandatory").format('<role_parent>'))
+      await ctx.message.add_reaction('❌')
+      return
+    select                   = "select count(*) from rolelink_link where link_id=? and guild_id=? ;"
+    fetched                  = database.fetch_one_line (select, [link_id, guild_id])
+    if not fetched or fetched [0] == 0:
+      # error
+      await ctx.send(Utils.get_text(ctx.guild.id, "rolelink_link_undefined").format(link_id))
+      await ctx.message.add_reaction('❌')
+      return
+    update_link              = "update rolelink_link set role_id=? where link_id=? and guild_id=? ;"
+    try:
+      database.execute_order (update_link, [role_parent.id, link_id, guild_id])
+      await ctx.message.add_reaction('✅')
+    except Exception as e:
+      print (f"{type(e).__name__} - {e}")
+      await ctx.message.add_reaction('❌')
+      await ctx.send (Utils.get_text(ctx.guild.id, "rolelink_error").format(type(e).__name__))
+      
+  @commands.command(name='setroleparent', aliases=['setparent', 'setrolelinkparent'])
+  @Utils.require(required=['authorized', 'not_banned', 'cog_loaded'])
+  async def add_rolelink_role(self, ctx, link_id: str, role_child: discord.Role):
+    """
+    Set rolelink parent role
+    @params str link_id
+    @params discord.Role role_child
+    """
+    guild_id                 = ctx.guild.id
+    if not link_id:
+      # error
+      await ctx.send(Utils.get_text(ctx.guild.id, "parameter_is_mandatory").format('<link_id>'))
+      await ctx.message.add_reaction('❌')
+      return
+    if not role_child:
+      # error
+      await ctx.send(Utils.get_text(ctx.guild.id, "parameter_is_mandatory").format('<role_parent>'))
+      await ctx.message.add_reaction('❌')
+      return
+    select                   = "select role_id from rolelink_link where link_id=? and guild_id=? ;"
+    fetched                  = database.fetch_one_line (select, [link_id, guild_id])
+    if not fetched:
+      # error
+      await ctx.send(Utils.get_text(ctx.guild.id, "rolelink_link_undefined").format(link_id))
+      await ctx.message.add_reaction('❌')
+      return
+    if not fetched [0]:
+      # error
+      await ctx.send(Utils.get_text(ctx.guild.id, "rolelink_parent_undefined").format(link_id))
+      await ctx.message.add_reaction('❌')
+      return
+    select                   = "select role_id from rolelink_role where link_id=? and guild_id=? ;"
+    fetched                  = database.fetch_all_line (select, [link_id, guild_id])
+    if fetched:
+      for role_id in fetched:
+        if int(role_id[0]) == role_child.id:
+           # error
+           await ctx.send(Utils.get_text(ctx.guild.id, "rolelink_children_already").format(str(role_child)))
+           await ctx.message.add_reaction('❌')
+           return
+    insert_roles             = "insert into rolelink_role (`link_id`, `role_linked`, `guild_id`) values (?, ?, ?) ;"
+    try:
+      database.execute_order (insert_roles, [link_id, role_child.id, guild_id])
+      await ctx.message.add_reaction('✅')
+    except Exception as e:
+      print (f"{type(e).__name__} - {e}")
+      await ctx.message.add_reaction('❌')
+      await ctx.send (Utils.get_text(ctx.guild.id, "rolelink_error").format(type(e).__name__))
+
+  @commands.command(name='unsetrolelink')
+  @Utils.require(required=['authorized', 'not_banned', 'cog_loaded'])
+  async def unset_rolelink_role(self, ctx, link_id: str):
+    """
+    Unset rolelink complete
+    @params str role_link
+    """
+    guild_id                 = ctx.guild.id
+    if not link_id:
+      # error
+      await ctx.send(Utils.get_text(ctx.guild.id, "parameter_is_mandatory").format('<link_id>'))
+      await ctx.message.add_reaction('❌')
+      return
+    delete_link              = "delete from rolelink_link where link_id=? and guild_id=? ;"
+    delete_role              = "delete from rolelink_role where link_id=? and guild_id=? ;"
+    try:
+      database.execute_order(delete_link, [link_id, guild_id])
+      database.execute_order(delete_role, [link_id, guild_id])
+      await ctx.message.add_reaction('✅')
+    except Exception as e:
+      await ctx.message.add_reaction('❌')
+      await ctx.send (Utils.get_text(ctx.guild.id, "rolelink_error").format(type(e).__name__))
+
+  @commands.command(name='displayrolelink')
+  @Utils.require(required=['authorized', 'not_banned', 'cog_loaded'])
+  async def display_rolelink_message(self, ctx, by_type: str, parameter: str):
+    guild_id = ctx.message.guild.id
+    if not by_type:
+      await ctx.send(Utils.get_text(guild_id, "parameter_is_mandatory").format('<by_type>'))
+      await ctx.message.add_reaction('❌')
+      return
+    if not by_type in ["all", "role", "link"]:
+      await ctx.send(Utils.get_text(guild_id, "parameter_must_be").format("<by_type>", "`all`, `role`, `link`"))
+      await ctx.message.add_reaction('❌')
+      return
+    embed                    = self.create_embed (Utils.get_text(guild_id, "rolelink_display_link"))
+    number_of_field_max      = 25
+    number_of_char_max       = 1024
+    """
+    if by_type == "all":
+      select                 = "select link_id from rolelink_link where guild_id=? ;"
+      all_fetched            = database.fetch_all_line (select, [guild_id])
+      if not all_fetched or len(all_fetched) == 0:
+        await ctx.send(Utils.get_text(guild_id, "rolelink_no_link").format())
+      else:
+        for line in all_fetched:
+          link_id            = line [0]
+          select_role        = "select role_linked from rolelink_role where link_id=? and guild_id=? ;"
+          fetched_role       = database.fetch_all_line (select_role, [link_id, guild_id])
+    """
+
   @commands.Cog.listener()
   async def on_member_update(self, before, after):
     # guild id
@@ -60,127 +229,14 @@ class RoleLink(commands.Cog):
         # send
         await before.send (message)
 
-  @commands.command(name='setrolelink', aliases=['rolelink'])
-  @Utils.require(required=['authorized', 'not_banned', 'cog_loaded'])
-  async def set_rolelink_role(self, ctx, *, link_id: str = None):
-    """
-    Set rolelink role
-    @params discord.Role role
-    """
-    guild_id                 = ctx.guild.id
-    print ("HELLO")
-    if not link_id:
-      # error
-      await ctx.send(Utils.get_text(ctx.guild.id, "parameter_is_mandatory").format('<link_id>'))
-      await ctx.message.add_reaction('❌')
-      return
-    check_text               = lambda m: m.channel == ctx.channel and m.author == ctx.author
-    ask_role                 = await ctx.send(Utils.get_text(guild_id, "ask_role_linked"))
-    msg_role                 = await self.bot.wait_for('message', check=check_text)
-    role                     = Utils.get_role (msg_role)
-    if not role:
-      await ctx.send(Utils.get_text(ctx.guild.id, "bad_role").format(msg_role.content))
-      await ctx.message.add_reaction('❌')
-      return
-    role_id                  = role.id
-    validate                 = False
-    cancel                   = False
-    roles_linked             = []
-    instruction              = await ctx.send(Utils.get_text(guild_id, "instruction_role_linked"))
-    while not validate and not cancel:
-      ask                    = await ctx.send(Utils.get_text(guild_id, "ask_role_linked"))
-      msg                    = await self.bot.wait_for('message', check=check_text)
-      if msg.content.lower() in ["cancel", "annuler"]:
-        cancel               = True
-      elif msg.content.lower() in ["valider", "done"]:
-        validate             = True
-      else:
-        role_to_link         = Utils.get_role (msg)
-        if not role_to_link:
-          await ctx.send (Utils.get_text(guild_id, "bad_role").format(msg.content))
-        else:
-          roles_linked.append(role_to_link)
-      await ask.delete (delay=0.2)
-      await msg.delete (delay=0.2)
-    await instruction.delete (delay=0.5)
-    if cancel:
-       await ctx.send("**KO**")
-       await ctx.message.add_reaction('❌')
-       return
-    error                    = False
-    for role_linked in roles_linked:
-      select_num             = (   "select MAX(link_num) "+
-                                   "from rolelink_role "+
-                                   "where "+
-                                   "link_id = ? "+
-                                   "and "+
-                                   "guild_id = ? "+
-                                   ";"
-                               )
-      fetch_num              = database.select_one_line(select_num, [link_id, guild_id])
-      link_num               = 0
-      if fetch_num:
-        link_num             = fetch_num + 1
-      insert                 = ("insert into rolelink_role "+
-                                "(`link_id`, `link_num`, `role_id`, `role_linked`, `guild_id`)"+
-                                " values "+
-                                "(?, ?, ?, ?, ?) ;"
-                               )
-      try:
-        database.execute_order(sql, [link_id, link_num, role_id, role_linked.id, guild_id])
-      except Exception as e:
-        error                = True
-    # Log my change
-    if error:
-      await ctx.message.add_reaction('❌')
-    else:
-      await ctx.message.add_reaction('✅')
 
-  @commands.command(name='unsetrolelink')
-  @Utils.require(required=['authorized', 'not_banned', 'cog_loaded'])
-  async def unset_rolelink_role(self, ctx):
-    """
-    Unset rolelink complete
-    """
-    guild_id = ctx.guild.id
-    await ctx.send(Utils.get_text(guild_id, "instruction_unset_rolelink").format())
-    try:
-      database.execute_order(sql, [])
-      await ctx.message.add_reaction('✅')
-    except Exception as e:
-      error = True
-      await ctx.message.add_reaction('❌')
+  def create_embed(self, title, description=""):
+    colour                   = discord.Colour(0)
+    colour                   = colour.from_rgb(56, 255, 56)
+    embed                    = discord.Embed(colour=colour)
+    embed.title              = title
+    if len(description):
+      embed.description      = description
+    return embed
 
-  @commands.command(name='displayrolelink')
-  @Utils.require(required=['authorized', 'not_banned', 'cog_loaded'])
-  async def display_rolelink_message(self, ctx, *, role: discord.Role = None):
-    guild_id = ctx.message.guild.id
-    if not role:
-      await ctx.send(Utils.get_text(ctx.guild.id, "parameter_is_mandatory").format('<role>'))
-      await ctx.message.add_reaction('❌')
-      return
-    role_id = role.id
-    sql = f"select message from rolelink_message where guild_id='{guild_id}' and role_id='{role_id}' ;"
-    prev_rolelink_message = database.fetch_one_line (sql)
-    if not prev_rolelink_message:
-      await ctx.channel.send(Utils.get_text(ctx.guild.id, "no_message_defined_for_role").format(role.name))
-    else:
-      await ctx.channel.send (prev_rolelink_message[0])
-  """
-  ## VOTE LISTENER
-  @commands.Cog.listener()
-  async def on_reaction_add(self, reaction, user):
-    if not reaction.message.guild:
-      return
-    message_id               = reaction.message.id
-    guild_id                 = reaction.message.guild.id
-    emoji                    = reaction.emoji
 
-  @commands.Cog.listener()
-  async def on_raw_reaction_add(self, payload):
-    message_id               = payload.message_id
-    guild_id                 = payload.guild_id
-    channel_id               = payload.channel_id
-    emoji                    = payload.emoji
-    user_id                  = payload.user_id
-  """

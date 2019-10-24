@@ -215,6 +215,7 @@
   "permanent": "Permanent",
   "success": "**`SUCCESS`**",
   "not_loaded": "The command `{0}` could not be executed. Check if  cog `{1}` is loaded."
+  , "parameter_must_be": "Parameter {0} must be {1}."
   
   , "SOURCE": "--------------------------------------------------------------------------------------------------"
   , "wrong_domain_format": "The pameter must only contain the domain name. Example: `https://facebook.com` -> `facebook`"
@@ -233,4 +234,12 @@
   , "instruction_role_linked": "Adding roles to link.\nEnter `done` to validate. Enter `cancel` to cancel."
   , "ask_role_linked": "Enter the role to link to this role:"
   , "bad_role": "Role {0} does not exist"
+  , "rolelink_link_already": "Link `{0}` already exists."
+  , "rolelink_error": "An error occured: {0}"
+  , "create_link_success": "Link `{0}` created."
+  , "rolelink_link_undefined": "Link `{0}` does not exist."
+  , "rolelink_parent_undefined": "For link `{0}` no parent role defined."
+  , "rolelink_children_already": "Role `{0}` already exists."
+  , "rolelink_no_link": "No link defined."
+  , "rolelink_display_link": "Display links."
 }
