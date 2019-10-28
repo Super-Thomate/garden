@@ -117,6 +117,7 @@ def create_table():
     cursor.execute('CREATE TABLE IF NOT EXISTS `rules_log` (`channel_id` VARCHAR(256) NOT NULL, `guild_id` VARCHAR(256) NOT NULL, PRIMARY KEY (`guild_id`)) ;')
     ### ROLELINK COG
     cursor.execute('CREATE TABLE IF NOT EXISTS `rolelink_link` (`link_id` varchar(512) not null, `role_id` int, `guild_id` int not null, PRIMARY KEY (`link_id`, `guild_id`));')
+    cursor.execute('CREATE TABLE IF NOT EXISTS `rolelink_relation` (`link_id` varchar(512) not null, `relation` varchar(512) not null, `guild_id` int not null, PRIMARY KEY (`link_id`, `guild_id`));')
     cursor.execute('CREATE TABLE IF NOT EXISTS `rolelink_role` (`link_id` varchar(512) not null, `role_linked` int not null, `guild_id` int not null, PRIMARY KEY (`link_id`, `role_linked`, `guild_id`)) ;')
     # Save modifications
     cnx.commit()

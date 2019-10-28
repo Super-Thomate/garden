@@ -185,6 +185,7 @@
   "permission_denied": "Permission refusée",
   "date_format_error": "Date mal formatée",
   "unknow_cog": "Cog **{0}** inconnu",
+  "parameter_be_numeric": "Le paramètre {0} doit être un nombre.",
   "RULES": "--------------------------------------------------------------------------------------------------",
   "need_only_one_reaction": "Le message ne doit contenir qu'une seule réaction qui servira de trigger pour la règle",
   "no_custom_emoji": "L'emoji ne doit pas être un emoji personalisé",
@@ -245,7 +246,9 @@
   , "create_link_success": "Lien `{0}` créé."
   , "rolelink_link_undefined": "Le lien `{0}` n'existe pas."
   , "rolelink_parent_undefined": "Pour le lien `{0}` aucun rôle parent défini."
+  , "rolelink_parent_children": "Le rôle enfant doit être différent du rôle parent."
   , "rolelink_children_already": "Le rôle `{0}` existe déjà."
   , "rolelink_no_link": "Aucun lien défini."
   , "rolelink_display_link": "Affichage des liens."
+  , "rolelink_no_role": "Aucun rôle défini."
 }

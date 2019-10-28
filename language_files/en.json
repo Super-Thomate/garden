@@ -181,6 +181,7 @@
   "permission_denied": "Permission denied.",
   "date_format_error": "Date format error.",
   "unknow_cog": "Cog **{0}** unknown",
+  "parameter_be_numeric": "Parameter {0} must be numeric.",
   "RULES": "--------------------------------------------------------------------------------------------------",
   "need_only_one_reaction": "The message must contain only one reaction that will act as trigger for the rule",
   "no_custom_emoji": "The emoji must not be a custom one",
@@ -239,7 +240,9 @@
   , "create_link_success": "Link `{0}` created."
   , "rolelink_link_undefined": "Link `{0}` does not exist."
   , "rolelink_parent_undefined": "For link `{0}` no parent role defined."
+  , "rolelink_parent_children": "Child role must be different from ."
   , "rolelink_children_already": "Role `{0}` already exists."
   , "rolelink_no_link": "No link defined."
   , "rolelink_display_link": "Display links."
+  , "rolelink_no_role": "No role defined ."
 }
