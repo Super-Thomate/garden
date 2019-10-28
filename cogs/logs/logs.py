@@ -165,7 +165,8 @@ class Logs(commands.Cog):
     await ctx.message.delete ()
     until_message            = None
     message_id_pattern       = re.compile("\d{16,}")
-    if (     length_or_id != "id"
+    if (     not length_or_id is None 
+         and length_or_id != "id"
          and length_or_id.isnumeric()
          and message_id_pattern.match(length_or_id)
        ):
