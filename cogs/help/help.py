@@ -62,8 +62,8 @@ class Help(commands.Cog):
     colour = discord.Colour(0)
     colour = colour.from_rgb(176, 255, 176)
     embed = discord.Embed(colour=colour, title=Utils.get_text(guild_id, 'help_nickname_title'))
-    embed.add_field (name=Utils.get_text(guild_id, 'help_nickname_user_command'), inline=False)
-    embed.add_field (name=Utils.get_text(guild_id, 'help_nickname_admin_command'), inline=False)
+    embed.add_field (name=Utils.get_text(guild_id, 'help_user_command', value=Utils.get_text(guild_id, 'help_nickname_user_command'), inline=False)
+    embed.add_field (name=Utils.get_text(guild_id, 'help_admin_command', value=Utils.get_text(guild_id, 'help_nickname_admin_command'), inline=False)
     embed.set_author(icon_url=infos.avatar_url, name=str(infos))
     embed.timestamp = datetime.today()
     return embed
