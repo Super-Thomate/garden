@@ -245,4 +245,5 @@
   , "rolelink_no_link": "No link defined."
   , "rolelink_display_link": "Display links."
   , "rolelink_no_role": "No role defined ."
+  , "rolelink_link": "Link **{0}**; Parent Role __{1}__"
 }

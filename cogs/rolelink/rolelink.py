@@ -85,12 +85,12 @@ class RoleLink(commands.Cog):
       print (f"{type(e).__name__} - {e}")
       await ctx.message.add_reaction('❌')
       await ctx.send (Utils.get_text(ctx.guild.id, "rolelink_error").format(type(e).__name__))
-      
+
   @commands.command(name='addrolelink', aliases=['addrole', 'addrolelinkrole'])
   @Utils.require(required=['authorized', 'not_banned', 'cog_loaded'])
   async def add_rolelink_role(self, ctx, link_id: str, role_child: discord.Role):
     """
-    Set rolelink parent role
+    Add rolelink child role
     @params str link_id
     @params discord.Role role_child
     """
@@ -102,7 +102,7 @@ class RoleLink(commands.Cog):
       return
     if not role_child:
       # error
-      await ctx.send(Utils.get_text(ctx.guild.id, "parameter_is_mandatory").format('<role_parent>'))
+      await ctx.send(Utils.get_text(ctx.guild.id, "parameter_is_mandatory").format('<role_child>'))
       await ctx.message.add_reaction('❌')
       return
     select                   = "select role_id from rolelink_link where link_id=? and guild_id=? ;"
@@ -136,6 +136,41 @@ class RoleLink(commands.Cog):
     insert_roles             = "insert into rolelink_role (`link_id`, `role_linked`, `guild_id`) values (?, ?, ?) ;"
     try:
       database.execute_order (insert_roles, [link_id, role_child.id, guild_id])
+      await ctx.message.add_reaction('✅')
+    except Exception as e:
+      print (f"{type(e).__name__} - {e}")
+      await ctx.message.add_reaction('❌')
+      await ctx.send (Utils.get_text(ctx.guild.id, "rolelink_error").format(type(e).__name__))
+
+  @commands.command(name='deleterolelink', aliases=['deleterole', 'delrole'])
+  @Utils.require(required=['authorized', 'not_banned', 'cog_loaded'])
+  async def del_rolelink_role(self, ctx, link_id: str, role_child: discord.Role):
+    """
+    Delete rolelink child role
+    @params str link_id
+    @params discord.Role role_child
+    """
+    guild_id                 = ctx.guild.id
+    if not link_id:
+      # error
+      await ctx.send(Utils.get_text(ctx.guild.id, "parameter_is_mandatory").format('<link_id>'))
+      await ctx.message.add_reaction('❌')
+      return
+    if not role_child:
+      # error
+      await ctx.send(Utils.get_text(ctx.guild.id, "parameter_is_mandatory").format('<role_child>'))
+      await ctx.message.add_reaction('❌')
+      return
+    select                   = "select role_id from rolelink_link where link_id=? and guild_id=? ;"
+    fetched                  = database.fetch_one_line (select, [link_id, guild_id])
+    if not fetched:
+      # error
+      await ctx.send(Utils.get_text(ctx.guild.id, "rolelink_link_undefined").format(link_id))
+      await ctx.message.add_reaction('❌')
+      return
+    delete                   = "delete  from rolelink_role where link_id=? and guild_id=? and role_linked= ? ;"
+    try:
+      database.execute_order (delete, [link_id, guild_id, role_child.id])
       await ctx.message.add_reaction('✅')
     except Exception as e:
       print (f"{type(e).__name__} - {e}")
@@ -195,7 +230,7 @@ class RoleLink(commands.Cog):
           if (len (embed.fields) >= number_of_field_max):
             all_embeds.append(embed)
             embed            = self.create_embed (Utils.get_text(guild_id, "rolelink_display_link"))
-          field_title        = "**"+link_id+"** "+str(ctx.guild.get_role(role_id)) or Utils.get_text(guild_id, "rolelink_no_role")
+          field_title        = Utils.get_text(guild_id, "rolelink_link").format (link_id, str(ctx.guild.get_role(role_id)) or Utils.get_text(guild_id, "rolelink_no_role"))
           field_value        = ""
           for line_role in fetched_role:
             item             = str (ctx.guild.get_role(line_role[0]))+"\n"
@@ -210,6 +245,7 @@ class RoleLink(commands.Cog):
       for one_embed in all_embeds:
         await ctx.send (embed=one_embed)
     elif by_type == "role":
+      print ("parameter: {}".format(parameter)) ;
       if not parameter:
         await ctx.send(Utils.get_text(guild_id, "parameter_is_mandatory").format('<role>'))
         await ctx.message.add_reaction('❌')
@@ -237,23 +273,22 @@ class RoleLink(commands.Cog):
     if not Utils.is_loaded ("rolelink", guild_id):
       return
     # all roles to listen
-    select = f"select role_linked from rolelink_role where guild_id='{guild_id}'"
+    select = f"select role_id from rolelink_link where guild_id='{guild_id}'"
     fetched = database.fetch_all_line (select)
     for line in fetched:
-      role_id = line [0]
+      role_id = int (line [0])
       if (     not Utils.has_role (before, role_id)
            and Utils.has_role (after, role_id)
          ):
         # The member obtained the role
-        print ('The member obtained the role')
-        select = f"select message from rolelink_message where guild_id='{guild_id}'and role_id='{role_id}' ;"
-        fetched = database.fetch_one_line (select)
-        if fetched:
-          message = (fetched [0]).replace("$member", before.mention).replace("$role", f"<@&{role_id}>")
-        else:
-          message = Utils.get_text(guild_id, 'welcome_user_welcome_message_not_found').format(before.mention)
         # send
-        await before.send (message)
+        await before.send ("The member obtained the role")
+      elif (     Utils.has_role (before, role_id)
+             and not Utils.has_role (after, role_id)
+           ):
+        # The member lost the role
+        # send
+        await before.send ("The member lost the role")
 
 
   def create_embed(self, title, description=""):

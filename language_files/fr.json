@@ -251,4 +251,5 @@
   , "rolelink_no_link": "Aucun lien défini."
   , "rolelink_display_link": "Affichage des liens."
   , "rolelink_no_role": "Aucun rôle défini."
+  , "rolelink_link": "Lien **{0}** ; Rôle Parent __{1}__"
 }
