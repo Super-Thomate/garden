@@ -164,7 +164,7 @@ class Nickname(commands.Cog):
       await ctx.send (f"{type(e).__name__} -{e}")
     else:
       if not old_delay:
-        sql                  = "insert into config_delay (`delay`,`type_delay`,`guild`) values (?,?,?) ;"
+        sql                  = "insert into config_delay (`delay`,`type_delay`,`guild_id`) values (?,?,?) ;"
       else:
         sql                  = "update config_delay set delay=? where type_delay=? and guild_id=? ;"
       try:
