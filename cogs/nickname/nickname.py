@@ -146,7 +146,58 @@ class Nickname(commands.Cog):
       await ctx.send(Utils.get_text(ctx.guild.id, "user_can_change_nickname"))
     await self.logger.log('nickname_log', member, ctx.message, error)
     
-    
+   
+  @commands.command(name='setnickcd', aliases=['ncd'])
+  @Utils.require(required=['authorized', 'not_banned', 'cog_loaded'])
+  async def set_nickname_cd (self, ctx):
+    author                   = ctx.author
+    guild_id                 = ctx.guild.id
+    error                    = False
+    ask                      = await ctx.send (Utils.get_text (guild_id, "set_nickname_cd"))
+    check                    = lambda m: m.channel == ctx.channel and m.author == ctx.author
+    msg                      = await self.bot.wait_for('message', check=check)
+    old_delay                = Utils.nickname_delay (guild_id)
+    try:
+      delay                  = Utils.parse_time (msg.content)
+    except Exception as e:
+      error = True
+      await ctx.send (f"{type(e).__name__} -{e}")
+    else:
+      if not old_delay:
+        sql                  = "insert into config_delay (`delay`,`type_delay`,`guild`) values (?,?,?) ;"
+      else:
+        sql                  = "update config_delay set delay=? where type_delay=? and guild_id=? ;"
+      try:
+        database.execute_order(sql, [delay, 'nickname', guild_id])
+      except Exception as e:
+        error = True
+        await ctx.send (f"{type(e).__name__} -{e}")
+    # type delay = nickname
+    if not error:
+      await ctx.message.add_reaction ('✅')
+      await msg.add_reaction ('✅')
+    else:
+      await ctx.message.add_reaction ('❌')
+      await msg.add_reaction ('❌')
+    await ctx.message.delete (delay=1.5)
+    await ask.delete (delay=1.5)
+    await msg.delete (delay=1.5)
+    await self.logger.log('nickname_log', author, ctx.message, error)
+    await self.logger.log('nickname_log', author, msg, error)
+  
+  @commands.command(name='getnickcd')
+  @Utils.require(required=['authorized', 'not_banned', 'cog_loaded'])
+  async def get_nickname_cd (self, ctx):
+    author                   = ctx.author
+    guild_id                 = ctx.guild.id
+    error                    = False
+    nickname_delay           = Utils.nickname_delay (guild_id)
+    await ctx.send (Utils.get_text (guild_id, "get_nickname_cd").format(Utils.format_time(nickname_delay)))
+    # type delay = nickname
+    await self.logger.log('nickname_log', author, ctx.message, error) 
+  
+  
+  
   @commands.Cog.listener()
   async def on_member_join(self, member):
     select = f"select nickname from nickname_current where guild_id='{member.guild.id}' and member_id='{member.id}' ;"

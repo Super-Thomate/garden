@@ -177,6 +177,7 @@ def parse_time(timestr):
         raise Exception (f"Unknown element: {elem}")
         return -1
       to_ret = to_ret + number * units [elem]
+      number = 0
     else:
       number = number*10 + cast
   return to_ret
