@@ -168,7 +168,7 @@ class RoleLink(commands.Cog):
       await ctx.send(Utils.get_text(ctx.guild.id, "rolelink_link_undefined").format(link_id))
       await ctx.message.add_reaction('❌')
       return
-    delete                   = "delete  from rolelink_role where link_id=? and guild_id=? and role_linked= ? ;"
+    delete                   = "delete from rolelink_role where link_id=? and guild_id=? and role_linked= ? ;"
     try:
       database.execute_order (delete, [link_id, guild_id, role_child.id])
       await ctx.message.add_reaction('✅')
@@ -213,7 +213,7 @@ class RoleLink(commands.Cog):
       await ctx.message.add_reaction('❌')
       return
     number_of_field_max      = 25
-    number_of_char_max       = 1024
+    number_of_char_max       = 1000 # <1024
     all_embeds               = []
     if by_type == "all":
       select                 = "select link_id, role_id from rolelink_link where guild_id=? ;"
@@ -247,19 +247,43 @@ class RoleLink(commands.Cog):
     elif by_type == "role":
       print ("parameter: {}".format(parameter)) ;
       if not parameter:
-        await ctx.send(Utils.get_text(guild_id, "parameter_is_mandatory").format('<role>'))
+        await ctx.send(Utils.get_text(guild_id, "parameter_is_mandatory").format('<role_id>'))
         await ctx.message.add_reaction('❌')
         return
       if not parameter.isnumeric():
-        await ctx.send(Utils.get_text(guild_id, "parameter_be_numeric").format('<role>'))
+        await ctx.send(Utils.get_text(guild_id, "parameter_be_numeric").format('<role_id>'))
         await ctx.message.add_reaction('❌')
         return
+      embed                = self.create_embed (Utils.get_text(guild_id, "rolelink_display_link"))
       select_parent          = "select link_id from rolelink_link where role_id=? and guild_id=? ;" 
       fetched_parent         = database.fetch_all_line(select_parent, [parameter, guild_id])
-      if not fetched_parent:
-        await ctx.send(Utils.get_text(guild_id, "rolelink_no_link_for_role").format(parameter))
-      else:
-         x = 1
+      select_child           = "select link_id from rolelink_role where role_linked=? and guild_id=? ;" 
+      fetched_child          = database.fetch_all_line(select_parent, [parameter, guild_id])
+      if fetched_parent:
+        for line in fetched_parent:
+          link_id            = line [0]
+          role_id            = parameter
+          select_role        = "select role_linked from rolelink_role where link_id=? and guild_id=? ;"
+          fetched_role       = database.fetch_all_line (select_role, [link_id, guild_id])
+          if (len (embed.fields) >= number_of_field_max):
+            all_embeds.append(embed)
+            embed            = self.create_embed (Utils.get_text(guild_id, "rolelink_display_link"))
+          field_title        = Utils.get_text(guild_id, "rolelink_link").format (link_id, str(ctx.guild.get_role(role_id)) or Utils.get_text(guild_id, "rolelink_no_role"))
+          field_value        = ""
+          for line_role in fetched_role:
+            item             = str (ctx.guild.get_role(line_role[0]))+"\n"
+            if len(field_value)+len(item) > number_of_char_max:
+              field_value   += "[...]\n"
+            else:
+              field_value   += item
+          if len(field_value) == 0:
+            field_value      = Utils.get_text(guild_id, "rolelink_no_role")
+          embed.add_field(name=field_title, value=field_value, inline=False)
+      all_embeds.append(embed)
+      for one_embed in all_embeds:
+        await ctx.send (embed=one_embed)
+         
+         
     elif by_type == "link":
       if not parameter:
         await ctx.send(Utils.get_text(guild_id, "parameter_is_mandatory").format('<link_id>'))
