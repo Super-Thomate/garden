@@ -70,21 +70,6 @@ class Loader(commands.Cog):
       await ctx.send (all_loaded)
     except Exception as e:
       print(f'{type(e).__name__} - {e}')
-
-  @commands.command(name='patch', hidden=True)
-  @Utils.require(required=['authorized', 'not_banned'])
-  async def get_patch(self, ctx):
-    """
-    Command which give the current patch
-    """
-    # `cd ${__dirname}; git branch | grep \\* | awk '{ print $2 }';`
-    dir_path = os.path.dirname(os.path.realpath(__file__))+'/'
-    cmd = "cd "+dir_path+"; git branch | grep \\* | awk '{ print $2 }';"
-    current_patch = os.popen(cmd).read()
-    try:
-      await ctx.send (current_patch)
-    except Exception as e:
-      print(f'{type(e).__name__} - {e}')
   
 
   @commands.command(name='load', hidden=True)

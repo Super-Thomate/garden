@@ -3,6 +3,7 @@
     "languages": ["fr", "en"],
     "token": "BotToken",
     "activity": "gardening",
+    "dev_guild": "guild_id",
     "guild_id": {
       "default_language": "fr",
       "roles": [

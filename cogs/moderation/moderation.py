@@ -37,3 +37,24 @@ class Moderation(commands.Cog):
       await after.remove_reaction ("<:CapsLock:621629196359303168>", self.bot.user)
     return
 
+
+  @commands.command(name='setpatch')
+  @Utils.require(required=['authorized', 'not_banned', 'cog_loaded', 'dev_only'])
+  async def set_patch(self, ctx, member: discord.Member = None):
+    member                   = member or ctx.author
+    guild_id                 = ctx.guild.id
+
+  @commands.command(name='patch', hidden=True)
+  @Utils.require(required=['authorized', 'not_banned'])
+  async def get_patch(self, ctx):
+    """
+    Command which give the current patch
+    """
+    # `cd ${__dirname}; git branch | grep \\* | awk '{ print $2 }';`
+    dir_path = os.path.dirname(os.path.realpath(__file__))+'/'
+    cmd = "cd "+dir_path+"; git branch | grep \\* | awk '{ print $2 }';"
+    current_patch = os.popen(cmd).read()
+    try:
+      await ctx.send (current_patch)
+    except Exception as e:
+      print(f'{type(e).__name__} - {e}')

@@ -38,6 +38,10 @@ def require(required: list):
             await ctx.send (get_text(ctx.guild.id, "not_loaded").format(ctx.command, ctx.cog.qualified_name.lower()))
             await ctx.message.add_reaction('❌')
           return False
+      if 'dev_only' in required:
+        guild_id             = ctx.guild.id
+        dev_guild            = botconfig.config ['dev_guild']
+        return guild_id == dev_guild
       return await f(*args, **kwargs)
     return decorated
   return decorator
