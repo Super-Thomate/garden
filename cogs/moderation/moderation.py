@@ -52,7 +52,7 @@ class Moderation(commands.Cog):
     """
     dir_path = os.path.dirname(os.path.realpath(__file__))+'/../../'
     try:
-        cmd                  = "cd {0}; git pull; git checkout {1}; {0}useful_scripts/restart_bot.sh {2} ;".format (dir_path, patch, Utils.get_instance())
+        cmd                  = "cd {0}; git pull; git checkout {1};".format (dir_path, patch, Utils.get_instance())
         print (cmd)
         output = subprocess.check_output(
             cmd
