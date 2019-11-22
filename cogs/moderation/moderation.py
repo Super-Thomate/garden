@@ -43,6 +43,7 @@ class Moderation(commands.Cog):
   async def set_patch(self, ctx, member: discord.Member = None):
     member                   = member or ctx.author
     guild_id                 = ctx.guild.id
+    await ctx.send ("Dev only")
 
   @commands.command(name='patch', hidden=True)
   @Utils.require(required=['authorized', 'not_banned'])

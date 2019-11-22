@@ -39,9 +39,7 @@ def require(required: list):
             await ctx.message.add_reaction('❌')
           return False
       if 'dev_only' in required:
-        guild_id             = ctx.guild.id
-        dev_guild            = botconfig.config ['dev_guild']
-        return guild_id == dev_guild
+        return ctx.guild.id == botconfig.config ['dev_guild']
       return await f(*args, **kwargs)
     return decorated
   return decorator
