@@ -50,12 +50,14 @@ class Moderation(commands.Cog):
       await ctx.send (Utils.get_text (guild_id, "parameter_is_mandatory").format ("<patch>"))
       return
     """
-    dir_path = os.path.dirname(os.path.realpath(__file__))+'/'
+    dir_path = os.path.dirname(os.path.realpath(__file__))+'/../../'
     try:
+        cmd                  = "cd {0}; git pull; git checkout {1}; {0}useful_scripts/restart_bot.sh {2} ;".format (dir_path, patch, Utils.get_instance())
+        print (cmd)
         output = subprocess.check_output(
-            "cd {0}; git pull; git checkout {1};".format (dir_path, patch),
-            shell=True,
-            stderr=subprocess.STDOUT,
+            cmd
+            , shell=True
+            , stderr=subprocess.STDOUT
         )
     except subprocess.CalledProcessError as e:
       print (f'{type(e).__name__} - {e}')

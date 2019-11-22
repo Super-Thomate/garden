@@ -4,6 +4,7 @@ from .Utils import delete_messages
 from .Utils import do_invite
 from .Utils import do_token
 from .Utils import format_time
+from .Utils import get_instance
 from .Utils import get_roles_modo
 from .Utils import get_text
 from .Utils import has_role

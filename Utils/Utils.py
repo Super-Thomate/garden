@@ -422,3 +422,6 @@ def is_custom_emoji(emoji_text: str):
   if len(split) == 3:
     return split[2][:-1]  # remove '>' at the end
   return None
+
+def get_instance():
+  return sys.argv[1]
