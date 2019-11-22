@@ -1,6 +1,8 @@
 import discord
 from discord.ext import commands
 import Utils
+import os
+import subprocess
 from ..logs import Logs
 
 class Moderation(commands.Cog):
@@ -40,10 +42,29 @@ class Moderation(commands.Cog):
 
   @commands.command(name='setpatch')
   @Utils.require(required=['authorized', 'not_banned', 'cog_loaded', 'dev_only'])
-  async def set_patch(self, ctx, member: discord.Member = None):
-    member                   = member or ctx.author
+  async def set_patch(self, ctx, patch: str = None):
+    author                   = ctx.author
     guild_id                 = ctx.guild.id
-    await ctx.send ("Dev only")
+    """
+    if not patch:
+      await ctx.send (Utils.get_text (guild_id, "parameter_is_mandatory").format ("<patch>"))
+      return
+    """
+    dir_path = os.path.dirname(os.path.realpath(__file__))+'/'
+    try:
+        output = subprocess.check_output(
+            "cd {0}; git pull; git checkout {1};".format (dir_path, patch),
+            shell=True,
+            stderr=subprocess.STDOUT,
+        )
+    except subprocess.CalledProcessError as e:
+      print (f'{type(e).__name__} - {e}')
+      await ctx.message.add_reaction('❌')
+      await ctx.send (f'{type(e).__name__} - {e}')
+    else:
+      await ctx.send (output.decode('utf-8'))
+      await ctx.message.add_reaction('✅')
+    
 
   @commands.command(name='patch', hidden=True)
   @Utils.require(required=['authorized', 'not_banned'])

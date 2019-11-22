@@ -39,14 +39,15 @@ def require(required: list):
             await ctx.message.add_reaction('❌')
           return False
       if 'dev_only' in required:
-        return ctx.guild.id == botconfig.config ['dev_guild']
+        if not ctx.guild.id == int (botconfig.config ['dev_guild']):
+          return False
       return await f(*args, **kwargs)
     return decorated
   return decorator
 
 def is_authorized (member, guild_id):
   #Test server bypasses
-  if guild_id == 494812563016777729:
+  if guild_id == int (botconfig.config ['dev_guild']):
     return True
   # admin can't be blocked
   if is_admin(member):
