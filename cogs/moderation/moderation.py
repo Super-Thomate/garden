@@ -45,17 +45,15 @@ class Moderation(commands.Cog):
   async def set_patch(self, ctx, patch: str = None):
     author                   = ctx.author
     guild_id                 = ctx.guild.id
-    """
     if not patch:
       await ctx.send (Utils.get_text (guild_id, "parameter_is_mandatory").format ("<patch>"))
       return
-    """
     dir_path = os.path.dirname(os.path.realpath(__file__))+'/../../'
     try:
-        cmd                  = "cd {0}; git pull; git checkout {1};".format (dir_path, patch, Utils.get_instance())
+        cmd                  = "cd {0}; git pull; git checkout {1}; ".format (dir_path, patch)
         print (cmd)
         output = subprocess.check_output(
-            cmd
+              cmd
             , shell=True
             , stderr=subprocess.STDOUT
         )
