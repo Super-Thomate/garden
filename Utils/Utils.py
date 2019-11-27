@@ -381,7 +381,8 @@ async def delete_messages(*args):
     await msg.delete(delay=2)
     
 def is_loaded (cog, guild_id):
-  print (f"check is_loaded {cog} in {guild_id}")
+  if cog == "welcome":
+    print (f"check is_loaded {cog} in {guild_id}")
   try:
     guild_id                 = int (guild_id)
     select                   = (   "select   status "
