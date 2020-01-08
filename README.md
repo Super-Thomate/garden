@@ -28,7 +28,11 @@ pip3 install beautifulsoup4
 ```
 Install DateUtil :
 ```
-pip install python-dateutil
+pip3 install python-dateutil
+```
+Install tldextract :
+```
+pip3 install tldextract
 ```
 
 # Launch Garden
