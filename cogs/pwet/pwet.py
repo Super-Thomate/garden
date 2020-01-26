@@ -43,7 +43,7 @@ class Pwet(commands.Cog):
     try:
       await ctx.message.delete()
     except Exception as e:
-      print(f"{type(e).__name__} - {e} \nHey ! Somebody already delete the message !! {}")
+      print(f"{type(e).__name__} - {e} \nHey ! Somebody already delete the message !!")
     await ctx.send(self.create_pwet(msg))
 
   @commands.command(name="addpwetreaction", aliases=['apr'])
