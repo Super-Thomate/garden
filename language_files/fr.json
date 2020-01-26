@@ -152,7 +152,13 @@
   "PWET": "--------------------------------------------------------------------------------------------------",
   "pwet_message_too_long": "Désolé, le message est trop long pour être pweté",
   "pwet_help_title": "**PWET COG HELP**",
+<<<<<<< HEAD
   "pwet_help_user_command": "- `{0}pwet [<message>]` - re-écrit <message> en remplaçant les mots par `pwet`",
+=======
+  "pwet_help_user_command": "- `{0}pwet [<message>]` - re-écrit <message> en remplaçant les mots par `pwet`\n - `{0}apr [<emoji>]` - Détermine un emoji qui servira à pwetter un message si ce dernier est react par l'emoji\n`{0}rpr` - Supprimme l'emoji de pwettage",
+  "pwet_reaction_deleted": "L'emoji de pwet a été retiré de ce serveur",
+  "pwet_reaction_added": "L'emoji de pwet a été ajouté de ce serveur",
+>>>>>>> patch/V1/56
   "ROLEDM": "--------------------------------------------------------------------------------------------------",
   "roleDM_help_admin_command": "- `!setroledm (sr) <role>` - définit un rôle à écouter par le bot.\n- `!unsetroledm (ur) <role>` - retire le rôle de la liste à écouter.\n- `!setroledmmessage (srm) <role>` - définit le message à envoyer à la prise du rôle.\n- `!displayroledmmessage (drm) <role>` - affiche le message courant du rôle s'il existe.\n- `!help roledm` - montre ce message",
   "roleDM_help_description": "Gère l'envoi d'un message privé à la prise d'un rôle",
