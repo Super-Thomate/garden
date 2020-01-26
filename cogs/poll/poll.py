@@ -7,7 +7,7 @@ import Utils
 class Poll(commands.Cog):
   def __init__(self, bot):
     self.bot = bot
-  
+
   @commands.command(name='poll', aliases=['ask'])
   @commands.guild_only()
   @Utils.require(required=['authorized', 'not_banned'])
@@ -15,7 +15,7 @@ class Poll(commands.Cog):
     """ Create a poll
     """
     author = ctx.author
-    print (args)
+    print(args)
     # 1 Extract question and answers
     next_is = "nothing"
     question = ""
@@ -28,26 +28,26 @@ class Poll(commands.Cog):
         next_is = "question"
       elif arg.startswith("$"):
         # answer or emoji incoming
-        print (f"arg: {arg} => current: {next_is}")
+        print(f"arg: {arg} => current: {next_is}")
         if not next_is == "answer":
           current_anwser += 1
-          answers.append (arg[1:])
+          answers.append(arg[1:])
           next_is = "answer"
         else:
           # emoji
           arg = arg[1:]
           next_is = "emoji"
-      print (f"arg: {arg} => todo: {next_is}")
+      print(f"arg: {arg} => todo: {next_is}")
       # Now that i know what todo
       if next_is == "question":
         if not arg == "$q":
-          question += arg+" "
+          question += arg + " "
       elif next_is == "answer":
         if not arg.startswith("$"):
-          answers [current_anwser] += " "+arg
+          answers[current_anwser] += " " + arg
       elif next_is == "emoji":
-        emojis.append (arg)
-        answers [current_anwser] = f"\n- {arg} {answers [current_anwser] }"
+        emojis.append(arg)
+        answers[current_anwser] = f"\n- {arg} {answers[current_anwser]}"
         next_is = "nothing"
 
     if len(question) == 0:

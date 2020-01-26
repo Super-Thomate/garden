@@ -1,11 +1,13 @@
-import discord
 import random
-from discord.ext import commands
-from ..logs import Logs
-import Utils
 import re
-import database
+
+import discord
 import tldextract
+from discord.ext import commands
+
+import Utils
+import database
+from ..logs import Logs
 
 
 class Source(commands.Cog):
@@ -21,7 +23,7 @@ class Source(commands.Cog):
     try:
       database.execute_order(sql, [])
     except Exception as e:
-      await ctx.send(Utils.get_text(ctx.guild.id, 'database_writing_error'))
+      await ctx.send(Utils.get_text(ctx.guild.id, 'error_database_writing'))
       print(f"{type(e).__name__} - {e}")
     await ctx.send(Utils.get_text(ctx.guild.id, 'source_channel_added').format(f'<#{channel_id}>'))
 
@@ -33,14 +35,14 @@ class Source(commands.Cog):
     try:
       database.execute_order(sql, [])
     except Exception as e:
-      await ctx.send(Utils.get_text(ctx.guild.id, 'database_writing_error'))
+      await ctx.send(Utils.get_text(ctx.guild.id, 'error_database_writing'))
       print(f"{type(e).__name__} - {e}")
     await ctx.send(Utils.get_text(ctx.guild.id, 'source_channel_removed').format(f'<#{channel_id}>'))
 
   @commands.command(name='setsourcemessage', aliases=['ssm'])
   @Utils.require(required=['authorized', 'not_banned', 'cog_loaded'])
   async def set_source_message(self, ctx):
-    await ctx.send(Utils.get_text(ctx.guild.id, "ask_new_message"))
+    await ctx.send(Utils.get_text(ctx.guild.id, "ask_message"))
     msg = await self.bot.wait_for('message', check=lambda m: m.channel == ctx.channel and m.author == ctx.author)
     message = msg.content
     sql = f"SELECT message FROM source_message WHERE guild_id='{ctx.guild.id}';"
@@ -75,14 +77,14 @@ class Source(commands.Cog):
   @Utils.require(required=['authorized', 'not_banned', 'cog_loaded'])
   async def blacklist_domain(self, ctx: commands.Context, domain: str = None):
     if not domain:
-      await ctx.send(Utils.get_text(ctx.guild.id, "parameter_is_mandatory").format("domain"))
+      await ctx.send(Utils.get_text(ctx.guild.id, "error_no_parameter").format("domain"))
       return
     if "." in domain:
-      await ctx.send(Utils.get_text(ctx.guild.id, "wrong_domain_format"))
+      await ctx.send(Utils.get_text(ctx.guild.id, "source_wrong_format"))
       return
     sql = f"SELECT domain FROM source_domain WHERE guild_id='{ctx.guild.id}' ;"
     if domain in [domain[0] for domain in database.fetch_all_line(sql)]:
-      await ctx.send(Utils.get_text(ctx.guild.id, "domain_already_blacklisted").format(domain))
+      await ctx.send(Utils.get_text(ctx.guild.id, "source_domain_already_blacklisted").format(domain))
       await ctx.message.add_reaction('❌')
       return
     sql = f"INSERT INTO source_domain VALUES ('{domain}', '{ctx.guild.id}') ;"
@@ -93,17 +95,17 @@ class Source(commands.Cog):
       print(f"{type(e).__name__} - {e}")
       await ctx.message.add_reaction('❌')
       return
-    await ctx.send(Utils.get_text(ctx.guild.id, "domain_blacklisted").format(domain))
+    await ctx.send(Utils.get_text(ctx.guild.id, "source_domain_blacklisted").format(domain))
 
   @commands.command(name='removedomain', aliases=['rmd'])
   @Utils.require(required=['authorized', 'not_banned', 'cog_loaded'])
   async def remove_domain(self, ctx: commands.Context, domain: str = None):
     if not domain:
-      await ctx.send(Utils.get_text(ctx.guild.id, "parameter_is_mandatory").format("domain"))
+      await ctx.send(Utils.get_text(ctx.guild.id, "error_no_parameter").format("domain"))
       return
     sql = f"SELECT domain FROM source_domain WHERE guild_id='{ctx.guild.id}' ;"
     if domain not in [domain[0] for domain in database.fetch_all_line(sql)]:
-      await ctx.send(Utils.get_text(ctx.guild.id, "no_domain_found").format(domain))
+      await ctx.send(Utils.get_text(ctx.guild.id, "source_domain_not_found").format(domain))
       await ctx.message.add_reaction('❌')
       return
     sql = f"DELETE FROM source_domain WHERE domain='{domain}' and guild_id='{ctx.guild.id}' ;"
@@ -114,8 +116,7 @@ class Source(commands.Cog):
       print(f"{type(e).__name__} - {e}")
       await ctx.message.add_reaction('❌')
       return
-    await ctx.send(Utils.get_text(ctx.guild.id, "domain_removed").format(domain))
-
+    await ctx.send(Utils.get_text(ctx.guild.id, "source_domain_removed").format(domain))
 
   @commands.command(name='listdomains', aliases=['lsd'])
   @Utils.require(required=['authorized', 'not_banned', 'cog_loaded'])
@@ -124,7 +125,7 @@ class Source(commands.Cog):
     sql = f"SELECT domain FROM source_domain WHERE guild_id='{ctx.guild.id}'"
     domains = [domain[0] for domain in database.fetch_all_line(sql)]  # get the list of the domain
     if len(domains) == 0:
-      await ctx.send(Utils.get_text(ctx.guild.id, "domain_list_empty"))
+      await ctx.send(Utils.get_text(ctx.guild.id, "source_no_blacklist"))
     for domain in domains:
       message += f"- **{domain}**\n"
     await ctx.send(message)
@@ -158,7 +159,8 @@ class Source(commands.Cog):
     url = url.group("url") if url else None
     if "source" in message.content.lower():
       return
-    if len(message.attachments) == 0 and (not url or not (self.is_url_in_blacklist(url, message.guild.id or Utils.is_url_image(url)))):
+    if len(message.attachments) == 0 and (
+            not url or not (self.is_url_in_blacklist(url, message.guild.id or Utils.is_url_image(url)))):
       return
     sql = f"SELECT channel_id FROM source_channel WHERE guild_id='{message.guild.id}' ;"
     if not str(message.channel.id) in [channel[0] for channel in database.fetch_all_line(sql)]:

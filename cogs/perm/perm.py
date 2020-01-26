@@ -5,10 +5,10 @@ from discord.ext import commands
 class Permissions(commands.Cog):
   def __init__(self, bot):
     self.bot = bot
-  
+
   @commands.command(name='perms', aliases=['perms_for', 'permissions'])
   @commands.guild_only()
-  async def check_permissions(self, ctx, *, member: discord.Member=None):
+  async def check_permissions(self, ctx, *, member: discord.Member = None):
     """ Checks a members Guild Permissions
     """
     member = member or ctx.author

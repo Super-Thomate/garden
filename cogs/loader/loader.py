@@ -1,4 +1,3 @@
-
 import os
 
 from discord.ext import commands
@@ -9,7 +8,7 @@ import database
 
 class Loader(commands.Cog):
   def __init__(self, bot):
-      self.bot = bot
+    self.bot = bot
 
   # Hidden means it won't show up on the default help.
   @commands.command(name='cogload', hidden=True)
@@ -18,11 +17,11 @@ class Loader(commands.Cog):
     """
     Load a cog for Garden
     """
-    cog                      = cog.lower()
+    cog = cog.lower()
     try:
       self.bot.load_extension(f'cogs.{cog}')
     except Exception as e:
-      await ctx.send(Utils.get_text(ctx.guild.id, "exception_error").format(type(e).__name__, e))
+      await ctx.send(Utils.get_text(ctx.guild.id, "error_exception_occured").format(type(e).__name__, e))
     else:
       await ctx.send(Utils.get_text(ctx.guild.id, 'success'))
 
@@ -32,11 +31,11 @@ class Loader(commands.Cog):
     """
     Unload a cog for Garden
     """
-    cog                      = cog.lower()
+    cog = cog.lower()
     try:
       self.bot.unload_extension(f'cogs.{cog}')
     except Exception as e:
-      await ctx.send(Utils.get_text(ctx.guild.id, "exception_error").format(type(e).__name__, e))
+      await ctx.send(Utils.get_text(ctx.guild.id, "error_exception_occured").format(type(e).__name__, e))
     else:
       await ctx.send(Utils.get_text(ctx.guild.id, 'success'))
 
@@ -46,12 +45,12 @@ class Loader(commands.Cog):
     """
     Reload a cog for Garden
     """
-    cog                      = cog.lower()
+    cog = cog.lower()
     try:
       self.bot.unload_extension(f'cogs.{cog}')
       self.bot.load_extension(f'cogs.{cog}')
     except Exception as e:
-      await ctx.send(Utils.get_text(ctx.guild.id, "exception_error").format(type(e).__name__, e))
+      await ctx.send(Utils.get_text(ctx.guild.id, "error_exception_occured").format(type(e).__name__, e))
     else:
       await ctx.send(Utils.get_text(ctx.guild.id, 'success'))
 
@@ -64,10 +63,10 @@ class Loader(commands.Cog):
     all_loaded = ""
     for name in self.bot.cogs.keys():
       all_loaded += f"- **{name}**\n"
-    if not len (all_loaded):
+    if not len(all_loaded):
       all_loaded = "**NONE**"
     try:
-      await ctx.send (all_loaded)
+      await ctx.send(all_loaded)
     except Exception as e:
       print(f'{type(e).__name__} - {e}')
 
@@ -78,14 +77,13 @@ class Loader(commands.Cog):
     Command which give the current patch
     """
     # `cd ${__dirname}; git branch | grep \\* | awk '{ print $2 }';`
-    dir_path = os.path.dirname(os.path.realpath(__file__))+'/'
-    cmd = "cd "+dir_path+"; git branch | grep \\* | awk '{ print $2 }';"
+    dir_path = os.path.dirname(os.path.realpath(__file__)) + '/'
+    cmd = "cd " + dir_path + "; git branch | grep \\* | awk '{ print $2 }';"
     current_patch = os.popen(cmd).read()
     try:
-      await ctx.send (current_patch)
+      await ctx.send(current_patch)
     except Exception as e:
       print(f'{type(e).__name__} - {e}')
-  
 
   @commands.command(name='load', hidden=True)
   @Utils.require(required=['authorized', 'not_banned'])
@@ -93,36 +91,36 @@ class Loader(commands.Cog):
     """
     Load cogs for this guild
     """
-    author                   = ctx.author
-    guild_id                 = ctx.guild.id
+    author = ctx.author
+    guild_id = ctx.guild.id
     if not cog:
       await ctx.message.add_reaction('❌')
-      await ctx.send ("Paramètre <cog> obligatoire.")
+      await ctx.send("Paramètre <cog> obligatoire.")
       return
-    cog                      = cog.lower()
+    cog = cog.lower()
     try:
-      select                 = (   "select   status "
-                                   "from     config_cog "+
-                                   "where "+
-                                   "cog=? "+
-                                   " and "+
-                                   "guild_id=? ;"+
-                                   ""
-                               )
-      fetched                = database.fetch_one_line (select, [cog, guild_id])
-      sql                    = ""
+      select = ("select   status "
+                "from     config_cog " +
+                "where " +
+                "cog=? " +
+                " and " +
+                "guild_id=? ;" +
+                ""
+                )
+      fetched = database.fetch_one_line(select, [cog, guild_id])
+      sql = ""
       if fetched:
-        status               = fetched [0]
+        status = fetched[0]
         if status == 0:
-          sql                = "update config_cog set status=1 where cog=? and guild_id=? ;"
+          sql = "update config_cog set status=1 where cog=? and guild_id=? ;"
       else:
-        sql                  = "insert into config_cog (`cog`, `guild_id`, `status`) values (?,?,1) ;"
-      print (sql)
+        sql = "insert into config_cog (`cog`, `guild_id`, `status`) values (?,?,1) ;"
+      print(sql)
       if len(sql):
-        database.execute_order (sql, [cog, guild_id])
+        database.execute_order(sql, [cog, guild_id])
     except Exception as e:
       await ctx.message.add_reaction('❌')
-      print (f"{type(e).__name__} - {e}")
+      print(f"{type(e).__name__} - {e}")
     else:
       await ctx.message.add_reaction('✅')
 
@@ -132,42 +130,41 @@ class Loader(commands.Cog):
     """
     Unload cogs for this guild
     """
-    author                   = ctx.author
-    guild_id                 = ctx.guild.id
+    author = ctx.author
+    guild_id = ctx.guild.id
     if not cog:
       await ctx.message.add_reaction('❌')
-      await ctx.send ("Paramètre <cog> obligatoire.")
+      await ctx.send("Paramètre <cog> obligatoire.")
       return
-    cog                      = cog.lower()
+    cog = cog.lower()
     if cog in ["configuration", "help", "loader", "logs"]:
       await ctx.message.add_reaction('❌')
-      await ctx.send ("Vous ne pouvez pas désactiver le cog `{0}`.".format(cog))
+      await ctx.send("Vous ne pouvez pas désactiver le cog `{0}`.".format(cog))
       return
     try:
-      select                 = (   "select   status "
-                                   "from     config_cog "+
-                                   "where "+
-                                   "cog=? "+
-                                   " and "+
-                                   "guild_id=? ;"+
-                                   ""
-                               )
-      fetched                = database.fetch_one_line (select, [cog, guild_id])
-      sql                    = ""
+      select = ("select   status "
+                "from     config_cog " +
+                "where " +
+                "cog=? " +
+                " and " +
+                "guild_id=? ;" +
+                ""
+                )
+      fetched = database.fetch_one_line(select, [cog, guild_id])
+      sql = ""
       if fetched:
-        status               = fetched [0]
+        status = fetched[0]
         if status == 1:
-          sql                = "update config_cog set status=0 where cog=? and guild_id=? ;"
+          sql = "update config_cog set status=0 where cog=? and guild_id=? ;"
       else:
-        sql                  = "insert into config_cog (`cog`, `guild_id`, `status`) values (?,?,0) ;"
+        sql = "insert into config_cog (`cog`, `guild_id`, `status`) values (?,?,0) ;"
       if len(sql):
-        database.execute_order (sql, [cog, guild_id])
+        database.execute_order(sql, [cog, guild_id])
     except Exception as e:
       await ctx.message.add_reaction('❌')
-      print (f"{type(e).__name__} - {e}")
+      print(f"{type(e).__name__} - {e}")
     else:
       await ctx.message.add_reaction('✅')
-
 
   @commands.command(name='unloadall', hidden=True)
   @Utils.require(required=['authorized', 'not_banned'])
@@ -175,24 +172,24 @@ class Loader(commands.Cog):
     """
     Unload cogs for this guild
     """
-    author                   = ctx.author
-    guild_id                 = ctx.guild.id
+    author = ctx.author
+    guild_id = ctx.guild.id
     try:
-      select                 = (   "select   status "
-                                   "from     config_cog "+
-                                   "where "+
-                                   "guild_id=? ;"+
-                                   ""
-                               )
-      fetched                = database.fetch_all_line (select, [guild_id])
+      select = ("select   status "
+                "from     config_cog " +
+                "where " +
+                "guild_id=? ;" +
+                ""
+                )
+      fetched = database.fetch_all_line(select, [guild_id])
       if fetched:
         for line in fetched:
-          if line [0] == 1:
-            update           = "update config_cog set status=0 where guild_id=? ;"
-            database.execute_order (update, [guild_id])
+          if line[0] == 1:
+            update = "update config_cog set status=0 where guild_id=? ;"
+            database.execute_order(update, [guild_id])
     except Exception as e:
       await ctx.message.add_reaction('❌')
-      print (f"{type(e).__name__} - {e}")
+      print(f"{type(e).__name__} - {e}")
     else:
       await ctx.message.add_reaction('✅')
 
@@ -202,28 +199,28 @@ class Loader(commands.Cog):
     """
     Command which lists all loaded cogs for this guild
     """
-    author                   = ctx.author
-    guild_id                 = ctx.guild.id
+    author = ctx.author
+    guild_id = ctx.guild.id
     all_loaded = ""
     for name in self.bot.cogs.keys():
-      cog                    = name.lower()
+      cog = name.lower()
       try:
-        select               = (   "select   status "
-                                   "from     config_cog "+
-                                   "where "+
-                                   "cog=? "+
-                                   " and "+
-                                   "guild_id=? ;"+
-                                   ""
-                               )
-        fetched              = database.fetch_one_line (select, [cog, guild_id])
-        if (fetched and fetched[0]==1) or (cog in ["configuration", "help", "loader", "logs"]):
+        select = ("select   status "
+                  "from     config_cog " +
+                  "where " +
+                  "cog=? " +
+                  " and " +
+                  "guild_id=? ;" +
+                  ""
+                  )
+        fetched = database.fetch_one_line(select, [cog, guild_id])
+        if (fetched and fetched[0] == 1) or (cog in ["configuration", "help", "loader", "logs"]):
           all_loaded += f"- **{name}**\n"
       except Exception as e:
-        print (f"{type(e).__name__} - {e}")
-    if not len (all_loaded):
+        print(f"{type(e).__name__} - {e}")
+    if not len(all_loaded):
       all_loaded = "**NONE**"
     try:
-      await ctx.send (all_loaded)
+      await ctx.send(all_loaded)
     except Exception as e:
       print(f'{type(e).__name__} - {e}')

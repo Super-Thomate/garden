@@ -14,25 +14,8 @@ API doc : <https://discordpy.readthedocs.io/en/latest/>
 
 # Installation
 
-Install discord.py :
 ```
-# Linux/OS X
-python3 -m pip install -U discord.py
-
-# Windows
-py -3 -m pip install -U discord.py
-```
-Install BeautifulSoup :
-```
-pip3 install beautifulsoup4
-```
-Install DateUtil :
-```
-pip3 install python-dateutil
-```
-Install tldextract :
-```
-pip3 install tldextract
+python3 -m pip install -U -r requirements.txt
 ```
 
 # Launch Garden

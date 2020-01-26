@@ -1,6 +1,9 @@
 {
   "Instance": {
-    "languages": ["fr", "en"],
+    "languages": [
+      "fr",
+      "en"
+    ],
     "token": "BotToken",
     "activity": "gardening",
     "guild_id": {
