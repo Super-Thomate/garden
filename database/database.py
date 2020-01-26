@@ -168,11 +168,8 @@ def create_table():
       'CREATE TABLE IF NOT EXISTS `rules_message` (`message_id` TEXT NOT NULL, `emoji_text` VARCHAR(64) NOT NULL, `guild_id` VARCHAR(256) NOT NULL, PRIMARY KEY (`message_id`, `emoji_text`, `guild_id`)) ;')
     cursor.execute(
       'CREATE TABLE IF NOT EXISTS `rules_log` (`channel_id` VARCHAR(256) NOT NULL, `guild_id` VARCHAR(256) NOT NULL, PRIMARY KEY (`guild_id`)) ;')
-<<<<<<< HEAD
-=======
     cursor.execute(
       'CREATE TABLE IF NOT EXISTS `pwet_reaction` (`emoji_text` VARCHAR(64), `emoji_id` VARCHAR(64), `guild_id` VARCHAR(256) NOT NULL, PRIMARY KEY (`guild_id`)) ;')
->>>>>>> patch/V1/56
     # Save modifications
     cnx.commit()
     cursor.close()

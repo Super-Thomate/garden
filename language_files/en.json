@@ -152,13 +152,9 @@
   "PWET": "--------------------------------------------------------------------------------------------------",
   "pwet_message_too_long": "Sorry, the message is too long to be pweted",
   "pwet_help_title": "**PWET COG HELP**",
-<<<<<<< HEAD
-  "pwet_help_user_command": "- `{0}pwet [<message>]` - re-write <message> replacing every word by `pwet`",
-=======
   "pwet_help_user_command": "- `{0}pwet [<message>]` - re-write <message> replacing every word by `pwet`\n - `{0}apr [<emoji>]` - Set a emoji that will pwet a message if it is reacted to by the emoji\n`{0}rpr` - Delete the pwetting emoji",
   "pwet_reaction_deleted": "Pwet emoji has been removed from this server",
   "pwet_reaction_added": "Pwet emoji has been added to this server",
->>>>>>> patch/V1/56
   "ROLEDM": "--------------------------------------------------------------------------------------------------",
   "roleDM_help_admin_command": "- `!setroledm (sr) <role>` - Sets a role to trigger the bot.\n- `!unsetroledm (ur) <role>` - Remove role from the trigger role list.\n- `!setroledmmessage (srm) <role>` - Sets the message to send when the role is taken.\n- `!displayroledmmessage (drm) <role>` - Displays current message for the role if set.\n- `!help roledm` - Displays this message.",
   "roleDM_help_description": "This cog is only available to allowed roles.",

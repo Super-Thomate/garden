@@ -1,23 +1,16 @@
 import re
-
-<<<<<<< HEAD
-from discord.ext import commands
-
-import Utils
-=======
 import discord
 from discord.ext import commands
 
 import Utils
 import database
->>>>>>> patch/V1/56
 
 
 class Pwet(commands.Cog):
   def __init__(self, bot):
     self.bot = bot
 
-<<<<<<< HEAD
+
   @commands.command(name="pwet")
   @commands.guild_only()
   @Utils.require(required=['not_banned', 'cog_loaded'])
@@ -29,9 +22,9 @@ class Pwet(commands.Cog):
 
     print("PWET: " + msg)
     await ctx.message.delete()
-=======
+    await ctx.send(to_send)
+
   def create_pwet(self, msg):
->>>>>>> patch/V1/56
     words = re.split('(<:\w+:\d+>|.\uFE0F\u20E3)', msg)  # Separate server emojis and special emojis like :one:
     result = []
     for word in words:
@@ -48,11 +41,7 @@ class Pwet(commands.Cog):
     to_send = "".join(result)
     if len(to_send) >= 2000:
       to_send = Utils.get_text(ctx.guild.id, "pwet_message_too_long")
-<<<<<<< HEAD
-    await ctx.send(to_send)
-=======
-    return to_send
-
+          return to_send
 
   @commands.command(name="pwet")
   @commands.guild_only()
