@@ -1,4 +1,5 @@
 import re
+
 import discord
 from discord.ext import commands
 
@@ -9,20 +10,6 @@ import database
 class Pwet(commands.Cog):
   def __init__(self, bot):
     self.bot = bot
-
-
-  @commands.command(name="pwet")
-  @commands.guild_only()
-  @Utils.require(required=['not_banned', 'cog_loaded'])
-  async def say_pwet(self, ctx: commands.Context, *, msg: str = None):
-    """Turn a message into pwets: Hello World -> pwet pwet"""
-    if msg == None:
-      await ctx.send(Utils.get_text(ctx.guild.id, 'error_no_parameter').format('<message>'))
-      return
-
-    print("PWET: " + msg)
-    await ctx.message.delete()
-    await ctx.send(to_send)
 
   def create_pwet(self, msg):
     words = re.split('(<:\w+:\d+>|.\uFE0F\u20E3)', msg)  # Separate server emojis and special emojis like :one:
@@ -41,7 +28,8 @@ class Pwet(commands.Cog):
     to_send = "".join(result)
     if len(to_send) >= 2000:
       to_send = Utils.get_text(ctx.guild.id, "pwet_message_too_long")
-          return to_send
+    return to_send
+
 
   @commands.command(name="pwet")
   @commands.guild_only()
@@ -105,4 +93,3 @@ class Pwet(commands.Cog):
               return
         message = self.create_pwet(message.content)
         await channel.send(message)
->>>>>>> patch/V1/56
