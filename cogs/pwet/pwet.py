@@ -89,7 +89,7 @@ class Pwet(commands.Cog):
         channel = self.bot.get_channel(payload.channel_id)
         message = await channel.fetch_message(payload.message_id)
         for reaction in message.reactions:
-          if (reaction.emoji.name == emoji_text or str(reaction.emoji.id) == emoji_id) and reaction.count > 1:
+          if (reaction.emoji == emoji_text or str(reaction.emoji.id) == emoji_id) and reaction.count > 1:
               return
         message = self.create_pwet(message.content)
         await channel.send(message)
