@@ -40,7 +40,10 @@ class Pwet(commands.Cog):
       await ctx.send(Utils.get_text(ctx.guild.id, 'error_no_parameter').format('<message>'))
       return
     print("PWET: " + msg)
-    await ctx.message.delete()
+    try:
+      await ctx.message.delete()
+    except Exception as e:
+      print (f"{type(e).__name__} - {e} \nHey ! Somebody already delete the message !! {}")
     await ctx.send(self.create_pwet(msg))
 
   @commands.command(name="addpwetreaction", aliases=['apr'])
