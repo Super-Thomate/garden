@@ -41,7 +41,7 @@ class Pwet(commands.Cog):
       return
     print("PWET: " + msg)
     await ctx.message.delete()
-    await ctx.send(self.pwet_message(msg))
+    await ctx.send(self.create_pwet(msg))
 
   @commands.command(name="addpwetreaction", aliases=['apr'])
   @commands.guild_only()
