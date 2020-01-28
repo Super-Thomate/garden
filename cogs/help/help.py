@@ -248,7 +248,7 @@ class Help(commands.Cog):
       , "Logs": {"status": 0, "desc": Utils.get_text(guild_id, 'logs_help_description')}
       , "Nickname": {"status": 0, "desc": Utils.get_text(guild_id, 'nickname_help_description')}
       , "Moderation": {"status": 0, "desc": Utils.get_text(guild_id, 'moderation_help_description')}
-      , "RoleDM": {"status": 0, "desc": Utils.get_text(guild_id, 'cog_roleDM_description')}
+      , "RoleDM": {"status": 0, "desc": Utils.get_text(guild_id, 'roleDM_help_admin_command')}
       , "Source": {"status": 0, "desc": Utils.get_text(guild_id, 'source_help_description')}
       , "Turing": {"status": 0, "desc": Utils.get_text(guild_id, 'turing_help_description')}
       , "Utip": {"status": 0, "desc": Utils.get_text(guild_id, 'utip_help_description')}
