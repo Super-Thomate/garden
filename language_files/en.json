@@ -220,5 +220,6 @@
   "message_deleted": "{0} messages deleted",
   "display_new_message": "New message: `{0}`",
   "success": "**`SUCCESS`**",
-  "not_loaded": "The command `{0}` could not be executed. Check if  cog `{1}` is loaded."
+  "not_loaded": "The command `{0}` could not be executed. Check if  cog `{1}` is loaded.",
+  "already_in_database": "{0} is already present in the database"
 }
