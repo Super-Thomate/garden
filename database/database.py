@@ -175,5 +175,16 @@ def fetch_all_line(sql, params=[]):
   cnx.close()
   return lines
 
+async def write_data(ctx, sql, parameters=[]):
+  print(sql)
+  try:
+    database.execute_order(sql, parameters)
+    await ctx.message.add_reaction('✅')
+    return True
+  except Exception as e:
+    print(f"{type(e).__name__} - {e}")
+    await ctx.message.add_reaction('❌')
+    return False
+
 
 create_table()
