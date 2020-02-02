@@ -9,25 +9,17 @@ from ..logs import Logs
 
 
 class Birthday(commands.Cog):
-  """
-  set_birthday():
-  set_birthday_channel():
-  wish_birthday:
-  """
-
   def __init__(self, bot):
     self.bot = bot
     self.logger = Logs(self.bot)
 
   def validate_date(self, date):
-    if date in ('29/02', '29/2', '29.02', '29.2', '29-02', '29-2'):
+    if date is '29/02':
       return True
-    for frmt in ("%d/%m", "%d.%m", "%d-%m"):
-      try:
-        return datetime.datetime.strptime(date, frmt)
-      except ValueError:
-        continue
-    return None
+    try:
+      return datetime.datetime.strptime(date, '%d/%m')
+    except ValueError:
+     return False
 
   @commands.command(name="setbirthday", aliases=['bd'])
   @commands.guild_only()
@@ -38,8 +30,8 @@ class Birthday(commands.Cog):
     member_id = ctx.author.id
     error = False
     one_line = True
-    sql = f"SELECT user_id FROM birthday_user WHERE user_id='{member_id}' and guild_id='{guild_id}' ;"
-    data = database.fetch_one_line(sql)
+    sql = f"SELECT user_id FROM birthday_user WHERE user_id=? and guild_id=? ;"
+    data = database.fetch_one_line(sql, [member_id, guild_id])
     if data is not None:
       already_registered = await ctx.send(Utils.get_text(ctx.guild.id, 'birthday_already_registered'))
       await Utils.delete_messages(already_registered, ctx.message)
@@ -47,8 +39,7 @@ class Birthday(commands.Cog):
     if not date:  # user did not write date after !bd
       one_line = False
       ask = await ctx.send(Utils.get_text(ctx.guild.id, 'birthday_ask_user'))
-      response = await self.bot.wait_for('message',
-                                         check=lambda m: m.channel == ctx.channel and m.author.id == member_id)
+      response = await self.bot.wait_for('message', check=lambda m: m.channel == ctx.channel and m.author.id == member_id)
       date = response.content
       await Utils.delete_messages(ask, response)
     valid = self.validate_date(date)
@@ -59,18 +50,13 @@ class Birthday(commands.Cog):
       ctx.message.content += f"\n{date}" if one_line is False else ""
       await self.logger.log('birthday_log', ctx.author, ctx.message, True)
     else:
-      sql = f"INSERT INTO birthday_user VALUES ('{member_id}', '{guild_id}', '{date}', '') ;"
-      try:
-        database.execute_order(sql, [])
-      except Exception as e:
-        error = True
-        await ctx.send(Utils.get_text(ctx.guild.id, 'error_database_writing'))
-        print(f"{type(e).__name__} - {e}")
+      sql = f"INSERT INTO birthday_user VALUES (?, ?, ?, ?) ;"
+      success = database.write_data(ctx, sql, [member_id, guild_id, date, ''])
       accepted = await ctx.send(Utils.get_text(ctx.guild.id, 'birthday_registered').format(ctx.author.display_name))
       await Utils.delete_messages(accepted, ctx.message)
       # Log command
       ctx.message.content += f"\n{date}" if one_line is False else ""
-      await self.logger.log('birthday_log', ctx.author, ctx.message, error)
+      await self.logger.log('birthday_log', ctx.author, ctx.message, success)
 
   @commands.command(name="setbirthdaychannel", aliases=['sbc'])
   @Utils.require(required=['authorized', 'not_banned', 'cog_loaded'])
