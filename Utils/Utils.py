@@ -477,4 +477,4 @@ def setInterval(timer, task, *args):
     _Timer(timer, setInterval, [timer, task, args]).start()
 
 def str_bool (boolean: bool):
-  return "True" if bool else "False"
+  return "True" if boolean else "False"
