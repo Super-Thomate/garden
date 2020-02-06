@@ -47,6 +47,7 @@ initial_extensions = ['cogs.loader'
   , 'cogs.rules'
   , 'cogs.source'
   , 'cogs.pwet'
+  , 'cogs.timer'
                       ]
 
 bot = commands.Bot(command_prefix=get_prefix)

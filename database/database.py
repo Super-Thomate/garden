@@ -170,6 +170,14 @@ def create_table():
       'CREATE TABLE IF NOT EXISTS `rules_log` (`channel_id` VARCHAR(256) NOT NULL, `guild_id` VARCHAR(256) NOT NULL, PRIMARY KEY (`guild_id`)) ;')
     cursor.execute(
       'CREATE TABLE IF NOT EXISTS `pwet_reaction` (`emoji_text` VARCHAR(64), `emoji_id` VARCHAR(64), `guild_id` VARCHAR(256) NOT NULL, PRIMARY KEY (`guild_id`)) ;')
+    
+    ### Timer COG
+    cursor.execute(
+      'CREATE TABLE IF NOT EXISTS `timer_emoji` (`emoji` VARCHAR(256) NOT NULL, `guild_id` VARCHAR(256) NOT NULL, PRIMARY KEY (`guild_id`)) ;')
+    cursor.execute(
+      'CREATE TABLE IF NOT EXISTS `timer_end_message` (`end_message` VARCHAR(512) NOT NULL, `guild_id` VARCHAR(256) NOT NULL, PRIMARY KEY (`guild_id`)) ;')
+    cursor.execute(
+      'CREATE TABLE IF NOT EXISTS `timer_first_emoji` (`emoji` VARCHAR(256) NOT NULL, `guild_id` VARCHAR(256) NOT NULL, PRIMARY KEY (`guild_id`)) ;')
     # Save modifications
     cnx.commit()
     cursor.close()

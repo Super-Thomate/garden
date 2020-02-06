@@ -5,11 +5,16 @@ import os
 import re
 import sys
 import time
+from threading import Timer as _Timer
 from functools import wraps
 from urllib.request import urlopen
 
 import botconfig
 import database
+import emoji
+
+from discord.ext.commands import BadArgument, EmojiConverter
+from discord.ext import commands
 
 dir_path = os.path.dirname(os.path.realpath(__file__)) + '/'
 strings = {}
@@ -172,11 +177,11 @@ def has_role(member, role_id):
 
 
 def parse_time(timestr):
-  units = {"j": 86400
-    , "h": 3600
-    , "m": 60
-    , "s": 1
-           }
+  units = {   "j": 86400
+            , "h": 3600
+            , "m": 60
+            , "s": 1
+          }
   to_ret = 0
   number = 0
   for elem in timestr:
@@ -446,3 +451,30 @@ def is_custom_emoji(emoji_text: str):
   if len(split) == 3:
     return split[2][:-1]  # remove '>' at the end
   return None
+
+def is_emoji (character: str):
+  return character in emoji.UNICODE_EMOJI
+  
+async def get_emoji (ctx: commands.Context, emoji: str):
+  try:
+    converter              = EmojiConverter ()
+    return await converter.convert (ctx, emoji)
+  except BadArgument:
+    if is_emoji (emoji):
+    	 return emoji
+    else:
+    	 raise
+
+def emojize (character: str):
+  return emoji.emojize (character, use_aliases=True)
+
+def demojize (character: str):
+  return emoji.demojize (character)
+
+def setInterval(timer, task, *args):
+  isStop                     = task()
+  if not isStop:
+    _Timer(timer, setInterval, [timer, task, args]).start()
+
+def str_bool (boolean: bool):
+  return "True" if bool else "False"
