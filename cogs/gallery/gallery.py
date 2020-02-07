@@ -240,7 +240,7 @@ class Gallery(commands.Cog):
       soupObject = BeautifulSoup(await response.text(), "html.parser")
       return soupObject.p.get_text().replace(";", "")
 
-  def is_ban (self, member, guild_id):
+  def is_banned (self, member, guild_id):
    command = "jeton"
    # ban user
    select = f"select until from ban_command_user where guild_id='{guild_id}' and user_id='{member.id}' and command='{command}' ;"
