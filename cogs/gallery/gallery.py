@@ -8,6 +8,8 @@ import Utils
 import botconfig
 import database
 from ..logs import Logs
+import time
+import math
 
 try:  # check if BeautifulSoup4 is installed
   from bs4 import BeautifulSoup
@@ -154,7 +156,7 @@ class Gallery(commands.Cog):
           error = False
           guild_id = guild.id
           # ban
-          if Utils.is_banned ("jeton", message.author, guild_id):
+          if self.is_banned (message.author, guild_id):
             return
           try:
             await author.trigger_typing()  # add some tension !!
@@ -189,7 +191,7 @@ class Gallery(commands.Cog):
         return
       guild_id = message.channel.guild.id
       # ban
-      if Utils.is_banned ("jeton", message.author, guild_id):
+      if self.is_banned (message.author, guild_id):
         return
       sql = f"select * from galerie_channel where guild_id='{message.channel.guild.id}'"
       galerie_channel = database.fetch_one_line(sql)
@@ -237,3 +239,37 @@ class Gallery(commands.Cog):
       response = await session.get(url)
       soupObject = BeautifulSoup(await response.text(), "html.parser")
       return soupObject.p.get_text().replace(";", "")
+
+  def is_ban (self, member, guild_id):
+   command = "jeton"
+   # ban user
+   select = f"select until from ban_command_user where guild_id='{guild_id}' and user_id='{member.id}' and command='{command}' ;"
+   fetched = database.fetch_one_line(select)
+   if fetched:
+     try:
+       until = int(fetched[0])
+     except Exception as e:
+       print(f"is_banned {type(e).__name__} - {e}")
+       return True
+     if until > math.floor(time.time()):  # still ban
+       return True
+   # ban role
+   select = f"select until,role_id from ban_command_role where guild_id='{guild_id}' and command='{command}' ;"
+   fetched = database.fetch_all_line(select)
+   if fetched:
+     for line in fetched:
+       try:
+         role_id = int(line[1])
+       except Exception as e:
+         print(f"is_banned {type(e).__name__} - {e}")
+         return True
+       if Utils.has_role(role_id, member):
+         try:
+           until = int(line[0])
+         except Exception as e:
+           print(f"is_banned {type(e).__name__} - {e}")
+           return True
+         if until > math.floor(time.time()):  # still ban
+           return True
+   # neither
+   return False
