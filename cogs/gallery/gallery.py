@@ -154,7 +154,7 @@ class Gallery(commands.Cog):
           error = False
           guild_id = guild.id
           # ban
-          if Utils.is_banned ("gallery", message.author, guild_id):
+          if Utils.is_banned ("jeton", message.author, guild_id):
             return
           try:
             await author.trigger_typing()  # add some tension !!
@@ -189,7 +189,7 @@ class Gallery(commands.Cog):
         return
       guild_id = message.channel.guild.id
       # ban
-      if Utils.is_banned ("gallery", message.author, guild_id):
+      if Utils.is_banned ("jeton", message.author, guild_id):
         return
       sql = f"select * from galerie_channel where guild_id='{message.channel.guild.id}'"
       galerie_channel = database.fetch_one_line(sql)
