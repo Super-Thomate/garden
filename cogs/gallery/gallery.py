@@ -153,6 +153,9 @@ class Gallery(commands.Cog):
         if Utils.is_loaded("gallery", guild.id) and guild.get_member(author.id):
           error = False
           guild_id = guild.id
+          # ban
+          if Utils.is_banned ("gallery", message.author, guild_id):
+            return
           try:
             await author.trigger_typing()  # add some tension !!
             colour = discord.Colour(0)
@@ -185,6 +188,9 @@ class Gallery(commands.Cog):
       if not Utils.is_loaded("gallery", message.guild.id):
         return
       guild_id = message.channel.guild.id
+      # ban
+      if Utils.is_banned ("gallery", message.author, guild_id):
+        return
       sql = f"select * from galerie_channel where guild_id='{message.channel.guild.id}'"
       galerie_channel = database.fetch_one_line(sql)
       if galerie_channel:
