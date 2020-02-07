@@ -253,23 +253,5 @@ class Gallery(commands.Cog):
        return True
      if until > math.floor(time.time()):  # still ban
        return True
-   # ban role
-   select = f"select until,role_id from ban_command_role where guild_id='{guild_id}' and command='{command}' ;"
-   fetched = database.fetch_all_line(select)
-   if fetched:
-     for line in fetched:
-       try:
-         role_id = int(line[1])
-       except Exception as e:
-         print(f"is_banned {type(e).__name__} - {e}")
-         return True
-       if Utils.has_role(role_id, member):
-         try:
-           until = int(line[0])
-         except Exception as e:
-           print(f"is_banned {type(e).__name__} - {e}")
-           return True
-         if until > math.floor(time.time()):  # still ban
-           return True
    # neither
    return False
