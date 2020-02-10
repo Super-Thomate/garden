@@ -2,17 +2,19 @@
 _Cron.py
 Manage functions for automatic process
 """
+import asyncio
 # IMPORT
 import math
 import random
 import time
 from datetime import datetime
+
 import discord
-import asyncio
 from crontab import CronTab
 
-import database
 import Utils
+import database
+
 
 async def vote_task (bot):
   try:
@@ -216,40 +218,39 @@ async def utip_task (bot):
   except Exception as e:
     print(f"utip_tasks {type(e).__name__} - {e}")
 
-async def birthday_task (bot):
+async def birthday_task(bot):
   try:
     for guild in bot.guilds:
       guild_id = guild.id
       if not Utils.is_loaded("birthday", guild_id):
         continue
-      date = datetime.now().strftime('%d/%m')
-      sql = ("SELECT user_id, guild_id, last_year_wished" +
-             " FROM birthday_user " +
-             f"WHERE user_birthday='{date}'" +
-             f"and guild_id='{guild_id}' ;"
-             )
-      data = database.fetch_all_line(sql)
-      sql = f"SELECT channel_id FROM birthday_channel where guild_id='{guild_id}' ;"
-      channel_id = database.fetch_one_line(sql)
+      sql = "SELECT time FROM birthday_time WHERE guild_id=? ;"
+      response = database.fetch_one_line(sql, [guild_id])
+      birthday_hour = int(response[0])
+      current_hour = int(datetime.now().strftime('%-H'))
+      if current_hour < birthday_hour:
+        continue
+      sql = "SELECT channel_id FROM birthday_channel WHERE guild_id=? ;"
+      channel_id = database.fetch_one_line(sql, [guild_id])
       if not channel_id:
-        raise RuntimeError('Birthday channel is not set !')
+        continue
       birthday_channel = guild.get_channel(int(channel_id[0]))
+      date = datetime.now().strftime('%d/%m')
+      sql = "SELECT user_id, guild_id, last_year_wished FROM birthday_user WHERE user_birthday=? AND guild_id=? ;"
+      data = database.fetch_all_line(sql, [date, guild_id])
       print("birthday_channel: {}".format(birthday_channel))
       print(f"data: {data}")
-      if (not birthday_channel):
-        print("!! birthday_channel not defined for guild {0}".format(guild.name))
-        continue
+      current_year = datetime.now().strftime('%Y')
       for line in data:
         member_id, guild_id, last_year_wished = line[0], line[1], line[2]
-        current_year = datetime.now().strftime('%Y')
         if current_year == last_year_wished:
           continue
         get_birthday_message(guild_id, member_id)
         await birthday_channel.send(get_birthday_message(guild_id, member_id))
-        sql = f"UPDATE birthday_user SET last_year_wished='{current_year}' WHERE user_id='{member_id}' and guild_id='{guild_id}' ;"
-        print(f"sql: {sql}")
+        sql = f"UPDATE birthday_user SET last_year_wished=? WHERE user_id=? AND guild_id=? ;"
+        print(sql)
         try:
-          database.execute_order(sql, [])
+          database.execute_order(sql, [current_year, member_id, guild_id])
         except Exception as e:
           await birthday_channel.send(Utils.get_text(guild_id, 'error_database_writing'))
           print(f"{type(e).__name__} - {e}")

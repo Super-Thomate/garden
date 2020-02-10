@@ -176,6 +176,9 @@ class Help(commands.Cog):
     colour = discord.Colour(0)
     colour = colour.from_rgb(176, 255, 176)
     embed = discord.Embed(colour=colour, title=Utils.get_text(guild_id, 'help_birthday_title'))
+    embed.add_field(name=Utils.get_text(guild_id, 'help_variable_title'),
+                    value=Utils.get_text(guild_id, 'help_help_variables'),
+                    inline=False)
     embed.add_field(name=Utils.get_text(guild_id, 'help_user_command'),
                     value=Utils.get_text(guild_id, 'birthday_help_user_command'),
                     inline=False)

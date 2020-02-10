@@ -9,25 +9,18 @@ from ..logs import Logs
 
 
 class Birthday(commands.Cog):
-  """
-  set_birthday():
-  set_birthday_channel():
-  wish_birthday:
-  """
-
   def __init__(self, bot):
     self.bot = bot
     self.logger = Logs(self.bot)
 
   def validate_date(self, date):
-    if date in ('29/02', '29/2', '29.02', '29.2', '29-02', '29-2'):
-      return True
-    for frmt in ("%d/%m", "%d.%m", "%d-%m"):
-      try:
-        return datetime.datetime.strptime(date, frmt)
-      except ValueError:
-        continue
-    return None
+    if date in ('29/02', '29/2'):
+      return '29/02'
+    try:
+      date_object = datetime.datetime.strptime(date, "%d/%m")
+      return '{:02d}'.format(date_object.day) + '/' + '{:02d}'.format(date_object.month) # Format days into double digits
+    except ValueError:
+      return None
 
   @commands.command(name="setbirthday", aliases=['bd'])
   @commands.guild_only()
@@ -51,12 +44,13 @@ class Birthday(commands.Cog):
                                          check=lambda m: m.channel == ctx.channel and m.author.id == member_id)
       date = response.content
       await Utils.delete_messages(ask, response)
-    valid = self.validate_date(date)
-    if not valid:
+    old_date = date
+    date = self.validate_date(date)
+    if not date:
       invalid = await ctx.send(Utils.get_text(ctx.guild.id, 'birthday_format_invalid'))
       await Utils.delete_messages(invalid, ctx.message)
       # Log command
-      ctx.message.content += f"\n{date}" if one_line is False else ""
+      ctx.message.content += f"\n{old_date}" if one_line is False else ""
       await self.logger.log('birthday_log', ctx.author, ctx.message, True)
     else:
       sql = f"INSERT INTO birthday_user VALUES ('{member_id}', '{guild_id}', '{date}', '') ;"
@@ -71,6 +65,36 @@ class Birthday(commands.Cog):
       # Log command
       ctx.message.content += f"\n{date}" if one_line is False else ""
       await self.logger.log('birthday_log', ctx.author, ctx.message, error)
+
+  @commands.command(name="setbirthdaytime", aliases=['sbt'])
+  @Utils.require(required=['authorized', 'not_banned', 'cog_loaded'])
+  async def set_birthday_time(self, ctx: commands.Context, time: str = None):
+    if not time:
+      sql = "SELECT time FROM birthday_time WHERE guild_id=? ;"
+      response = database.fetch_one_line(sql, [ctx.guild.id])
+      if response:
+        await ctx.send(Utils.get_text(ctx.guild.id, "birthday_current_time").format(response[0]))
+      else:
+        await ctx.send(Utils.get_text(ctx.guild.id, "birthday_time_not_set"))
+      return
+    try:
+      time = int(time)
+      if not (0 <= time < 24):
+        raise ValueError
+    except ValueError as e:
+      await ctx.send(Utils.get_text(ctx.guild.id, "birthday_time_invalid"))
+      return
+    # Check if time is already set in this guild
+    sql = "SELECT time FROM birthday_time WHERE guild_id=? ;"
+    response = database.fetch_one_line(sql, [ctx.guild.id])
+    if response:
+      sql = "UPDATE birthday_time SET time=? WHERE guild_id=? ;"
+    else:
+      sql = "INSERT INTO birthday_time VALUES (?, ?) ;"
+    success = await database.write_data(ctx, sql, [time, ctx.guild.id])
+    if success:
+      await ctx.send(Utils.get_text(ctx.guild.id, "birthday_time_registered").format(time))
+
 
   @commands.command(name="setbirthdaychannel", aliases=['sbc'])
   @Utils.require(required=['authorized', 'not_banned', 'cog_loaded'])
@@ -145,10 +169,3 @@ class Birthday(commands.Cog):
       await ctx.message.add_reaction('❌')
       return
     await ctx.channel.send(Utils.get_text(ctx.guild.id, 'display_new_message').format(message))
-
-  @commands.Cog.listener()
-  async def on_command_error(self, ctx, exception):
-    if not ctx.command:
-      return
-    if ctx.command.name in ['resetbirthday', 'setbirthdaychannel']:
-      await ctx.channel.send(exception)
