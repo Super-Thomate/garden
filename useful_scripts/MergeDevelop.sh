@@ -19,7 +19,7 @@ git checkout $PatchToMerge;
 git pull;
 git checkout $Branch;
 git pull;
-git merge --squash $PatchToMerge 2>/tmp/Error_merge 1>/tmp/Log_merge ;
+git merge $PatchToMerge 2>/tmp/Error_merge 1>/tmp/Log_merge ;
 Res=$?
 if [ a"$Res" != a0 ] ; then
   Error=`cat /tmp/Error_merge`
