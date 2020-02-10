@@ -5,7 +5,13 @@ from discord.ext import commands
 
 import botconfig
 import database
+# IMPORT FOR AUTOBOT
+from core import run_task
 
+DISCORD_CRON_CRONTAB         = {   "vote": "* * * * *"
+                                 , "utip": "* * * * *"
+                                 , "birthday": "* * * * *"
+                               }
 
 def get_prefix(bot, message):
   """A callable Prefix for our bot."""
@@ -97,6 +103,15 @@ async def on_ready():
   except Exception as e:
     print(f"{type(e).__name__} - {e}")
     sys.exit(0)
-
+    
+  # AUTOBOT
+  try:
+    for task in DISCORD_CRON_CRONTAB:
+      interval               = DISCORD_CRON_CRONTAB [task]
+      print ("Scheduling {0} with intervall [{1}]".format (task, interval))
+      bot.loop.create_task (run_task (bot, task, interval))
+  except Exception as e:
+    print(f"{type(e).__name__} - {e}")
+    sys.exit(0)
 
 bot.run(botconfig.config['token'])
