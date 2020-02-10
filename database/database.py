@@ -2,6 +2,8 @@ import os
 import sqlite3
 import sys
 
+import Utils
+
 # get the path to project root
 dir_path = os.path.dirname(os.path.realpath(__file__)) + '/'
 instance = sys.argv[1]
@@ -176,7 +178,6 @@ def fetch_all_line(sql, params=[]):
   return lines
 
 async def write_data(ctx, sql, parameters=[]):
-  print(sql)
   try:
     database.execute_order(sql, parameters)
     await ctx.message.add_reaction('✅')
@@ -184,7 +185,10 @@ async def write_data(ctx, sql, parameters=[]):
   except Exception as e:
     print(f"{type(e).__name__} - {e}")
     await ctx.message.add_reaction('❌')
+    await ctx.send(Utils.get_text(ctx.guild.id, "error_database_writing"))
     return False
+  finally:
+    print(sql)
 
 
 create_table()

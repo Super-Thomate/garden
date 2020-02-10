@@ -51,12 +51,12 @@ class Birthday(commands.Cog):
       await self.logger.log('birthday_log', ctx.author, ctx.message, True)
     else:
       sql = f"INSERT INTO birthday_user VALUES (?, ?, ?, ?) ;"
-      success = database.write_data(ctx, sql, [member_id, guild_id, date, ''])
+      error = not database.write_data(ctx, sql, [member_id, guild_id, date, '']) # Function returns sucess, so error == not success
       accepted = await ctx.send(Utils.get_text(ctx.guild.id, 'birthday_registered').format(ctx.author.display_name))
       await Utils.delete_messages(accepted, ctx.message)
       # Log command
       ctx.message.content += f"\n{date}" if one_line is False else ""
-      await self.logger.log('birthday_log', ctx.author, ctx.message, success)
+      await self.logger.log('birthday_log', ctx.author, ctx.message, error)
 
   @commands.command(name="setbirthdaychannel", aliases=['sbc'])
   @Utils.require(required=['authorized', 'not_banned', 'cog_loaded'])
@@ -66,20 +66,16 @@ class Birthday(commands.Cog):
     channel = channel or ctx.channel
     channel_id = channel.id
 
-    sql = f"SELECT channel_id FROM birthday_channel WHERE guild_id='{guild_id}'"
-    is_already_set = database.fetch_one_line(sql)
+    sql = f"SELECT channel_id FROM birthday_channel WHERE guild_id=? ;"
+    is_already_set = database.fetch_one_line(sql, [guild_id])
 
     if is_already_set:
-      sql = f"UPDATE birthday_channel SET channel_id='{channel_id}' WHERE guild_id='{guild_id}'"
+      sql = f"UPDATE birthday_channel SET channel_id=? WHERE guild_id=? ;"
     else:
-      sql = f"INSERT INTO birthday_channel VALUES ('{channel_id}', '{guild_id}') ;"
-    try:
-      database.execute_order(sql, [])
-    except Exception as e:
-      await ctx.send(Utils.get_text(ctx.guild.id, 'error_database_writing'))
-      print(f"{type(e).__name__} - {e}")
-
-    await ctx.send(Utils.get_text(ctx.guild.id, 'birthday_channel_set').format(f'<#{channel_id}>'))
+      sql = f"INSERT INTO birthday_channel VALUES (?, ?) ;"
+    success = database.write_data(ctx, sql, [channel, guild_id])
+    if success:
+      await ctx.send(Utils.get_text(ctx.guild.id, 'birthday_channel_set').format(f'<#{channel_id}>'))
 
   @commands.command(name='resetbirthday', aliases=['rb'])
   @Utils.require(required=['authorized', 'not_banned', 'cog_loaded'])
@@ -88,24 +84,21 @@ class Birthday(commands.Cog):
     error = False
     member = member or ctx.author
     if member is None:
-      await ctx.send("Le paramètre <member> est obligatoire.")
+      await ctx.send(Utils.get_text(guild_id, "error_no_parameter").format("<member>"))
       await ctx.message.add_reaction('❌')
       await self.logger.log('birthday_log', ctx.author, ctx.message, True)
       return
-    sql = f"SELECT user_id FROM birthday_user WHERE user_id={member.id} and guild_id={ctx.guild.id}"
-    member_in_db = database.fetch_one_line(sql)
+    sql = "SELECT user_id FROM birthday_user WHERE user_id=? and guild_id=? ;"
+    member_in_db = database.fetch_one_line(sql, [member.id, guild_id])
     if not member_in_db:
       await ctx.send(Utils.get_text(ctx.guild.id, "error_user_not_found").format(member.mention, 'birthday_user'))
       return
-    sql = f"DELETE FROM birthday_user WHERE user_id='{member.id}' and guild_id={ctx.guild.id} ;"
-    try:
-      database.execute_order(sql, [])
-    except Exception as e:
-      error = True
-      await ctx.send(Utils.get_text(ctx.guild.id, 'error_database_writing'))
-      print(f"{type(e).__name__} - {e}")
-    await ctx.send(Utils.get_text(ctx.guild.id, 'birthday_reset').format(member.mention))
-    await self.logger.log('birthday_log', ctx.author, ctx.message, error)
+    sql = "DELETE FROM birthday_user WHERE user_id=? and guild_id=? ;"
+    error = not database.write_data(ctx, sql, [member.id, guild_id])
+    if error:
+      await self.logger.log('birthday_log', ctx.author, ctx.message, error)
+    else:
+      await ctx.send(Utils.get_text(ctx.guild.id, 'birthday_reset').format(member.mention))
 
   @commands.command(name='setbirthdaymessage', aliases=['birthdaymessage', 'sbm'])
   @Utils.require(required=['authorized', 'not_banned', 'cog_loaded'])
@@ -116,25 +109,12 @@ class Birthday(commands.Cog):
     check = lambda m: m.channel == ctx.channel and m.author == ctx.author
     msg = await self.bot.wait_for('message', check=check)
     message = msg.content
-    sql = f"select message from birthday_message where guild_id='{guild_id}';"
-    prev_birthday_message = database.fetch_one_line(sql)
+    sql = "select message from birthday_message where guild_id=? ;"
+    prev_birthday_message = database.fetch_one_line(sql, [guild_id])
     if not prev_birthday_message:
-      sql = f"INSERT INTO birthday_message VALUES (?, '{guild_id}') ;"
+      sql = f"INSERT INTO birthday_message VALUES (?, ?) ;"
     else:
-      sql = f"UPDATE birthday_message SET message=? WHERE guild_id='{guild_id}';"
-    print(sql)
-    try:
-      database.execute_order(sql, [message])
-      await ctx.message.add_reaction('✅')
-    except Exception as e:
-      print(f"{type(e).__name__} - {e}")
-      await ctx.message.add_reaction('❌')
-      return
-    await ctx.channel.send(Utils.get_text(ctx.guild.id, 'display_new_message').format(message))
-
-  @commands.Cog.listener()
-  async def on_command_error(self, ctx, exception):
-    if not ctx.command:
-      return
-    if ctx.command.name in ['resetbirthday', 'setbirthdaychannel']:
-      await ctx.channel.send(exception)
+      sql = f"UPDATE birthday_message SET message=? WHERE guild_id=? ;"
+    success = database.write_data(ctx, sql, [message, guild_id])
+    if success:
+      await ctx.channel.send(Utils.get_text(ctx.guild.id, 'display_new_message').format(message))
