@@ -1,55 +1,20 @@
+"""
+_Cron.py
+Manage functions for automatic process
+"""
+# IMPORT
 import math
 import random
 import time
 from datetime import datetime
-
 import discord
+import asyncio
+from crontab import CronTab
 
-import Utils
-import botconfig
 import database
+import Utils
 
-bot = discord.Client()
-"""
-AUTOBOT
-Manages all recurrent tasks
-Repeat itself every 60 seconds
-## TODO
-# Close proposition phase
-# Close edit phase
-# Close vote phase
-
-"""
-run_boy_run = True
-sleepy_time = 60
-
-
-@bot.event
-async def on_ready():
-  print(("------\n" +
-         "AUTOBOT AS\n" +
-         f"{bot.user.name}\n" +
-         f"{bot.user.id}\n" +
-         "------"
-         )
-        )
-  for guild in bot.guilds:
-    select = "select language_code from config_lang where guild_id=? ;"
-    language_code = database.fetch_one_line(select, [guild.id])
-    botconfig.__language__[str(guild.id)] = language_code[0] if language_code else "en"
-  while run_boy_run:
-    print(f"[{datetime.now().strftime('%d-%m-%Y %H:%M:%S')}] Running task")
-    try:
-      await vote_tasks()
-      await utip_tasks()
-      await birthday_task()
-    except Exception as e:
-      print(f"{type(e).__name__} - {e}")
-    time.sleep(sleepy_time)
-    # sys.exit(0)
-
-
-async def vote_tasks():
+async def vote_task (bot):
   try:
     guilds = bot.guilds
     # print (f"guilds: {guilds}")
@@ -204,8 +169,7 @@ async def vote_tasks():
   except Exception as e:
     print(f"auto task {type(e).__name__} - {e}")
 
-
-async def utip_tasks():
+async def utip_task (bot):
   try:
     guilds = bot.guilds
     # print (f"guilds: {guilds}")
@@ -252,55 +216,7 @@ async def utip_tasks():
   except Exception as e:
     print(f"utip_tasks {type(e).__name__} - {e}")
 
-
-def embed_get_result(message_id, guild_id, embed):
-  field = embed.fields[0]
-  select = ("select proposition_id,emoji,proposition,ballot" +
-            " from vote_propositions" +
-            f" where message_id='{message_id}' order by proposition_id asc ;"
-            )
-  fetched = database.fetch_all_line(select)
-  if not fetched:
-    new_value = "\uFEFF"
-  else:
-    print(f"fetched: {fetched}")
-    for line in fetched:
-      proposition_id = line[0]
-      emoji = line[1]
-      proposition = line[2]
-      ballot = line[3]
-      if proposition_id == 1:
-        new_value = "- " + emoji + " " + proposition + " (" + str(ballot) + ")"
-      else:
-        new_value = new_value + "\n - " + emoji + " " + proposition + " (" + str(ballot) + ")"
-  field = embed.fields[0]
-  embed.clear_fields()
-  embed.add_field(name=field.name, value=new_value, inline=False)
-  return embed
-
-
-def get_birthday_message(guild_id, member_id):
-  select = f"SELECT message FROM birthday_message WHERE guild_id='{guild_id}';"
-  fetched = database.fetch_one_line(select)
-  if not fetched:
-    raise RuntimeError('birthday message is not set !')
-  text = ""
-  # split around '{'
-  text_rand = (fetched[0]).split('{')
-  print(f"text_rand: {text_rand}")
-  for current in text_rand:
-    parts = current.split('}')
-    print(f"parts: {parts}")
-    for part in parts:
-      all_rand = part.split("|")
-      print(f"all_rand: {all_rand}")
-      current_part = all_rand[random.randint(0, len(all_rand) - 1)]
-      print(f"current_part: {current_part}")
-      text = text + current_part
-  return text.replace("$member", f"<@{member_id}>")
-
-
-async def birthday_task():
+async def birthday_task (bot):
   try:
     for guild in bot.guilds:
       guild_id = guild.id
@@ -340,5 +256,62 @@ async def birthday_task():
   except Exception as e:
     print(f"{type(e).__name__} - {e}")
 
+def embed_get_result (message_id, guild_id, embed):
+  field = embed.fields[0]
+  select = ("select proposition_id,emoji,proposition,ballot" +
+            " from vote_propositions" +
+            f" where message_id='{message_id}' order by proposition_id asc ;"
+            )
+  fetched = database.fetch_all_line(select)
+  if not fetched:
+    new_value = "\uFEFF"
+  else:
+    print(f"fetched: {fetched}")
+    for line in fetched:
+      proposition_id = line[0]
+      emoji = line[1]
+      proposition = line[2]
+      ballot = line[3]
+      if proposition_id == 1:
+        new_value = "- " + emoji + " " + proposition + " (" + str(ballot) + ")"
+      else:
+        new_value = new_value + "\n - " + emoji + " " + proposition + " (" + str(ballot) + ")"
+  field = embed.fields[0]
+  embed.clear_fields()
+  embed.add_field(name=field.name, value=new_value, inline=False)
+  return embed
 
-bot.run(botconfig.config['token'])
+def get_birthday_message (guild_id, member_id):
+  select = f"SELECT message FROM birthday_message WHERE guild_id='{guild_id}';"
+  fetched = database.fetch_one_line(select)
+  if not fetched:
+    raise RuntimeError('birthday message is not set !')
+  text = ""
+  # split around '{'
+  text_rand = (fetched[0]).split('{')
+  print(f"text_rand: {text_rand}")
+  for current in text_rand:
+    parts = current.split('}')
+    print(f"parts: {parts}")
+    for part in parts:
+      all_rand = part.split("|")
+      print(f"all_rand: {all_rand}")
+      current_part = all_rand[random.randint(0, len(all_rand) - 1)]
+      print(f"current_part: {current_part}")
+      text = text + current_part
+  return text.replace("$member", f"<@{member_id}>")
+
+async def run_task (bot, task, interval):
+  await bot.wait_until_ready()
+  cron = CronTab(interval)
+  while True:
+    await asyncio.sleep(cron.next())
+    try:
+      if task == "vote":
+        await vote_task (bot)
+      elif task == "utip":
+        await utip_task (bot)
+      elif task == "birthday":
+        await birthday_task (bot)
+    except:
+      print(f'I could not perform task `{task}` :(')
