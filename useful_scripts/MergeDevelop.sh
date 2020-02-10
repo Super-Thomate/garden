@@ -28,10 +28,22 @@ if [ a"$Res" != a0 ] ; then
   echo -e "<====== Git Merge${VP_NONE}"
   echo -e "${VP_RED}Error during merge. Fix conflict then excute:${VP_NONE}"
   echo -e "${VP_YELLOW}git commit -am \"merge/$PatchToMerge\";"
-  echo -e "git push;${VP_NONE}"
+  echo -e "git push;"
+  echo -e "git push origin --delete $PatchToMerge;"
+  echo -e "git fetch --all --prune ;"
+  echo -e "git branch -D $PatchToMerge;"
+  echo -e "git checkout -b $PatchToMerge master;"
+  echo -e "git push origin $PatchToMerge;"
+  echo -e "git push --set-upstream origin $PatchToMerge;${VP_NONE}"
 else
   git commit -am "merge/$PatchToMerge";
   git push;
+  git push origin --delete $PatchToMerge;
+  git fetch --all --prune ;
+  git branch -D $PatchToMerge;
+  git checkout -b $PatchToMerge master;
+  git push origin $PatchToMerge;
+  git push --set-upstream origin $PatchToMerge;
 fi
 rm /tmp/Error_merge
 rm /tmp/Log_merge
