@@ -82,7 +82,8 @@ class Timer(commands.Cog):
 
       async def times_up():
         print ("times_up -> time : {:.1f}s".format(time.time()-start))
-        await msg_timer.edit (content=end_message)
+        await ctx.send  (end_message)
+        # await msg_timer.edit (content=end_message)
 
       async def times_up_2():
         print ("Time's up ! -> time : {:.1f}s".format(time.time()-start))
