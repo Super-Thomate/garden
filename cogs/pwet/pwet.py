@@ -87,6 +87,8 @@ class Pwet(commands.Cog):
     if Utils.is_authorized(author, guild.id):
       sql = "SELECT emoji_text, emoji_id FROM pwet_reaction WHERE guild_id=? ;"
       response = database.fetch_one_line(sql, [guild.id])
+      if response is None:
+        return
       emoji_text, emoji_id = response[0], response[1]
       if emoji_text == payload.emoji.name or emoji_id == str(payload.emoji.id):
         channel = self.bot.get_channel(payload.channel_id)
