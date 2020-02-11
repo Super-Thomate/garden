@@ -410,8 +410,6 @@ async def delete_messages(*args):
 
 
 def is_loaded(cog, guild_id):
-  if cog == "welcome":
-    print(f"check is_loaded {cog} in {guild_id}")
   try:
     guild_id = int(guild_id)
     select = ("select   status "
@@ -423,8 +421,6 @@ def is_loaded(cog, guild_id):
               ""
               )
     fetched = database.fetch_one_line(select, [str(cog), guild_id])
-    if cog == "welcome":
-      print(fetched)
     return (fetched and fetched[0] == 1) or (cog in ["configuration", "help", "loader", "logs"])
   except Exception as e:
     print(f"{type(e).__name__} - {e}")
