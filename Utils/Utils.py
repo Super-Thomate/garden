@@ -8,6 +8,7 @@ import time
 from threading import Timer as _Timer
 from functools import wraps
 from urllib.request import urlopen
+from core.Logger import logger
 
 import botconfig
 import database
@@ -30,7 +31,7 @@ def require(required: list):
       ctx = args[1]
       if 'authorized' in required:
         if not is_authorized(ctx.author, ctx.guild.id):
-          print("Missing permissions")
+          logger ("Utils::require::is_authorized", "Missing permissions")
           return
       if 'not_banned' in required:
         if is_banned(ctx.command, ctx.author, ctx.guild.id):
@@ -72,7 +73,7 @@ def is_banned(command, member, guild_id):
     try:
       until = int(fetched[0])
     except Exception as e:
-      print(f"is_banned {type(e).__name__} - {e}")
+      logger ("Utils::is_banned", f"{type(e).__name__} - {e}")
       return True
     if until > math.floor(time.time()):  # still ban
       return True
@@ -84,13 +85,13 @@ def is_banned(command, member, guild_id):
       try:
         role_id = int(line[1])
       except Exception as e:
-        print(f"is_banned {type(e).__name__} - {e}")
+        logger ("Utils::is_banned", f"{type(e).__name__} - {e}")
         return True
       if has_role(role_id, member):
         try:
           until = int(line[0])
         except Exception as e:
-          print(f"is_banned {type(e).__name__} - {e}")
+          logger ("Utils::is_banned", f"{type(e).__name__} - {e}")
           return True
         if until > math.floor(time.time()):  # still ban
           return True
@@ -105,7 +106,7 @@ def is_banned_user(command, member, guild_id):
     try:
       until = int(fetched[0])
     except Exception as e:
-      print(f"is_banned {type(e).__name__} - {e}")
+      logger ("Utils::is_banned_user", f"{type(e).__name__} - {e}")
       return True
     return until > math.floor(time.time())  # still ban
   return False
@@ -118,13 +119,13 @@ def is_banned_role(command, member, guild_id):
     try:
       role_id = int(fetched[1])
     except Exception as e:
-      print(f"is_banned {type(e).__name__} - {e}")
+      logger ("Utils::is_banned_role", f"{type(e).__name__} - {e}")
       return True
     if has_role(role_id, member):
       try:
         until = int(fetched[0])
       except Exception as e:
-        print(f"is_banned {type(e).__name__} - {e}")
+        logger ("Utils::is_banned_role", f"{type(e).__name__} - {e}")
         return True
       return until > math.floor(time.time())  # still ban
   return False
@@ -155,14 +156,14 @@ def format_time(timestamp):
     , ["s", 1]
            ]
   current = timestamp
-  print(f"format_time current: {current}")
+  logger ("Utils::format_time", f"current: {current}")
   to_ret = ""
   for obj_time in timer:
     if math.floor(current / obj_time[1]) > 0:
       to_ret += str(math.floor(current / obj_time[1])) + obj_time[0] + " "
       current = current % obj_time[1]
   if not len(to_ret):
-    print("to ret is empty")
+    logger ("Utils::format_time", "to ret is empty")
   return to_ret.strip()
 
 
@@ -172,7 +173,7 @@ def has_role(member, role_id):
       if obj_role.id == int(role_id):
         return True
   except Exception as e:
-    print(f"has_role {type(e).__name__} - {e}")
+    logger ("Utils::has_role", f"{type(e).__name__} - {e}")
   return False
 
 
@@ -187,11 +188,10 @@ def parse_time(timestr):
   for elem in timestr:
     try:
       cast = int(elem)
-    except Exception as e:
+    except Exception:
       # is it a letter in units ?
       if elem not in units:
         raise Exception(f"Unknown element: {elem}")
-        return -1
       to_ret = to_ret + number * units[elem]
       number = 0
     else:
@@ -213,7 +213,7 @@ def get_roles_modo(guild_id):
   try:
     fetched = database.fetch_all_line(select)
   except Exception as e:
-    print(f"get_roles_modo {type(e).__name__} - {e}")
+    logger ("Utils::get_roles_modo", f"{type(e).__name__} - {e}")
   if fetched:
     for role_fetched in fetched:
       all_roles.append(int(role_fetched[0]))
@@ -244,7 +244,7 @@ def do_invite(guild_id):
   try:
     fetched = database.fetch_one_line(select)
   except Exception as e:
-    print(f"do_invite {type(e).__name__} - {e}")
+    logger ("Utils::do_invite", f"{type(e).__name__} - {e}")
   if fetched:
     return (fetched[0] == 1)
   return False
@@ -264,13 +264,13 @@ def do_token(guild_id):
   try:
     fetched = database.fetch_one_line(select)
   except Exception as e:
-    print(f"do_token {type(e).__name__} - {e}")
+    logger ("Utils::do_token", f"{type(e).__name__} - {e}")
   if fetched:
     return (fetched[0] == 1)
   return False
 
 
-def invite_delay(guild_id):
+def invite_delay (guild_id):
   select = ("select   delay " +
             "       , type_delay " +
             "from     config_delay " +
@@ -284,13 +284,13 @@ def invite_delay(guild_id):
   try:
     fetched = database.fetch_one_line(select)
   except Exception as e:
-    print(f"invite_delay {type(e).__name__} - {e}")
+    logger ("Utils::invite_delay", f"{type(e).__name__} - {e}")
   if fetched:
     return fetched[0]
   return None
 
 
-def nickname_delay(guild_id):
+def nickname_delay (guild_id):
   select = ("select   delay " +
             "       , type_delay " +
             "from     config_delay " +
@@ -304,13 +304,13 @@ def nickname_delay(guild_id):
   try:
     fetched = database.fetch_one_line(select)
   except Exception as e:
-    print(f"nickname_cannot_change {type(e).__name__} - {e}")
+    logger ("Utils::nickname_delay", f"{type(e).__name__} - {e}")
   if fetched:
     return fetched[0]
   return None
 
 
-def invite_url(guild_id):
+def invite_url (guild_id):
   select = ("select   url " +
             "       , type_url " +
             "from     config_url " +
@@ -321,13 +321,16 @@ def invite_url(guild_id):
             ";" +
             ""
             )
-  fetched = database.fetch_one_line(select)
+  try:
+    fetched = database.fetch_one_line(select)
+  except Exception as e:
+    logger ("Utils::invite_url", f"{type(e).__name__} - {e}")
   if fetched:
     return fetched[0]
   return ""
 
 
-def token_url(guild_id):
+def token_url (guild_id):
   select = ("select   url " +
             "       , type_url " +
             "from     config_url " +
@@ -338,7 +341,10 @@ def token_url(guild_id):
             ";" +
             ""
             )
-  fetched = database.fetch_one_line(select)
+  try:
+    fetched = database.fetch_one_line(select)
+  except Exception as e:
+    logger ("Utils::token_url", f"{type(e).__name__} - {e}")
   if fetched:
     return fetched[0]
   return ""
@@ -363,40 +369,34 @@ def is_url_image(image_url):
     site = urlopen(image_url)
     meta = site.info()  # get header of the http request
   except Exception as e:
-    print(f"{type(e).__name__} - {e}")
+    logger ("Utils::is_url_image", f"{type(e).__name__} - {e}")
     return False
   return meta["content-type"] in image_formats
 
 
 def convert_str_to_time(time_string):
   time_array = time_string.split(" ")
-  print(f"time_array: {time_array}")
+  logger ("Utils::convert_str_to_time", f"time_array: {time_array}")
   timestamp = 0
   current = 0
   for element in time_array:
-    print(f"element: {element}")
+    logger ("Utils::convert_str_to_time", f"element: {element}")
     if element.isnumeric():
       current = int(element)
-      print(f"isnumeric = current: {current}")
+      logger ("Utils::convert_str_to_time", f"isnumeric = current: {current}")
     else:
       if element == "months":
         current = current * 28 * 24 * 3600
       elif element == "weeks":
         current = current * 7 * 24 * 3600
-      print(f"else current: {current}")
+      logger ("Utils::convert_str_to_time", f"else current: {current}")
       timestamp = timestamp + current
       current = 0
-  print(f"timestamp: {timestamp}")
+  logger ("Utils::convert_str_to_time", f"timestamp: {timestamp}")
   return timestamp
 
 
 def get_text(guild_id: int, text_key: str) -> str:
-  """
-  try:
-    language_code = database.fetch_one_line(f"SELECT language_code FROM config_lang WHERE guild_id='{guild_id}'")[0]
-  except Exception: # if not found in DB, look in config
-    language_code = botconfig.config[str(guild_id)]["default_language"]
-  """
   language_code = botconfig.__language__[str(guild_id)]
   try:
     return strings[language_code][text_key]
@@ -410,8 +410,6 @@ async def delete_messages(*args):
 
 
 def is_loaded(cog, guild_id):
-  if cog == "welcome":
-    print(f"check is_loaded {cog} in {guild_id}")
   try:
     guild_id = int(guild_id)
     select = ("select   status "
@@ -422,12 +420,14 @@ def is_loaded(cog, guild_id):
               "guild_id=? ;" +
               ""
               )
-    fetched = database.fetch_one_line(select, [str(cog), guild_id])
-    if cog == "welcome":
-      print(fetched)
+    try:
+      fetched = database.fetch_one_line(select, [str(cog), guild_id])
+    except Exception as e:
+      logger ("Utils::is_loaded", f"{type(e).__name__} - {e}")
+    # logger ("Utils::is_loaded", f"In fetched for {str(cog)}: {fetched}")
     return (fetched and fetched[0] == 1) or (cog in ["configuration", "help", "loader", "logs"])
   except Exception as e:
-    print(f"{type(e).__name__} - {e}")
+    logger ("Utils::is_loaded", f"{type(e).__name__} - {e}")
     return False
 
 
@@ -441,7 +441,7 @@ def set_log_channel(table: str, channel_id: int, guild_id: int):
   try:
     database.execute_order(sql, [])
   except Exception as e:
-    print(f"{type(e).__name__} - {e}")
+    logger ("Utils::set_log_channel", f"{type(e).__name__} - {e}")
     return False
   return True
 
