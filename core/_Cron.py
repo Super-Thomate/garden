@@ -306,9 +306,9 @@ async def run_task (bot, task, interval):
   cron = CronTab(interval)
   while True:
     try:
-      await asyncio.sleep(cron.next())
+      await asyncio.sleep(cron.next(default_utc=True))
     except Exception as e:
-      logger ("_Cron::run_task", f"{type(e).__name__} - {e}")
+      logger ("_Cron::run_task", f"task {task} => {type(e).__name__} - {e}")
     try:
       if task == "vote":
         await vote_task (bot)
