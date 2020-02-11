@@ -1,6 +1,7 @@
 import os
 import sqlite3
 import sys
+from core import logger
 
 # get the path to project root
 dir_path = os.path.dirname(os.path.realpath(__file__)) + '/'
@@ -9,7 +10,7 @@ if not instance:
   path = dir_path + '../garden.db'
 else:
   path = dir_path + '../garden_' + instance + '.db'
-print(f"Database path: {path}")
+logger ("database", f"Database path: {path}")
 
 
 def create_table():
