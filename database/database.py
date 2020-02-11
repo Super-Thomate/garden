@@ -184,22 +184,22 @@ def create_table():
     cursor.close()
   except Exception as e:
     cursor.close()
-    print(f'ERROR: {type(e).__name__} - {e}')
+    logger ("database::create_table", f'ERROR: {type(e).__name__} - {e}')
   cnx.close()
 
 
 def execute_order(sql, params=[]):
   cnx = sqlite3.connect(path)
   cursor = cnx.cursor()
-  print(f"execute_order params: {params}")
+  logger ("database::execeute_order", f"execute_order params: {params}")
   try:
     cursor.execute(sql, (params))
     cnx.commit()
     cursor.close()
   except Exception as e:
     cursor.close()
-    print(f'execute_order ERROR: {type(e).__name__} - {e}')
-    print(f'execute_order sql: {sql}')
+    logger ("database::execeute_order", f' ERROR: {type(e).__name__} - {e}')
+    logger ("database::execeute_order", f' sql: {sql}')
   cnx.close()
 
 
@@ -213,8 +213,8 @@ def fetch_one_line(sql, params=[]):
     cursor.close()
   except Exception as e:
     cursor.close()
-    print(f'fetch_one_line ERROR: {type(e).__name__} - {e}')
-    print(f'fetch_one_line sql: {sql}')
+    logger ("database::fetch_one_line", f' ERROR: {type(e).__name__} - {e}')
+    logger ("database::fetch_one_line", f' sql: {sql}')
   cnx.close()
   return line
 
@@ -229,7 +229,7 @@ def fetch_all_line(sql, params=[]):
     cursor.close()
   except Exception as e:
     cursor.close()
-    print(f'fetch_all_line ERROR: {type(e).__name__} - {e} in \n{sql}')
+    logger ("database::fetch_all_line", f' ERROR: {type(e).__name__} - {e} in \n{sql}')
   cnx.close()
   return lines
 
