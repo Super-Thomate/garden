@@ -13,7 +13,7 @@ from crontab import CronTab
 
 import database
 import Utils
-from core import logger
+from .Logger import logger
 
 async def vote_task (bot):
   try:
@@ -214,7 +214,7 @@ async def utip_task (bot):
               await member.send(Utils.get_text(int(guild_id), 'utip_user_lost_role'))
             database.execute_order(delete)
   except Exception as e:
-    logger ("_Cron::utip_task", f"utip_tasks {type(e).__name__} - {e}")
+    logger ("_Cron::utip_task", f"{type(e).__name__} - {e}")
 
 async def birthday_task (bot):
   try:
@@ -305,7 +305,10 @@ async def run_task (bot, task, interval):
   await bot.wait_until_ready()
   cron = CronTab(interval)
   while True:
-    await asyncio.sleep(cron.next())
+    try:
+      await asyncio.sleep(cron.next())
+    except Exception as e:
+      logger ("_Cron::run_task", f"{type(e).__name__} - {e}")
     try:
       if task == "vote":
         await vote_task (bot)
