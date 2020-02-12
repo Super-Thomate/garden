@@ -22,6 +22,8 @@
   "birthday_help_user_command": "- `-setbirthday (-bd)` - Sets the birthday of a user. Format **DD/MM**",
   "help_birthday_title": "**BIRTHDAY COG HELP**",
   "birthday_log_channel": "Birthday logs will be displayed here.",
+  "birthday_time_registered": "Birthday are now wished at {0}",
+  "birthday_time_invalid": "The hour must be an integer between 0 and 23",
   "GALLERY": "--------------------------------------------------------------------------------------------------",
   "gallery_channel_set": "Gallery requests will be displayed here.",
   "gallery_new_message": "Enter token receiving message:",
