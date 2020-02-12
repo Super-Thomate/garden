@@ -8,6 +8,7 @@ from discord.ext import commands
 import Utils
 import database
 from ..logs import Logs
+from core import logger
 
 
 class Welcome(commands.Cog):
@@ -38,14 +39,14 @@ class Welcome(commands.Cog):
               and Utils.has_role(after, role_id)
       ):
         # The member obtained the role
-        print('The member obtained the role')
+        logger ("welcome::on_member_update", 'The member obtained the role')
         # already welcomed ?
         if unique_welcome:
           select = f"select * from welcome_user where user_id='{before.id}' and guild_id='{guild_id}' and role_id={role_id} ;"
           fetched = database.fetch_one_line(select)
           if fetched:
             # already welcomed !
-            print('already welcomed')
+            logger ("welcome::on_member_update", 'already welcomed')
             return
         # get the channel
         channel = None
@@ -55,7 +56,7 @@ class Welcome(commands.Cog):
           channel_id = fetched[0]
           channel = before.guild.get_channel(int(channel_id))
         if not channel:
-          print('Not channel')
+          logger ("welcome::on_member_update", 'Not channel')
           channel = before.guild.system_channel
         # get the message
         select = f"select message from welcome_message where guild_id='{guild_id}' and role_id={role_id} ; "
@@ -64,15 +65,15 @@ class Welcome(commands.Cog):
           text = ""
           # split around '{'
           text_rand = (fetched[0]).split('{')
-          print(f"text_rand: {text_rand}")
+          logger ("welcome::on_member_update", f"text_rand: {text_rand}")
           for current in text_rand:
             parts = current.split('}')
-            print(f"parts: {parts}")
+            logger ("welcome::on_member_update", f"parts: {parts}")
             for part in parts:
               all_rand = part.split("|")
-              print(f"all_rand: {all_rand}")
+              logger ("welcome::on_member_update", f"all_rand: {all_rand}")
               current_part = all_rand[random.randint(0, len(all_rand) - 1)]
-              print(f"current_part: {current_part}")
+              logger ("welcome::on_member_update", f"current_part: {current_part}")
               text = text + current_part
           """
           if text.startswith('{') and text.endswith('}'):
@@ -116,7 +117,7 @@ class Welcome(commands.Cog):
     else:
       sql = f"insert into welcome_role values ('{role_id}', '{guild_id}') ;"
     error = False
-    print(sql)
+    logger ("welcome::set_welcome_role", sql)
     try:
       database.execute_order(sql, [])
     except Exception as e:
@@ -147,7 +148,7 @@ class Welcome(commands.Cog):
       database.execute_order(sql, [])
     except Exception as e:
       await ctx.channel.send(Utils.get_text(ctx.guild.id, "error_database_writing"))
-      print(f'{type(e).__name__} - {e}')
+      logger ("welcome::set_welcome", f'{type(e).__name__} - {e}')
       error = True
     # Log my change
     if error:
@@ -175,11 +176,11 @@ class Welcome(commands.Cog):
       sql = f"INSERT INTO welcome_message (`message`,`role_id`,`guild_id`) VALUES (?, {role.id},'{guild_id}') ;"
     else:
       sql = f"update welcome_message set message=? where guild_id='{guild_id}' and role_id={role.id} ;"
-    print(sql)
+    logger ("welcome::set_welcome_message", sql)
     try:
       database.execute_order(sql, [message])
     except Exception as e:
-      print(f"{type(e).__name__} - {e}")
+      logger ("welcome::set_welcome_message", f"{type(e).__name__} - {e}")
     await ctx.channel.send(Utils.get_text(ctx.guild.id, "display_new_message").format(message))
     # await self.logger.log('welcome_log', ctx.author, ctx.message, error) # no logs
 
@@ -205,7 +206,7 @@ class Welcome(commands.Cog):
         try:
           database.execute_order(insert)
         except Exception as e:
-          print(f'{type(e).__name__} - {e}')
+          logger ("welcome::update_welcomeuser", f'{type(e).__name__} - {e}')
     await ctx.message.add_reaction('✅')
 
   @commands.command(name='clearwelcome', aliases=['cw'])
@@ -223,6 +224,6 @@ class Welcome(commands.Cog):
       database.execute_order(delete)
     except Exception as e:
       await ctx.message.add_reaction('❌')
-      print(f'{type(e).__name__} - {e}')
+      logger ("welcome::reset_welcomeuser", f'{type(e).__name__} - {e}')
     else:
       await ctx.message.add_reaction('✅')

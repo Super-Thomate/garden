@@ -5,7 +5,7 @@ from discord.ext import commands
 
 import Utils
 import database
-
+from core import logger
 
 class Pwet(commands.Cog):
   def __init__(self, bot):
@@ -39,11 +39,11 @@ class Pwet(commands.Cog):
     if msg is None:
       await ctx.send(Utils.get_text(ctx.guild.id, 'error_no_parameter').format('<message>'))
       return
-    print("PWET: " + msg)
+    logger ("pwet::say_pwet", "PWET: " + msg)
     try:
       await ctx.message.delete()
     except Exception as e:
-      print(f"{type(e).__name__} - {e} \nHey ! Somebody already delete the message !!")
+      logger ("pwet::say_pwet", f"{type(e).__name__} - {e} \nHey ! Somebody already delete the message !!")
     await ctx.send(self.create_pwet(msg))
 
   @commands.command(name="addpwetreaction", aliases=['apr'])

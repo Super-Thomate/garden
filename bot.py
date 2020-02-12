@@ -22,9 +22,9 @@ def get_prefix(bot, message):
     select = ("select   prefix " +
               "from     config_prefix " +
               " where " +
-              f"guild_id='{message.guild.id}' ;" +
+              "guild_id='{0}' ;" +
               ""
-              )
+              ).format(message.guild.id)
     fetched = database.fetch_all_line(select)
     if fetched:
       for line in fetched:
