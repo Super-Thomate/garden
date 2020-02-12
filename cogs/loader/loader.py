@@ -4,7 +4,7 @@ from discord.ext import commands
 
 import Utils
 import database
-
+from core import logger
 
 class Loader(commands.Cog):
   def __init__(self, bot):
@@ -68,7 +68,7 @@ class Loader(commands.Cog):
     try:
       await ctx.send(all_loaded)
     except Exception as e:
-      print(f'{type(e).__name__} - {e}')
+      logger ("loader::list_load", f'{type(e).__name__} - {e}')
 
   @commands.command(name='patch', hidden=True)
   @Utils.require(required=['authorized', 'not_banned'])
@@ -83,7 +83,7 @@ class Loader(commands.Cog):
     try:
       await ctx.send(current_patch)
     except Exception as e:
-      print(f'{type(e).__name__} - {e}')
+      logger ("loader::get_patch", f'{type(e).__name__} - {e}')
 
   @commands.command(name='load', hidden=True)
   @Utils.require(required=['authorized', 'not_banned'])
@@ -115,12 +115,11 @@ class Loader(commands.Cog):
           sql = "update config_cog set status=1 where cog=? and guild_id=? ;"
       else:
         sql = "insert into config_cog (`cog`, `guild_id`, `status`) values (?,?,1) ;"
-      print(sql)
       if len(sql):
         database.execute_order(sql, [cog, guild_id])
     except Exception as e:
       await ctx.message.add_reaction('❌')
-      print(f"{type(e).__name__} - {e}")
+      logger ("loader::do_load", f"{type(e).__name__} - {e}")
     else:
       await ctx.message.add_reaction('✅')
 
@@ -162,7 +161,7 @@ class Loader(commands.Cog):
         database.execute_order(sql, [cog, guild_id])
     except Exception as e:
       await ctx.message.add_reaction('❌')
-      print(f"{type(e).__name__} - {e}")
+      logger ("loader::do_unload", f"{type(e).__name__} - {e}")
     else:
       await ctx.message.add_reaction('✅')
 
@@ -189,7 +188,7 @@ class Loader(commands.Cog):
             database.execute_order(update, [guild_id])
     except Exception as e:
       await ctx.message.add_reaction('❌')
-      print(f"{type(e).__name__} - {e}")
+      logger ("loader::do_unload_all", f"{type(e).__name__} - {e}")
     else:
       await ctx.message.add_reaction('✅')
 
@@ -217,10 +216,10 @@ class Loader(commands.Cog):
         if (fetched and fetched[0] == 1) or (cog in ["configuration", "help", "loader", "logs"]):
           all_loaded += f"- **{name}**\n"
       except Exception as e:
-        print(f"{type(e).__name__} - {e}")
+        logger ("loader::list_cogs_guild", f"{type(e).__name__} - {e}")
     if not len(all_loaded):
       all_loaded = "**NONE**"
     try:
       await ctx.send(all_loaded)
     except Exception as e:
-      print(f'{type(e).__name__} - {e}')
+      logger ("loader::list_cogs_guild", f'{type(e).__name__} - {e}')

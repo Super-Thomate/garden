@@ -5,6 +5,7 @@ import Utils
 import botconfig
 import database
 from ..logs import Logs
+from core import logger
 
 
 class Configuration(commands.Cog):
@@ -30,7 +31,7 @@ class Configuration(commands.Cog):
       database.execute_order(insert)
       await ctx.message.add_reaction('✅')
     except Exception as e:
-      print(f" {type(e).__name__} - {e}")
+      logger ("configuration::add_role_modo", f" {type(e).__name__} - {e}")
       error = True
       await ctx.message.add_reaction('❌')
     await self.logger.log('config_log', author, ctx.message, error)
@@ -54,7 +55,7 @@ class Configuration(commands.Cog):
       database.execute_order(delete)
       await ctx.message.add_reaction('✅')
     except Exception as e:
-      print(f" {type(e).__name__} - {e}")
+      logger ("configuration::remove_role_modo", f" {type(e).__name__} - {e}")
       error = True
       await ctx.message.add_reaction('❌')
     await self.logger.log('config_log', author, ctx.message, error)
@@ -77,7 +78,7 @@ class Configuration(commands.Cog):
       database.execute_order(insert, [prefix])
       await ctx.message.add_reaction('✅')
     except Exception as e:
-      print(f" {type(e).__name__} - {e}")
+      logger ("configuration::add_prefix", f" {type(e).__name__} - {e}")
       error = True
       await ctx.message.add_reaction('❌')
     await self.logger.log('config_log', author, ctx.message, error)
@@ -102,7 +103,7 @@ class Configuration(commands.Cog):
       database.execute_order(delete, [prefix])
       await ctx.message.add_reaction('✅')
     except Exception as e:
-      print(f" {type(e).__name__} - {e}")
+      logger ("configuration::remove_prefix", f" {type(e).__name__} - {e}")
       error = True
       await ctx.message.add_reaction('❌')
     await self.logger.log('config_log', author, ctx.message, error)
@@ -143,7 +144,7 @@ class Configuration(commands.Cog):
       database.execute_order(order, [url, type_url])
       await ctx.message.add_reaction('✅')
     except Exception as e:
-      print(f" {type(e).__name__} - {e}")
+      logger ("configuration::set_url", f" {type(e).__name__} - {e}")
       error = True
       await ctx.message.add_reaction('❌')
     await self.logger.log('config_log', author, ctx.message, error)
@@ -166,7 +167,7 @@ class Configuration(commands.Cog):
       database.execute_order(delete, [type_url])
       await ctx.message.add_reaction('✅')
     except Exception as e:
-      print(f" {type(e).__name__} - {e}")
+      logger ("configuration::remove_url", f" {type(e).__name__} - {e}")
       error = True
       await ctx.message.add_reaction('❌')
     await self.logger.log('config_log', author, ctx.message, error)
@@ -209,7 +210,7 @@ class Configuration(commands.Cog):
       database.execute_order(order, [delay, type_delay])
       await ctx.message.add_reaction('✅')
     except Exception as e:
-      print(f" {type(e).__name__} - {e}")
+      logger ("configuration::set_delay", f" {type(e).__name__} - {e}")
       error = True
       await ctx.message.add_reaction('❌')
     await self.logger.log('config_log', author, ctx.message, error)
@@ -232,7 +233,7 @@ class Configuration(commands.Cog):
       database.execute_order(delete, [type_delay])
       await ctx.message.add_reaction('✅')
     except Exception as e:
-      print(f" {type(e).__name__} - {e}")
+      logger ("configuration::remove_delay", f" {type(e).__name__} - {e}")
       error = True
       await ctx.message.add_reaction('❌')
     await self.logger.log('config_log', author, ctx.message, error)
@@ -273,7 +274,7 @@ class Configuration(commands.Cog):
       database.execute_order(order, [do, type_do])
       await ctx.message.add_reaction('✅')
     except Exception as e:
-      print(f" {type(e).__name__} - {e}")
+      logger ("configuration::set_do", f" {type(e).__name__} - {e}")
       error = True
       await ctx.message.add_reaction('❌')
     await self.logger.log('config_log', author, ctx.message, error)
@@ -296,22 +297,16 @@ class Configuration(commands.Cog):
       database.execute_order(delete, [type_do])
       await ctx.message.add_reaction('✅')
     except Exception as e:
-      print(f" {type(e).__name__} - {e}")
+      logger ("configuration::remove_do", f" {type(e).__name__} - {e}")
       error = True
       await ctx.message.add_reaction('❌')
     await self.logger.log('config_log', author, ctx.message, error)
 
   @commands.command(name='setlanguage')
+  @Utils.require(required=['authorized', 'not_banned'])
   async def set_language(self, ctx, lang_code: str):
     guild_id = ctx.guild.id
     lang_code = lang_code.lower()
-    if not Utils.is_authorized(ctx.author, guild_id):
-      print("Missing permissions")
-      return
-    if Utils.is_banned(ctx.command, ctx.author, ctx.guild.id):
-      await ctx.message.add_reaction('❌')
-      await ctx.author.send(Utils.get_text(ctx.guild.id, "error_user_unauthorized_command"))
-      return
     if lang_code not in botconfig.config["languages"]:
       await ctx.message.add_reaction('❌')
       await ctx.send(Utils.get_text(ctx.guild.id, "error_unknown_language").format(lang_code))
@@ -327,6 +322,6 @@ class Configuration(commands.Cog):
       database.execute_order(sql, [])
     except Exception as e:
       await ctx.send(Utils.get_text(ctx.guild.id, 'error_database_writing'))
-      print(f"{type(e).__name__} - {e}")
+      logger ("configuration::set_language", f"{type(e).__name__} - {e}")
     botconfig.__language__[str(guild_id)] = lang_code
     await ctx.send(Utils.get_text(ctx.guild.id, 'language_updated'))
