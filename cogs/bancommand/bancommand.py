@@ -8,7 +8,7 @@ from discord.ext import commands
 import Utils
 import database
 from ..logs import Logs
-
+from core import logger
 
 class Bancommand(commands.Cog):
   """
@@ -54,7 +54,7 @@ class Bancommand(commands.Cog):
     timestamp = None
     if timer:
       timestamp = math.floor(time.time()) + Utils.parse_time(timer)
-    print(f"timestamp: {timestamp}")
+    logger ("bancommand::ban_command_user", f"timestamp: {timestamp}")
     if not timestamp:
       timestamp = "NULL"
     # Insert/Update
@@ -95,7 +95,7 @@ class Bancommand(commands.Cog):
                                                                                              "bancommand_permanent")))
       await ctx.message.add_reaction('✅')
     except Exception as e:
-      print(f'{type(e).__name__} - {e}')
+      logger ("bancommand::ban_command_user", f'{type(e).__name__} - {e}')
       await ctx.message.add_reaction('❌')
 
   @commands.command(name='unbancommanduser', aliases=['ucu'])
@@ -127,7 +127,7 @@ class Bancommand(commands.Cog):
       database.execute_order(delete)
       await ctx.message.add_reaction('✅')
     except Exception as e:
-      print(f'{type(e).__name__} - {e}')
+      logger ("bancommand::unban_command_user", f'{type(e).__name__} - {e}')
       await ctx.message.add_reaction('❌')
 
   @commands.command(name='isbanuser', aliases=['ibu'])
@@ -171,7 +171,7 @@ class Bancommand(commands.Cog):
       to_ret.append(to_ret_string)
     for message_to_ret in to_ret:
       await ctx.send(message_to_ret)
-    print(f"to_ret: {to_ret}")
+    logger ("bancommand::is_ban_user", f"to_ret: {to_ret}")
 
   @commands.command(name='listbanuser', aliases=['lbu'])
   @Utils.require(required=['authorized', 'cog_loaded'])
@@ -234,7 +234,7 @@ class Bancommand(commands.Cog):
       to_ret.append(to_ret_string)
     for message_to_ret in to_ret:
       await ctx.send(message_to_ret)
-    print(f"to_ret: {to_ret}")
+    logger ("bancommand::list_ban_user", f"to_ret: {to_ret}")
 
   @commands.command(name='bancommandrole', aliases=['bcr'])
   @Utils.require(required=['authorized', 'cog_loaded'])
@@ -282,7 +282,7 @@ class Bancommand(commands.Cog):
                                                                                              "bancommand_permanent")))
       await ctx.message.add_reaction('✅')
     except Exception as e:
-      print(f'{type(e).__name__} - {e}')
+      logger ("bancommand::ban_command_role", f'{type(e).__name__} - {e}')
       await ctx.message.add_reaction('❌')
 
   @commands.command(name='unbancommandrole', aliases=['ucr'])
@@ -314,7 +314,7 @@ class Bancommand(commands.Cog):
       database.execute_order(delete)
       await ctx.message.add_reaction('✅')
     except Exception as e:
-      print(f'{type(e).__name__} - {e}')
+      logger ("bancommand::unban_command_role", f'{type(e).__name__} - {e}')
       await ctx.message.add_reaction('❌')
 
   @commands.command(name='isbanrole', aliases=['ibr'])
@@ -359,7 +359,7 @@ class Bancommand(commands.Cog):
 
     for message_to_ret in to_ret:
       await ctx.send(message_to_ret)
-    print(f"to_ret: {to_ret}")
+    logger ("bancommand::is_ban_role", f"to_ret: {to_ret}")
 
   @commands.command(name='listbanrole', aliases=['lbr'])
   @Utils.require(required=['authorized', 'cog_loaded'])
@@ -423,4 +423,4 @@ class Bancommand(commands.Cog):
 
     for message_to_ret in to_ret:
       await ctx.send(message_to_ret)
-    print(f"to_ret: {to_ret}")
+    logger ("bancommand::list_ban_role", f"to_ret: {to_ret}")

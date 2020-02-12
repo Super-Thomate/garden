@@ -4,6 +4,7 @@ import discord
 from discord.ext import commands
 
 import Utils
+from core import logger
 
 
 class Help(commands.Cog):
@@ -25,7 +26,7 @@ class Help(commands.Cog):
       await ctx.channel.send(content=None, embed=embed)
     except AttributeError as e:
       await ctx.channel.send(Utils.get_text(ctx.guild.id, "error_unknown_cog").format(cog))
-      print(f"{type(e).__name__} - {e}")
+      logger ("help::help", f"{type(e).__name__} - {e}")
     except Exception as e:
       await ctx.channel.send(Utils.get_text(ctx.guild.id, "error_occured").format(type(e).__name__, e))
 

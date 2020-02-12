@@ -6,7 +6,7 @@ from discord.ext import commands
 import Utils
 import database
 from ..logs import Logs
-
+from core import logger
 
 class Birthday(commands.Cog):
   def __init__(self, bot):
@@ -61,7 +61,7 @@ class Birthday(commands.Cog):
       except Exception as e:
         error = True
         await ctx.send(Utils.get_text(ctx.guild.id, 'error_database_writing'))
-        print(f"{type(e).__name__} - {e}")
+        logger ("birthday::set_birthday", f"{type(e).__name__} - {e}")
       accepted = await ctx.send(Utils.get_text(ctx.guild.id, 'birthday_registered').format(ctx.author.display_name))
       await Utils.delete_messages(accepted, ctx.message)
       # Log command
@@ -117,7 +117,7 @@ class Birthday(commands.Cog):
       database.execute_order(sql, [])
     except Exception as e:
       await ctx.send(Utils.get_text(ctx.guild.id, 'error_database_writing'))
-      print(f"{type(e).__name__} - {e}")
+      logger ("birthday::set_birthday_channel", f"{type(e).__name__} - {e}")
 
     await ctx.send(Utils.get_text(ctx.guild.id, 'birthday_channel_set').format(f'<#{channel_id}>'))
 
@@ -143,7 +143,7 @@ class Birthday(commands.Cog):
     except Exception as e:
       error = True
       await ctx.send(Utils.get_text(ctx.guild.id, 'error_database_writing'))
-      print(f"{type(e).__name__} - {e}")
+      logger ("birthday::reset_birthday", f"{type(e).__name__} - {e}")
     await ctx.send(Utils.get_text(ctx.guild.id, 'birthday_reset').format(member.mention))
     await self.logger.log('birthday_log', ctx.author, ctx.message, error)
 
@@ -162,12 +162,11 @@ class Birthday(commands.Cog):
       sql = f"INSERT INTO birthday_message VALUES (?, '{guild_id}') ;"
     else:
       sql = f"UPDATE birthday_message SET message=? WHERE guild_id='{guild_id}';"
-    print(sql)
     try:
       database.execute_order(sql, [message])
       await ctx.message.add_reaction('✅')
     except Exception as e:
-      print(f"{type(e).__name__} - {e}")
+      logger ("birthday::set_birthday_message", f"{type(e).__name__} - {e}")
       await ctx.message.add_reaction('❌')
       return
     await ctx.channel.send(Utils.get_text(ctx.guild.id, 'display_new_message').format(message))

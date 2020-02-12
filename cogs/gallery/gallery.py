@@ -10,6 +10,7 @@ import database
 from ..logs import Logs
 import time
 import math
+from core import logger
 
 try:  # check if BeautifulSoup4 is installed
   from bs4 import BeautifulSoup
@@ -51,7 +52,7 @@ class Gallery(commands.Cog):
       await ctx.message.add_reaction('✅')
     except Exception as e:
       await ctx.message.channel.send(Utils.get_text(ctx.guild.id, 'error_user_disabled_PM').format(member.display_name))
-      print(f" {type(e).__name__} - {e}")
+      logger ("gallery::send_token", f" {type(e).__name__} - {e}")
       await ctx.message.add_reaction('❌')
       error = True
     await self.logger.log('galerie_log', ctx.author, ctx.message, error)
@@ -96,7 +97,7 @@ class Gallery(commands.Cog):
     try:
       database.execute_order(sql, [message])
     except Exception as e:
-      print(f"{type(e).__name__} - {e}")
+      logger ("gallery::set_gallery_message", f"{type(e).__name__} - {e}")
     await ctx.channel.send(Utils.get_text(ctx.guild.id, "display_new_message").format(message))
 
   @commands.command(name='setgallerydelay', aliases=['sgd'])
@@ -131,7 +132,7 @@ class Gallery(commands.Cog):
       database.execute_order(order, [delay, type_delay])
       await ctx.message.add_reaction('✅')
     except Exception as e:
-      print(f" {type(e).__name__} - {e}")
+      logger ("gallery::set_gallery_delay", f" {type(e).__name__} - {e}")
       error = True
       await ctx.message.add_reaction('❌')
     await self.logger.log('config_log', author, ctx.message, error)
@@ -175,7 +176,7 @@ class Gallery(commands.Cog):
             embed.timestamp = datetime.utcnow()
             await author.send(content=None, embed=embed)
           except Exception as e:
-            print(f" {type(e).__name__} - {e}")
+            logger ("gallery::token", f" {type(e).__name__} - {e}")
             error = True
           await self.logger.log_dm('galerie_log', author, message, guild, error)
           try:
@@ -185,7 +186,7 @@ class Gallery(commands.Cog):
               await message.delete(delay=2)
               await message.add_reaction('✅')
           except Exception as e:
-            print(f'{type(e).__name__} - {e}')
+            logger ("gallery::token", f'{type(e).__name__} - {e}')
     else:
       if not Utils.is_loaded("gallery", message.guild.id):
         return
@@ -217,7 +218,7 @@ class Gallery(commands.Cog):
           await member.send(content=None, embed=embed)
         except Exception as e:
           await message.channel.send(Utils.get_text(guild_id, 'error_user_disabled_PM_2'))
-          print(f" {type(e).__name__} - {e}")
+          logger ("gallery::token", f" {type(e).__name__} - {e}")
           error = True
         await self.logger.log('galerie_log', member, message, error)
         try:
@@ -227,7 +228,7 @@ class Gallery(commands.Cog):
             await message.delete(delay=2)
             await message.add_reaction('✅')
         except Exception as e:
-          print(f'{type(e).__name__} - {e}')
+          logger ("gallery::token", f'{type(e).__name__} - {e}')
 
   async def get_galerie_link(self, guild_id, author):
     url = (Utils.token_url(guild_id) or botconfig.config[str(guild_id)]['create_url'][
@@ -249,7 +250,7 @@ class Gallery(commands.Cog):
      try:
        until = int(fetched[0])
      except Exception as e:
-       print(f"is_banned {type(e).__name__} - {e}")
+       logger ("gallery::is_banned", f"{type(e).__name__} - {e}")
        return True
      if until > math.floor(time.time()):  # still ban
        return True

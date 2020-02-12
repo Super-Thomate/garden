@@ -6,7 +6,7 @@ from discord.ext import commands
 import botconfig
 import database
 # IMPORT FOR AUTOBOT
-from core import run_task
+from core import run_task, logger
 
 DISCORD_CRON_CRONTAB         = {   "vote": "* * * * *"
                                  , "utip": "* * * * *"
@@ -20,9 +20,9 @@ def get_prefix(bot, message):
     select = ("select   prefix " +
               "from     config_prefix " +
               " where " +
-              f"guild_id='{message.guild.id}' ;" +
+              "guild_id='{0}' ;" +
               ""
-              )
+              ).format(message.guild.id)
     fetched = database.fetch_all_line(select)
     if fetched:
       for line in fetched:
@@ -81,14 +81,14 @@ async def on_guild_join(guild):
 
 @bot.event
 async def on_ready():
-  print('------')
-  print('Logged in as')
-  print(bot.user.name)
-  print(bot.user.id)
-  print('------')
-  print('Discord.py version')
-  print(discord.__version__)
-  print('------')
+  login                      = (   "--------------------------------\n"
+                                   "| Logged in as                 |\n"
+                                   "| {0} [{1}] |\n"
+                                   "--------------------------------\n"
+                                   "| Discord.py version {2}     |\n"
+                                   "--------------------------------\n"
+                               ).format (bot.user.name, bot.user.id, discord.__version__)
+  print(login)
   try:
     await bot.change_presence(activity=discord.Game(name=botconfig.config['activity']))
     for guild in bot.guilds:
@@ -96,20 +96,20 @@ async def on_ready():
       language_code = database.fetch_one_line(select, [guild.id])
       botconfig.__language__[str(guild.id)] = language_code[0] if language_code else "en"
   except TypeError as type_err:
-    print("Error TypeError : {}".format(type_err))
+    logger ("bot::on_ready", "Error TypeError : {}".format(type_err))
     sys.exit(0)
   except Exception as e:
-    print(f"{type(e).__name__} - {e}")
+    logger ("bot::on_ready", f"{type(e).__name__} - {e}")
     sys.exit(0)
 
   # AUTOBOT
   try:
     for task in DISCORD_CRON_CRONTAB:
       interval               = DISCORD_CRON_CRONTAB [task]
-      print ("Scheduling {0} with intervall [{1}]".format (task, interval))
+      logger ("bot::on_ready::autobot", "Scheduling {0} with intervall [{1}]".format (task, interval))
       bot.loop.create_task (run_task (bot, task, interval))
   except Exception as e:
-    print(f"{type(e).__name__} - {e}")
+    logger ("bot::on_ready::autobot", f"{type(e).__name__} - {e}")
     sys.exit(0)
 
 bot.run(botconfig.config['token'])
