@@ -224,7 +224,9 @@ class Logs(commands.Cog):
     if fetched_log_channel:
       for db_log_channel in fetched_log_channel:
         log_channel = await self.bot.fetch_channel(int(db_log_channel[0]))
-        # guild_id               = await self.bot.fetch_channel (int (db_log_channel[1]))
+        guild                = log_channel.guild
+        if (not message.author in guild.members):
+          continue
         member = message.author
         colour = discord.Colour(0)
         colour = colour.from_rgb(225, 199, 255)
