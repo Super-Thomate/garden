@@ -155,15 +155,20 @@ class Source(commands.Cog):
 
   @commands.Cog.listener('on_message')
   async def ask_for_source(self, message: discord.Message):
+    if not message.guild:
+      return
+    guild_id                 = message.guild.id
+    if not Utils.is_loaded ("source", guild_id):
+      return
     url = re.search("(?P<url>https?://[^\s]+)", message.content)
     url = url.group("url") if url else None
     if "source" in message.content.lower():
       return
     if len(message.attachments) == 0 and (
-            not url or not (self.is_url_in_blacklist(url, message.guild.id or Utils.is_url_image(url)))):
+            not url or not (self.is_url_in_blacklist(url, guild_id or Utils.is_url_image(url)))):
       return
-    sql = f"SELECT channel_id FROM source_channel WHERE guild_id='{message.guild.id}' ;"
-    if not str(message.channel.id) in [channel[0] for channel in database.fetch_all_line(sql)]:
+    sql = f"SELECT channel_id FROM source_channel WHERE guild_id=? ;"
+    if not str(message.channel.id) in [channel[0] for channel in database.fetch_all_line(sql, [guild_id])]:
       return
     response = self.get_source_message(message.author.id, message.guild.id)
     await message.channel.send(response)
