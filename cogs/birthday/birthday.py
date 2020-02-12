@@ -96,9 +96,9 @@ class Birthday(commands.Cog):
     try:
       database.execute_order (sql, [time, ctx.guild.id])
       await ctx.send(Utils.get_text(ctx.guild.id, "birthday_time_registered").format(time))
-   except Exception as e:
-     await ctx.send(Utils.get_text(ctx.guild.id, 'error_database_writing'))
-     logger ("birthday::set_birthday_channel", f"{type(e).__name__} - {e}")
+    except Exception as e:
+      await ctx.send(Utils.get_text(ctx.guild.id, 'error_database_writing'))
+      logger ("birthday::set_birthday_channel", f"{type(e).__name__} - {e}")
 
 
 
