@@ -142,8 +142,6 @@ def is_admin(member):
 def is_allowed(member, guild_id):
   for obj_role in member.roles:
     if ((obj_role.id in get_roles_modo(guild_id))
-            or (obj_role.name in botconfig.config[str(guild_id)]['roles'])
-            or (obj_role.id in botconfig.config[str(guild_id)]['roles'])
     ):
       return True
   return False
