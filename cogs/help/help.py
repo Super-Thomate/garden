@@ -253,6 +253,23 @@ class Help(commands.Cog):
     embed.timestamp = datetime.today()
     return embed
 
+  def help_configuration (self, guild_id):
+    infos = self.bot.user
+    colour = discord.Colour(0)
+    colour = colour.from_rgb(176, 255, 176)
+    embed = discord.Embed(colour=colour, title=Utils.get_text(guild_id, 'timer_help_title'))
+    embed.add_field(name=Utils.get_text(guild_id, 'help_user_command')
+                    , value=""
+                    , inline=False
+                    )
+    embed.add_field(name=Utils.get_text(guild_id, 'help_admin_command')
+                    , value=""
+                    , inline=False
+                    )
+    embed.set_author(icon_url=infos.avatar_url, name=str(infos))
+    embed.timestamp = datetime.today()
+    return embed
+
   def help_global(self, guild_id):
     line_cogs = ""
     all_lines = []
