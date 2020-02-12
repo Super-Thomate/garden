@@ -93,9 +93,13 @@ class Birthday(commands.Cog):
       sql = "UPDATE birthday_time SET time=? WHERE guild_id=? ;"
     else:
       sql = "INSERT INTO birthday_time VALUES (?, ?) ;"
-    success = await database.write_data(ctx, sql, [time, ctx.guild.id])
-    if success:
+    try:
+      database.execute_order (sql, [time, ctx.guild.id])
       await ctx.send(Utils.get_text(ctx.guild.id, "birthday_time_registered").format(time))
+   except Exception as e:
+     await ctx.send(Utils.get_text(ctx.guild.id, 'error_database_writing'))
+     logger ("birthday::set_birthday_channel", f"{type(e).__name__} - {e}")
+
 
 
   @commands.command(name="setbirthdaychannel", aliases=['sbc'])
