@@ -17,8 +17,6 @@ def get_prefix(bot, message):
   """A callable Prefix for our bot."""
   prefixes = []
   if message.guild:
-    prefixes = botconfig.config[str(message.guild.id)]['prefixes']
-
     select = ("select   prefix " +
               "from     config_prefix " +
               " where " +
@@ -103,7 +101,7 @@ async def on_ready():
   except Exception as e:
     print(f"{type(e).__name__} - {e}")
     sys.exit(0)
-    
+
   # AUTOBOT
   try:
     for task in DISCORD_CRON_CRONTAB:
