@@ -225,12 +225,11 @@ async def birthday_task(bot):
         continue
       sql = "SELECT time FROM birthday_time WHERE guild_id=? ;"
       response = database.fetch_one_line(sql, [guild_id])
-      if response is None:
-        continue
-      birthday_hour = int(response[0])
-      current_hour = int(datetime.now().strftime('%-H'))
-      if current_hour < birthday_hour:
-        continue
+      if not (response is None or response[0] is None):
+        birthday_hour = int(response[0])
+        current_hour = int(datetime.now().strftime('%-H'))
+        if current_hour < birthday_hour:
+          continue
       sql = "SELECT channel_id FROM birthday_channel WHERE guild_id=? ;"
       channel_id = database.fetch_one_line(sql, [guild_id])
       if not channel_id:
