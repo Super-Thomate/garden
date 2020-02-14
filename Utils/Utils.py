@@ -408,7 +408,8 @@ async def delete_messages(*args):
 
 
 def is_loaded(cog, guild_id):
-  logger ("Utils::is_loaded", "is_loaded({0}, {1})".format(cog, guild_id))
+  if (guild_id is None):
+    logger ("Utils::is_loaded", "is_loaded({0}, {1})".format(cog, guild_id))
   try:
     guild_id = int(guild_id)
     select = ("select   status "
