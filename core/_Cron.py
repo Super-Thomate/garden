@@ -219,6 +219,7 @@ async def utip_task (bot):
 
 async def birthday_task(bot):
   try:
+    logger ("_Cron::birthday_task", f"len(bot.guilds): {len(bot.guilds)}")
     for guild in bot.guilds:
       guild_id = guild.id
       if not Utils.is_loaded("birthday", guild_id):
