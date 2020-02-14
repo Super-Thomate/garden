@@ -158,6 +158,7 @@ class Logs(commands.Cog):
   @Utils.require(required=['authorized', 'not_banned'])
   async def cleanchannel(self, ctx, length_or_id: str = None, message_id: int = None):
     """Clean the current channel"""
+    print ("Clean the current channel")
     channel = ctx.channel
     member = ctx.author
     guild_id = ctx.guild.id
