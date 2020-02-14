@@ -143,6 +143,8 @@ def create_table():
       'CREATE TABLE IF NOT EXISTS `birthday_log` (`channel_id` VARCHAR(256) NOT NULL, `guild_id` VARCHAR(256) NOT NULL, PRIMARY KEY (`guild_id`)) ;')
     cursor.execute(
       'CREATE TABLE IF NOT EXISTS `birthday_message` (`message` TEXT NOT NULL, `guild_id` VARCHAR(256) NOT NULL, PRIMARY KEY (`guild_id`)) ;')
+    cursor.execute(
+       'CREATE TABLE IF NOT EXISTS `birthday_time` (`time` VARCHAR(32) NOT NULL, `guild_id` VARCHAR(256) NOT NULL, PRIMARY KEY (`guild_id`)) ;')
     ### SOURCE COG
     cursor.execute(
       'CREATE TABLE IF NOT EXISTS `source_channel` (`channel_id` VARCHAR(256) NOT NULL, `guild_id` VARCHAR(256) NOT NULL, PRIMARY KEY (`channel_id`)) ;')
