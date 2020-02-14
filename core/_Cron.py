@@ -254,9 +254,9 @@ async def birthday_task(bot):
           database.execute_order(sql, [current_year, member_id, guild_id])
         except Exception as e:
           await birthday_channel.send(Utils.get_text(guild_id, 'error_database_writing'))
-          logger ("_Cron::birthday_task", f"{type(e).__name__} - {e}")
+          logger ("_Cron::birthday_task", f"execute_order {type(e).__name__} - {e}")
   except Exception as e:
-    logger ("_Cron::birthday_task", f"{type(e).__name__} - {e}")
+    logger ("_Cron::birthday_task", f"birthday_task {type(e).__name__} - {e}")
 
 def embed_get_result (message_id, guild_id, embed):
   field = embed.fields[0]
