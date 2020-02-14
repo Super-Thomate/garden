@@ -219,7 +219,6 @@ async def utip_task (bot):
 
 async def birthday_task(bot):
   try:
-    logger ("_Cron::birthday_task", f"len(bot.guilds): {len(bot.guilds)}")
     for guild in bot.guilds:
       guild_id = guild.id
       if not Utils.is_loaded("birthday", guild_id):
@@ -244,6 +243,7 @@ async def birthday_task(bot):
       if (not birthday_channel):
         logger ("_Cron::birthday_task", "!! birthday_channel not defined for guild {0}".format(guild.name))
         continue
+      logger ("_Cron::birthday_task", f"len(data): {len(data)}")
       for line in data:
         member_id, guild_id, last_year_wished = line[0], line[1], line[2]
         if current_year == last_year_wished:
