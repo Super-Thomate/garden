@@ -83,6 +83,8 @@ class Pwet(commands.Cog):
   @commands.Cog.listener('on_raw_reaction_add')
   async def pwet_message(self, payload: discord.RawReactionActionEvent):
     guild = self.bot.get_guild(payload.guild_id)
+    if guild is None:
+      return
     author = guild.get_member(payload.user_id)
     if Utils.is_authorized(author, guild.id):
       sql = "SELECT emoji_text, emoji_id FROM pwet_reaction WHERE guild_id=? ;"

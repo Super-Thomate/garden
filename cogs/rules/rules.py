@@ -232,6 +232,8 @@ class Rules(commands.Cog):
   @commands.Cog.listener('on_raw_reaction_add')
   async def send_rule(self, payload: discord.RawReactionActionEvent):
     guild = self.bot.get_guild(payload.guild_id)
+    if guild is None:
+      return
     author = guild.get_member(payload.user_id)
     if (not Utils.is_loaded("rules", payload.guild_id)
             or not Utils.is_authorized(author, payload.guild_id)
