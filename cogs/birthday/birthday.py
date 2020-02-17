@@ -33,8 +33,6 @@ class Birthday(commands.Cog):
     one_line = True
     sql = f"SELECT user_id FROM birthday_user WHERE user_id='{member_id}' and guild_id='{guild_id}' ;"
     data = database.fetch_one_line(sql)
-    print (sql)
-    print (data)
     if data and data [0]:
       already_registered = await ctx.send(Utils.get_text(ctx.guild.id, 'birthday_already_registered'))
       await Utils.delete_messages(already_registered, ctx.message)
