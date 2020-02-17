@@ -4,7 +4,7 @@ from discord.ext import commands
 import Utils
 import database
 from ..logs import Logs
-
+from core import logger
 
 class RoleDM(commands.Cog):
   """
@@ -34,7 +34,7 @@ class RoleDM(commands.Cog):
               and Utils.has_role(after, role_id)
       ):
         # The member obtained the role
-        print('The member obtained the role')
+        logger ("roledm::on_member_update", 'The member obtained the role')
         select = f"select message from roledm_message where guild_id='{guild_id}'and role_id='{role_id}' ;"
         fetched = database.fetch_one_line(select)
         if fetched:
@@ -60,7 +60,6 @@ class RoleDM(commands.Cog):
     role_id = role.id
     sql = f"insert into roledm_role values ('{role_id}', '{guild_id}')"
     error = False
-    print(sql)
     try:
       database.execute_order(sql, [])
     except Exception as e:
@@ -87,7 +86,6 @@ class RoleDM(commands.Cog):
     role_id = role.id
     sql = f"delete roledm_role where guild_id='{guild_id}'and role_id='{role_id}' ;"
     error = False
-    print(sql)
     try:
       database.execute_order(sql, [])
       await ctx.message.add_reaction('✅')
@@ -115,12 +113,11 @@ class RoleDM(commands.Cog):
       sql = f"INSERT INTO roledm_message VALUES (?, '{role_id}', '{guild_id}') ;"
     else:
       sql = f"update roledm_message set message=? where guild_id='{guild_id}'and role_id='{role_id}' ;"
-    print(sql)
     try:
       database.execute_order(sql, [message])
       await ctx.message.add_reaction('✅')
     except Exception as e:
-      print(f"{type(e).__name__} - {e}")
+      logger ("roledm::set_roledm_message", f"{type(e).__name__} - {e}")
       await ctx.message.add_reaction('❌')
       return
     await ctx.channel.send(Utils.get_text(ctx.guild.id, 'display_new_message').format(message))
