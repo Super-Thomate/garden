@@ -3,6 +3,7 @@ from discord.ext import commands
 
 import Utils
 from ..logs import Logs
+from core import logger
 
 
 class Turing(commands.Cog):
@@ -32,7 +33,6 @@ class Turing(commands.Cog):
     if not user:
       await ctx.send(Utils.get_text(ctx.guild.id, "error_no_parameter").format('<User>'))
       return
-    print(f"user obj: {user.id}")
     error = False
     try:
       ask = await ctx.send(Utils.get_text(ctx.guild.id, "turing_ask_message"))
@@ -44,7 +44,7 @@ class Turing(commands.Cog):
       await ask.delete(delay=2)
       await msg.delete(delay=2)
     except Exception as e:
-      print(f" {type(e).__name__} - {e}")
+      logger ("turing::answer_spy_log", f" {type(e).__name__} - {e}")
       error = True
     await self.logger.log('spy_log', author, ctx.message, error)
     if message:
@@ -69,7 +69,7 @@ class Turing(commands.Cog):
       await ask.delete(delay=2)
       await msg.delete(delay=2)
     except Exception as e:
-      print(f" {type(e).__name__} - {e}")
+      logger ("turing::say_spy_log", f" {type(e).__name__} - {e}")
       error = True
     await self.logger.log('spy_log', author, ctx.message, error)
     if message:
@@ -85,7 +85,7 @@ class Turing(commands.Cog):
       await ctx.message.add_reaction('✅')
       await ctx.send(Utils.get_text(ctx.guild.id, "turing_autoanswer_disable"))
     except Exception as e:
-      print(f" {type(e).__name__} - {e}")
+      logger ("turing::fake_mute_lion", f" {type(e).__name__} - {e}")
       error = True
     await self.logger.log('spy_log', author, ctx.message, error)
 
@@ -99,7 +99,7 @@ class Turing(commands.Cog):
       await ctx.message.add_reaction('✅')
       await ctx.send(Utils.get_text(ctx.guild.id, "turing_autoanswer_enable"))
     except Exception as e:
-      print(f" {type(e).__name__} - {e}")
+      logger ("turing::fake_start_lion", f" {type(e).__name__} - {e}")
       error = True
     await self.logger.log('spy_log', author, ctx.message, error)
 
@@ -113,7 +113,7 @@ class Turing(commands.Cog):
       await ctx.message.add_reaction('✅')
       await ctx.send(Utils.get_text(ctx.guild.id, "turing_set_humor").format(percent))
     except Exception as e:
-      print(f" {type(e).__name__} - {e}")
+      logger ("turing::fake_set_humor_lion", f" {type(e).__name__} - {e}")
       error = True
     await self.logger.log('spy_log', author, ctx.message, error)
 
@@ -154,7 +154,7 @@ class Turing(commands.Cog):
         error = True
       # await ctx.message.delete (delay=2)
     except Exception as e:
-      print(f" {type(e).__name__} - {e}")
+      logger ("turing::edit_message_turing", f" {type(e).__name__} - {e}")
       error = True
     await self.logger.log('spy_log', author, ctx.message, error)
 
@@ -176,7 +176,7 @@ class Turing(commands.Cog):
         error = True
       # await ctx.message.delete (delay=2)
     except Exception as e:
-      print(f" {type(e).__name__} - {e}")
+      logger ("turing::delete_message_turing", f" {type(e).__name__} - {e}")
       error = True
     await self.logger.log('spy_log', author, ctx.message, error)
 
@@ -196,7 +196,7 @@ class Turing(commands.Cog):
         self.auto_reply = False
       # await ctx.message.delete (delay=2)
     except Exception as e:
-      print(f" {type(e).__name__} - {e}")
+      logger ("turing::set_auto_reply", f" {type(e).__name__} - {e}")
       error = True
     await self.logger.log('spy_log', author, ctx.message, error)
 
@@ -217,7 +217,7 @@ class Turing(commands.Cog):
         try:
           message = await channel.fetch_message(message_id)
         except Exception as e:
-          print(f" {type(e).__name__} - {e}")
+          logger ("turing::get_message_general", f" {type(e).__name__} - {e}")
         else:
           break
     return message
@@ -233,7 +233,6 @@ class Turing(commands.Cog):
       await ctx.send(Utils.get_text(ctx.guild.id, "error_no_parameter").format('<emoji>'))
       return
     error = False
-    print(f"emoji: {emoji}")
     try:
       message = await self.get_message_general(ctx, message_id)
       if message:
@@ -246,6 +245,6 @@ class Turing(commands.Cog):
         error = True
       # await ctx.message.delete (delay=2)
     except Exception as e:
-      print(f" {type(e).__name__} - {e}")
+      logger ("turing::react_to_message", f" {type(e).__name__} - {e}")
       error = True
     await self.logger.log('spy_log', author, ctx.message, error, {"url_to_go": message.jump_url})
