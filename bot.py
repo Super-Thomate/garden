@@ -81,13 +81,19 @@ async def on_guild_join(guild):
 
 @bot.event
 async def on_ready():
-  login                      = (   "--------------------------------\n"
-                                   "| Logged in as                 |\n"
-                                   "| {0} [{1}] |\n"
-                                   "--------------------------------\n"
-                                   "| Discord.py version {2}     |\n"
-                                   "--------------------------------\n"
-                               ).format (bot.user.name, bot.user.id, discord.__version__)
+  logged_in_as               = "Logged in as {0} [{1}]".format (bot.user.name, bot.user.id)
+  discord_version            = "Discord.py version {0}".format(discord.__version__)
+  len_logged_in_as           = len (logged_in_as)
+  len_discord_version        = len (discord_version)
+  discord_version            = discord_version + (" " * (len_logged_in_as-len_discord_version))
+  dash                       = "----"+("-"*len_logged_in_as)
+  
+  login                      = (   "{0}\n"
+                                   "| {1} |\n"
+                                   "{0}\n"
+                                   "| {2} |\n"
+                                   "{0}\n"
+                               ).format (dash, logged_in_as,  discord_version)
   print(login)
   try:
     await bot.change_presence(activity=discord.Game(name=botconfig.config['activity']))
