@@ -6,6 +6,7 @@ from discord.ext import commands
 import Utils
 import database
 from ..logs import Logs
+from core import logger
 
 
 class Rules(commands.Cog):
@@ -16,12 +17,11 @@ class Rules(commands.Cog):
 
   async def is_emoji_valid(self, msg_emoji: discord.Message):
     try:
-      print(f"emoji_text: {msg_emoji.content}")
       await msg_emoji.add_reaction(msg_emoji.content)
       await msg_emoji.remove_reaction(msg_emoji.content, self.bot.user)
       return True
     except Exception as e:
-      print(f"{type(e).__name__} - {e}")
+      logger ("rules::is_emoji_valid", f"{type(e).__name__} - {e}")
       await msg_emoji.channel.send(Utils.get_text(msg_emoji.guild.id, "rules_emoji_invalid").format(msg_emoji.content))
       return False
 
@@ -56,7 +56,7 @@ class Rules(commands.Cog):
       database.execute_order(sql, [rule, guild_id])
       await ctx.message.add_reaction('✅')
     except Exception as e:
-      print(f"{type(e).__name__} - {e}")
+      logger ("rules::add_rule", f"{type(e).__name__} - {e}")
     confirm = await ctx.send(Utils.get_text(ctx.guild.id, "rules_registered"))
     await confirm.delete(delay=2)
 
@@ -79,7 +79,7 @@ class Rules(commands.Cog):
       database.execute_order(sql, [])
       await ctx.message.add_reaction('✅')
     except Exception as e:
-      print(f"{type(e).__name__} - {e}")
+      logger ("rules::remove_rule", f"{type(e).__name__} - {e}")
     await ctx.send(Utils.get_text(ctx.guild.id, "rules_deleted"))
 
   @commands.command(name='editrule', aliases=['edr'])
@@ -104,7 +104,7 @@ class Rules(commands.Cog):
       database.execute_order(sql, [message, ctx.guild.id])
       await ctx.message.add_reaction('✅')
     except Exception as e:
-      print(f"{type(e).__name__} - {e}")
+      logger ("rules::edit_rule", f"{type(e).__name__} - {e}")
     await ctx.send(Utils.get_text(ctx.guild.id, "rules_edited").format(emoji_text))
 
   @commands.command(name='listrules', aliases=['lrs'])
@@ -118,7 +118,6 @@ class Rules(commands.Cog):
     embed = discord.Embed(colour=colour, title=Utils.get_text(guild_id, 'rules_list'))
     array_rule = []
     line_rule = ""
-    print(rules)
     for rule in rules:
       rule_text = rule[0]
       emoji = None
@@ -129,12 +128,11 @@ class Rules(commands.Cog):
           try:
             emoji = str(await guild.fetch_emoji(int(rule[2])))
           except Exception as e:
-            print(f"{type(e).__name__} - {e}")
+            logger ("rules::list_rules", f"{type(e).__name__} - {e}")
           else:
             break
       if not emoji:
         raise Exception('Emoji not found', f'id = {rule[2]}')
-      print(f"EMOJI {emoji}")
       if (len(rule_text) > 500):
         rule_text = rule_text[:500] + "[...]"
       current_line = f"[{emoji}] {rule_text}\n"
@@ -176,7 +174,7 @@ class Rules(commands.Cog):
       rule = fetched[0]
       await ctx.send(">>> " + rule)
     except Exception as e:
-      print(f"{type(e).__name__} - {e}")
+      logger ("rules::get_rule", f"{type(e).__name__} - {e}")
 
   @commands.command(name='setruleslog', aliases=['srl'])
   @Utils.require(required=['authorized', 'not_banned', 'cog_loaded'])
@@ -250,7 +248,7 @@ class Rules(commands.Cog):
                      str(payload.message_id)
                      )
       # await author.send(Utils.get_text(guild.id, "already_warned_rule").format(url_message))
-      print(f'Message {url_message} has already been warned by a rule')
+      # logger ("rules::send_rule", f'Message {url_message} has already been warned by a rule')
       return
     channel = self.bot.get_channel(payload.channel_id)
     message = await channel.fetch_message(payload.message_id)
@@ -265,13 +263,3 @@ class Rules(commands.Cog):
       message_warned_content = message_warned_content[:512] + "[...]"
     message.content = f"**Member {message.author} warned**:\n{message.content}\nReaction: {payload.emoji}"
     await self.logger.log('rules_log', author, message, False)
-
-  @commands.Cog.listener()
-  async def on_command_error(self, ctx: commands.Context, exception):
-    print(f"ctx.message: {ctx.message.content}")
-    print(f"ctx.args: {ctx.args}")
-    print(f"ctx.command_failed: {ctx.command_failed}")
-    print(exception)
-    if not ctx.command:
-      return
-    await ctx.channel.send(exception)

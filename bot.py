@@ -112,4 +112,16 @@ async def on_ready():
     logger ("bot::on_ready::autobot", f"{type(e).__name__} - {e}")
     sys.exit(0)
 
+
+@bot.event
+async def on_command_error(ctx: commands.Context, exception):
+  logger ("bot::on_command_error", f"ctx.message: {ctx.message.content}")
+  logger ("bot::on_command_error", f"ctx.args: {ctx.args}")
+  logger ("bot::on_command_error", f"ctx.command_failed: {ctx.command_failed}")
+  print(exception)
+  if not ctx.command:
+    return
+  await ctx.channel.send(exception)
+
+
 bot.run(botconfig.config['token'])
