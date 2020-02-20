@@ -7,7 +7,7 @@ from discord.ext import commands
 import Utils
 import database
 from ..logs import Logs
-
+from core import logger
 
 class Utip(commands.Cog):
   def __init__(self, bot):
@@ -32,7 +32,7 @@ class Utip(commands.Cog):
     except Exception as e:
       await ctx.send(Utils.get_text('fr', 'error_moderation_channel').format(type(e).__name__))
       await ctx.message.add_reaction('❌')
-      print(f"{type(e).__name__} - {e}")
+      logger ("utip::utip_send", f"{type(e).__name__} - {e}")
       return
     error = False
     try:
@@ -101,7 +101,7 @@ class Utip(commands.Cog):
       await ask.delete(delay=2)
       await msg.delete(delay=2)
     except Exception as e:
-      print(f"{type(e).__name__} - {e}")
+      logger ("utip::utip_send", f"{type(e).__name__} - {e}")
       error = True
     await self.logger.log('utip_log', author, ctx.message, error)
     await self.logger.log('utip_log', author, msg, error)
@@ -121,11 +121,10 @@ class Utip(commands.Cog):
       sql = f"insert into utip_channel (`channel_id`, `guild_id`) values (?, '{guild_id}')"
     else:
       sql = f"update utip_channel set channel_id=? where guild_id='{guild_id}'"
-    # print (sql)
     try:
       database.execute_order(sql, [channel.id])
     except Exception as e:
-      print(f"{type(e).__name__} - {e}")
+      logger ("utip::set_utip_channel", f"{type(e).__name__} - {e}")
     else:
       await ctx.message.add_reaction('✅')
 
@@ -140,11 +139,10 @@ class Utip(commands.Cog):
       sql = f"insert into utip_role (`role_id`, `guild_id`) values (?, '{guild_id}')"
     else:
       sql = f"update utip_role set role_id=? where guild_id='{guild_id}'"
-    # print (sql)
     try:
       database.execute_order(sql, [role.id])
     except Exception as e:
-      print(f"{type(e).__name__} - {e}")
+      logger ("utip::set_utip_role", f"{type(e).__name__} - {e}")
       await ctx.message.add_reaction('❌')
     else:
       await ctx.message.add_reaction('✅')
@@ -164,11 +162,10 @@ class Utip(commands.Cog):
       sql = f"insert into utip_message (`message`, `guild_id`) values (?, '{guild_id}')"
     else:
       sql = f"update utip_message set message=? where guild_id='{guild_id}'"
-    # print (sql)
     try:
       database.execute_order(sql, [message])
     except Exception as e:
-      print(f"{type(e).__name__} - {e}")
+      logger ("utip::set_utip_message", f"{type(e).__name__} - {e}")
       await ctx.message.add_reaction('❌')
     else:
       await ctx.message.add_reaction('✅')
@@ -195,11 +192,10 @@ class Utip(commands.Cog):
       sql = f"insert into config_delay (`delay`, `type_delay`, `guild_id`) values (?, 'utip_role', '{guild_id}')"
     else:
       sql = f"update config_delay set delay=? where guild_id='{guild_id}' and type_delay='utip_role' ;"
-    # print (sql)
     try:
       database.execute_order(sql, [delay])
     except Exception as e:
-      print(f"{type(e).__name__} - {e}")
+      logger ("utip::set_utip_delay", f"{type(e).__name__} - {e}")
       await ctx.message.add_reaction('❌')
     else:
       await ctx.message.add_reaction('✅')
@@ -237,7 +233,7 @@ class Utip(commands.Cog):
       await member.add_roles(role_utip)
       database.execute_order(sql)
     except Exception as e:
-      print(f"give_role: {type(e).__name__} - {e}")
+      logger ("utip::give_role", f"give_role: {type(e).__name__} - {e}")
       error = True
     return error
 
@@ -264,7 +260,6 @@ class Utip(commands.Cog):
     select_waiting = f"select user_id from utip_waiting where message_id='{message_id}' and status=0;"
     fetched_waiting = database.fetch_one_line(select_waiting)
     if not fetched_waiting:
-      # print ("Utip reaction listener: Not a utip message !")
       return
     user_id = int(fetched_waiting[0])
     channel_selected = await self.bot.fetch_channel(channel_id)
@@ -315,33 +310,3 @@ class Utip(commands.Cog):
     embed.colour = colour
     await message_selected.edit(embed=embed)
     await member_selected.send(feedback_message)
-
-  """
-  @commands.command(name='testgiveutip', aliases=['tgu'])
-  async def test_give_utip(self, ctx, member: discord.Member = None):
-    guild_id                 = ctx.message.guild.id
-    author                   = ctx.author
-    if not Utils.is_authorized (author, guild_id):
-      print ("Missing permissions")
-      return
-    if Utils.is_banned (ctx.command, ctx.author, ctx.guild.id):
-      await ctx.message.add_reaction('❌')
-      await ctx.author.send(Utils.get_text(self.language_code, "STRING_TO_CHANGE"))
-      return
-    member                   = member or author
-    select                   = f"select role_id from utip_role where guild_id='{guild_id}'"
-    fetched                  = database.fetch_one_line (select)
-    print (f"select: {select}")
-    print (f"fetched: {fetched}")
-    if not fetched:
-      await ctx.send(Utils.get_text(self.language_code, "STRING_TO_CHANGE"))
-      return
-    role                     = ctx.guild.get_role (int (fetched [0]))
-    error                    = await self.give_role(member, role, 3600)
-    if error:
-      await ctx.send(Utils.get_text(self.language_code, "STRING_TO_CHANGE"))
-      await ctx.message.add_reaction('❌')
-    else:
-      await ctx.send(Utils.get_text(self.language_code, "STRING_TO_CHANGE"))
-      await ctx.message.add_reaction('✅')
-  """

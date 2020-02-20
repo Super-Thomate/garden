@@ -9,7 +9,7 @@ import Utils
 import botconfig
 import database
 from ..logs import Logs
-
+from core import logger
 
 class Nickname(commands.Cog):
   def __init__(self, bot):
@@ -32,14 +32,12 @@ class Nickname(commands.Cog):
     nickname_delay = Utils.nickname_delay(guild_id)
     sql = f'select last_change from last_nickname where guild_id=\'{guild_id}\' and member_id=\'{member.id}\''
     fetched = database.fetch_one_line(sql)
-    print(f"for {sql}\nget {fetched}")
     if nickname_delay and fetched and fetched[0]:
       last_change = time.mktime(datetime.strptime(fetched[0], '%Y-%m-%d %H:%M:%S').timetuple())
       if str(nickname_delay).isnumeric():
         nickname_delay = int(nickname_delay)
       else:
         nickname_delay = Utils.convert_str_to_time(nickname_delay)
-      print(f"nickname_cannot_change: {nickname_delay}")
       duree = math.floor((last_change + nickname_delay) - time.time())
       if duree > 0:
         # I can't
@@ -54,16 +52,13 @@ class Nickname(commands.Cog):
     # Change my Nickname
     error = False
     try:
-      print("member.name: {0}".format(member.name))
-      print("nickname: {0}".format(nickname))
       if member.name == nickname:
         # nickname = nickname+"\uFEFF_"
         nickname = nickname[0] + "\u17b5" + nickname[1:]
-        print("tweaking")
       await member.edit(nick=nickname)
     except Exception as e:
       error = True
-      print(f"{type(e).__name__} - {e}")
+      logger ("nickname::set_nickname", f" change nickname {type(e).__name__} - {e}")
     if not error:
       # write in db last_time
       select = f"select * from last_nickname where guild_id='{guild_id}' and member_id='{member.id}'"
@@ -76,13 +71,12 @@ class Nickname(commands.Cog):
         database.execute_order(sql, [])
       except Exception as e:
         await message.channel.send(Utils.get_text(ctx.guild.id, "error_database_writing"))
-        print(f'{type(e).__name__} - {e}')
+        logger ("nickname::set_nickname", f'last_time {type(e).__name__} - {e}')
         error = True
     if not error:
       # write in db current nickanme
       select = f"select * from nickname_current where guild_id='{guild_id}' and member_id='{member.id}' ;"
       fetched = database.fetch_one_line(select)
-      print(f"fetched: {fetched}")
       if not fetched:
         sql = f"insert into nickname_current values ('{member.id}', '{guild_id}', ?) ;"
       else:
@@ -91,7 +85,7 @@ class Nickname(commands.Cog):
         database.execute_order(sql, [nickname])
       except Exception as e:
         await message.channel.send(Utils.get_text(ctx.guild.id, "error_database_writing"))
-        print(f'{type(e).__name__} - {e}')
+        logger ("nickname::set_nickname", f'current_nickname {type(e).__name__} - {e}')
         error = True
     # Log my change
     if error:
@@ -111,7 +105,7 @@ class Nickname(commands.Cog):
       database.execute_order(sql, [])
       await ctx.message.add_reaction('✅')
     except Exception as e:
-      print(f"{type(e).__name__} - {e}")
+      logger ("nickname::reset_nickname", f"{type(e).__name__} - {e}")
       await ctx.message.add_reaction('❌')
       error = True
     await self.logger.log('nickname_log', ctx.author, ctx.message, error)
@@ -124,7 +118,6 @@ class Nickname(commands.Cog):
     nickname_delay = Utils.nickname_delay(guild_id) or botconfig.config[str(guild_id)]['nickname_cannot_change']
     sql = f'select last_change from last_nickname where guild_id=\'{guild_id}\' and member_id=\'{member.id}\''
     fetched = database.fetch_one_line(sql)
-    print(f"for {sql}\nget {fetched}")
     error = False
     if fetched:
       last_timestamp = time.mktime(datetime.strptime(fetched[0], "%Y-%m-%d %H:%M:%S").timetuple())
@@ -201,7 +194,7 @@ class Nickname(commands.Cog):
       try:
         await member.edit(nick=nickname)
       except Exception as e:
-        print(f'{type(e).__name__} - {e}')
+        logger ("nickname::on_member_join", f'readd nickname{type(e).__name__} - {e}')
     return
 
   @commands.command(name='updatenickname')
@@ -231,7 +224,7 @@ class Nickname(commands.Cog):
       await ctx.send(Utils.get_text(ctx.guild.id, "nickname_updated"))
     except Exception as e:
       await ctx.send(Utils.get_text(ctx.guild.id, "error_occured").format(f"{type(e).__name__}", f"{e}"))
-      print(f"{type(e).__name__} - {e}")
+      logger ("nickname::update_nickname", f"{type(e).__name__} - {e}")
 
   @commands.command(name='checknickname')
   @Utils.require(required=['authorized', 'not_banned', 'cog_loaded'])

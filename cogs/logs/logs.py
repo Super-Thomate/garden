@@ -6,6 +6,7 @@ from discord.ext import commands
 
 import Utils
 import database
+from core import logger
 
 
 class Logs(commands.Cog):
@@ -28,7 +29,7 @@ class Logs(commands.Cog):
       database.execute_order(sql)
       await log_channel.send(Utils.get_text(ctx.guild.id, "invitation_log_channel"))
     except Exception as e:
-      print(f" {type(e).__name__} - {e}")
+      logger ("logs::set_invitation_log", f" {type(e).__name__} - {e}")
 
   @commands.command(name='setgallerylog', aliases=['setgallery', 'sgl', 'gallerylog'])
   @Utils.require(required=['authorized', 'not_banned'])
@@ -47,7 +48,7 @@ class Logs(commands.Cog):
       database.execute_order(sql, [])
       await log_channel.send(Utils.get_text(ctx.guild.id, "gallery_log_channel"))
     except Exception as e:
-      print(f" {type(e).__name__} - {e}")
+      logger ("logs::set_galerie_log", f" {type(e).__name__} - {e}")
 
   @commands.command(name='setnicknamelog', aliases=['setnickname', 'snl', 'nicknamelog'])
   @Utils.require(required=['authorized', 'not_banned'])
@@ -66,7 +67,7 @@ class Logs(commands.Cog):
       database.execute_order(sql, [])
       await log_channel.send(Utils.get_text(ctx.guild.id, "nickname_log_channel"))
     except Exception as e:
-      print(f" {type(e).__name__} - {e}")
+      logger ("logs::set_nickname_log", f" {type(e).__name__} - {e}")
 
   @commands.command(name='setvotelog', aliases=['setvote', 'svl', 'votelog'])
   @Utils.require(required=['authorized', 'not_banned'])
@@ -85,7 +86,7 @@ class Logs(commands.Cog):
       database.execute_order(sql, [])
       await log_channel.send(Utils.get_text(ctx.guild.id, "vote_log_channel"))
     except Exception as e:
-      print(f" {type(e).__name__} - {e}")
+      logger ("logs::set_vote_log", f" {type(e).__name__} - {e}")
 
   @commands.command(name='setwelcomelog', aliases=['swl', 'welcomelog'])
   @Utils.require(required=['authorized', 'not_banned'])
@@ -106,7 +107,7 @@ class Logs(commands.Cog):
       database.execute_order(sql, [])
       await log_channel.send(Utils.get_text(ctx.guild.id, "welcome_log_channel"))
     except Exception as e:
-      print(f" {type(e).__name__} - {e}")
+      logger ("logs::set_invitation_log", f" {type(e).__name__} - {e}")
 
   @commands.command(name='setbirthdaylog', aliases=['sbl'])
   @Utils.require(required=['authorized', 'not_banned'])
@@ -124,15 +125,15 @@ class Logs(commands.Cog):
       database.execute_order(sql, [])
       await log_channel.send(Utils.get_text(ctx.guild.id, "birthday_log_channel"))
     except Exception as e:
-      print(f" {type(e).__name__} - {e}")
+      logger ("logs::set_birthday_log", f" {type(e).__name__} - {e}")
 
   async def log(self, db, member, message, error, params=None):
     guild_id = message.channel.guild.id
     sql = f"select channel_id from {db} where guild_id='{guild_id}'"
     db_log_channel = database.fetch_one_line(sql)
-    print("db_log_channel: {}".format(db_log_channel))
     if not db_log_channel:
-      log_channel = message.channel
+      # log_channel = message.channel
+      return # if not log_channel don't log
     else:
       log_channel = await self.bot.fetch_channel(int(db_log_channel[0]))
     colour = discord.Colour(0)
@@ -144,21 +145,18 @@ class Logs(commands.Cog):
     embed.description = message.content
     embed.timestamp = datetime.utcnow()
     embed.set_footer(text=f"ID: {message.id}")
-    print(f"params: {params}")
     if params and "url_to_go" in params:
-      print("url_to_go")
       embed.description = embed.description + "\njumpto: " + params["url_to_go"]
     try:
       await log_channel.send(content=None, embed=embed)
     except Exception as e:
-      print(f" {type(e).__name__} - {e}")
+      logger ("logs::log", f" {type(e).__name__} - {e}")
 
   @commands.command(name='cleanchannel', aliases=['cc'])
   @commands.guild_only()
   @Utils.require(required=['authorized', 'not_banned'])
   async def cleanchannel(self, ctx, length_or_id: str = None, message_id: int = None):
     """Clean the current channel"""
-    print ("Clean the current channel")
     channel = ctx.channel
     member = ctx.author
     guild_id = ctx.guild.id
@@ -175,14 +173,12 @@ class Logs(commands.Cog):
     if message_id and length_or_id == 'id':
       try:
         until_message = await channel.fetch_message(message_id)
-        print("DELETE UNTIL MESSAGE")
       except Exception as e:
-        print(f" {type(e).__name__} - {e}")
+        logger ("logs::cleanchannel", f" {type(e).__name__} - {e}")
         if length_or_id == 'id':
           feedback = await ctx.send(Utils.get_text(ctx.guild.id, "error_id_invalid").format(message_id))
           await feedback.delete(delay=2)
           return
-    print("Let's go !")
     if until_message:
       # redo length
       counter = 0
@@ -197,7 +193,7 @@ class Logs(commands.Cog):
         try:
           length_or_id = int(length_or_id)
         except Exception as e:
-          print(f" {type(e).__name__} - {e}")
+          logger ("logs::cleanchannel", f" {type(e).__name__} - {e}")
           return
         else:
           length = length_or_id if (length_or_id <= 200) else 10
@@ -221,7 +217,7 @@ class Logs(commands.Cog):
     # log for dm
     sql = f"select channel_id,guild_id from spy_log ;"
     fetched_log_channel = database.fetch_all_line(sql)
-    # print (f"fetched_log_channel: {fetched_log_channel}")
+    # logger ("logs::garden_dm", f"fetched_log_channel: {fetched_log_channel}")
     if fetched_log_channel:
       for db_log_channel in fetched_log_channel:
         log_channel = await self.bot.fetch_channel(int(db_log_channel[0]))
@@ -239,7 +235,7 @@ class Logs(commands.Cog):
         try:
           await log_channel.send(content=None, embed=embed)
         except Exception as e:
-          print(f" {type(e).__name__} - {e}")
+          logger ("logs::garden_dm", f" {type(e).__name__} - {e}")
     return
 
   @commands.command(name='setspylog', aliases=['ssl', 'spylog'])
@@ -261,7 +257,7 @@ class Logs(commands.Cog):
       database.execute_order(sql)
       await log_channel.send(Utils.get_text(ctx.guild.id, "spy_log_channel"))
     except Exception as e:
-      print(f" {type(e).__name__} - {e}")
+      logger ("logs::set_spy_log", f" {type(e).__name__} - {e}")
 
   @commands.command(name='setconfiglog', aliases=['setconfig', 'scl', 'configlog'])
   @Utils.require(required=['authorized', 'not_banned'])
@@ -280,7 +276,7 @@ class Logs(commands.Cog):
       database.execute_order(sql, [])
       await log_channel.send(Utils.get_text(ctx.guild.id, "config_log_channel"))
     except Exception as e:
-      print(f" {type(e).__name__} - {e}")
+      logger ("logs::set_config_log", f" {type(e).__name__} - {e}")
 
   @commands.command(name='setutiplog', aliases=['setutip', 'sul', 'utiplog'])
   @Utils.require(required=['authorized', 'not_banned'])
@@ -299,7 +295,7 @@ class Logs(commands.Cog):
       database.execute_order(sql, [])
       await log_channel.send(Utils.get_text(ctx.guild.id, "utip_log_channel"))
     except Exception as e:
-      print(f" {type(e).__name__} - {e}")
+      logger ("logs::set_utip_log", f" {type(e).__name__} - {e}")
       await ctx.message.add_reaction('❌')
 
   async def log_dm(self, db, member, message, guild, error, params=None):
@@ -318,14 +314,12 @@ class Logs(commands.Cog):
       embed.description = message.content
       embed.timestamp = datetime.utcnow()
       embed.set_footer(text=f"ID: {message.id}")
-      print(f"params: {params}")
       if params and "url_to_go" in params:
-        print("url_to_go")
         embed.description = embed.description + "\njumpto: " + params["url_to_go"]
       try:
         await log_channel.send(content=None, embed=embed)
       except Exception as e:
-        print(f" {type(e).__name__} - {e}")
+        logger ("logs::log_dm", f" {type(e).__name__} - {e}")
 
   @commands.Cog.listener()
   async def on_command_error(self, ctx, exception):

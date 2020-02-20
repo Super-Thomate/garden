@@ -193,15 +193,15 @@ def create_table():
 def execute_order(sql, params=[]):
   cnx = sqlite3.connect(path)
   cursor = cnx.cursor()
-  logger ("database::execeute_order", f"execute_order params: {params}")
+  logger ("database::execute_order", f"execute_order params: {params}")
   try:
     cursor.execute(sql, (params))
     cnx.commit()
     cursor.close()
   except Exception as e:
     cursor.close()
-    logger ("database::execeute_order", f' ERROR: {type(e).__name__} - {e}')
-    logger ("database::execeute_order", f' sql: {sql}')
+    logger ("database::execute_order", f' ERROR: {type(e).__name__} - {e}')
+    logger ("database::execute_order", f' sql: {sql}')
   cnx.close()
 
 

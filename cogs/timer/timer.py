@@ -7,7 +7,7 @@ import core._Timer as _Timer
 from ..logs import Logs
 import time
 import asyncio
-
+from core import logger
 
 class Timer(commands.Cog):
   """
@@ -81,12 +81,12 @@ class Timer(commands.Cog):
       interval               = duration / emoji_row_length - lag
 
       async def times_up():
-        print ("times_up -> time : {:.1f}s".format(time.time()-start))
+        logger ("timer::launch", "times_up -> time : {:.1f}s".format(time.time()-start))
         await ctx.send  (end_message)
         # await msg_timer.edit (content=end_message)
 
       async def times_up_2():
-        print ("Time's up ! -> time : {:.1f}s".format(time.time()-start))
+        logger ("timer::launch", "Time's up ! -> time : {:.1f}s".format(time.time()-start))
         await ctx.send ("Time's up ! -> time : {:.1f}s".format(time.time()-start))
 
       async def rebuild ():
@@ -99,8 +99,8 @@ class Timer(commands.Cog):
           if time.time()-start < duration:
             next_task         = _Timer (interval, rebuild)
         else:
-          print ("rebuild -> time : {:.1f}s".format(time.time()-start))
-        #print (time.time()-proc_start)
+          logger ("timer::launch", "rebuild -> time : {:.1f}s".format(time.time()-start))
+        #logger ("timer::launch", time.time()-proc_start)
       #reftimer               = _Timer (duration, times_up_2) # Reference Timer 
       timer                  = _Timer (duration, times_up)
       next_task              = _Timer (interval, rebuild)
@@ -169,7 +169,7 @@ class Timer(commands.Cog):
     try:
       emoji                  = await Utils.get_emoji (ctx, emoji_input)
     except Exception as e:
-      print (f"{type(e).__name__} - {e}")
+      logger ("timer::set_emoji", f"{type(e).__name__} - {e}")
       await ctx.send(Utils.get_text(guild_id, "timer_not_emoji").format (emoji_input))
       return
     select                   = "select emoji from timer_emoji where guild_id=? ;"
@@ -181,7 +181,7 @@ class Timer(commands.Cog):
     try:
       database.execute_order(order, [str(emoji), guild_id])
     except Exception as e:
-      print(f"{type(e).__name__} - {e}")
+      logger ("timer::set_emoji", f"{type(e).__name__} - {e}")
       return
       
     await ctx.send(Utils.get_text(guild_id, "timer_set_emoji").format (str (emoji)))
@@ -206,7 +206,7 @@ class Timer(commands.Cog):
     try:
       database.execute_order(order, [str(end_message), guild_id])
     except Exception as e:
-      print(f"{type(e).__name__} - {e}")
+      logger ("timer::set_message", f"{type(e).__name__} - {e}")
       return
       
     await ctx.send(Utils.get_text(guild_id, "timer_set_end_message").format (str (end_message)))
@@ -221,7 +221,7 @@ class Timer(commands.Cog):
     try:
       emoji                  = await Utils.get_emoji (ctx, emoji_input)
     except Exception as e:
-      print (f"{type(e).__name__} - {e}")
+      logger ("timer::set_first_emoji", f"{type(e).__name__} - {e}")
       await ctx.send(Utils.get_text(guild_id, "timer_not_emoji").format (emoji_input))
       return
     select                   = "select emoji from timer_first_emoji where guild_id=? ;"
@@ -233,7 +233,7 @@ class Timer(commands.Cog):
     try:
       database.execute_order(order, [str(emoji), guild_id])
     except Exception as e:
-      print(f"{type(e).__name__} - {e}")
+      logger ("timer::set_first_emoji", f"{type(e).__name__} - {e}")
       return
       
     await ctx.send(Utils.get_text(guild_id, "timer_set_first_emoji").format (str (emoji)))
@@ -256,7 +256,7 @@ class Timer(commands.Cog):
     try:
       database.execute_order(order, [do_first_emoji, type_do, guild_id])
     except Exception as e:
-      print(f"{type(e).__name__} - {e}")
+      logger ("timer::set_do_first_emoji", f"{type(e).__name__} - {e}")
       return
     if (do_first_emoji):
       await ctx.send(Utils.get_text(guild_id, "timer_set_do_first_emoji"))

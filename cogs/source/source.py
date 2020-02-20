@@ -8,6 +8,7 @@ from discord.ext import commands
 import Utils
 import database
 from ..logs import Logs
+from core import logger
 
 
 class Source(commands.Cog):
@@ -24,7 +25,7 @@ class Source(commands.Cog):
       database.execute_order(sql, [])
     except Exception as e:
       await ctx.send(Utils.get_text(ctx.guild.id, 'error_database_writing'))
-      print(f"{type(e).__name__} - {e}")
+      logger ("source::add_source_channel", f"{type(e).__name__} - {e}")
     await ctx.send(Utils.get_text(ctx.guild.id, 'source_channel_added').format(f'<#{channel_id}>'))
 
   @commands.command(name='removesourcechannel', aliases=['rsc'])
@@ -36,7 +37,7 @@ class Source(commands.Cog):
       database.execute_order(sql, [])
     except Exception as e:
       await ctx.send(Utils.get_text(ctx.guild.id, 'error_database_writing'))
-      print(f"{type(e).__name__} - {e}")
+      logger ("source::remove_source_channel", f"{type(e).__name__} - {e}")
     await ctx.send(Utils.get_text(ctx.guild.id, 'source_channel_removed').format(f'<#{channel_id}>'))
 
   @commands.command(name='setsourcemessage', aliases=['ssm'])
@@ -51,12 +52,11 @@ class Source(commands.Cog):
       sql = f"INSERT INTO source_message VALUES (?, '{ctx.guild.id}') ;"
     else:
       sql = f"UPDATE source_message SET message=? WHERE guild_id='{ctx.guild.id}';"
-    print(sql)
     try:
       database.execute_order(sql, [message])
       await ctx.message.add_reaction('✅')
     except Exception as e:
-      print(f"{type(e).__name__} - {e}")
+      logger ("source::set_source_channel", f"{type(e).__name__} - {e}")
       await ctx.message.add_reaction('❌')
       return
     await ctx.channel.send(Utils.get_text(ctx.guild.id, 'display_new_message').format(message))
@@ -92,7 +92,7 @@ class Source(commands.Cog):
       database.execute_order(sql, [])
       await ctx.message.add_reaction('✅')
     except Exception as e:
-      print(f"{type(e).__name__} - {e}")
+      logger ("source::blacklist_domain", f"{type(e).__name__} - {e}")
       await ctx.message.add_reaction('❌')
       return
     await ctx.send(Utils.get_text(ctx.guild.id, "source_domain_blacklisted").format(domain))
@@ -113,7 +113,7 @@ class Source(commands.Cog):
       database.execute_order(sql, [])
       await ctx.message.add_reaction('✅')
     except Exception as e:
-      print(f"{type(e).__name__} - {e}")
+      logger ("source::remove_domain", f"{type(e).__name__} - {e}")
       await ctx.message.add_reaction('❌')
       return
     await ctx.send(Utils.get_text(ctx.guild.id, "source_domain_removed").format(domain))

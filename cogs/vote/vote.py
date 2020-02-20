@@ -10,7 +10,7 @@ from discord.ext import commands
 import Utils
 import database
 from ..logs import Logs
-
+from core import logger
 
 class Vote(commands.Cog):
   def __init__(self, bot):
@@ -120,7 +120,7 @@ class Vote(commands.Cog):
       try:
         message_id = int(message_id_vote_type)
       except Exception as e:
-        print(f"{type(e).__name__} - {e}")
+        logger ("vote::add_proposition", f"{type(e).__name__} - {e}")
         # vote_type
         select = f"select message_id from vote_message where guild_id='{ctx.guild.id}' and closed=0 and vote_type=?"
         fetched = database.fetch_one_line(select, [message_id_vote_type])
@@ -155,8 +155,7 @@ class Vote(commands.Cog):
       try:
         message_id = int(message_id_vote_type)
       except Exception as e:
-        print(f"{type(e).__name__} - {e}")
-        print(f"Votetype: {message_id_vote_type}")
+        logger ("vote::edit_proposition", f"{type(e).__name__} - {e}")
         # vote_type
         select = f"select message_id from vote_message where guild_id='{ctx.guild.id}' and closed=0 and vote_type=?"
         fetched = database.fetch_one_line(select, [message_id_vote_type])
@@ -191,8 +190,7 @@ class Vote(commands.Cog):
       try:
         message_id = int(message_id_vote_type)
       except Exception as e:
-        print(f"{type(e).__name__} - {e}")
-        print(f"Votetype: {message_id_vote_type}")
+        logger ("vote::remove_proposition", f"{type(e).__name__} - {e}")
         # vote_type
         select = f"select message_id from vote_message where guild_id='{ctx.guild.id}' and closed=0 and vote_type=?"
         fetched = database.fetch_one_line(select, [message_id_vote_type])
@@ -359,25 +357,23 @@ class Vote(commands.Cog):
       await ctx.message.add_reaction('❌')
       return
     guild_id = ctx.guild.id
-    print("select")
+    # logger ("vote::set_vote_role", "select")
     select = f"select * from vote_role where guild_id='{guild_id}' ;"
     try:
       fetched = database.fetch_one_line(select)
     except Exception as e:
-      print(f"{type(e).__name__} - {e}")
+      logger ("vote::set_vote_role", f"{type(e).__name__} - {e}")
       await ctx.send(Utils.get_text(ctx.guild.id, "error_occured"))
       await ctx.message.add_reaction('❌')
       return
-    print("fetched")
     if fetched:
       sql = f"update vote_role set role_id='{role_id}' where guild_id='{guild_id}' ;"
     else:
       sql = f"insert into vote_role values ('{role_id}', '{guild_id}') ;"
-    print("sql: " + sql)
     try:
       database.execute_order(sql)
     except Exception as e:
-      print(f"{type(e).__name__} - {e}")
+      logger ("vote::set_vote_role", f"{type(e).__name__} - {e}")
       await ctx.send(Utils.get_text(ctx.guild.id, "error_occured"))
       await ctx.message.add_reaction('❌')
       return
@@ -585,7 +581,7 @@ class Vote(commands.Cog):
         except Exception as e:
           feedback = await ctx.send(Utils.get_text(ctx.guild.id, "vote_emoji_invalid"))
           error = True
-          print(f"{type(e).__name__} - {e}")
+          logger ("vote::handle_result", f"vote_emoji_invalid {type(e).__name__} - {e}")
           await feedback.delete(delay=2)
         else:
           field = embed.fields[0]
@@ -601,14 +597,13 @@ class Vote(commands.Cog):
           try:
             database.execute_order(sql, [proposition, emoji])
           except Exception as e:
-            print(f"{type(e).__name__} - {e}")
+            logger ("vote::handle_result", f"insert vote_propositions {type(e).__name__} - {e}")
           else:
             # create line
             if last_id == 0:
               new_value = "[" + str(last_id + 1) + "] - " + emoji + " " + proposition
             else:
               new_value = field.value + "\n[" + str(last_id + 1) + "] - " + emoji + " " + proposition
-            print(f"new_value: {new_value}")
             embed.clear_fields()
             embed.add_field(name=field.name, value=new_value, inline=False)
             await vote_msg.edit(embed=embed)
@@ -622,7 +617,6 @@ class Vote(commands.Cog):
       try:
         date_time = parser.parse(msg.content, dayfirst=True)
         timestamp = datetime.timestamp(date_time)
-        print(f"timestamp: {timestamp}")
         if timestamp < math.floor(time.time()):
           error_message = await ctx.send(Utils.get_text(ctx.guild.id, "error_date_invalid"))
           await error_message.delete(delay=1)
@@ -636,7 +630,7 @@ class Vote(commands.Cog):
           update = update + f"= '{timestamp}' where message_id='{message_id}'"
           database.execute_order(update)
       except Exception as e:
-        print(f"{type(e).__name__} - {e}")
+        logger ("vote::handle_result", f"set end_prop_at and end_vote_at {type(e).__name__} - {e}")
         error_message = await ctx.send(Utils.get_text(ctx.guild.id, "error_date_format"))
         await error_message.delete(delay=1)
         error = True
@@ -644,7 +638,7 @@ class Vote(commands.Cog):
       try:
         proposition_id = int(msg.content)
       except Exception as e:
-        print(f"{type(e).__name__} - {e}")
+        logger ("vote::handle_result", f"remove_proposition {type(e).__name__} - {e}")
         await ctx.send(Utils.get_text(ctx.guild.id, "error_not_integer"))
         error = True
       else:
@@ -668,7 +662,6 @@ class Vote(commands.Cog):
             if not fetched:
               new_value = "\uFEFF"
             else:
-              print(f"fetched: {fetched}")
               for line in fetched:
                 proposition_id = line[0]
                 emoji = line[1]
@@ -682,7 +675,7 @@ class Vote(commands.Cog):
             embed.add_field(name=field.name, value=new_value, inline=False)
           except Exception as e:
             await ctx.message.add_reaction('❌')
-            print(f"{type(e).__name__} - {e}")
+            logger ("vote::handle_result", f"remove_proposition{type(e).__name__} - {e}")
             await ctx.send(Utils.get_text(ctx.guild.id, "error_occured"))
             error = True
         else:
@@ -692,7 +685,7 @@ class Vote(commands.Cog):
       try:
         proposition_id = int(msg.content)
       except Exception as e:
-        print(f"{type(e).__name__} - {e}")
+        logger ("vote::handle_result", f"edit_proposition {type(e).__name__} - {e}")
         await ctx.send(Utils.get_text(ctx.guild.id, "error_not_integer"))
         error = True
       else:
@@ -726,7 +719,7 @@ class Vote(commands.Cog):
               feedback = await ctx.send(Utils.get_text(ctx.guild.id, "vote_emoji_invalid"))
               error = True
               await vote_msg.add_reaction(fetched_proposition[0])
-              print(f"{type(e).__name__} - {e}")
+              logger ("vote::handle_result", f"edit_proposition {type(e).__name__} - {e}")
               await feedback.delete(delay=2)
             else:
               field = embed.fields[0]
@@ -746,7 +739,6 @@ class Vote(commands.Cog):
                 if not fetched:
                   new_value = "\uFEFF"
                 else:
-                  print(f"fetched: {fetched}")
                   for line in fetched:
                     proposition_id = line[0]
                     emoji = line[1]
@@ -760,7 +752,7 @@ class Vote(commands.Cog):
                 embed.add_field(name=field.name, value=new_value, inline=False)
               except Exception as e:
                 await ctx.message.add_reaction('❌')
-                print(f"{type(e).__name__} - {e}")
+                logger ("vote::handle_result", f"edit_proposition {type(e).__name__} - {e}")
                 await ctx.send(Utils.get_text(ctx.guild.id, "error_occured"))
                 error = True
           await msg_line.delete(delay=0.5)
@@ -878,7 +870,7 @@ class Vote(commands.Cog):
     select = f"select ballot from vote_propositions where message_id='{message_id}' and guild_id='{guild_id}' and emoji='{emoji}' ;"
     fetched = database.fetch_one_line(select)
     if not fetched:
-      print(f"Invalid emoji: {emoji} on message {message_id} in {guild_id}")
+      logger ("vote::is_correct_emoji", f"Invalid emoji: {emoji} on message {message_id} in {guild_id}")
       return False
     return True
 
@@ -887,7 +879,7 @@ class Vote(commands.Cog):
     select_proposition = f"select ballot from vote_propositions where message_id='{message_id}' and emoji='{emoji}' ;"
     fetched_proposition = database.fetch_one_line(select_proposition)
     if not fetched_proposition:
-      print(f"Invalid emoji: {emoji} on message {message_id}")
+      logger ("vote::update_ballot", f"Invalid emoji: {emoji} on message {message_id}")
       return -1
     # update ballot
     ballot = int(fetched_proposition[0])
@@ -900,7 +892,7 @@ class Vote(commands.Cog):
     try:
       database.execute_order(update)
     except Exception as e:
-      print(f"{type(e).__name__} - {e}")
+      logger ("vote::update_ballot", f"{type(e).__name__} - {e}")
       return -1
     return ballot
 
@@ -909,14 +901,14 @@ class Vote(commands.Cog):
     try:
       database.execute_order(update)
     except Exception as e:
-      print(f"{type(e).__name__} - {e}")
+      logger ("vote::reset_all_ballots", f"{type(e).__name__} - {e}")
 
   def embed_get_result(self, message_id, guild_id, embed):
     # valid message saved ?
     sql = f"select channel_id,closed,month,year from vote_message where message_id='{message_id}' and guild_id='{guild_id}'"
     fetched = database.fetch_one_line(sql)
     if not fetched:
-      print("impossibru")
+      logger ("vote::embed_get_result", "impossibru")
       return
     # vote closure status
     channel_id = int(fetched[0])
@@ -931,7 +923,6 @@ class Vote(commands.Cog):
     if not fetched:
       new_value = "\uFEFF"
     else:
-      print(f"fetched: {fetched}")
       for line in fetched:
         proposition_id = line[0]
         emoji = line[1]
@@ -951,7 +942,7 @@ class Vote(commands.Cog):
     sql = f"select channel_id,closed,month,year from vote_message where message_id='{message_id}' and guild_id='{guild_id}'"
     fetched = database.fetch_one_line(sql)
     if not fetched:
-      print("impossibru")
+      logger ("vote::embed_get_no_result", "impossibru")
       return
     # vote closure status
     channel_id = int(fetched[0])
@@ -966,7 +957,6 @@ class Vote(commands.Cog):
     if not fetched:
       new_value = "\uFEFF"
     else:
-      print(f"fetched: {fetched}")
       for line in fetched:
         proposition_id = line[0]
         emoji = line[1]
