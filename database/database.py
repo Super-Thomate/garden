@@ -190,7 +190,7 @@ def fetch_all_line(sql, params=[]):
 
 async def write_data(ctx, sql, parameters=[]):
   try:
-    database.execute_order(sql, parameters)
+    execute_order(sql, parameters)
     await ctx.message.add_reaction('✅')
     return True
   except Exception as e:

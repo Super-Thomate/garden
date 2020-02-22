@@ -258,5 +258,5 @@ class Source(commands.Cog):
     if not Utils.is_loaded("source", message.guild.id):
       return
     if self.__is_source_triggered(message):
-      print(f"Asked source to {message.author}")
+      logger("cog::source", f"Asked source to member {message.author}")
       await message.channel.send(self.__get_source_message(message.author.id, message.guild.id))
