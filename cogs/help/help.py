@@ -16,10 +16,6 @@ class Help(commands.Cog):
   async def help(self, ctx, *, cog: str = None):
     """Display help"""
     cog = cog or "global"
-    if Utils.is_banned(ctx.command, ctx.author, ctx.guild.id):
-      await ctx.message.add_reaction('❌')
-      await ctx.author.send(Utils.get_text(ctx.guild.id, "error_user_unauthorized_command"))
-      return
     try:
       method = getattr(self, "help_" + cog.lower())
       embed = method(ctx.guild.id)
@@ -182,10 +178,12 @@ class Help(commands.Cog):
                     inline=False)
     embed.add_field(name=Utils.get_text(guild_id, 'help_user_command'),
                     value=Utils.get_text(guild_id, 'birthday_help_user_command'),
-                    inline=False)
+                    inline=False
+                    )
     embed.add_field(name=Utils.get_text(guild_id, 'help_admin_command'),
                     value=Utils.get_text(guild_id, 'birthday_help_admin_command'),
-                    inline=False)
+                    inline=False
+                    )
     embed.set_author(icon_url=infos.avatar_url, name=str(infos))
     embed.timestamp = datetime.today()
     return embed
@@ -196,9 +194,17 @@ class Help(commands.Cog):
     colour = colour.from_rgb(176, 255, 176)
     embed = discord.Embed(colour=colour, title=Utils.get_text(guild_id, 'source_help_title'))
     embed.description = Utils.get_text(guild_id, 'help_moderator_only')
-    embed.add_field(name=Utils.get_text(guild_id, 'help_admin_command')
-                    , value=Utils.get_text(guild_id, 'source_help_admin_command').format('!')
-                    , inline=False
+    embed.add_field(name=Utils.get_text(guild_id, 'help_variable_title'),
+                    value=Utils.get_text(guild_id, 'help_help_variables'),
+                    inline=False
+                    )
+    embed.add_field(name=Utils.get_text(guild_id,'help_global_field_general'),
+                    value=Utils.get_text(guild_id, 'source_help_description_2'),
+                    inline=False
+                    )
+    embed.add_field(name=Utils.get_text(guild_id, 'help_admin_command'),
+                    value=Utils.get_text(guild_id, 'source_help_admin_command').format('!'),
+                    inline=False
                     )
 
     embed.set_author(icon_url=infos.avatar_url, name=str(infos))

@@ -31,8 +31,8 @@ class Birthday(commands.Cog):
     member_id = ctx.author.id
     error = False
     one_line = True
-    sql = f"SELECT user_id FROM birthday_user WHERE user_id='{member_id}' and guild_id='{guild_id}' ;"
-    data = database.fetch_one_line(sql)
+    sql = f"SELECT user_id FROM birthday_user WHERE user_id=? and guild_id=? ;"
+    data = database.fetch_one_line(sql, [member_id, guild_id])
     if data and data [0]:
       already_registered = await ctx.send(Utils.get_text(ctx.guild.id, 'birthday_already_registered'))
       await Utils.delete_messages(already_registered, ctx.message)
@@ -40,8 +40,7 @@ class Birthday(commands.Cog):
     if not date:  # user did not write date after !bd
       one_line = False
       ask = await ctx.send(Utils.get_text(ctx.guild.id, 'birthday_ask_user'))
-      response = await self.bot.wait_for('message',
-                                         check=lambda m: m.channel == ctx.channel and m.author.id == member_id)
+      response = await self.bot.wait_for('message', check=lambda m: m.channel == ctx.channel and m.author.id == member_id)
       date = response.content
       await Utils.delete_messages(ask, response)
     old_date = date
@@ -108,11 +107,11 @@ class Birthday(commands.Cog):
     channel = channel or ctx.channel
     channel_id = channel.id
 
-    sql = f"SELECT channel_id FROM birthday_channel WHERE guild_id='{guild_id}'"
-    is_already_set = database.fetch_one_line(sql)
+    sql = f"SELECT channel_id FROM birthday_channel WHERE guild_id=? ;"
+    is_already_set = database.fetch_one_line(sql, [guild_id])
 
     if is_already_set:
-      sql = f"UPDATE birthday_channel SET channel_id='{channel_id}' WHERE guild_id='{guild_id}'"
+      sql = f"UPDATE birthday_channel SET channel_id=? WHERE guild_id=? ;"
     else:
       sql = f"INSERT INTO birthday_channel VALUES ('{channel_id}', '{guild_id}') ;"
     try:
@@ -130,12 +129,12 @@ class Birthday(commands.Cog):
     error = False
     member = member or ctx.author
     if member is None:
-      await ctx.send("Le paramètre <member> est obligatoire.")
+      await ctx.send(Utils.get_text(guild_id, "error_no_parameter").format("<member>"))
       await ctx.message.add_reaction('❌')
       await self.logger.log('birthday_log', ctx.author, ctx.message, True)
       return
-    sql = f"SELECT user_id FROM birthday_user WHERE user_id={member.id} and guild_id={ctx.guild.id}"
-    member_in_db = database.fetch_one_line(sql)
+    sql = "SELECT user_id FROM birthday_user WHERE user_id=? and guild_id=? ;"
+    member_in_db = database.fetch_one_line(sql, [member.id, guild_id])
     if not member_in_db:
       await ctx.send(Utils.get_text(ctx.guild.id, "error_user_not_found").format(member.mention, 'birthday_user'))
       return
@@ -158,10 +157,10 @@ class Birthday(commands.Cog):
     check = lambda m: m.channel == ctx.channel and m.author == ctx.author
     msg = await self.bot.wait_for('message', check=check)
     message = msg.content
-    sql = f"select message from birthday_message where guild_id='{guild_id}';"
-    prev_birthday_message = database.fetch_one_line(sql)
+    sql = "select message from birthday_message where guild_id=? ;"
+    prev_birthday_message = database.fetch_one_line(sql, [guild_id])
     if not prev_birthday_message:
-      sql = f"INSERT INTO birthday_message VALUES (?, '{guild_id}') ;"
+      sql = f"INSERT INTO birthday_message VALUES (?, ?) ;"
     else:
       sql = f"UPDATE birthday_message SET message=? WHERE guild_id='{guild_id}';"
     try:
