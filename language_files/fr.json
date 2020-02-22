@@ -141,6 +141,7 @@
   "SOURCE": "--------------------------------------------------------------------------------------------------",
   "source_wrong_format": "Le paramètre doit contenir uniquement le nom de domaine. Exemple: `https://facebook.com` -> `facebook`",
   "source_no_blacklist": "Il n'y a pas de domaine blacklisté",
+  "source_domain_blacklisted" : "Le domaine {0} a été blacklisté",
   "source_domain_not_found": "Le domaine {0} n'est pas dans la liste des domaines blacklistés",
   "source_domain_already_blacklisted": "Le domaine {0} est déjà présent dans la liste des domaines blacklistés",
   "source_channel_added": "Le channel {0} a été ajouté à la liste des demande de source",

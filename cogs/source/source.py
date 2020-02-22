@@ -265,8 +265,8 @@ class Source(commands.Cog):
       elif len(source) != 0 and len(no_source) != 0:
         return True
     elif len(urls) != 0:
-      if not self.__is_blacklisted(urls, message.guild.id):
-        return False
+      if self.__is_blacklisted(urls, message.guild.id):
+        return True
       elif len(source) != 0 and len(no_source) == 0:
         return False
       elif len(source) == 0 and len(no_source) != 0:
