@@ -1,28 +1,6 @@
 {
   "Instance": {
-    "languages": [
-      "fr",
-      "en"
-    ],
     "token": "BotToken",
-    "activity": "gardening",
-    "guild_id": {
-      "default_language": "fr",
-      "roles": [
-        "Role1",
-        "Role2"
-      ],
-      "prefixes": [
-        "!",
-        "?"
-      ],
-      "create_url": {
-        "invitation": "https://my_site.smth/handler_invitation.php",
-        "gallery": "https://my_site.smth/handler_galerie.php"
-      },
-      "invite_delay": "6 months",
-      "do_invite": 1,
-      "do_token": 0
-    }
+    "activity": "gardening"
   }
 }
