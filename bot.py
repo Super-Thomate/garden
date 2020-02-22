@@ -11,6 +11,7 @@ from core import run_task, logger
 DISCORD_CRON_CRONTAB         = {   "vote": "* * * * *"
                                  , "utip": "* * * * *"
                                  , "birthday": "0 * * * *"
+                                 , "megapin": "* * * * *"
                                }
 
 def get_prefix(bot, message):
@@ -52,6 +53,7 @@ initial_extensions = ['cogs.loader'
   , 'cogs.source'
   , 'cogs.pwet'
   , 'cogs.timer'
+  , 'cogs.megapin'
                       ]
 
 bot = commands.Bot(command_prefix=get_prefix)

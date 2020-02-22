@@ -402,9 +402,9 @@ def get_text(guild_id: int, text_key: str) -> str:
     return f"**keyError** for `{text_key}` in language `{language_code}`. Show this message to a moderator."
 
 
-async def delete_messages(*args):
+async def delete_messages(*args, delay=2):
   for msg in args:
-    await msg.delete(delay=2)
+    await msg.delete(delay=delay)
 
 
 def is_loaded(cog, guild_id):

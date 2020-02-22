@@ -304,6 +304,34 @@ def get_birthday_message (guild_id, member_id):
       text = text + current_part
   return text.replace("$member", f"<@{member_id}>")
 
+async def megapin_task(bot):
+  now = int(datetime.now().timestamp())
+  for guild in bot.guilds:
+    guild_id = guild.id
+    if not Utils.is_loaded("megapin", guild_id):
+      continue
+    sql = "SELECT message_id, channel_id, span, last_pin FROM megapin_table WHERE guild_id=? ;"
+    response = database.fetch_all_line(sql, [guild_id])
+    for megapin in response:
+      span = int(megapin[2])
+      last_pin = int(megapin[3])
+      minute_elapsed = (now - last_pin) / 60
+      if minute_elapsed < span:
+        continue
+      channel = guild.get_channel(int(megapin[1]))
+      message = await channel.fetch_message(int(megapin[0]))
+      if channel.last_message_id == message.id:
+        continue
+      new_message = await channel.send(message.content)
+      await message.delete()
+      sql = "UPDATE megapin_table SET message_id=?, last_pin=? WHERE guild_id=? AND message_id=? ;"
+      try:
+        database.execute_order(sql, [new_message.id, now, guild_id, message.id])
+      except Exception:
+        logger("_Cron::megapin_task", f"{type(e).__name__} - {e}")
+        continue
+
+
 async def run_task (bot, task, interval):
   await bot.wait_until_ready()
   cron = CronTab(interval)
@@ -319,5 +347,7 @@ async def run_task (bot, task, interval):
         await utip_task (bot)
       elif task == "birthday":
         await birthday_task (bot)
+      elif task == "megapin":
+        await megapin_task (bot)
     except:
       logger ("_Cron::run_task", f'I could not perform task `{task}` :(')
