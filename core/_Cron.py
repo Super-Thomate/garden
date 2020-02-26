@@ -310,24 +310,52 @@ async def megapin_task(bot):
     guild_id = guild.id
     if not Utils.is_loaded("megapin", guild_id):
       continue
-    sql = "SELECT message_id, channel_id, span, last_pin FROM megapin_table WHERE guild_id=? ;"
+    sql = "SELECT message_id, channel_id, span, last_pin, preview FROM megapin_table WHERE guild_id=? ;"
     response = database.fetch_all_line(sql, [guild_id])
     for megapin in response:
       span = int(megapin[2])
       last_pin = int(megapin[3])
       minute_elapsed = (now - last_pin) / 60
-      if minute_elapsed < span:
+      if last_pin == -1 or minute_elapsed < span:
         continue
-      channel = guild.get_channel(int(megapin[1]))
-      message = await channel.fetch_message(int(megapin[0]))
+
+      # Try to get the channel
+      try:
+        channel = guild.get_channel(int(megapin[1]))
+      except Exception as e:
+        logger("_Cron::megapin_task", f"{type(e).__name__} - {e}")
+        sql = "DELETE from megapin_table WHERE channel_id=? AND guild_id=? ;"
+        database.execute_order(sql, [int(megapin[1]), guild_id])
+        continue
+
+      # Try to get the message
+      try:
+        message = await channel.fetch_message(int(megapin[0]))
+      except Exception as e:
+        logger("_Cron::megapin_task", f"{type(e).__name__} - {e}")
+        await channel.send(Utils.get_text(guild_id, "megapin_message_not_found").format(megapin[4], channel.mention))
+        sql = "UPDATE megapin_table SET last_pin=? WHERE message_id=? AND guild_id=? ;"
+        database.execute_order(sql, [-1, int(megapin[0]), guild_id])
+        continue
+
       if channel.last_message_id == message.id:
         continue
-      new_message = await channel.send(message.content)
+
+      # Try to send the new message
+      try:
+        new_message = await channel.send(message.content)
+      except Exception as e:
+        logger("_Cron::megapin_task", f"{type(e).__name__} - {e}")
+        await channel.send(Utils.get_text(guild_id, "megapin_unknown_error"))
+        sql = "UPDATE megapin_table SET last_pin=? WHERE message_id=? AND guild_id=? ;"
+        database.execute_order(sql, [-1, int(megapin[0]), guild_id])
+        continue
+
       await message.delete()
       sql = "UPDATE megapin_table SET message_id=?, last_pin=? WHERE guild_id=? AND message_id=? ;"
       try:
         database.execute_order(sql, [new_message.id, now, guild_id, message.id])
-      except Exception:
+      except Exception as e:
         logger("_Cron::megapin_task", f"{type(e).__name__} - {e}")
         continue
 
