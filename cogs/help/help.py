@@ -258,10 +258,15 @@ class Help(commands.Cog):
     colour = discord.Colour(0)
     colour = colour.from_rgb(176, 255, 176)
     embed = discord.Embed(colour=colour, title=Utils.get_text(guild_id, 'megapin_help_title'))
+    embed.add_field(name=Utils.get_text(guild_id, 'help_global_field_general')
+                    , value=Utils.get_text(guild_id, 'megapin_help_general').format("!") # TODO: find a way to use the correct prefix
+                    , inline=False)
     embed.add_field(name=Utils.get_text(guild_id, 'help_admin_command')
-                    , value=Utils.get_text(guild_id, 'megapin_help_command').format("!")
-                    , inline=False
-                    )
+                    , value=Utils.get_text(guild_id, 'megapin_help_command_1').format("!")
+                    , inline=False)
+    embed.add_field(name=Utils.get_text(guild_id, 'help_admin_command')
+                    , value=Utils.get_text(guild_id, 'megapin_help_command_2').format("!")
+                    , inline=False)
     embed.set_author(icon_url=infos.avatar_url, name=str(infos))
     embed.timestamp = datetime.today()
     return embed

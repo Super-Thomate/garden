@@ -113,7 +113,12 @@ class Megapin(commands.Cog):
 
   @megapin.group(invoke_without_command=True)
   async def edit(self, ctx: commands.Context):
-    await ctx.send(Utils.get_text(ctx.guild.id, "megapin_edit_subcommand"))
+    """
+    !megapin edit
+
+    Does nothing except printing the valid subcommands
+    """
+    await ctx.send(Utils.get_text(ctx.guild.id, "megapin_edit_subcommand").format(ctx.prefix))
 
 
   @edit.command(name='channel')
@@ -202,11 +207,15 @@ class Megapin(commands.Cog):
     """
     if not channel or not msg_id or not span:
       return
+
     try:
-      msg = await ctx.channel.fetch_message(msg_id)
+      msg = await channel.fetch_message(msg_id)
     except discord.NotFound:
-      await ctx.send(Utils.get_text(ctx.guild.id, "megapin_remote_copy_message_invalid"))
-      return
+      try:
+        msg = await ctx.channel.fetch_message(msg_id)
+      except discord.NotFound:
+        await ctx.send(Utils.get_text(ctx.guild.id, "megapin_remote_copy_message_invalid"))
+        return
 
     new_msg = await channel.send(msg.content)
     preview = new_msg.content[:30] if len(new_msg.content) < 30 else new_msg.content
