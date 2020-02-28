@@ -12,7 +12,7 @@ if not instance:
   path = dir_path + '../garden.db'
 else:
   path = dir_path + '../garden_' + instance + '.db'
-logger ("database", f"Database path: {path}")
+logger("database", f"Database path: {path}")
 
 
 def create_table():
@@ -136,27 +136,27 @@ def create_table():
       'CREATE TABLE IF NOT EXISTS `timer_first_emoji` (`emoji` VARCHAR(256) NOT NULL, `guild_id` VARCHAR(256) NOT NULL, PRIMARY KEY (`guild_id`)) ;')
     # Save modifications
     cnx.commit()
-    cursor.close()
   except Exception as e:
-    cursor.close()
-    logger ("database::create_table", f'ERROR: {type(e).__name__} - {e}')
-  cnx.close()
+    logger("database::create_table", f'ERROR: {type(e).__name__} - {e}')
+  finally:
+    cnx.close()
 
 
 def execute_order(sql, params=[]):
   cnx = sqlite3.connect(path)
   cursor = cnx.cursor()
-  logger ("database::execute_order", f"execute_order params: {params}")
+  success = True
+  logger("database::execute_order", f"execute_order params: {params}")
   try:
     cursor.execute(sql, (params))
     cnx.commit()
-    cursor.close()
+    return True
   except Exception as e:
-    cursor.close()
-    logger ("database::execute_order", f' ERROR: {type(e).__name__} - {e}')
-    logger ("database::execute_order", f' sql: {sql}')
-  cnx.close()
-
+    logger("database::execute_order", f' ERROR: {type(e).__name__} - {e}')
+    logger("database::execute_order", f' sql: {sql}')
+    return e
+  finally:
+    cnx.close()
 
 def fetch_one_line(sql, params=[]):
   cnx = sqlite3.connect(path)
@@ -165,13 +165,12 @@ def fetch_one_line(sql, params=[]):
   try:
     cursor.execute(sql, (params))
     line = cursor.fetchone()
-    cursor.close()
   except Exception as e:
-    cursor.close()
-    logger ("database::fetch_one_line", f' ERROR: {type(e).__name__} - {e}')
-    logger ("database::fetch_one_line", f' sql: {sql}')
-  cnx.close()
-  return line
+    logger("database::fetch_one_line", f' ERROR: {type(e).__name__} - {e}')
+    logger("database::fetch_one_line", f' sql: {sql}')
+  finally:
+    cnx.close()
+    return line
 
 
 def fetch_all_line(sql, params=[]):
@@ -181,25 +180,11 @@ def fetch_all_line(sql, params=[]):
   try:
     cursor.execute(sql, (params))
     lines = cursor.fetchall()
-    cursor.close()
   except Exception as e:
-    cursor.close()
-    logger ("database::fetch_all_line", f' ERROR: {type(e).__name__} - {e} in \n{sql}')
-  cnx.close()
-  return lines
-
-async def write_data(ctx, sql, parameters=[]):
-  try:
-    execute_order(sql, parameters)
-    await ctx.message.add_reaction('✅')
-    return True
-  except Exception as e:
-    print(f"{type(e).__name__} - {e}")
-    await ctx.message.add_reaction('❌')
-    await ctx.send(Utils.get_text(ctx.guild.id, "error_database_writing"))
-    return False
+    logger("database::fetch_all_line", f' ERROR: {type(e).__name__} - {e} in \n{sql}')
   finally:
-    print(sql)
+    cnx.close()
+    return lines
 
 
 create_table()
