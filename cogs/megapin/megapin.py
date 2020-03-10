@@ -22,26 +22,19 @@ class Megapin(commands.Cog):
       return Utils.get_text(guild_id, 'error_database_writing')
 
 
-  class GetSpan(commands.Converter):
-    async def convert(self, ctx: commands.Context, span: str) -> int:
-      span = await Converters.GetInt.convert(self, ctx, span)
-      if span < 1:
-        await ctx.send(Utils.get_text(ctx.guild.id, "megapin_span_invalid"))
-        return None
-      return span
-
 
   @commands.group(invoke_without_command=True)
   @commands.guild_only()
   @Utils.require(required=['not_banned', 'cog_loaded', 'authorized'])
-  async def megapin(self, ctx: commands.Context, span: Converters.GetInt):
+  async def megapin(self, ctx: commands.Context, span: int):
     """
     !megapin
 
     Send a user-defined message in the current channel regularly
     :param span: The span in minutes between every sending
     """
-    if not span:
+    if span < 1:
+      await ctx.send(Utils.get_text(ctx.guild.id, "megapin_span_invalid"))
       return
 
     ask_message = await ctx.send(Utils.get_text(ctx.guild.id, "megapin_ask_message"))
@@ -54,8 +47,9 @@ class Megapin(commands.Cog):
     await ctx.send(to_send)
 
 
+
   @megapin.command(name='copy')
-  async def copy(self, ctx: commands.Context, msg: Converters.GetMessage, span: GetSpan):
+  async def copy(self, ctx: commands.Context, msg: discord.Message, span: int):
     """
     !megapin copy
 
@@ -63,13 +57,15 @@ class Megapin(commands.Cog):
     :param msg: The message to copy content from
     :param span: The span in minutes between every sending
     """
-    if not span or not msg:
+    if span < 1:
+      await ctx.send(Utils.get_text(ctx.guild.id, "megapin_span_invalid"))
       return
 
     new_msg = await ctx.send(msg.content)
     preview = new_msg.content[:30] if len(new_msg.content) < 30 else new_msg.content
     to_send = await self.__add_megapin(new_msg.id, ctx.channel.id, span, preview, ctx.guild.id)
     await ctx.send(to_send)
+
 
 
   @megapin.command()
@@ -91,8 +87,9 @@ class Megapin(commands.Cog):
     await ctx.send(content=None, embed=embed)
 
 
+
   @megapin.command()
-  async def delete(self, ctx: commands.Context, id: Converters.GetInt):
+  async def delete(self, ctx: commands.Context, id: int):
     """
     !megapin delete
 
@@ -111,6 +108,7 @@ class Megapin(commands.Cog):
       logger("megapin::megapin_delete", f"{type(e).__name__} - {e}")
 
 
+
   @megapin.group(invoke_without_command=True)
   async def edit(self, ctx: commands.Context):
     """
@@ -121,8 +119,9 @@ class Megapin(commands.Cog):
     await ctx.send(Utils.get_text(ctx.guild.id, "megapin_edit_subcommand").format(ctx.prefix))
 
 
+
   @edit.command(name='channel')
-  async def edit_channel(self, ctx: commands.Context, msg_id: Converters.GetInt, new_channel: Converters.GetChannel):
+  async def edit_channel(self, ctx: commands.Context, msg_id: int, new_channel: discord.TextChannel):
     """
     !megapin edit channel
 
@@ -152,8 +151,9 @@ class Megapin(commands.Cog):
       logger("megapin::megapin_edit_channel", f"{type(e).__name__} - {e}")
 
 
+
   @edit.command(name='span')
-  async def edit_span(self, ctx: commands.Context, msg_id: Converters.GetInt, span: GetSpan):
+  async def edit_span(self, ctx: commands.Context, msg_id: int, span: int):
     """
     !megapin edit span
 
@@ -161,7 +161,8 @@ class Megapin(commands.Cog):
     :param msg_id: The ID of the megapin's last message
     :param span: The new span
     """
-    if not span:
+    if span < 1:
+      await ctx.send(Utils.get_text(ctx.guild.id, "megapin_span_invalid"))
       return
 
     sql = "UPDATE megapin_table SET span=? WHERE message_id=? AND guild_id=? ;"
@@ -173,8 +174,9 @@ class Megapin(commands.Cog):
       logger("megapin::megapin_edit_span", f"{type(e).__name__} - {e}")
 
 
+
   @megapin.group(invoke_without_command=True)
-  async def remote(self, ctx: commands.Context, channel: Converters.GetChannel, span: GetSpan):
+  async def remote(self, ctx: commands.Context, channel: discord.TextChannel, span: int):
     """
     !megapin remote
 
@@ -182,7 +184,8 @@ class Megapin(commands.Cog):
     :param channel: The channel to send the message
     :param span: The span in minutes between every sending
     """
-    if not channel or not span:
+    if span < 1:
+      await ctx.send(Utils.get_text(ctx.guild.id, "megapin_span_invalid"))
       return
 
     ask_message = await ctx.send(Utils.get_text(ctx.guild.id, "megapin_ask_message"))
@@ -195,8 +198,9 @@ class Megapin(commands.Cog):
     await ctx.send(to_send)
 
 
+
   @remote.command(name='copy')
-  async def remote_copy(self, ctx: commands.Context, channel: Converters.GetChannel, msg_id: Converters.GetInt, span: GetSpan):
+  async def remote_copy(self, ctx: commands.Context, channel: discord.TextChannel, msg_id: int, span: int):
     """
     !megapin remote copy
 
@@ -205,7 +209,8 @@ class Megapin(commands.Cog):
     :param msg_id: The ID of the message to copy content from
     :param span: The span in minutes between every sending
     """
-    if not channel or not msg_id or not span:
+    if span < 1:
+      await ctx.send(Utils.get_text(ctx.guild.id, "megapin_span_invalid"))
       return
 
     try:
