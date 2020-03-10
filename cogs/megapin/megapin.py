@@ -11,7 +11,11 @@ class Megapin(commands.Cog):
     self.bot = bot
 
 
-  async def __add_megapin(self, msg_id, channel_id, span, preview, guild_id):
+  async def __add_megapin(self, msg_id: int, channel_id: int, span: int, preview: str, guild_id: int) -> str:
+    """
+    Intern method to add a megapin in the database.
+    Return the text to send (success or error).
+    """
     try:
       sql = "INSERT INTO megapin_table (message_id, channel_id, span, preview, guild_id, last_pin) VALUES (?, ?, ?, ?, ?, ?) ;"
       now = int(datetime.now().timestamp())
@@ -28,10 +32,8 @@ class Megapin(commands.Cog):
   @Utils.require(required=['not_banned', 'cog_loaded', 'authorized'])
   async def megapin(self, ctx: commands.Context, span: int):
     """
-    !megapin
-
-    Send a user-defined message in the current channel regularly
-    :param span: The span in minutes between every sending
+    megapin <span>
+    Create a megapin in the current channel with span <span>.
     """
     if span < 1:
       await ctx.send(Utils.get_text(ctx.guild.id, "megapin_span_invalid"))
@@ -51,11 +53,10 @@ class Megapin(commands.Cog):
   @megapin.command(name='copy')
   async def copy(self, ctx: commands.Context, msg: discord.Message, span: int):
     """
-    !megapin copy
-
-    Copy and send a message in the current channel regularly
-    :param msg: The message to copy content from
-    :param span: The span in minutes between every sending
+    megapin copy <ID> <span>
+    Create a megapin in the current channel.
+    Copy megapin content from message <ID>.
+    Message <ID> must be in the current channel.
     """
     if span < 1:
       await ctx.send(Utils.get_text(ctx.guild.id, "megapin_span_invalid"))
@@ -71,9 +72,8 @@ class Megapin(commands.Cog):
   @megapin.command()
   async def list(self, ctx: commands.Context):
     """
-    !megapin list
-
-    List the existing megapins
+    megapin list
+    List the existing megapins.
     """
     sql = "SELECT message_id, channel_id, span, preview FROM megapin_table WHERE guild_id=? ;"
     response = database.fetch_all_line(sql, [ctx.guild.id])
@@ -91,14 +91,10 @@ class Megapin(commands.Cog):
   @megapin.command()
   async def delete(self, ctx: commands.Context, id: int):
     """
-    !megapin delete
-
-    Stop the megapin, the message won't be re-sent regurlarly
-    :param id_str: The ID of the megapin's last message
+    megapin delete <ID>
+    Delete a megapin.
+    <ID> is the megapin last message's ID (use `megapin list`)
     """
-    if not id:
-      return
-
     sql = "DELETE FROM megapin_table WHERE message_id=? AND guild_id=? ;"
     try:
       database.execute_order(sql, [id, ctx.guild.id])
@@ -113,8 +109,7 @@ class Megapin(commands.Cog):
   async def edit(self, ctx: commands.Context):
     """
     !megapin edit
-
-    Does nothing except printing the valid subcommands
+    Does nothing except printing the valid subcommands.
     """
     await ctx.send(Utils.get_text(ctx.guild.id, "megapin_edit_subcommand").format(ctx.prefix))
 
@@ -123,15 +118,11 @@ class Megapin(commands.Cog):
   @edit.command(name='channel')
   async def edit_channel(self, ctx: commands.Context, msg_id: int, new_channel: discord.TextChannel):
     """
-    !megapin edit channel
-
-    Edit a megapin's channel
-    :param msg_id: The ID of the megapin's last message
-    :param new_channel: The new channel where the megapin has to occurs
+    megapin edit channel <ID> <new_channel>
+    Edit a megapin's channel.
+    <ID> is the megapin last message's ID (use `megapin list`).
+    <new_channel> is the new channel for the megapin.
     """
-    if not new_channel or not msg_id:
-      return
-
     try:
       sql = "SELECT channel_id FROM megapin_table WHERE message_id=? AND guild_id=? ;"
       response = database.fetch_one_line(sql, [msg_id, ctx.guild.id])
@@ -153,21 +144,20 @@ class Megapin(commands.Cog):
 
 
   @edit.command(name='span')
-  async def edit_span(self, ctx: commands.Context, msg_id: int, span: int):
+  async def edit_span(self, ctx: commands.Context, msg_id: int, new_span: int):
     """
-    !megapin edit span
-
+    megapin edit span <ID> <new_span>
     Edit a megapin's span
-    :param msg_id: The ID of the megapin's last message
-    :param span: The new span
+    <ID> is the megapin last message's ID (use `megapin list`).
+    <new_span> is the new span for the megapin.
     """
-    if span < 1:
+    if new_span < 1:
       await ctx.send(Utils.get_text(ctx.guild.id, "megapin_span_invalid"))
       return
 
     sql = "UPDATE megapin_table SET span=? WHERE message_id=? AND guild_id=? ;"
     try:
-      database.execute_order(sql, [span, msg_id, ctx.guild.id])
+      database.execute_order(sql, [new_span, msg_id, ctx.guild.id])
       await ctx.send(Utils.get_text(ctx.guild.id,  "megapin_edit_success"))
     except Exception as e:
       await ctx.send(Utils.get_text(ctx.guild.id, 'error_database_writing'))
@@ -178,11 +168,8 @@ class Megapin(commands.Cog):
   @megapin.group(invoke_without_command=True)
   async def remote(self, ctx: commands.Context, channel: discord.TextChannel, span: int):
     """
-    !megapin remote
-
-    Send a user-defined message in the given channel regularly
-    :param channel: The channel to send the message
-    :param span: The span in minutes between every sending
+    megapin remote <channel> <span>
+    Create a megapin in the channel <channel> with span <span>.
     """
     if span < 1:
       await ctx.send(Utils.get_text(ctx.guild.id, "megapin_span_invalid"))
@@ -202,12 +189,10 @@ class Megapin(commands.Cog):
   @remote.command(name='copy')
   async def remote_copy(self, ctx: commands.Context, channel: discord.TextChannel, msg_id: int, span: int):
     """
-    !megapin remote copy
-
-    Copy and send a message in the given channel regularly
-    :param channel: The channel to send the message
-    :param msg_id: The ID of the message to copy content from
-    :param span: The span in minutes between every sending
+    megapin remote copy <channel> <ID> <span>
+    Create a megapin in the channel <channel> with span <span>.
+    Copy megapin content from message <ID>.
+    Message <ID> must be in the current channel OR channel <channel>.
     """
     if span < 1:
       await ctx.send(Utils.get_text(ctx.guild.id, "megapin_span_invalid"))
