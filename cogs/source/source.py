@@ -23,19 +23,18 @@ class Source(commands.Cog):
   @Utils.require(required=['authorized', 'not_banned', 'cog_loaded'])
   async def source(self, ctx: commands.Context):
     """
-    !source
-
-    Print the valid subcommands
+    source
+    Print the valid subcommands.
     """
     await ctx.send(Utils.get_text(ctx.guild.id, "TODO")) #TODO: edit locale
+
 
 
   @source.command(name='message')
   async def source_message(self, ctx: commands.Context):
     """
-    !source message
-
-    Set the message for source demands
+    source message
+    Set the message for source demands.
     """
     ask_msg = await ctx.send(Utils.get_text(ctx.guild.id, "ask_message"))
     msg = await self.bot.wait_for('message', check=lambda m: m.channel == ctx.channel and m.author == ctx.author)
@@ -55,23 +54,23 @@ class Source(commands.Cog):
       await ctx.channel.send(Utils.get_text(ctx.guild.id, 'display_new_message').format(message))
 
 
+
   @source.group(invoke_without_command=True, name='channel')
   async def source_channel(self, ctx: commands.Context):
     """
-    !source channel
-
-    Print valid subcommands
+    source channel
+    Print the valid subcommands.
     """
     await ctx.send(Utils.get_text(ctx.guild.id, "TODO")) #TODO: edit locale
+
 
 
   @source_channel.command(name='add')
   async def source_channel_add(self, ctx: commands.Context, channel: discord.TextChannel = None):
     """
-    !source channel add
-
-    Add a channel to monitor for source demands
-    :param channel: The channel to monitor for source. None means current
+    source channel add <channel>
+    Add a channel to monitor for source demands.
+    <channel> is the channel to monitor (if none is given, monitor the current channel).
     """
     if not channel:
       channel = ctx.channel
@@ -84,13 +83,13 @@ class Source(commands.Cog):
       await ctx.send(Utils.get_text(ctx.guild.id, 'source_channel_added').format(f'<#{channel_id}>'))
 
 
+
   @source_channel.command(name='remove')
   async def source_channel_remove(self, ctx: commands.Context, channel: discord.TextChannel = None):
     """
-    !source channel remove
-
-    Remove a channel from monitoring
-    :param channel: The channel to monitor for source. None means current
+    source channel remove
+    Remove a channel from monitoring.
+    <channel> is the channel to remove (if none is given, remove the current channel).
     """
     if not channel:
       channel = ctx.channel
@@ -103,22 +102,24 @@ class Source(commands.Cog):
       await ctx.send(Utils.get_text(ctx.guild.id, 'source_channel_removed').format(channel.mention))
 
 
+
   @source_channel.group(invoke_without_command=True, name='list')
   async def source_list(self, ctx: commands.Context):
     """
-    !source list
-
-    Print valid subcommands
+    source list
+    List the monitored channels, the blacklisted domains and the patterns.
     """
-    await ctx.send(Utils.get_text(ctx.guild.id, "TODO")) #TODO: edit locale
+    self.source_list_channel(ctx)
+    self.source_list_domain(ctx)
+    self.source_list_pattern(ctx)
+
 
 
   @source_list.command(name='channel')
   async def source_list_channel(self, ctx: commands.Context):
     """
-    !source list channel
-
-    List monitored channels
+    source list channel
+    List the monitored channels.
     """
     sql = f"SELECT channel_id FROM source_channel WHERE guild_id=? ;"
     response = database.fetch_all_line(sql, [ctx.guild.id])
@@ -130,12 +131,12 @@ class Source(commands.Cog):
     await ctx.send(content=None, embed=embed)
 
 
+
   @source_list.command(name='domain')
   async def source_list_domain(self, ctx: commands.Context):
     """
-    !source list domain
-
-    List blacklisted domains
+    source list domain
+    List blacklisted domains.
     """
     sql = "SELECT domain FROM source_domain WHERE guild_id=? ;"
     response = database.fetch_all_line(sql, [ctx.guild.id])
@@ -149,12 +150,12 @@ class Source(commands.Cog):
     await ctx.send(content=None, embed=embed)
 
 
+
   @source_list.command(name='pattern')
   async def source_list_pattern(self, ctx: commands.Context):
     """
-    !source list pattern
-
-    List positive and negative patterns
+    source list pattern
+    List positive and negative patterns.
     """
     # Get positive patterns ----------------------------------------------
     sql = "SELECT rowid, pattern FROM source_source_pattern WHERE guild_id=? ;"
@@ -189,24 +190,25 @@ class Source(commands.Cog):
     await ctx.send(content=None, embed=embed2)
 
 
+
   @source.group(invoke_without_command=True, name='domain')
   async def source_domain(self, ctx: commands.Context):
     """
-    !source domain
-
-    Print valid subcommands
+    source domain
+    Print the valid subcommands.
     """
     await ctx.send(Utils.get_text(ctx.guild.id, "TODO")) #TODO: edit locale
+
 
 
   @source_domain.command(name='add')
   async def source_domain_add(self, domain: str):
     """
-    !source domain add
-
-    Add a domain to blacklist
+    source domain add <domain>
+    Add a domain to blacklist.
+    <domain> is the name of the domain to blacklist.
     """
-    if "." in domain:
+    if not re.match('^\w+$', domain): #TODO: check validity
       await ctx.send(Utils.get_text(ctx.guild.id, "source_wrong_format"))
       return
 
@@ -228,12 +230,13 @@ class Source(commands.Cog):
       await ctx.send(Utils.get_text(ctx.guild.id, "source_domain_blacklisted").format(domain))
 
 
+
   @source_domain.command(name='remove')
   async def source_domain_remove(self, ctx: commands.Context, domain: str):
     """
-    !source domain remove
-
-    Remove a domain from blacklist
+    source domain remove <domain>
+    Remove a domain from blacklist.
+    <domain> is the name of the domain to remove.
     """
     sql = f"DELETE FROM source_domain WHERE domain=? and guild_id=? ;"
     success = database.execute_order(sql, [domain, ctx.guild.id])
@@ -244,32 +247,32 @@ class Source(commands.Cog):
       await ctx.send(Utils.get_text(ctx.guild.id, "source_domain_removed").format(domain))
 
 
+
   @source.group(invoke_without_command=True, name='pattern')
   async def source_pattern(self, ctx: commands.Context):
     """
-    !source pattern
-
-    Print valid subcommands
+    source pattern
+    Print the valid subcommands.
     """
     await ctx.send(Utils.get_text(ctx.guild.id, "TODO")) #TODO: edit locale
+
 
 
   @pattern.group(invoke_without_command=True, name='add')
   async def source_pattern_add(self, ctx: commands.Context):
     """
-    !source pattern add
-
-    Print valid subcommands
+    source pattern add
+    Print the valid subcommands.
     """
     await ctx.send(Utils.get_text(ctx.guild.id, "TODO")) #TODO: edit locale
+
 
 
   @source_pattern_add.command(name='yes')
   async def source_pattern_add_positive(self, ctx: commands.Context, *, pattern: str):
     """
-    !source pattern add yes
-
-    Add a positive pattern
+    source pattern add yes <pattern>
+    Add a positive pattern.
     """
     #check if pattern is already in database
     sql = f"SELECT pattern FROM source_source_pattern WHERE pattern=? AND guild_id=? ;"
@@ -286,12 +289,12 @@ class Source(commands.Cog):
     #TODO: add locale
 
 
+
   @source_pattern_add.command(name='no')
   async def source_pattern_add_negative(self, ctx: commands.Context, *, pattern: str):
     """
-    !source pattern add no
-
-    Add a negative pattern
+    source pattern add no <pattern>
+    Add a negative pattern.
     """
     #check if pattern is already in database
     sql = f"SELECT pattern FROM source_source_no_pattern WHERE pattern=? AND guild_id=? ;"
@@ -308,23 +311,23 @@ class Source(commands.Cog):
     #TODO: add locale
 
 
+
   @source_pattern.group(invoke_without_command=True, name='remove')
   async def source_pattern_remove(self, ctx: commands.Context):
     """
-    !source pattern delete
-
-    Print valid subcommands
+    source pattern delete
+    Print the valid subcommands.
     """
     await ctx.send(Utils.get_text(ctx.guild.id, "TODO")) #TODO: edit locale
+
 
 
   @source_pattern_remove.command(name='yes')
   async def source_pattern_remove_positive(self, ctx: commands.Context, rowid: int):
     """
-    !source pattern remove yes
-
-    Remove a positive pattern
-    :param rowid: The rowid given by the list_pattern command
+    source pattern remove yes <rowid>
+    Remove a positive pattern.
+    <rowid> is the value of the pattern given by `list pattern`.
     """
     sql = "DELETE from source_source_pattern WHERE rowid=? AND guild_id=? ;"
     success = database.execute_order(sql, [rowid, ctx.guild.id])
@@ -334,13 +337,13 @@ class Source(commands.Cog):
     #TODO: add locale
 
 
+
   @source_pattern_remove.command(name='no')
   async def source_pattern_remove_negative(self, ctx: commands.Context, rowid: int):
     """
-    !source pattern remove no
-
-    Remove a negative pattern
-    :param rowid: The rowid given by the list_pattern command
+    source pattern remove no <row_id>
+    Remove a negative pattern.
+    <rowid> is the value of the pattern given by `list pattern`.
     """
     sql = "DELETE from source_source_no_pattern WHERE rowid=? AND guild_id=? ;"
     success = database.execute_order(sql, [rowid, ctx.guild.id])
@@ -350,12 +353,11 @@ class Source(commands.Cog):
     #TODO: add locale
 
 
+
   @commands.Cog.listener('on_message')
   async def ask_for_source(self, message: discord.Message):
     """
     Listen for messages and determinate if the author should give a source
-
-    :param message: The posted message
     """
     pass
 
