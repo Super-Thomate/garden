@@ -194,6 +194,7 @@
   "timer_help_admin_command": "`{0}timerset` affiche la configuration actuelle\n`{0}timerset emoji <emoji>` définit l'emoji à afficher\n`{0}timerset message <message>` définit le message à afficher à la fin du timer\n`{0}timerset firstemoji <emoji>` définit le premier emoji à afficher si l'option `dofirstemoji` est active\n`{0}timerset dofirstemoji <true/false>` active/inactive le premier emoji pour le timer",
   "timer_set_config": "",
   "timer_help_description": "Compte à rebours animé",
+  "timer_duration_max": "Durée max : {0}s",
   "MISC - DESCRIPTION": "--------------------------------------------------------------------------------------------------",
   "highlight_help_description": "Gère les mises en valeurs de message",
   "logs_help_description": "Gère les logs des différents cogs",

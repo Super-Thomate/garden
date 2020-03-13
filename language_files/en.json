@@ -193,6 +193,7 @@
   "timer_help_admin_command": "`{0}timerset` displays current configuration\n`{0}timerset emoji <emoji>` set the emoji to display\n`{0}timerset message <message>` set the message at the end of the timer\n`{0}timerset firstemoji <emoji>` set the first emoji to display if option `dofirstemoji` is active\n`{0}timerset dofirstemoji <true/false>` set active/inactive the first emoji for the timer",
   "timer_set_config": "",
   "timer_help_description": "Animated countdown",
+  "timer_duration_max": "Duration max: {0}s",
   "MISC - DESCRIPTION": "--------------------------------------------------------------------------------------------------",
   "highlight_help_description": "Manages messages highlight",
   "logs_help_description": "Manages logs of the cogs",

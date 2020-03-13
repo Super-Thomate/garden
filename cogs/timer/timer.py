@@ -37,6 +37,9 @@ class Timer(commands.Cog):
       if duration < 1:
         await ctx.send (Utils.get_text(ctx.guild.id, "timer_duration_positive"))
         return
+      if duration > 120:
+        await ctx.send (Utils.get_text(ctx.guild.id, "timer_duration_max").format (120))
+        return
       in_loop                = True
       start                  = time.time()
       guild_id               = ctx.guild.id ;
