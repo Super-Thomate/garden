@@ -206,6 +206,7 @@ async def utip_task (bot):
                       f" guild_id='{guild_id}' ;" +
                       ""
                       )
+            database.execute_order(delete)
             logger ("_Cron::utip_task", f"delete: {delete}")
             member = guild.get_member(user_id)
             logger ("_Cron::utip_task", f"member: {str(member)}")
@@ -213,7 +214,6 @@ async def utip_task (bot):
             if member:
               await member.remove_roles(role_utip)
               await member.send(Utils.get_text(int(guild_id), 'utip_user_lost_role'))
-            database.execute_order(delete)
   except Exception as e:
     logger ("_Cron::utip_task", f"{type(e).__name__} - {e}")
 
