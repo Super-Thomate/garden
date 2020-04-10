@@ -36,6 +36,14 @@ def create_table():
     cursor.execute(
       'CREATE TABLE IF NOT EXISTS `last_nickname` (`member_id` VARCHAR(256) NOT NULL, `guild_id` VARCHAR(256) NOT NULL, `last_change` DATETIME NOT NULL, PRIMARY KEY (`member_id`, `guild_id`)) ;')
     cursor.execute(
+      'CREATE TABLE IF NOT EXISTS `nickname_next_limit` (`member_id` VARCHAR(256) NOT NULL, `guild_id` VARCHAR(256) NOT NULL, `timer_limit` DATETIME NOT NULL, PRIMARY KEY (`member_id`, `guild_id`)) ;')
+    cursor.execute(
+      'CREATE TABLE IF NOT EXISTS `nickname_next_warn` (`member_id` VARCHAR(256) NOT NULL, `guild_id` VARCHAR(256) NOT NULL, PRIMARY KEY (`member_id`, `guild_id`)) ;')
+    cursor.execute(
+      'CREATE TABLE IF NOT EXISTS `nickname_next_troll_nickname` (`nicknames` TEXT NOT NULL, `guild_id` VARCHAR(256) NOT NULL, PRIMARY KEY (`guild_id`)) ;')
+    cursor.execute(
+      'CREATE TABLE IF NOT EXISTS `nickname_next_timer` (`timer` INTEGER NOT NULL, `guild_id` VARCHAR(256) NOT NULL, PRIMARY KEY (`guild_id`)) ;')
+    cursor.execute(
       'CREATE TABLE IF NOT EXISTS `nickname_log` (`channel_id` VARCHAR(256) NOT NULL, `guild_id` VARCHAR(256) NOT NULL, PRIMARY KEY (`guild_id`)) ;')
     cursor.execute(
       'CREATE TABLE IF NOT EXISTS `nickname_current` (`member_id` VARCHAR(256) NOT NULL, `guild_id` VARCHAR(256) NOT NULL, `nickname` VARCHAR(128) NOT NULL, PRIMARY KEY (`member_id`, `guild_id`)) ;')
