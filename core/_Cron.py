@@ -246,7 +246,7 @@ async def birthday_task(bot):
         continue
       for line in data:
         member_id, guild_id, last_year_wished = line[0], line[1], line[2]
-        if current_year == last_year_wished:
+        if not guild.get_member(int(member_id)) or current_year == last_year_wished:
           continue
         get_birthday_message(guild_id, member_id)
         await birthday_channel.send(get_birthday_message(guild_id, member_id))
