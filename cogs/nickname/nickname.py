@@ -142,14 +142,14 @@ class Nickname(commands.Cog):
         nickname_delay = Utils.convert_str_to_time(nickname_delay)
       duree = math.floor((last_timestamp + nickname_delay) - time.time())
       if duree > 0:
-        await ctx.channel.send(Utils.get_text(
+        await member.channel.send(Utils.get_text(
           ctx.guild.id,
           "nickname_cannot_change")
                                .format(Utils.format_time(duree)))
         error = True
     if not error:
       self._add_next_timer(member.id, guild_id)
-      await ctx.send(Utils.get_text(ctx.guild.id, "nickname_can_change"))
+      await member.send(Utils.get_text(ctx.guild.id, "nickname_can_change"))
     await self.logger.log('nickname_log', member, ctx.message, error)
 
   @commands.command(name='setnickcd', aliases=['ncd'])
