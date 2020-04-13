@@ -1,7 +1,6 @@
 from discord.ext import commands
 from datetime import datetime
 from core import logger
-import Converters
 import database
 import discord
 import Utils
@@ -114,6 +113,11 @@ class Megapin(commands.Cog):
     await ctx.send(Utils.get_text(ctx.guild.id, "megapin_edit_subcommand").format(ctx.prefix))
 
 
+  def __megapin_exist(self, msg_id: int, guild_id: int):
+    sql = "SELECT * FROM megapin_table WHERE message_id=? AND guild_id=? ;"
+    response = database.fetch_one_line(sql, [msg_id, guild_id])
+    return True if response else False
+
 
   @edit.command(name='channel')
   async def edit_channel(self, ctx: commands.Context, msg_id: int, new_channel: discord.TextChannel):
@@ -123,13 +127,17 @@ class Megapin(commands.Cog):
     <ID> is the megapin last message's ID (use `megapin list`).
     <new_channel> is the new channel for the megapin.
     """
+    if not self.__megapin_exist(msg_id, ctx.guild.id):
+      await ctx.send(Utils.get_text(ctx.guild.id, "megapin_not_found"))
+      return
+
     try:
       sql = "SELECT channel_id FROM megapin_table WHERE message_id=? AND guild_id=? ;"
       response = database.fetch_one_line(sql, [msg_id, ctx.guild.id])
       old_channel = ctx.guild.get_channel(int(response[0]))
       old_msg = await old_channel.fetch_message(msg_id)
     except Exception:
-      ctx.send(Utils.get_text(ctx.guild.id, "megapin_error_old_message"))
+      await ctx.send(Utils.get_text(ctx.guild.id, "megapin_error_old_message"))
       return
 
     msg = await new_channel.send(old_msg.content)
@@ -151,6 +159,10 @@ class Megapin(commands.Cog):
     <ID> is the megapin last message's ID (use `megapin list`).
     <new_span> is the new span for the megapin.
     """
+    if not self.__megapin_exist(msg_id, ctx.guild.id):
+      await ctx.send(Utils.get_text(ctx.guild.id, "megapin_not_found").format(msg_id))
+      return
+
     if new_span < 1:
       await ctx.send(Utils.get_text(ctx.guild.id, "megapin_span_invalid"))
       return

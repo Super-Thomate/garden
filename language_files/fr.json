@@ -202,6 +202,7 @@
   "megapin_delete_success": "Le mégapin a été retiré",
   "megapin_edit_success": "Le mégapin à été édité",
   "megapin_list": "Voici les megapins existants:",
+  "megapin_not_found": "Le megapin {0} est introuvable",
   "megapin_field": "ID du message | Channel | Intervalle | Preview",
   "megapin_error_old_message": "Une erreur s'est produite lors de la recherche du message du megapin. Le channel et le message existent-ils encore ?",
   "megapin_remote_copy_message_invalid": "Le message n'a pas été trouvé. Est il bien présent dans le channel <channel> ou dans le channel courant ?",
