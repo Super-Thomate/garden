@@ -217,47 +217,6 @@ async def utip_task (bot):
   except Exception as e:
     logger ("_Cron::utip_task", f"{type(e).__name__} - {e}")
 
-async def birthday_task(bot):
-  try:
-    for guild in bot.guilds:
-      guild_id = guild.id
-      if not Utils.is_loaded("birthday", guild_id):
-        continue
-      sql = "SELECT time FROM birthday_time WHERE guild_id=? ;"
-      response = database.fetch_one_line(sql, [guild_id])
-      if not (response is None or response[0] is None):
-        birthday_hour = int(response[0])
-        current_hour = int(datetime.now().strftime('%-H'))
-        if current_hour < birthday_hour:
-          continue
-      sql = "SELECT channel_id FROM birthday_channel WHERE guild_id=? ;"
-      channel_id = database.fetch_one_line(sql, [guild_id])
-      if not channel_id:
-        continue
-      birthday_channel = guild.get_channel(int(channel_id[0]))
-      date = datetime.now().strftime('%d/%m')
-      sql = "SELECT user_id, guild_id, last_year_wished FROM birthday_user WHERE user_birthday=? AND guild_id=? ;"
-      data = database.fetch_all_line(sql, [date, guild_id])
-      current_year = datetime.now().strftime('%Y')
-      logger ("_Cron::birthday_task", "birthday_channel: {}".format(birthday_channel))
-      logger ("_Cron::birthday_task", f"data: {data}")
-      if (not birthday_channel):
-        logger ("_Cron::birthday_task", "!! birthday_channel not defined for guild {0}".format(guild.name))
-        continue
-      for line in data:
-        member_id, guild_id, last_year_wished = line[0], line[1], line[2]
-        if not guild.get_member(int(member_id)) or current_year == last_year_wished:
-          continue
-        get_birthday_message(guild_id, member_id)
-        await birthday_channel.send(get_birthday_message(guild_id, member_id))
-        sql = f"UPDATE birthday_user SET last_year_wished=? WHERE user_id=? AND guild_id=? ;"
-        try:
-          database.execute_order(sql, [current_year, member_id, guild_id])
-        except Exception as e:
-          await birthday_channel.send(Utils.get_text(guild_id, 'error_database_writing'))
-          logger ("_Cron::birthday_task", f"execute_order {type(e).__name__} - {e}")
-  except Exception as e:
-    logger ("_Cron::birthday_task", f"birthday_task {type(e).__name__} - {e}")
 
 def embed_get_result (message_id, guild_id, embed):
   field = embed.fields[0]
@@ -284,11 +243,61 @@ def embed_get_result (message_id, guild_id, embed):
   embed.add_field(name=field.name, value=new_value, inline=False)
   return embed
 
-def get_birthday_message (guild_id, member_id):
-  select = f"SELECT message FROM birthday_message WHERE guild_id='{guild_id}';"
+
+async def birthday_task(bot):
+  try:
+    for guild in bot.guilds:
+      guild_id = guild.id
+      if not Utils.is_loaded("birthday", guild_id):
+        continue
+      sql = "SELECT time FROM birthday_time WHERE guild_id=? ;"
+      response = database.fetch_one_line(sql, [guild_id])
+      if not (response is None or response[0] is None):
+        birthday_hour = int(response[0])
+        current_hour = int(datetime.now().strftime('%-H'))
+        if current_hour < birthday_hour:
+          logger("_Cron::birthday_task", f"It is {current_hour}; birthdays are wished at {birthday_hour} and after")
+          continue
+      sql = "SELECT channel_id FROM birthday_channel WHERE guild_id=? ;"
+      channel_id = database.fetch_one_line(sql, [guild_id])
+      if not channel_id:
+        logger("_Cron::birthday_task", f"birthday_channel not set for guild {guild.name}")
+        continue
+      birthday_channel = guild.get_channel(int(channel_id[0]))
+      date = datetime.now().strftime('%d/%m')
+      sql = "SELECT user_id, guild_id, last_year_wished FROM birthday_user WHERE user_birthday=? AND guild_id=? ;"
+      data = database.fetch_all_line(sql, [date, guild_id])
+      current_year = datetime.now().strftime('%Y')
+      logger ("_Cron::birthday_task", f"birthday_channel: {birthday_channel} in guild {guild.name}")
+      if not birthday_channel:
+        logger ("_Cron::birthday_task", f"birthday_channel not found in guild {guild.name} !")
+        continue
+      for line in data:
+        member_id, guild_id, last_year_wished = line[0], line[1], line[2]
+        member = guild.get_member(int(member_id))
+        if not member or current_year == last_year_wished:
+          logger("_Cron::birthday_task", f"Birthday already wished this year for member {member}")
+          continue
+        birthday_message = get_birthday_message(guild, member)
+        await birthday_channel.send(birthday_message)
+        logger("_Cron::birthday_task", f"Wishing birthday to member {member.name}")
+        sql = f"UPDATE birthday_user SET last_year_wished=? WHERE user_id=? AND guild_id=? ;"
+        try:
+          database.execute_order(sql, [current_year, member_id, guild_id])
+        except Exception as e:
+          await birthday_channel.send(Utils.get_text(guild_id, 'error_database_writing'))
+          logger ("_Cron::birthday_task", f"execute_order {type(e).__name__} - {e}")
+      logger ("_Cron::birthday_task", f"End of birthday loop for guild {guild.name}\n---")
+  except Exception as e:
+    logger ("_Cron::birthday_task", f"birthday_task {type(e).__name__} - {e}")
+
+
+def get_birthday_message (guild: discord.Guild, member: discord.Member) -> str:
+  select = f"SELECT message FROM birthday_message WHERE guild_id='{guild.id}' ;"
   fetched = database.fetch_one_line(select)
   if not fetched:
-    raise RuntimeError('birthday message is not set !')
+    logger("_Cron::birthday_task::get_birthday_message", f"Birthday message not set for guild {guild.name}")
+    return f"Happy birthday {member.mention} !"
   text = ""
   # split around '{'
   text_rand = (fetched[0]).split('{')
@@ -302,7 +311,8 @@ def get_birthday_message (guild_id, member_id):
       current_part = all_rand[random.randint(0, len(all_rand) - 1)]
       logger ("_Cron::get_birthday_message", f"current_part: {current_part}")
       text = text + current_part
-  return text.replace("$member", f"<@{member_id}>")
+  return text.replace("$member", f"{member.mention}")
+
 
 async def run_task (bot, task, interval):
   await bot.wait_until_ready()
