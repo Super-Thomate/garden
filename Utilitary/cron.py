@@ -1,5 +1,5 @@
 """
-_Cron.py
+cron.py
 Manage functions for automatic process
 """
 import asyncio
@@ -14,7 +14,7 @@ from crontab import CronTab
 
 import Utils
 import database
-from .Logger import logger
+from .logger import logger
 
 async def vote_task (bot):
   try:

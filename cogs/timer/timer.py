@@ -1,12 +1,10 @@
-import discord
 from discord.ext import commands
 
 import Utils
 import database
-import core._Timer as _Timer
+import Utilitary.timer as _Timer
 from ..logs import Logs
 import time
-import asyncio
 from core import logger
 
 class Timer(commands.Cog):
@@ -100,13 +98,13 @@ class Timer(commands.Cog):
         if emoji_row_length or first_emoji:
           await msg_timer.edit (content=emoji_row)
           if time.time()-start < duration:
-            next_task         = _Timer (interval, rebuild)
+            next_task         = _Timer(interval, rebuild)
         else:
           logger ("timer::launch", "rebuild -> time : {:.1f}s".format(time.time()-start))
         #logger ("timer::launch", time.time()-proc_start)
       #reftimer               = _Timer (duration, times_up_2) # Reference Timer 
-      timer                  = _Timer (duration, times_up)
-      next_task              = _Timer (interval, rebuild)
+      timer                  = _Timer(duration, times_up)
+      next_task              = _Timer(interval, rebuild)
       await ctx.message.delete(delay=0.5)
     except Exception as e:
       await ctx.send (f"{type(e).__name__} - {e}")
@@ -158,7 +156,7 @@ class Timer(commands.Cog):
                              ).format(   emoji 
                                        , end_message
                                        , first_emoji
-                                       , Utils.str_bool (do_first_emoji)
+                                       , str(do_first_emoji)
                                      )
       await ctx.send (message_to_send) 
       return

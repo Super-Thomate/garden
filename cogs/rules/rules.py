@@ -180,10 +180,16 @@ class Rules(commands.Cog):
   @Utils.require(required=['authorized', 'not_banned', 'cog_loaded'])
   async def set_rules_log(self, ctx: commands.Context, channel: discord.TextChannel = None):
     channel = channel or ctx.channel
-    success = Utils.set_log_channel('rules_log', channel.id, ctx.guild.id)
-    if success:
-      await ctx.send(Utils.get_text(ctx.guild.id, "rules_log_channel"))
+    sql = f"SELECT channel_id FROM {table} WHERE guild_id='{guild_id}'"
+    is_already_set = database.fetch_one_line(sql)
+    if is_already_set:
+      sql = f"UPDATE {table} SET channel_id='{channel_id}' WHERE guild_id='{guild_id}'"
     else:
+      sql = f"INSERT INTO {table} VALUES ('{channel_id}', '{guild_id}') ;"
+    try:
+      database.execute_order(sql, [])
+      await ctx.send(Utils.get_text(ctx.guild.id, "rules_log_channel"))
+    except Exception as e:
       await ctx.send(Utils.get_text(ctx.guild.id, "error_database_writing"))
 
   def get_rule_message(self, emoji: discord.Emoji, message, guild_id):

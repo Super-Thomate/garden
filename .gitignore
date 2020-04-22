@@ -1,5 +1,0 @@
-__pycache__
-*.db
-config.json
-.idea/
-stop_*.sh

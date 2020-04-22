@@ -1,6 +1,0 @@
-discord.py
-beautifulsoup4
-python-dateutil
-tldextract
-emoji
-crontab
