@@ -12,6 +12,7 @@ tldextract = "*"
 emoji = "*"
 crontab = "*"
 "discord.py" = "*"
+python-dotenv = "*"
 
 [requires]
 python_version = "3.8"

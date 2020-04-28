@@ -1,360 +1,286 @@
-import inspect
-import json
-import math
-import os
-import re
-import sys
-import time
-from threading import Timer as _Timer
-from functools import wraps
-from urllib.request import urlopen
-from Utilitary.logger import logger
-
-import botconfig
-import database
-import emoji
-
-from discord.ext.commands import BadArgument, EmojiConverter
+import discord
 from discord.ext import commands
+import typing
+from Utilitary import database
+import os
+import json
+import datetime
+from Utilitary.logger import log
+from functools import wraps
+from dotenv import load_dotenv
+import re
 
-dir_path = os.path.dirname(os.path.realpath(__file__)) + '/'
-strings = {}
-for language in botconfig.config["languages"]:
-    with open(f'{dir_path}../language_files/{language}.json', 'r') as file:
-        strings[language] = json.load(file)
+load_dotenv(dotenv_path=os.path.join(os.path.dirname(__file__), '..', '.env'))
+LANGUAGE_FILE_DIRECTORY = os.path.join(os.path.dirname(__file__), '..', os.getenv('LANGUAGE_FILE_PATH'))
+strings: typing.Dict[str, typing.Dict[str, str]] = {}
 
 
-def require(required: list):
+def __init_strings():
+    """
+    Initiate the `strings` global dict which contains the locales for multiple languages
+    """
+    global strings
+    sql = "SELECT language_code FROM config_lang ;"
+    response = database.fetch_all(sql)
+    if response is None:
+        return
+    for data in response:
+        code: str = data[0]
+        file_path = LANGUAGE_FILE_DIRECTORY + code + ".json"
+        try:
+            with open(file_path, 'r') as file:
+                strings[code] = json.load(file)
+        except FileNotFoundError:
+            log('utils::__init_strings', f"File {file_path} not found !!")
+            continue
+
+
+def get_text(guild: discord.Guild, key: str) -> str:
+    """
+    Return the string refering to `key` in the correct language according to the current language setting of the guild
+
+    :param guild: Guild | The current guild
+    :param key: str | The key to retrieve the string from
+    :return: str | The string refered by `key` in the language of the guild
+    """
+    sql = "SELECT language_code FROM config_lang WHERE guild_id=? ;"
+    response = database.fetch_one(sql, [guild.id])
+    language_code = response[0] if response else 'en'
+    if response is None:
+        log('utils::get_text', f"language_code is not set for guild {guild.name} ({guild.id}) !! "
+                               f"English set by default")
+    try:
+        return strings[language_code][key]
+    except KeyError:
+        log('utils::get_text', f"KeyError for {key} in language {language_code} !!!")
+        return f"**KeyError** for `{key}` in language `{language_code}`\nShow this message to a moderator"
+
+
+def require(required: typing.List[str]):
+    """
+    A decorator used to wrap a command that run a few check before calling said command.
+    The command won't be executed if one of the check fails.
+    Accepted arguments are:
+     - `cog_loaded` to check if the cog is loaded on the guild
+     - `not_banned` to check if the user is not banned from using the command
+     - `authorized` to check if the user has enough permission to use the command
+     - `developer` to check if the user is part of the dev team
+
+    :param required: List[str] | A list of string referring to the checks to run.
+    """
+
     def decorator(f):
         @wraps(f)
-        async def decorated(*args, **kwargs):
-            ctx = args[1]
-            if 'authorized' in required:
-                if not is_authorized(ctx.author, ctx.guild.id):
-                    logger ("Utils::require::is_authorized", "Missing permissions")
-                    return
-            if 'not_banned' in required:
-                if is_banned(ctx.command, ctx.author, ctx.guild.id):
-                    await ctx.send("Vous n'êtes pas autorisé à utiliser cette commande pour le moment.")
+        async def wrapped(*args, **kwargs):
+            ctx: commands.Context = args[1]
+            if 'cog_loaded' in required:
+                if not is_loaded(ctx.cog.qualified_name.lower(), ctx.guild):
+                    await ctx.send(get_text(ctx.guild, "not_loaded")
+                                   .format(ctx.command, ctx.cog.qualified_name.lower()))
                     await ctx.message.add_reaction('❌')
                     return
-            if 'cog_loaded' in required:
-                if not is_loaded(ctx.cog.qualified_name.lower(), ctx.guild.id):
-                    if is_authorized(ctx.author, ctx.guild.id):
-                        await ctx.send(get_text(ctx.guild.id, "not_loaded").format(ctx.command, ctx.cog.qualified_name.lower()))
-                        await ctx.message.add_reaction('❌')
-                    return False
+            if 'not_banned' in required:
+                if is_banned_from_command(ctx.command, ctx.author):
+                    log("Utils::require::is_command_ban",
+                        f"Member {ctx.author} can't use command {ctx.command.name} in guild {ctx.guild}")
+                    return
+            if 'authorized' in required:
+                if not is_authorized(ctx.author):
+                    log("Utils::require::is_authorized",
+                        f"Member {ctx.author} misses permissions for command {ctx.command.name} in guild {ctx.guild}")
+                    return
+            if 'developer' in required:
+                if not is_developer(ctx.author):
+                    log("Utils::require::is_developer",
+                        f"Member {ctx.author} tried to use a dev command in guild {ctx.guild}")
+                    return
             return await f(*args, **kwargs)
 
-        return decorated
+        return wrapped
 
     return decorator
 
 
-def is_authorized(member, guild_id):
-    # Test server bypasses
-    if guild_id == 494812563016777729:
+def is_loaded(cog_name: str, guild: discord.Guild) -> bool:
+    """
+    Return wether a cog is loaded in a guild
+
+    :param cog_name: str | The name of the cog
+    :param guild: Guild | The current guild
+    :return: True if the cog is loaded, else False
+    """
+    if cog_name in ('configuration', 'loader'):  # Same value as Loader.DEFAULT_COGS
         return True
-    # admin can't be blocked
+    sql = "SELECT status FROM config_cog WHERE cog_name=? AND guild_id=? ;"
+    response = database.fetch_one(sql, [cog_name, guild.id])
+    status: bool = response[0] if response else False
+    return status
+
+
+def member_is_banned_from_command(command: commands.Command, member: discord.Member):
+    """
+    Check if a member is banned from using a command
+
+    :param command: Command | The command to be checked
+    :param member: Member | The member to be checked
+    :return: True if the user is banned from using the command, else False
+    """
+    now = int(datetime.datetime.now().timestamp())
+    sql = "SELECT * FROM bancommand_banned_user WHERE member_id=? AND command=? AND ends_at>? AND guild_id=? ;"
+    response = database.fetch_one(sql, [member.id, command.name, now, member.guild.id])
+    return response is not None
+
+
+def member_has_role_banned_from_command(command: commands.Command, member: discord.Member):
+    """
+    Check if a member has a role that is banned from using a command
+
+    :param command: Command | The command to be checked
+    :param member: Member | The member to be checked
+    :return: True if the user has a role that is banned, else False
+    """
+    now = int(datetime.datetime.now().timestamp())
+    sql = "SELECT role_id FROM bancommand_banned_role WHERE command=? AND ends_at>? AND guild_id=? ;"
+    response = database.fetch_all(sql, [command.name, now, member.guild.id])
+    if response is None:  # No data found -> no banned role
+        return False
+    for role_id in response:
+        role = member.guild.get_role(role_id)
+        if role in member.roles:  # User has banned role
+            return True
+    return False
+
+
+def is_banned_from_command(command: commands.Command, member: discord.Member) -> bool:
+    """
+    Check wether a member is banned from using a command or has a role that is banned from using a command
+
+    :param command: Command | The command to be checked
+    :param member: Member | The member to be checked
+    :return: True if the user can't use the command, else False
+    """
     if is_admin(member):
+        return False
+    if member_is_banned_from_command(command, member):
         return True
-    # if perm
-    return is_allowed(member, guild_id)
-
-
-def is_banned(command, member, guild_id):
-    # admin can't be blocked
-    if is_admin(member):
-        return False
-
-    # ban user
-    select = f"select until from ban_command_user where guild_id='{guild_id}' and user_id='{member.id}' and command='{command}' ;"
-    fetched = database.fetch_one_line(select)
-    if fetched:
-        try:
-            until = int(fetched[0])
-        except Exception as e:
-            logger ("Utils::is_banned", f"{type(e).__name__} - {e}")
-            return True
-        if until > math.floor(time.time()):  # still ban
-            return True
-
-    # ban role
-    select = f"select until,role_id from ban_command_role where guild_id='{guild_id}' and command='{command}' ;"
-    fetched = database.fetch_all_line(select)
-    if fetched:
-        for line in fetched:
-            try:
-                role_id = int(line[1])
-            except Exception as e:
-                logger ("Utils::is_banned", f"{type(e).__name__} - {e}")
-                return True
-            if has_role(role_id, member):
-                try:
-                    until = int(line[0])
-                except Exception as e:
-                    logger ("Utils::is_banned", f"{type(e).__name__} - {e}")
-                    return True
-                if until > math.floor(time.time()):  # still ban
-                    return True
-    # neither
+    if member_has_role_banned_from_command(command, member):
+        return True
     return False
 
 
-def is_banned_user(command, member, guild_id):
-    select = f"select until from ban_command_user where guild_id='{guild_id}' and user_id='{member.id}' and command='{command}' ;"
-    fetched = database.fetch_one_line(select)
-    if fetched:
-        try:
-            until = int(fetched[0])
-        except Exception as e:
-            logger ("Utils::is_banned_user", f"{type(e).__name__} - {e}")
-            return True
-        return until > math.floor(time.time())  # still ban
-    return False
+def is_authorized(member: discord.Member) -> bool:
+    """
+    Check if a member has enough permissions to use a command
+
+    :param member: The member to be checked
+    :return: True if the member is authorized, else False
+    """
+    if member.guild.id == 494812563016777729:  # Test server bypasses
+        return True
+    if is_admin(member):  # Admin can't be blocked
+        return True
+    return is_allowed(member)
 
 
-def is_banned_role(command, member, guild_id):
-    select = f"select until,role_id from ban_command_role where guild_id='{guild_id}' and command='{command}' ;"
-    fetched = database.fetch_one_line(select)
-    if fetched:
-        try:
-            role_id = int(fetched[1])
-        except Exception as e:
-            logger ("Utils::is_banned_role", f"{type(e).__name__} - {e}")
-            return True
-        if has_role(role_id, member):
-            try:
-                until = int(fetched[0])
-            except Exception as e:
-                logger ("Utils::is_banned_role", f"{type(e).__name__} - {e}")
-                return True
-            return until > math.floor(time.time())  # still ban
-    return False
+def is_admin(member: discord.Member) -> bool:
+    """
+    Check if a member is an administrator of the guild
+
+    :param member: The member to be checked
+    :return: True if the member is an administrator, else False
+    """
+    return member.guild_permissions.administrator
 
 
-def is_admin(member):
-    # if perm administrator => True
-    for perm, value in member.guild_permissions:
-        if perm == "administrator" and value:
+def is_allowed(member: discord.Member) -> bool:
+    """
+    Check wether a member has a role that is considered as a `moderator` role
+    and thus is allowed to use moderator commands
+
+    :param member: Member | The member to be checked
+    :return: True if the user is allowed to use moderator commands, else False
+    """
+    moderator_roles = get_moderator_role_id(member.guild)
+    for role in member.roles:
+        if role.id in moderator_roles:
             return True
     return False
 
 
-def is_allowed(member, guild_id):
-    for obj_role in member.roles:
-        if ((obj_role.id in get_roles_modo(guild_id))
-        ):
-            return True
-    return False
+def get_moderator_role_id(guild: discord.Guild) -> typing.List[int]:
+    """
+    Retrieve the ID of the roles that are considered as `moderator` roles
+    :param guild: Guild | The guild to retrieve the roles from
+    :return: List[int] | A list of the `moderator` roles' ID
+    """
+    sql = "SELECT role_id FROM config_role WHERE permission=? AND guild_id=? ;"
+    response = database.fetch_all(sql, [1, guild.id])
+    if response is None:
+        return []
+    return [value[0] for value in response]
 
 
-def format_time(timestamp):
-    timer = [["j", 86400]
-        , ["h", 3600]
-        , ["m", 60]
-        , ["s", 1]
-             ]
-    current = timestamp
-    logger ("Utils::format_time", f"current: {current}")
-    to_ret = ""
-    for obj_time in timer:
-        if math.floor(current / obj_time[1]) > 0:
-            to_ret += str(math.floor(current / obj_time[1])) + obj_time[0] + " "
-            current = current % obj_time[1]
-    if not len(to_ret):
-        logger ("Utils::format_time", "to ret is empty")
-    return to_ret.strip()
+def get_prefix(bot: commands.Bot, message: discord.Message):
+    """
+    Used when creating the bot instance.
+    Return the prefixes to watch according to the guild where the message comes from.
+    By default, the prefix is `!` on any guild
+    """
+    if not message.guild:
+        return commands.when_mentioned_or(*['!'])(bot, message)
+    sql = "SELECT prefix FROM config_prefix WHERE guild_id=? ;"
+    response = database.fetch_all(sql, [message.guild.id])
+    if response is None:
+        return commands.when_mentioned_or(*['!'])(bot, message)
+    prefixes = [prefix[0] for prefix in response]
+    return commands.when_mentioned_or(*prefixes)(bot, message)
 
 
-def has_role(member, role_id):
-    try:
-        for obj_role in member.roles:
-            if obj_role.id == int(role_id):
-                return True
-    except Exception as e:
-        logger ("Utils::has_role", f"{type(e).__name__} - {e}")
-    return False
+def is_developer(member: discord.Member) -> bool:
+    """
+    Check if the member is part of the dev team.
+    :param member: Member | The member to check
+    :return: True if the member is a developer, else False
+    """
+    return member.id in (103907580723617792, 232733740084887553, 70528117403295744, 154337017294094336)
 
 
-def parse_time(timestr):
-    units = {   "j": 86400
-        , "h": 3600
-        , "m": 60
-        , "s": 1
-                }
-    to_ret = 0
-    number = 0
-    for elem in timestr:
-        try:
-            cast = int(elem)
-        except Exception:
-            # is it a letter in units ?
-            if elem not in units:
-                raise Exception(f"Unknown element: {elem}")
-            to_ret = to_ret + number * units[elem]
-            number = 0
-        else:
-            number = number * 10 + cast
-    return to_ret
+def parse_time(timecode: str) -> typing.Optional[int]:
+    """
+    Convert a special string to a timestamp
+
+    :param timecode: str | A string of the form `XdXhXmXs` where X is an integer. `Example: 2d5h2m`
+    :return: int or None | A timestamp referring to the current time plus the time that is converted from `timecode`.
+        The function returns None if the `timecode` string is invalid
+    """
+    data = {"d": 86400,
+            "h": 3600,
+            "m": 60,
+            "s": 1}
+    if not re.fullmatch(r"(\d+[dhms])+", timecode, flags=re.IGNORECASE):
+        return None
+    total = 0
+    tokens = list(filter(None, re.split(r"(\d+[dhms])", timecode, flags=re.IGNORECASE)))
+    for token in tokens:
+        value, unit = tuple(filter(None, re.split(r"(\d+)", token, flags=re.IGNORECASE)))
+        value = int(value)
+        unit = unit.lower()
+        total += value * data[unit]
+    return int(datetime.datetime.now().timestamp()) + total
 
 
-def get_roles_modo(guild_id):
-    all_roles = []
-    select = ("select   role_id " +
-              "from     config_role " +
-              "where " +
-              "          permission=1 " +
-              "      and " +
-              f"          guild_id='{guild_id}' " +
-              ";" +
-              ""
-              )
-    try:
-        fetched = database.fetch_all_line(select)
-    except Exception as e:
-        logger ("Utils::get_roles_modo", f"{type(e).__name__} - {e}")
-    if fetched:
-        for role_fetched in fetched:
-            all_roles.append(int(role_fetched[0]))
-    return all_roles
+def get_bot_commands(bot: commands.Bot) -> typing.List[str]:
+    """
+    Return a list containing every Group and command and their respective aliases of the bot
+
+    :param bot: Bot | The bot instance
+    :return: List[str] | A list of the bot's Groups, commands and aliases
+    """
+    all_command = []
+    for bot_command in bot.walk_commands():
+        all_command.append(bot_command.name)
+        all_command.extend(bot_command.aliases)
+    return list(set(all_command))
 
 
-
-
-def nickname_delay (guild_id):
-    select = ("select   delay " +
-              "       , type_delay " +
-              "from     config_delay " +
-              "where " +
-              "          type_delay='nickname' " +
-              "      and " +
-              f"          guild_id='{guild_id}' " +
-              ";" +
-              ""
-              )
-    try:
-        fetched = database.fetch_one_line(select)
-    except Exception as e:
-        logger ("Utils::nickname_delay", f"{type(e).__name__} - {e}")
-    if fetched:
-        return fetched[0]
-    return None
-
-
-
-def is_valid_url(url):
-    regex = re.compile(
-        r'^https?://'  # http:// or https://
-        r'(?:(?:[A-Z0-9](?:[A-Z0-9-]{0,61}[A-Z0-9])?\.)+[A-Z]{2,6}\.?|'  # domain...
-        r'localhost|'  # localhost...
-        r'\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})'  # ...or ip
-        r'(?::\d+)?'  # optional port
-        r'(?:/?|[/?]\S+)$', re.IGNORECASE)
-    return url is not None and regex.search(url)
-
-
-def is_url_image(image_url):
-    if not is_valid_url(image_url):
-        return False
-    image_formats = ("image/png", "image/jpeg", "image/jpg", "image/gif")
-    try:
-        site = urlopen(image_url)
-        meta = site.info()  # get header of the http request
-    except Exception as e:
-        logger ("Utils::is_url_image", f"{type(e).__name__} - {e}")
-        return False
-    return meta["content-type"] in image_formats
-
-
-def convert_str_to_time(time_string):
-    time_array = time_string.split(" ")
-    logger ("Utils::convert_str_to_time", f"time_array: {time_array}")
-    timestamp = 0
-    current = 0
-    for element in time_array:
-        logger ("Utils::convert_str_to_time", f"element: {element}")
-        if element.isnumeric():
-            current = int(element)
-            logger ("Utils::convert_str_to_time", f"isnumeric = current: {current}")
-        else:
-            if element == "months":
-                current = current * 28 * 24 * 3600
-            elif element == "weeks":
-                current = current * 7 * 24 * 3600
-            logger ("Utils::convert_str_to_time", f"else current: {current}")
-            timestamp = timestamp + current
-            current = 0
-    logger ("Utils::convert_str_to_time", f"timestamp: {timestamp}")
-    return timestamp
-
-
-def get_text(guild_id: int, text_key: str) -> str:
-    language_code = botconfig.__language__[str(guild_id)]
-    try:
-        return strings[language_code][text_key]
-    except KeyError:
-        return f"**keyError** for `{text_key}` in language `{language_code}`. Show this message to a moderator."
-
-
-async def delete_messages(*args):
-    for msg in args:
-        await msg.delete(delay=2)
-
-
-def is_loaded(cog, guild_id):
-    if (guild_id is None):
-        logger ("Utils::is_loaded", "is_loaded({0}, {1})".format(cog, guild_id))
-    try:
-        guild_id = int(guild_id)
-        select = ("select   status "
-                  "from     config_cog " +
-                  "where " +
-                  "cog=? " +
-                  " and " +
-                  "guild_id=? ;" +
-                  ""
-                  )
-        try:
-            fetched = database.fetch_one_line(select, [str(cog), guild_id])
-        except Exception as e:
-            logger ("Utils::is_loaded", f"{type(e).__name__} - {e}")
-        # logger ("Utils::is_loaded", f"In fetched for {str(cog)}: {fetched}")
-        return (fetched and fetched[0] == 1) or (cog in ["configuration", "help", "loader", "logs"])
-    except Exception as e:
-        logger ("Utils::is_loaded", f"{type(e).__name__} - {e}")
-        return False
-
-
-
-
-
-def is_custom_emoji(emoji_text: str):
-    split = emoji_text.split(':')
-    if len(split) == 3:
-        return split[2][:-1]  # remove '>' at the end
-    return None
-
-def is_emoji (character: str):
-    return character in emoji.UNICODE_EMOJI
-
-async def get_emoji (ctx: commands.Context, emoji: str):
-    try:
-        converter              = EmojiConverter ()
-        return await converter.convert (ctx, emoji)
-    except BadArgument:
-        if is_emoji (emoji):
-            return emoji
-        else:
-            raise
-
-def emojize (character: str):
-    return emoji.emojize (character, use_aliases=True)
-
-def demojize (character: str):
-    return emoji.demojize (character)
-
-def setInterval(timer, task, *args):
-    isStop                     = task()
-    if not isStop:
-        _Timer(timer, setInterval, [timer, task, args]).start()
+__init_strings()

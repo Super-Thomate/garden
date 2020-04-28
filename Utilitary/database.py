@@ -1,14 +1,14 @@
 import sqlite3
-import os
-import sys
 import typing
 from Utilitary.logger import log
+import os
+from dotenv import load_dotenv
 
-instance = sys.argv[1]
-current_directory = os.path.dirname(__file__) + '/'
-sql_script_path = current_directory + '../data/NEW_database_table.sql'
-database_path = current_directory + '../garden'
-database_path += f'_{instance}.db' if instance else '.db'
+
+load_dotenv(dotenv_path=os.path.join(os.path.dirname(__file__), '..', '.env'))
+DATABASE_PATH = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', os.getenv('DATABASE_PATH')))
+DATABASE_TABLE_PATH = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', os.getenv('DATABASE_TABLE_PATH')))
+log('database::_', f"Database path -> {DATABASE_PATH}")
 
 # Special type for SQL functions' parameters
 SqlParameterType = typing.Optional[typing.Union[list, dict, tuple]]
@@ -20,11 +20,11 @@ def fetch_one(sql: str, parameters: SqlParameterType = None) -> typing.Optional[
 
     :param sql: str | The SQL query to execute
     :param parameters: list, dict, tuple or None | The query's parameters
-    :return: tuple or None | A tuple containing the data or None if no data was found
+    :return: tuple or None | A tuple  containing the data or None if no data was found
     """
     if parameters is None:
         parameters = []
-    con = sqlite3.connect(database_path)
+    con = sqlite3.connect(DATABASE_PATH)
     cursor = con.cursor()
     try:
         cursor.execute(sql, parameters)
@@ -48,7 +48,7 @@ def fetch_all(sql: str, parameters: SqlParameterType = None) -> typing.Optional[
     """
     if parameters is None:
         parameters = []
-    con = sqlite3.connect(database_path)
+    con = sqlite3.connect(DATABASE_PATH)
     cursor = con.cursor()
     try:
         cursor.execute(sql, parameters)
@@ -72,7 +72,7 @@ def execute_order(sql: str, parameters: SqlParameterType = None) -> bool:
     """
     if parameters is None:
         parameters = []
-    con = sqlite3.connect(database_path)
+    con = sqlite3.connect(DATABASE_PATH)
     cursor = con.cursor()
     try:
         cursor.execute(sql, parameters)
@@ -86,13 +86,13 @@ def execute_order(sql: str, parameters: SqlParameterType = None) -> bool:
         con.close()
 
 
-def create_database_table():
+def __create_database_table():
     """
     Execute all the SQL query written inside the `sql_script_path` variable
     which should be the path to an `.sql` file listing all the table of the database
     """
-    sql_file = open(sql_script_path, 'r')
-    con = sqlite3.connect(database_path)
+    sql_file = open(DATABASE_TABLE_PATH, 'r')
+    con = sqlite3.connect(DATABASE_PATH)
     cursor = con.cursor()
     try:
         cursor.executescript(sql_file.read())
@@ -102,3 +102,9 @@ def create_database_table():
         cursor.close()
         con.close()
         sql_file.close()
+
+
+if __name__ == '__main__':
+    print(DATABASE_PATH)
+    print(DATABASE_TABLE_PATH)
+    __create_database_table()

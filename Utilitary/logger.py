@@ -1,5 +1,5 @@
-from datetime import datetime
 import typing
+from datetime import datetime
 
 
 def log(source: str, to_log: str, output_file: typing.Optional[str] = None):
