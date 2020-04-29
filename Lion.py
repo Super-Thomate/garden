@@ -11,7 +11,8 @@ bot = commands.Bot(command_prefix=utils.get_prefix)
 bot.remove_command("help")
 bot_extensions = ['NEW_cogs.configuration',
                   'NEW_cogs.loader',
-                  'NEW_cogs.bancommand']
+                  'NEW_cogs.bancommand',
+                  'NEW_cogs.utip']
 
 
 @bot.event

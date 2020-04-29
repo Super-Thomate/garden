@@ -30,7 +30,12 @@ class Bancommand(commands.Cog):
             await ctx.send(utils.get_text(ctx.guild, "bancommand_command_not_found").format(command))
             await ctx.message.add_reaction('❌')
             return
-        ends_at = utils.parse_time(time) if time else "NULL"
+        delay = utils.parse_time(time) if time else None
+        if time is not None and delay is None:
+            await ctx.send(utils.get_text(ctx.guild, "misc_delay_invalid"))
+            await ctx.message.add_reaction('❌')
+            return
+        ends_at = int(datetime.datetime.now().timestamp()) + delay if delay else None
         sql = "INSERT INTO bancommand_banned_user(command, ends_at, member_id, guild_id) " \
               "VALUES (:command, :ends_at, :member_id, :guild_id)" \
               "ON CONFLICT(command, member_id, guild_id) DO UPDATE SET ends_at=:ends_at " \
@@ -82,7 +87,12 @@ class Bancommand(commands.Cog):
             await ctx.send(utils.get_text(ctx.guild, "bancommand_command_not_found").format(command))
             await ctx.message.add_reaction('❌')
             return
-        ends_at = utils.parse_time(time) if time else "NULL"
+        delay = utils.parse_time(time) if time else None
+        if time is not None and delay is None:
+            await ctx.send(utils.get_text(ctx.guild, "misc_delay_invalid"))
+            await ctx.message.add_reaction('❌')
+            return
+        ends_at = int(datetime.datetime.now().timestamp()) + delay if delay else None
         sql = "INSERT INTO bancommand_banned_role(command, ends_at, role_id, guild_id) " \
               "VALUES (:command, :ends_at, :role_id, :guild_id)" \
               "ON CONFLICT(command, role_id, guild_id) DO UPDATE SET ends_at=:ends_at " \
@@ -141,9 +151,9 @@ class Bancommand(commands.Cog):
         to_send = ""
         for command, timestamp, member_id in response:
             banned_member = ctx.guild.get_member(member_id)
-            banned_member = banned_member.mention if banned_member else \
-                utils.get_text(ctx.guild, "bancommand_member_not_found").format(member_id)
-            ends_at = datetime.datetime.fromtimestamp(timestamp).strftime('%c') if timestamp != 'NULL' \
+            banned_member = banned_member.mention if banned_member \
+                else utils.get_text(ctx.guild, "bancommand_member_not_found").format(member_id)
+            ends_at = utils.timestamp_to_time(timestamp, ctx.guild) if timestamp \
                 else utils.get_text(ctx.guild, "misc_permanent")
             to_send += f"{banned_member} | {command} | _{ends_at}_\n"
         embed = discord.Embed(title=utils.get_text(ctx.guild, "bancommand_embed_title"),
@@ -165,7 +175,7 @@ class Bancommand(commands.Cog):
             return
         to_send = ""
         for command, timestamp in response:
-            ends_at = datetime.datetime.fromtimestamp(timestamp).strftime('%c') if timestamp != 'NULL' \
+            ends_at = utils.timestamp_to_time(timestamp, ctx.guild) if timestamp \
                 else utils.get_text(ctx.guild, "misc_permanent")
             to_send += f"{command} | _{ends_at}_\n"
         embed = discord.Embed(title=utils.get_text(ctx.guild, "bancommand_info_user").format(member.display_name),
@@ -192,9 +202,9 @@ class Bancommand(commands.Cog):
         to_send = ""
         for member_id, timestamp in response:
             banned_member = ctx.guild.get_member(member_id)
-            banned_member = banned_member.mention if banned_member else \
-                utils.get_text(ctx.guild, "bancommand_member_not_found").format(member_id)
-            ends_at = datetime.datetime.fromtimestamp(timestamp).strftime('%c') if timestamp != 'NULL' \
+            banned_member = banned_member.mention if banned_member \
+                else utils.get_text(ctx.guild, "bancommand_member_not_found").format(member_id)
+            ends_at = utils.timestamp_to_time(timestamp, ctx.guild) if timestamp \
                 else utils.get_text(ctx.guild, "misc_permanent")
             to_send += f"{banned_member} | _{ends_at}_\n"
         embed = discord.Embed(title=utils.get_text(ctx.guild, "bancommand_info_command_user").format(command),
@@ -221,7 +231,7 @@ class Bancommand(commands.Cog):
             banned_role = ctx.guild.get_role(role_id)
             banned_role = banned_role.mention if banned_role \
                 else utils.get_text(ctx.guild, "bancommand_role_not_found").format(role_id)
-            ends_at = datetime.datetime.fromtimestamp(timestamp).strftime('%c') if timestamp != 'NULL' \
+            ends_at = utils.timestamp_to_time(timestamp, ctx.guild) if timestamp \
                 else utils.get_text(ctx.guild, "misc_permanent")
             to_send += f"{banned_role} | {command} | _{ends_at}_\n"
         embed = discord.Embed(title=utils.get_text(ctx.guild, "bancommand_embed_title"),
@@ -243,7 +253,7 @@ class Bancommand(commands.Cog):
             return
         to_send = ""
         for command, timestamp in response:
-            ends_at = datetime.datetime.fromtimestamp(timestamp).strftime('%c') if timestamp != 'NULL' \
+            ends_at = utils.timestamp_to_time(timestamp, ctx.guild) if timestamp \
                 else utils.get_text(ctx.guild, "misc_permanent")
             to_send += f"{command} | _{ends_at}_\n"
         embed = discord.Embed(title=utils.get_text(ctx.guild, "bancommand_info_role").format(role.name),
@@ -272,7 +282,7 @@ class Bancommand(commands.Cog):
             banned_role = ctx.guild.get_role(role_id)
             banned_role = banned_role.mention if banned_role \
                 else utils.get_text(ctx.guild, "bancommand_role_not_found").format(role_id)
-            ends_at = datetime.datetime.fromtimestamp(timestamp).strftime('%c') if timestamp != 'NULL' \
+            ends_at = utils.timestamp_to_time(timestamp, ctx.guild) if timestamp \
                 else utils.get_text(ctx.guild, "misc_permanent")
             to_send += f"{banned_role} | _{ends_at}_\n"
         embed = discord.Embed(title=utils.get_text(ctx.guild, "bancommand_info_command_role").format(command),
@@ -300,12 +310,15 @@ class Bancommand(commands.Cog):
 
     @tasks.loop(hours=1)
     async def delete_obsolete_bans(self):
-        log("Bancommand::delete_obsolete_bans", "Deleting obsolete bans..")
-        now = int(datetime.datetime.now().timestamp())
-        sql_user = "DELETE FROM bancommand_banned_user WHERE ends_at<? ;"
-        database.execute_order(sql_user, [now])
-        sql_role = "DELETE FROM bancommand_banned_role WHERE ends_at<? ;"
-        database.execute_order(sql_role, [now])
+        for guild in self.bot.guilds:
+            if not utils.is_loaded(self.qualified_name.lower(), guild):
+                continue
+            log("Bancommand::delete_obsolete_bans", f"Deleting obsolete bans in guild {guild.name}")
+            now = int(datetime.datetime.now().timestamp())
+            sql_user = "DELETE FROM bancommand_banned_user WHERE ends_at<? AND guild_id=? ;"
+            database.execute_order(sql_user, [now, guild.id])
+            sql_role = "DELETE FROM bancommand_banned_role WHERE ends_at<? AND guild_id=? ;"
+            database.execute_order(sql_role, [now, guild.id])
 
     def cog_unload(self):
         self.delete_obsolete_bans.cancel()

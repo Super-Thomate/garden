@@ -8,7 +8,9 @@ import datetime
 from Utilitary.logger import log
 from functools import wraps
 from dotenv import load_dotenv
+import aiohttp
 import re
+from babel.dates import format_datetime, format_timedelta
 
 load_dotenv(dotenv_path=os.path.join(os.path.dirname(__file__), '..', '.env'))
 LANGUAGE_FILE_DIRECTORY = os.path.join(os.path.dirname(__file__), '..', os.getenv('LANGUAGE_FILE_PATH'))
@@ -107,7 +109,7 @@ def is_loaded(cog_name: str, guild: discord.Guild) -> bool:
 
     :param cog_name: str | The name of the cog
     :param guild: Guild | The current guild
-    :return: True if the cog is loaded, else False
+    :return: True if the cog is loaded in the guild, else False
     """
     if cog_name in ('configuration', 'loader'):  # Same value as Loader.DEFAULT_COGS
         return True
@@ -247,10 +249,10 @@ def is_developer(member: discord.Member) -> bool:
 
 def parse_time(timecode: str) -> typing.Optional[int]:
     """
-    Convert a special string to a timestamp
+    Convert a special string into a delay
 
     :param timecode: str | A string of the form `XdXhXmXs` where X is an integer. `Example: 2d5h2m`
-    :return: int or None | A timestamp referring to the current time plus the time that is converted from `timecode`.
+    :return: int or None | The timecode parsed into a delay (in seconds)
         The function returns None if the `timecode` string is invalid
     """
     data = {"d": 86400,
@@ -266,7 +268,7 @@ def parse_time(timecode: str) -> typing.Optional[int]:
         value = int(value)
         unit = unit.lower()
         total += value * data[unit]
-    return int(datetime.datetime.now().timestamp()) + total
+    return total
 
 
 def get_bot_commands(bot: commands.Bot) -> typing.List[str]:
@@ -281,6 +283,78 @@ def get_bot_commands(bot: commands.Bot) -> typing.List[str]:
         all_command.append(bot_command.name)
         all_command.extend(bot_command.aliases)
     return list(set(all_command))
+
+
+async def delete_messages(messages: typing.List[discord.Message], delay: int = 2):
+    """
+    Delete the message in `messages` with a user defined delay (default 2s)
+
+    :param messages: List[Message] - The messages to delete
+    :param delay: int - The delay in seconds to wait before deleting the messages (default 2s)
+    """
+    for message in messages:
+        await message.delete(delay=delay)
+
+
+async def is_image_url(url: str) -> bool:
+    """
+    Non-blocking request to check if an url links to an image
+
+    :param url: str | The url to check
+    :return: bool | True if the url is valid and links to an image, else False
+    """
+    async with aiohttp.ClientSession() as cs:
+        try:
+            async with cs.get(url) as response:
+                return response.headers['Content-Type'] in ("image/png", "image/jpeg", "image/jpg", "image/gif")
+        except Exception as e:
+            log("Utils::is_url_image", f"{type(e).__name__} - {e}")
+            return False
+
+
+def delay_to_date(delay: int, guild: discord.Guild) -> str:
+    """
+    Convert a delay into a date in the guild's language
+
+    :param delay: int - A delay in secoonds
+    :param guild: Guild - The guild the date will be sent to
+    :return: str - A date formatted according to the guild language's locale
+    """
+    date = datetime.datetime.now() + datetime.timedelta(seconds=delay)
+    sql = "SELECT language_code FROM config_lang WHERE guild_id=? ;"
+    response = database.fetch_one(sql, [guild.id])
+    locale = response[0] if response else 'en'
+    return format_datetime(date, locale=locale) + " (CET)"
+
+
+def delay_to_time(delay: int, guild: discord.Guild) -> str:
+    """
+    Convert a delay into a time `(example: 2 days)` in the guild's language
+
+    :param delay: int - A delay in secoonds
+    :param guild: Guild - The guild the time will be sent to
+    :return: str - A time formatted according to the guild language's locale
+    """
+    time = datetime.timedelta(seconds=delay)
+    sql = "SELECT language_code FROM config_lang WHERE guild_id=? ;"
+    response = database.fetch_one(sql, [guild.id])
+    locale = response[0] if response else 'en'
+    return format_timedelta(time, locale=locale)
+
+
+def timestamp_to_time(timestamp: int, guild: discord.Guild) -> str:
+    """
+    Convert a delay into a time `(example: 2 days)` in the guild's language
+
+    :param timestamp: int - A delay in secoonds
+    :param guild: Guild - The guild the time will be sent to
+    :return: str - A time formatted according to the guild language's locale
+    """
+    time = datetime.datetime.fromtimestamp(timestamp) - datetime.datetime.now()
+    sql = "SELECT language_code FROM config_lang WHERE guild_id=? ;"
+    response = database.fetch_one(sql, [guild.id])
+    locale = response[0] if response else 'en'
+    return format_timedelta(time, locale=locale, add_direction=True)
 
 
 __init_strings()
