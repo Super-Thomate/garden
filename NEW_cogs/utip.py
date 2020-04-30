@@ -51,7 +51,7 @@ class Utip(commands.Cog):
         is_attachment = len(member_answer.attachments) > 0
         if is_attachment is False and is_url_valid is False:
             await ctx.send(utils.get_text(ctx.guild, "utip_image_invalid"), delete_after=5)
-            await utils.delete_messages([ctx.message, ask_message], delay=0)
+            await utils.delete_messages([ctx.message, ask_message, member_answer], delay=0)
             return
         image_url = member_answer.attachments[0].proxy_url if is_attachment else member_answer.content
 
@@ -74,12 +74,16 @@ class Utip(commands.Cog):
             await ctx.message.add_reaction('💀')
 
         await utils.delete_messages([ctx.message, ask_message, member_answer], delay=5)
-        await log_channel.send(embed=discord.Embed(title="UTIP DEMAND", description=f"{ctx.author.mention} : {image_url}"))
+        await log_channel.send(
+            embed=discord.Embed(title="UTIP DEMAND", description=f"{ctx.author.mention} : {image_url}"))
 
     @utip.command(name='setchannel', aliases=['sc'])
     @commands.guild_only()
     @utils.require(['authorized', 'cog_loaded', 'not_banned'])
     async def set_utip_channel(self, ctx: commands.Context, channel: discord.TextChannel):
+        """
+        Set the channel where the utip demand are displayed and treated
+        """
         sql = "INSERT INTO utip_config(mod_channel_id, guild_id) VALUES (:mod_channel_id, :guild_id) " \
               "ON CONFLICT(guild_id) DO UPDATE SET mod_channel_id=:mod_channel_id WHERE guild_id=:guild_id ;"
         success = database.execute_order(sql, {"mod_channel_id": channel.id, "guild_id": ctx.guild.id})
@@ -93,6 +97,9 @@ class Utip(commands.Cog):
     @commands.guild_only()
     @utils.require(['authorized', 'cog_loaded', 'not_banned'])
     async def set_utip_log(self, ctx: commands.Context, log_channel: discord.TextChannel):
+        """
+        Set the channel where the utip demands are logged
+        """
         sql = "INSERT INTO utip_config(log_channel_id, guild_id) VALUES (:log_channel_id, :guild_id) " \
               "ON CONFLICT(guild_id) DO UPDATE SET log_channel_id=:log_channel_id WHERE guild_id=:guild_id ;"
         success = database.execute_order(sql, {"log_channel_id": log_channel.id, "guild_id": ctx.guild.id})
@@ -106,6 +113,9 @@ class Utip(commands.Cog):
     @commands.guild_only()
     @utils.require(['authorized', 'cog_loaded', 'not_banned'])
     async def set_utip_role(self, ctx: commands.Context, role: discord.Role):
+        """
+        Set the role given after a demand is accepted
+        """
         sql = "INSERT INTO utip_config(role_id, guild_id) VALUES (:role_id, :guild_id) " \
               "ON CONFLICT(guild_id) DO UPDATE SET role_id=:role_id WHERE guild_id=:guild_id ;"
         success = database.execute_order(sql, {"role_id": role.id, "guild_id": ctx.guild.id})
@@ -119,6 +129,9 @@ class Utip(commands.Cog):
     @commands.guild_only()
     @utils.require(['authorized', 'cog_loaded', 'not_banned'])
     async def set_utip_delay(self, ctx: commands.Context, delay: str):
+        """
+        Set the delay before the utip role is be removed
+        """
         timestamp = utils.parse_time(delay)
         if timestamp is None:
             await ctx.send(utils.get_text(ctx.guild, "misc_delay_invalid"))
@@ -137,21 +150,43 @@ class Utip(commands.Cog):
     @commands.guild_only()
     @utils.require(['authorized', 'cog_loaded', 'not_banned'])
     async def info(self, ctx: commands.Context):
+        """
+        Display information about the utip cog configuration
+        and the status of the members who received the utip role
+        """
+        not_set = utils.get_text(ctx.guild, "utip_info_unset")
         sql = "SELECT mod_channel_id, log_channel_id, role_id, delay FROM utip_config WHERE guild_id=? ;"
         response = database.fetch_one(sql, [ctx.guild.id])
-        unset = utils.get_text(ctx.guild, "utip_info_unset")
         if response is None:
-            mod_channel = log_channel = role = delay = unset
+            mod_channel = log_channel = role = delay = not_set
         else:
-            mod_channel = ctx.guild.get_channel(response[0]) if response[0] else None
-            mod_channel = mod_channel.mention if mod_channel else unset
-            log_channel = ctx.guild.get_channel(response[1]) if response[1] else None
-            log_channel = log_channel.mention if log_channel else unset
-            role = ctx.guild.get_role(response[2]) if response[2] else None
-            role = role.mention if role else unset
-            delay = utils.delay_to_time(response[3], ctx.guild) if response[3] else unset
-        text = utils.get_text(ctx.guild, "utip_info").format(mod_channel, log_channel, role, delay)
-        await ctx.send(embed=discord.Embed(title="UTIP", description=text))
+            mod_channel = ctx.guild.get_channel(response[0])
+            mod_channel = mod_channel.mention if mod_channel else not_set
+            log_channel = ctx.guild.get_channel(response[1])
+            log_channel = log_channel.mention if log_channel else not_set
+            role = ctx.guild.get_role(response[2])
+            role = role.mention if role else not_set
+            delay = utils.delay_to_time(response[3], ctx.guild) if response[3] else not_set
+
+        sql = "SELECT member_id, ends_at FROM utip_timer WHERE guild_id=? ;"
+        response = database.fetch_all(sql, [ctx.guild.id])
+        if not response:
+            utip_members = utils.get_text(ctx.guild, "utip_info_members_none")
+        else:
+            utip_members = ""
+            for line in response:
+                member = ctx.guild.get_member(line[0])
+                member = member.mention if member else f"(Left server) <@{line[0]}>"
+                role_end = utils.timestamp_to_time(line[1], ctx.guild)
+                utip_members += f"{member} | _{role_end}_\n"
+
+        embed = discord.Embed(title=utils.get_text(ctx.guild, "utip_cog_name"))
+        embed.add_field(name=utils.get_text(ctx.guild, "utip_info_config_title"),
+                        value=utils.get_text(ctx.guild, "utip_info_config_text")
+                        .format(mod_channel, log_channel, role, delay),
+                        inline=False)
+        embed.add_field(name=utils.get_text(ctx.guild, "utip_info_member_title"), value=utip_members, inline=False)
+        await ctx.send(embed=embed)
 
     @utip.command(name='help')
     @commands.guild_only()
@@ -174,6 +209,13 @@ class Utip(commands.Cog):
 
     @staticmethod
     async def give_utip_role(member: discord.Member, role: discord.Role, delay: int):
+        """
+        Give the member the role `role` and write it in the database.
+
+        :param member: Member - The member to give role
+        :param role:  Role - The role to give
+        :param delay: int - The time before the role should be removed
+        """
         sql = "INSERT INTO utip_timer(member_id, ends_at, guild_id) VALUES (:member_id, :ends_at, :guild_id) " \
               "ON CONFLICT(member_id, guild_id) DO " \
               "UPDATE SET ends_at=:ends_at WHERE member_id=:member_id AND guild_id=:guild_id ;"
@@ -187,6 +229,9 @@ class Utip(commands.Cog):
 
     @commands.Cog.listener()
     async def on_raw_reaction_add(self, payload: discord.RawReactionActionEvent):
+        """
+        Check if the reacted message is a Utip demand and give utip role to member if demand is accepted
+        """
         if payload.user_id == self.bot.user.id:
             return
         if not str(payload.emoji) in ('👍', '👎'):
@@ -211,7 +256,7 @@ class Utip(commands.Cog):
         if str(payload.emoji) == '👍':
             await self.give_utip_role(utip_member, role, delay)
             embed_footer_key = "utip_demand_accepted"
-            demand_answer = utils.get_text(guild, "utip_demand_accepted_message")\
+            demand_answer = utils.get_text(guild, "utip_demand_accepted_message") \
                 .format(role.name, utils.delay_to_date(delay, guild))
         else:
             embed_footer_key = "utip_demand_refused"
@@ -225,6 +270,9 @@ class Utip(commands.Cog):
 
     @tasks.loop(hours=1)
     async def remove_utip_role_loop(self):
+        """
+        Every hour, look for members who's Utip role is outdated, remove it and send them a message in MP
+        """
         now = int(datetime.datetime.now().timestamp())
         for guild in self.bot.guilds:
             if not utils.is_loaded(self.qualified_name.lower(), guild):
@@ -249,6 +297,10 @@ class Utip(commands.Cog):
             database.execute_order(sql, [now, guild.id])
 
     def cog_unload(self):
+        """
+        Called when the cog is unloaded.
+        Stop the `remove_utip_role_loop` task
+        """
         self.remove_utip_role_loop.cancel()
 
 
