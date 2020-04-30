@@ -12,7 +12,8 @@ bot.remove_command("help")
 bot_extensions = ['NEW_cogs.configuration',
                   'NEW_cogs.loader',
                   'NEW_cogs.bancommand',
-                  'NEW_cogs.utip']
+                  'NEW_cogs.utip',
+                  'NEW_cogs.birthday']
 
 
 @bot.event

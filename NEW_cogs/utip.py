@@ -154,7 +154,7 @@ class Utip(commands.Cog):
         Display information about the utip cog configuration
         and the status of the members who received the utip role
         """
-        not_set = utils.get_text(ctx.guild, "utip_info_unset")
+        not_set = utils.get_text(ctx.guild, "misc_not_set")
         sql = "SELECT mod_channel_id, log_channel_id, role_id, delay FROM utip_config WHERE guild_id=? ;"
         response = database.fetch_one(sql, [ctx.guild.id])
         if response is None:
@@ -212,9 +212,9 @@ class Utip(commands.Cog):
         """
         Give the member the role `role` and write it in the database.
 
-        :param member: Member - The member to give role
-        :param role:  Role - The role to give
-        :param delay: int - The time before the role should be removed
+        :param member: Member | The member to give role
+        :param role:  Role | The role to give
+        :param delay: int | The time before the role should be removed
         """
         sql = "INSERT INTO utip_timer(member_id, ends_at, guild_id) VALUES (:member_id, :ends_at, :guild_id) " \
               "ON CONFLICT(member_id, guild_id) DO " \

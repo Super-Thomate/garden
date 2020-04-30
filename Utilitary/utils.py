@@ -11,6 +11,7 @@ from dotenv import load_dotenv
 import aiohttp
 import re
 from babel.dates import format_datetime, format_timedelta
+import random
 
 load_dotenv(dotenv_path=os.path.join(os.path.dirname(__file__), '..', '.env'))
 LANGUAGE_FILE_DIRECTORY = os.path.join(os.path.dirname(__file__), '..', os.getenv('LANGUAGE_FILE_PATH'))
@@ -174,7 +175,7 @@ def is_authorized(member: discord.Member) -> bool:
     """
     Check if a member has enough permissions to use a command
 
-    :param member: The member to be checked
+    :param member: Member | The member to be checked
     :return: True if the member is authorized, else False
     """
     if member.guild.id == 494812563016777729:  # Test server bypasses
@@ -188,7 +189,7 @@ def is_admin(member: discord.Member) -> bool:
     """
     Check if a member is an administrator of the guild
 
-    :param member: The member to be checked
+    :param member: Member | The member to be checked
     :return: True if the member is an administrator, else False
     """
     return member.guild_permissions.administrator
@@ -290,7 +291,7 @@ async def delete_messages(messages: typing.List[discord.Message], delay: int = 2
     Delete the message in `messages` with a user defined delay (default 2s)
 
     :param messages: List[Message] - The messages to delete
-    :param delay: int - The delay in seconds to wait before deleting the messages (default 2s)
+    :param delay: int | The delay in seconds to wait before deleting the messages (default 2s)
     """
     for message in messages:
         await message.delete(delay=delay)
@@ -316,8 +317,8 @@ def delay_to_date(delay: int, guild: discord.Guild) -> str:
     """
     Convert a delay into a date in the guild's language
 
-    :param delay: int - A delay in secoonds
-    :param guild: Guild - The guild the date will be sent to
+    :param delay: int | A delay in secoonds
+    :param guild: Guild | The guild the date will be sent to
     :return: str - A date formatted according to the guild language's locale
     """
     date = datetime.datetime.now() + datetime.timedelta(seconds=delay)
@@ -331,8 +332,8 @@ def delay_to_time(delay: int, guild: discord.Guild) -> str:
     """
     Convert a delay into a time `(example: 2 days)` in the guild's language
 
-    :param delay: int - A delay in secoonds
-    :param guild: Guild - The guild the time will be sent to
+    :param delay: int | A delay in secoonds
+    :param guild: Guild | The guild the time will be sent to
     :return: str - A time formatted according to the guild language's locale
     """
     time = datetime.timedelta(seconds=delay)
@@ -346,15 +347,41 @@ def timestamp_to_time(timestamp: int, guild: discord.Guild) -> str:
     """
     Convert a delay into a time `(example: 2 days)` in the guild's language
 
-    :param timestamp: int - A delay in secoonds
-    :param guild: Guild - The guild the time will be sent to
-    :return: str - A time formatted according to the guild language's locale
+    :param timestamp: int | A delay in secoonds
+    :param guild: Guild | The guild the time will be sent to
+    :return: str | A time formatted according to the guild language's locale
     """
     time = datetime.datetime.fromtimestamp(timestamp) - datetime.datetime.now()
     sql = "SELECT language_code FROM config_lang WHERE guild_id=? ;"
     response = database.fetch_one(sql, [guild.id])
     locale = response[0] if response else 'en'
     return format_timedelta(time, locale=locale, add_direction=True)
+
+
+def parse_random_string(string: str, member_name: str = None) -> str:
+    """
+    Parse a "random" string into a normal string.
+    A string is considered "random" when it contains one or more `{A|B}` patterns
+    where A and B are 2 choices that will be exclusively chosen.
+
+    Example : `Hello {A|B}` will randomly return `Hello A` or `Hello B`
+
+    :param string: str | The base string
+    :return: str | The parsed string
+    """
+    if member_name is None:
+        member_name = ""
+    random_parts = re.findall(r"{.*?}", string)
+    if len(random_parts) == 0:
+        return string
+    chosen_values = []
+    for value in random_parts:
+        choices = value[1:-1].split('|')
+        chosen = random.choice(choices)
+        chosen_values.append(chosen.strip())
+    new_message = re.sub(r"{.*?}", "{}", string).format(*chosen_values)
+    new_message = new_message.replace("$member", member_name)
+    return new_message
 
 
 __init_strings()
