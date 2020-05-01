@@ -13,7 +13,9 @@ bot_extensions = ['NEW_cogs.configuration',
                   'NEW_cogs.loader',
                   'NEW_cogs.bancommand',
                   'NEW_cogs.utip',
-                  'NEW_cogs.birthday']
+                  'NEW_cogs.birthday',
+                  'NEW_cogs.moderation',
+                  'NEW_cogs.welcome']
 
 
 @bot.event

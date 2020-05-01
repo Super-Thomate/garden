@@ -39,7 +39,7 @@ class Birthday(commands.Cog):
         sql = "SELECT * FROM birthday_user WHERE member_id=? AND guild_id=? ;"
         response = database.fetch_one(sql, [ctx.author.id, ctx.guild.id])
         if response is not None:
-            await ctx.send(utils.get_text(ctx.guild, "birthday_already_registered"), delete_after=5)
+            await ctx.send(utils.get_text(ctx.guild, "birthday_already_registered"), delete_after=5.0)
             await ctx.message.delete(delay=5)
             return
         # Ask the member their birthday date, timeout after 60s
@@ -49,13 +49,13 @@ class Birthday(commands.Cog):
                                                     check=lambda m: m.channel == ctx.channel and m.author == ctx.author,
                                                     timeout=60.0)
         except asyncio.TimeoutError:
-            await ctx.send(utils.get_text(ctx.guild, "utip_timeout"), delete_after=5)
+            await ctx.send(utils.get_text(ctx.guild, "utip_timeout"), delete_after=5.0)
             await utils.delete_messages([ctx.message, ask_message], delay=5)
             return
         # Check if date is valid
         date = self.validate_date(member_answer.content)
         if date is None:
-            await ctx.send(utils.get_text(ctx.guild, "birthday_format_invalid"), delete_after=5)
+            await ctx.send(utils.get_text(ctx.guild, "birthday_format_invalid"), delete_after=5.0)
             await utils.delete_messages([ctx.message, member_answer, ask_message], delay=5)
             return
         # Insert birthday in database
@@ -67,7 +67,7 @@ class Birthday(commands.Cog):
             log("Birthday::birthday", f"ERROR trying to register birthday in guild {ctx.guild.name}")
         else:
             await ctx.message.add_reaction('✅')
-            await ctx.send(utils.get_text(ctx.guild, "birthday_registered").format(ctx.author.mention), delete_after=5)
+            await ctx.send(utils.get_text(ctx.guild, "birthday_registered").format(ctx.author.mention), delete_after=5.0)
             await utils.delete_messages([ctx.message, ask_message, member_answer], delay=5)
 
     @birthday.command(name='setchannel', aliases=['sc'])
@@ -109,9 +109,7 @@ class Birthday(commands.Cog):
         """
         Set the birthday timing
         """
-        if timing == -1:
-            timing = None
-        elif not 0 <= timing <= 23:
+        if not 0 <= timing <= 23:
             await ctx.message.add_reaction('❌')
             return
         sql = "INSERT INTO birthday_config(timing, guild_id) VALUES (:timing, :guild_id) " \
@@ -181,7 +179,7 @@ class Birthday(commands.Cog):
                         inline=False)
         await ctx.send(embed=embed)
 
-    @tasks.loop(minutes=1)
+    @tasks.loop(minutes=1.0)
     async def print_birthday_loop(self):
         """
         Every minute. Check the timing is right to print birthdays and do so

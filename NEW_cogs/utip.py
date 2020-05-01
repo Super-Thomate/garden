@@ -19,8 +19,6 @@ class Utip(commands.Cog):
         Ask the member for a proof that they watched all the ads they could on utip.
         Expect a screenshot given by URL or bu direct upload
         """
-        if ctx.subcommand_passed is not None:
-            return
         # Check if all the field are set and that the demands channel is valid
         sql = "SELECT mod_channel_id, log_channel_id, role_id, delay FROM utip_config WHERE guild_id=? ;"
         response = database.fetch_one(sql, [ctx.guild.id])
@@ -44,14 +42,14 @@ class Utip(commands.Cog):
                                                     check=lambda m: m.channel == ctx.channel and m.author == ctx.author,
                                                     timeout=60.0)
         except asyncio.TimeoutError:
-            await ctx.send(utils.get_text(ctx.guild, "utip_timeout"), delete_after=5)
-            await utils.delete_messages([ctx.message, ask_message], delay=0)
+            await ctx.send(utils.get_text(ctx.guild, "utip_timeout"), delete_after=5.0)
+            await utils.delete_messages([ctx.message, ask_message])
             return
         is_url_valid = await utils.is_image_url(member_answer.content)
         is_attachment = len(member_answer.attachments) > 0
         if is_attachment is False and is_url_valid is False:
-            await ctx.send(utils.get_text(ctx.guild, "utip_image_invalid"), delete_after=5)
-            await utils.delete_messages([ctx.message, ask_message, member_answer], delay=0)
+            await ctx.send(utils.get_text(ctx.guild, "utip_image_invalid"), delete_after=5.0)
+            await utils.delete_messages([ctx.message, ask_message, member_answer])
             return
         image_url = member_answer.attachments[0].proxy_url if is_attachment else member_answer.content
 
@@ -268,7 +266,7 @@ class Utip(commands.Cog):
         await message.edit(embed=embed)
         await utip_member.send(demand_answer)
 
-    @tasks.loop(hours=1)
+    @tasks.loop(hours=1.0)
     async def remove_utip_role_loop(self):
         """
         Every hour, look for members who's Utip role is outdated, remove it and send them a message in MP

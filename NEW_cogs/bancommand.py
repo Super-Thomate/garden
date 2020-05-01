@@ -308,7 +308,7 @@ class Bancommand(commands.Cog):
                         inline=False)
         await ctx.send(embed=embed)
 
-    @tasks.loop(hours=1)
+    @tasks.loop(hours=1.0)
     async def delete_obsolete_bans(self):
         for guild in self.bot.guilds:
             if not utils.is_loaded(self.qualified_name.lower(), guild):

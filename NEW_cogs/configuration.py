@@ -26,8 +26,7 @@ class Configuration(commands.Cog):
         """
         Add `role` to moderator roles' list
         """
-        sql = "INSERT INTO config_role(role_id, permission, guild_id) VALUES (?, ?, ?) " \
-              "ON CONFLICT(role_id, guild_id) DO NOTHING ;"
+        sql = "INSERT INTO config_role(role_id, permission, guild_id) VALUES (?, ?, ?) ;"
         success = database.execute_order(sql, [role.id, 1, ctx.guild.id])
         if success:
             await ctx.message.add_reaction('✅')
@@ -57,7 +56,7 @@ class Configuration(commands.Cog):
         """
         Add `prefix` to the guild prefixes
         """
-        sql = "INSERT INTO config_prefix(prefix, guild_id) VALUES (?, ?) ON CONFLICT(prefix, guild_id) DO NOTHING ;"
+        sql = "INSERT INTO config_prefix(prefix, guild_id) VALUES (?, ?) ;"
         success = database.execute_order(sql, [prefix, ctx.guild.id])
         if success:
             await ctx.message.add_reaction('✅')

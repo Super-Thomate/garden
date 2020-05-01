@@ -13,3 +13,6 @@ CREATE TABLE IF NOT EXISTS utip_timer (member_id INT NOT NULL, ends_at INT NOT N
 -- BIRTHDAY
 CREATE TABLE IF NOT EXISTS birthday_config (bd_channel_id INT, message TEXT, timing INT, guild_id NOT NULL, PRIMARY KEY (guild_id)) ;
 CREATE TABLE IF NOT EXISTS birthday_user (member_id INT NOT NULL, birthday TEXT NOT NULL, last_year INT, guild_id INT NOT NULL, PRIMARY KEY (guild_id)) ;
+-- WELCOME
+CREATE TABLE IF NOT EXISTS welcome_config (role_id INT NOT NULL, channel_id INT NOT NULL, message TEXT NOT NULL, guild_id NOT NULL, PRIMARY KEY (role_id, channel_id, guild_id)) ;
+CREATE TABLE IF NOT EXISTS welcome_user (role_id INT NOT NULL, member_id NOT NULL, channel_id NOT NULL, guild_id NOT NULL, PRIMARY KEY (role_id, member_id, channel_id, guild_id)) ;

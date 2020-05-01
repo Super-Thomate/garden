@@ -9,6 +9,7 @@ from Utilitary.logger import log
 from functools import wraps
 from dotenv import load_dotenv
 import aiohttp
+import asyncio
 import re
 from babel.dates import format_datetime, format_timedelta
 import random
@@ -78,7 +79,7 @@ def require(required: typing.List[str]):
             ctx: commands.Context = args[1]
             if 'cog_loaded' in required:
                 if not is_loaded(ctx.cog.qualified_name.lower(), ctx.guild):
-                    await ctx.send(get_text(ctx.guild, "not_loaded")
+                    await ctx.send(get_text(ctx.guild, "misc_not_loaded")
                                    .format(ctx.command, ctx.cog.qualified_name.lower()))
                     await ctx.message.add_reaction('❌')
                     return
@@ -286,7 +287,7 @@ def get_bot_commands(bot: commands.Bot) -> typing.List[str]:
     return list(set(all_command))
 
 
-async def delete_messages(messages: typing.List[discord.Message], delay: int = 2):
+async def delete_messages(messages: typing.List[discord.Message], delay: int = 0):
     """
     Delete the message in `messages` with a user defined delay (default 2s)
 
@@ -371,6 +372,7 @@ def parse_random_string(string: str, member_name: str = None) -> str:
     """
     if member_name is None:
         member_name = ""
+    string = string.replace("$member", member_name)
     random_parts = re.findall(r"{.*?}", string)
     if len(random_parts) == 0:
         return string
@@ -380,8 +382,51 @@ def parse_random_string(string: str, member_name: str = None) -> str:
         chosen = random.choice(choices)
         chosen_values.append(chosen.strip())
     new_message = re.sub(r"{.*?}", "{}", string).format(*chosen_values)
-    new_message = new_message.replace("$member", member_name)
     return new_message
 
 
+def member_has_role(member: discord.Member, role_id: int) -> bool:
+    """
+    Check wether `member` has the role `role`
+    :param member: Member | The memeber to check roles from
+    :param role_id: int | The id of the role to check
+    :return: bool | True if the member has the role, else False
+    """
+    role = member.guild.get_role(role_id)
+    if not role:
+        return False
+    return role in member.roles
+
+
 __init_strings()
+
+
+async def ask_confirmation(ctx: commands.Context, comfirm_key: str, formating: list = None) -> bool:
+    """
+    Send a confirmation message and wait for the member to add a reaction to confirm action
+
+    :param ctx: Context | The context in which the confirmation is asked
+    :param comfirm_key: str | The key to be fecthed in the language file. The result will be send as confirm message
+    :param formating: list or None | A list containing the necessary formating for confirmation message
+    :return: True if the member confirmed, False if the member didn't confirm or if the demand timed out (60s)
+    """
+    if formating is None:
+        formating = []
+    confirm_message = get_text(ctx.guild, comfirm_key).format(*formating)
+    msg = await ctx.send(confirm_message)
+    await msg.add_reaction('✅')
+    await msg.add_reaction('❌')
+    try:
+        reaction, _ = await ctx.bot.wait_for('reaction_add', timeout=60.0,
+                                             check=lambda r, u: str(r.emoji) in ('✅', '❌') and u == ctx.author)
+        if str(reaction.emoji) == '❌':
+            await ctx.send(get_text(ctx.guild, "misc_cancel"), delete_after=2.0)
+            return False
+        else:
+            await ctx.send(get_text(ctx.guild, "misc_confirm"), delete_after=2.0)
+            return True
+    except asyncio.TimeoutError:
+        await ctx.send(get_text(ctx.guild, "misc_timeout"), delete_after=5.0)
+        return False
+    finally:
+        await msg.delete()
