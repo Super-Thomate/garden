@@ -16,3 +16,6 @@ CREATE TABLE IF NOT EXISTS birthday_user (member_id INT NOT NULL, birthday TEXT 
 -- WELCOME
 CREATE TABLE IF NOT EXISTS welcome_config (role_id INT NOT NULL, channel_id INT NOT NULL, message TEXT NOT NULL, guild_id NOT NULL, PRIMARY KEY (role_id, channel_id, guild_id)) ;
 CREATE TABLE IF NOT EXISTS welcome_user (role_id INT NOT NULL, member_id NOT NULL, channel_id NOT NULL, guild_id NOT NULL, PRIMARY KEY (role_id, member_id, channel_id, guild_id)) ;
+-- TURING
+CREATE TABLE IF NOT EXISTS turing_config (log_channel_id INT NOT NULL, guild_id NOT NULL, PRIMARY KEY (guild_id)) ;
+

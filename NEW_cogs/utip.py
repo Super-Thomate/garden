@@ -19,6 +19,9 @@ class Utip(commands.Cog):
         Ask the member for a proof that they watched all the ads they could on utip.
         Expect a screenshot given by URL or bu direct upload
         """
+        if ctx.subcommand_passed is not None and utils.is_authorized(ctx.author):
+            await ctx.send(utils.get_text(ctx.guild, "birthday_subcommands").format(ctx.prefix))
+            return
         # Check if all the field are set and that the demands channel is valid
         sql = "SELECT mod_channel_id, log_channel_id, role_id, delay FROM utip_config WHERE guild_id=? ;"
         response = database.fetch_one(sql, [ctx.guild.id])

@@ -39,6 +39,9 @@ def __init_strings():
             continue
 
 
+__init_strings()
+
+
 def get_text(guild: discord.Guild, key: str) -> str:
     """
     Return the string refering to `key` in the correct language according to the current language setting of the guild
@@ -396,9 +399,6 @@ def member_has_role(member: discord.Member, role_id: int) -> bool:
     if not role:
         return False
     return role in member.roles
-
-
-__init_strings()
 
 
 async def ask_confirmation(ctx: commands.Context, comfirm_key: str, formating: list = None) -> bool:

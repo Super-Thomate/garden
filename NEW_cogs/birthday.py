@@ -18,7 +18,7 @@ class Birthday(commands.Cog):
         Check if `date` is a valid date in the format `day/month`
 
         :param date: str | The date to check
-        :return: str or None | The date in the same format but with 2-digits day and month or None if the date is invalid
+        :return: str or None | The date in 2-digits format or None if the date is invalid
         """
         if date in ('29/02', '29/2'):
             return "29/02"
@@ -35,6 +35,9 @@ class Birthday(commands.Cog):
         """
         Register a member's birthday in the database. Allow `d/m` format only
         """
+        if ctx.subcommand_passed is not None and utils.is_authorized(ctx.author):
+            await ctx.send(utils.get_text(ctx.guild, "birthday_subcommands").format(ctx.prefix))
+            return
         # Check if user is already registered
         sql = "SELECT * FROM birthday_user WHERE member_id=? AND guild_id=? ;"
         response = database.fetch_one(sql, [ctx.author.id, ctx.guild.id])
@@ -67,7 +70,8 @@ class Birthday(commands.Cog):
             log("Birthday::birthday", f"ERROR trying to register birthday in guild {ctx.guild.name}")
         else:
             await ctx.message.add_reaction('✅')
-            await ctx.send(utils.get_text(ctx.guild, "birthday_registered").format(ctx.author.mention), delete_after=5.0)
+            await ctx.send(utils.get_text(ctx.guild, "birthday_registered")
+                           .format(ctx.author.mention), delete_after=5.0)
             await utils.delete_messages([ctx.message, ask_message, member_answer], delay=5)
 
     @birthday.command(name='setchannel', aliases=['sc'])
@@ -124,7 +128,7 @@ class Birthday(commands.Cog):
     @birthday.command(name='resetbirthday', aliases=['rb'])
     @commands.guild_only()
     @utils.require(['authorized', 'cog_loaded', 'not_banned'])
-    async def reset_birthday(self,  ctx: commands.Context, member: discord.Member = None):
+    async def reset_birthday(self, ctx: commands.Context, member: discord.Member = None):
         """
         Delete a member's birthday from database
         """
@@ -233,3 +237,5 @@ class Birthday(commands.Cog):
 
 def setup(bot: commands.Bot):
     bot.add_cog(Birthday(bot))
+
+# todo: set messages listener
