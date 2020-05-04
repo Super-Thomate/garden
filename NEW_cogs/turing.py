@@ -13,21 +13,25 @@ class Turing(commands.Cog):
         self.bot = bot
 
     @staticmethod
-    async def send_logging_embed(title: str, description: str, message: discord.Message, author: discord.Member):
+    async def send_logging_embed(title: str, description: str, message: discord.Message,
+                                 guild: discord.Guild, author: discord.Member):
+        """
+        Send a logging embed in turing's logging channel
+        """
         embed = discord.Embed(title=title, description=description)
         embed.set_author(name=author.name, icon_url=author.avatar_url)
-        embed.set_footer(text=f"ID: {message.id}", icon_url=message.author.avatar_url)
-        message_url = message.jump_url if message.guild else utils.get_text(author.guild, "turing_dm_no_access")
-        embed.add_field(name=utils.get_text(author.guild, "turing_log_message_link"), value=message_url)
+        embed.set_footer(text=f"ID: {message.channel.id}-{message.id}", icon_url=message.author.avatar_url)
+        if message.guild:
+            embed.add_field(name=utils.get_text(guild, "turing_log_message_link"), value=message.jump_url)
 
         sql = "SELECT log_channel_id FROM turing_config WHERE guild_id=? ;"
-        response = database.fetch_one(sql, [author.guild.id])
+        response = database.fetch_one(sql, [guild.id])
         if not response or not response[0]:
-            log("Turing::send_logging_embed", f"WARNING Turing log channel not set for guild {author.guild.name}")
+            log("Turing::send_logging_embed", f"WARNING Turing log channel not set for guild {guild.name}")
             return
-        channel = author.guild.get_channel(response[0])
+        channel = guild.get_channel(response[0])
         if channel is None:
-            log("Turing::send_logging_embed", f"ERROR Turing log channel invalid for guild {author.guild.name}")
+            log("Turing::send_logging_embed", f"ERROR Turing log channel invalid for guild {guild.name}")
             return
         await channel.send(embed=embed)
 
@@ -41,7 +45,7 @@ class Turing(commands.Cog):
         sent_message = await channel.send(message)
         await ctx.message.delete()
         log_title = utils.get_text(ctx.guild, "turing_talk_log_title").format(channel.name)
-        await self.send_logging_embed(log_title, message, sent_message, ctx.author)
+        await self.send_logging_embed(log_title, message, sent_message, ctx.guild, ctx.author)
 
     @commands.command(name='answer', aliases=['reply'])
     @commands.guild_only()
@@ -54,7 +58,7 @@ class Turing(commands.Cog):
         sent_message = await user.send(message)
         await ctx.message.delete()
         log_title = utils.get_text(ctx.guild, "turing_reply_log_title").format(f"{user.name}#{user.discriminator}")
-        await self.send_logging_embed(log_title, message, sent_message, ctx.author)
+        await self.send_logging_embed(log_title, message, sent_message, ctx.guild, ctx.author)
 
     @commands.command(name='editmessage')
     @commands.guild_only()
@@ -82,7 +86,7 @@ class Turing(commands.Cog):
         log_title = utils.get_text(ctx.guild, "turing_edit_log_title").format(message.channel.name)
         log_description = utils.get_text(ctx.guild, "turing_edit_log_description") \
             .format(old_message_content, new_message.content)
-        await self.send_logging_embed(log_title, log_description, message, ctx.author)
+        await self.send_logging_embed(log_title, log_description, message, ctx.guild, ctx.author)
 
     @commands.command(name='deletemessage')
     @commands.guild_only()
@@ -95,7 +99,7 @@ class Turing(commands.Cog):
         await ctx.message.delete()
         log_title = utils.get_text(ctx.guild, "turing_delete_log_title") \
             .format(message.author.name, message.channel.name)
-        await self.send_logging_embed(log_title, message.content, message, ctx.author)
+        await self.send_logging_embed(log_title, message.content, message, ctx.guild, ctx.author)
 
     @commands.command(name='react')
     @commands.guild_only()
@@ -108,7 +112,7 @@ class Turing(commands.Cog):
         await message.add_reaction(emoji)
         await ctx.message.delete()
         log_title = utils.get_text(ctx.guild, "turing_react_log_title").format(str(emoji))
-        await self.send_logging_embed(log_title, message.content, message, ctx.author)
+        await self.send_logging_embed(log_title, message.content, message, ctx.guild, ctx.author)
 
     @commands.command(name='unreact')
     @commands.guild_only()
@@ -119,7 +123,8 @@ class Turing(commands.Cog):
         Remove the bot's `emoji` reaction to the message `message`
         """
         await message.remove_reaction(emoji, self.bot.user)
-        await ctx.message.delete()
+        await ctx.message.add_reaction('✅')
+        await ctx.message.delete(delay=2.0)
 
     @commands.command(name='lmute', aliases=['lionmute'])
     @commands.guild_only()
@@ -185,6 +190,19 @@ class Turing(commands.Cog):
                         value=utils.get_text(ctx.guild, "turing_help_developer_command").format(ctx.prefix),
                         inline=False)
         await ctx.send(embed=embed)
+
+    @commands.Cog.listener()
+    async def on_message(self, message: discord.Message):
+        if not isinstance(message.channel, discord.DMChannel):
+            return
+        if message.author.bot is True:
+            return
+        log("Turing::on_message", f"Got DM from {message.author}")
+        # TODO: Put SUF server ID instead of test server
+        guild = self.bot.get_guild(636292952087461888)  # DMs are sent only in SUF server
+        log_title = utils.get_text(guild, "turing_log_direct_message")\
+            .format(f"{message.author.name}#{message.author.discriminator}")
+        await self.send_logging_embed(log_title, message.content, message, guild, message.author)
 
 
 def setup(bot: commands.Bot):

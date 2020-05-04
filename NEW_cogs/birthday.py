@@ -237,5 +237,3 @@ class Birthday(commands.Cog):
 
 def setup(bot: commands.Bot):
     bot.add_cog(Birthday(bot))
-
-# todo: set messages listener

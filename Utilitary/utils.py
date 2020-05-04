@@ -391,12 +391,14 @@ def parse_random_string(string: str, member_name: str = None) -> str:
 def member_has_role(member: discord.Member, role_id: int) -> bool:
     """
     Check wether `member` has the role `role`
+
     :param member: Member | The memeber to check roles from
     :param role_id: int | The id of the role to check
     :return: bool | True if the member has the role, else False
     """
     role = member.guild.get_role(role_id)
     if not role:
+        log("Utils::member_has_role", f"WARNING role_id invalid for guild {member.guild.name}")
         return False
     return role in member.roles
 

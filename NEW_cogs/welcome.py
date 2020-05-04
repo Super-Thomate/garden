@@ -2,6 +2,7 @@ import discord
 from discord.ext import commands
 from Utilitary.logger import log
 from Utilitary import utils, database
+import typing
 
 
 class Welcome(commands.Cog):
@@ -10,148 +11,187 @@ class Welcome(commands.Cog):
 
     @commands.group(invoke_without_command=True, aliases=['wc'])
     @commands.guild_only()
-    @utils.require(['authorized', 'cog_loaded', 'not_banned'])
+    @utils.require(['authorize', 'cog_loaded', 'not_banned'])
     async def welcome(self, ctx: commands.Context):
         """
-        Display the availables sub-commands for the cog
+        Print the valid subcommands for the cog
         """
-        await ctx.send(utils.get_text(ctx.guild, "welcome_subcommands").format(ctx.prefix))
+        await ctx.send(utils.get_text(ctx.guild, "welcome_subcommands"))
 
     @welcome.command(name='addwelcome', aliases=['awc'])
     @commands.guild_only()
-    @utils.require(['authorized', 'cog_loaded', 'not_banned'])
+    @utils.require(['authorize', 'cog_loaded', 'not_banned'])
     async def add_welcome(self, ctx: commands.Context, role: discord.Role,
-                          channel: discord.TextChannel, *, message: str):
+                          channel: typing.Optional[discord.TextChannel], *, message: str):
         """
-        Add a welcome for role `role` in channel `channel` with message `message`
+        Add a public welcome for `role` in `channel` with `message`
         """
-        sql = "INSERT INTO welcome_config(role_id, channel_id, message, guild_id) " \
-              "VALUES (:role_id, :channel_id, :message, :guild_id) " \
-              "ON CONFLICT(role_id, channel_id, guild_id) DO " \
-              "UPDATE SET message=:message WHERE role_id=:role_id AND channel_id=:channel_id AND guild_id=:guild_id ;"
-        response = database.execute_order(sql, {"role_id": role.id,
-                                                "channel_id": channel.id,
-                                                "message": message,
-                                                "guild_id": ctx.guild.id})
-        if response is True:
+        if channel is None:  # Add a private welcome
+            sql = "INSERT INTO welcome_private(role_id, message, guild_id) " \
+                  "VALUES (:role_id, :message, :guild_id) " \
+                  "ON CONFLICT(role_id, guild_id) DO " \
+                  "UPDATE SET message=:message WHERE role_id=:role_id AND guild_id=:guild_id ;"
+            success = database.execute_order(sql, {"role_id": role.id, "message": message, "guild_id": ctx.guild.id})
+        else:  # Add a public welcome
+            sql = "INSERT INTO welcome_public(role_id, channel_id, message, guild_id) " \
+                  "VALUES (:role_id, :channel_id, :message, :guild_id) " \
+                  "ON CONFLICT(role_id, guild_id) DO " \
+                  "UPDATE SET message=:message, channel_id=:channel_id WHERE role_id=:role_id AND guild_id=:guild_id ;"
+            success = database.execute_order(sql, {"role_id": role.id,
+                                                   "channel_id": channel.id,
+                                                   "message": message,
+                                                   "guild_id": ctx.guild.id})
+        if success is True:
             await ctx.message.add_reaction('✅')
-            log("Welcome::add_welcome",
-                f"Added welcome for role {role.name} in channel {channel.name} "
-                f"with message `{message}` in guild {ctx.guild.name}")
         else:
             await ctx.message.add_reaction('💀')
 
     @welcome.command(name='removewelcome', aliases=['rwc'])
     @commands.guild_only()
-    @utils.require(['authorized', 'cog_loaded', 'not_banned'])
-    async def remove_welcome(self, ctx: commands.Context, role: discord.Role, channel: discord.TextChannel):
+    @utils.require(['authorize', 'cog_loaded', 'not_banned'])
+    async def remove_welcome(self, ctx: commands.Context, role: discord.Role):
         """
-        Remove welcome for role `role` in channel `channel`
+        Remove the public and private welcome for `role`
         """
-        sql = "DELETE FROM welcome_config WHERE role_id=? AND channel_id=? AND guild_id=? ;"
-        response = database.execute_order(sql, [role.id, channel.id, ctx.guild.id])
-        if response is True:
+        sql = "DELETE FROM welcome_public WHERE role_id=? AND guild_id=? ;"
+        success = database.execute_order(sql, [role.id, ctx.guild.id])
+        sql2 = "DELETE FROM welcome_private WHERE role_id=? AND guild_id=? ;"
+        success2 = database.execute_order(sql2, [role.id, ctx.guild.id])
+        if success is True and success2 is True:
             await ctx.message.add_reaction('✅')
-            log("Welcome::remove_welcome",
-                f"Removed welcome for role {role.name} in channel {channel.name} in guild {ctx.guild.name}")
         else:
             await ctx.message.add_reaction('💀')
 
-    @welcome.command(name='resetwelcome', aliases=['rswc'])
+    @welcome.command(name='reset')
     @commands.guild_only()
-    @utils.require(['authorized', 'cog_loaded', 'not_banned'])
-    async def reset_welcome(self, ctx: commands.Context, role: discord.Role,
-                            channel: discord.TextChannel = None, member: discord.Member = None):
+    @utils.require(['authorize', 'cog_loaded', 'not_banned'])
+    async def reset_welcome(self, ctx: commands.Context, member: typing.Optional[discord.Member],
+                            role: typing.Optional[discord.Role]):
         """
-        Reset the welcome status of a member for the role `role` in the channel `channel`
-        If `channel` is not given reset the status for all the channels.
-        If `member` is not given, reset the status of everyone
+        Reset the welcome for `member` with `role`. If one of `role` and `member` isn't provided, the reset is wider
         """
-        if member is None:
-            if not await utils.ask_confirmation(ctx, "welcome_reset_ask_confirmation", formating=[role.mention]):
-                return
-        sql = "DELETE FROM welcome_user WHERE role_id=? AND guild_id=? "
-        parameters = [role.id, ctx.guild.id]
+        if member is None and role is None:
+            await ctx.send(utils.get_text(ctx.guild, "welcome_reset_parameters").format(ctx.prefix))
+            return
+        sql = "DELETE FROM welcome_user WHERE guild_id=? "
+        parameters = [ctx.guild.id]
         if member is not None:
-            parameters.append(member.id)
             sql += "AND member_id=? "
-        if channel is not None:
-            parameters.append(channel.id)
-            sql += "AND channel_id=? "
+            parameters.append(member.id)
+        if role is not None:
+            sql += "AND role_id=? "
+            parameters.append(role.id)
         sql += ";"
-        response = database.execute_order(sql, parameters)
-        if response is True:
+        if member is None or role is None:
+            formating = [member.mention] if member else [role.mention] if role else None
+            if not await utils.ask_confirmation(ctx, "welcome_reset_confirm", formating=formating):
+                return
+        success = database.execute_order(sql, parameters)
+        if success is True:
             await ctx.message.add_reaction('✅')
-            log("Welcome::reset_welcome",
-                f"Reset welcome for member {member} with role {role} "
-                f"and channel {channel} in guild {ctx.guild.name}")
         else:
             await ctx.message.add_reaction('💀')
 
     @welcome.command(name='info')
     @commands.guild_only()
-    @utils.require(['authorized', 'cog_loaded', 'not_banned'])
+    @utils.require(['authorize', 'cog_loaded', 'not_banned'])
     async def info(self, ctx: commands.Context):
-        sql = "SELECT role_id, channel_id, message FROM welcome_config WHERE guild_id=? ;"
+        """
+        Display the public and private welcome roles, channels and messages
+        """
+        # Get public welcomes
+        sql = "SELECT role_id, channel_id, message FROM welcome_public WHERE guild_id=? ORDER BY role_id ;"
+        public_welcome = ""
         response = database.fetch_all(sql, [ctx.guild.id])
-        if not response:
-            await ctx.send(utils.get_text(ctx.guild, "welcome_info_empty"))
-        description = ""
-        for line in response:
-            role_id, channel_id, message = line
-            role = ctx.guild.get_role(role_id)
-            role = role.mention if role else utils.get_text(ctx.guild, "misc_invalid_role").format(role_id)
-            channel = ctx.guild.get_channel(channel_id)
-            channel = channel.mention if channel \
-                else utils.get_text(ctx.guild, "misc_invalid_channel").format(channel_id)
-            description += f"- {role} | {channel} | `{message}`\n"
+        if response is not None:
+            for line in response:
+                role_id, channel_id, message = line
+                role = ctx.guild.get_role(role_id)
+                role = role.mention if role else utils.get_text(ctx.guild, "misc_invalid_role")
+                channel = ctx.guild.get_channel(channel_id)
+                channel = channel.mention if channel else utils.get_text(ctx.guild, "misc_invalid_channel") \
+                    .format(channel_id)
+                public_welcome += f"- {role} | {channel} | `{message}`\n"
+        else:
+            public_welcome += utils.get_text(ctx.guild, "welcome_info_none")
 
-        embed = discord.Embed(title=utils.get_text(ctx.guild, "welcome_info_title"), description=description)
+        # Get private welcomes
+        sql = "SELECT role_id, message FROM welcome_private WHERE guild_id=? ORDER BY role_id ;"
+        private_welcome = ""
+        response = database.fetch_all(sql, [ctx.guild.id])
+        if response is not None:
+            for line in response:
+                role_id, message = line
+                role = ctx.guild.get_role(role_id)
+                role = role.mention if role else utils.get_text(ctx.guild, "misc_invalid_role").format(role_id)
+                private_welcome += f"- {role} | `{message}`\n"
+        else:
+            private_welcome += utils.get_text(ctx.guild, "welcome_info_none")
+
+        embed = discord.Embed(title=utils.get_text(ctx.guild, "welcome_info_title"),
+                              description=utils.get_text(ctx.guild, "welcome_info_description")
+                              .format(public_welcome, private_welcome))
         await ctx.send(embed=embed)
 
     @welcome.command(name='help')
     @commands.guild_only()
-    @utils.require(['authorized', 'cog_loaded', 'not_banned'])
+    @utils.require(['authorize', 'cog_loaded', 'not_banned'])
     async def help(self, ctx: commands.Context):
+        """
+        Display the help for the `welcome` cog
+        """
         embed = discord.Embed(title=utils.get_text(ctx.guild, "welcome_cog_name"),
                               description=utils.get_text(ctx.guild, "welcome_help_description").format(ctx.prefix))
         embed.set_author(name=ctx.guild.name, icon_url=ctx.guild.icon_url)
         embed.set_footer(text=self.bot.user.name, icon_url=self.bot.user.avatar_url)
-        embed.add_field(name=utils.get_text(ctx.guild, "misc_user_command"),
+        embed.add_field(name=utils.get_text(ctx.guild, "misc_admin_command"),
                         value=utils.get_text(ctx.guild, "welcome_help_admin_command").format(ctx.prefix),
                         inline=False)
         await ctx.send(embed=embed)
 
-    @commands.Cog.listener('on_member_update')
-    async def print_welcome_message(self, before: discord.Member, after: discord.Member):
+    @commands.Cog.listener()
+    async def on_member_update(self, before: discord.Member, after: discord.Member):
         """
-        Whenever a member takes a role, checks if the role is in the welcome list
-        and if the member hasn't already been welcomed for this role. If not, welcome the user.
+        Check if the member obtained a role that need to be welcomed
+        then check if the member has not already been welcomed for this role then welcome the user
         """
-        guild = before.guild
+        guild = after.guild
+        if len(before.roles) >= len(after.roles):
+            return  # Member didn't get a new role
         if not utils.is_loaded(self.qualified_name.lower(), guild):
             return
-        sql = "SELECT role_id, channel_id, message FROM welcome_config WHERE guild_id=? ORDER BY role_id ASC ;"
-        response = database.fetch_all(sql, [guild.id])
-        if not response:
+        # Python trick to get the role that was obtained
+        role = list((set(before.roles) | set(after.roles)) - (set(before.roles) & set(after.roles)))[0]
+
+        # Check if member hasn't already been welcomed for this role
+        sql = "SELECT * FROM welcome_user WHERE member_id=? AND role_id=? AND guild_id=? ;"
+        response = database.fetch_one(sql, [after.id, role.id, role.guild.id])
+        if response is not None:
             return
-        for line in response:
-            role_id, channel_id, message = line
-            if not (not utils.member_has_role(before, role_id) and utils.member_has_role(after, role_id)):
-                continue  # member didn't get role
-            sql = "SELECT * FROM welcome_user WHERE role_id=? AND member_id=? AND channel_id=? AND guild_id=? ;"
-            response = database.fetch_one(sql, [role_id, before.id, channel_id, guild.id])
-            if response is not None:
-                continue  # member was already welcomed for this role
-            role = guild.get_role(role_id)
-            channel = guild.get_channel(channel_id)
-            if not role or not channel:
-                log("Welcome::print_welcome_update", f"ERROR - Role or channel invalid in guild {guild.name}")
-                continue
-            message = utils.parse_random_string(message, member_name=before.mention)
-            await channel.send(message)
-            sql = "INSERT INTO welcome_user(role_id, channel_id, member_id, guild_id) VALUES (?, ?, ?, ?) ;"
-            database.execute_order(sql, [role_id, channel_id, before.id, guild.id])
+
+        # Get public welcomes
+        sql = "SELECT channel_id, message FROM welcome_public WHERE role_id=? AND guild_id=? ;"
+        response = database.fetch_one(sql, [role.id, role.guild.id])
+        if response is not None:
+            channel_id, message = response
+            channel = role.guild.get_channel(channel_id)
+            message = utils.parse_random_string(message, member_name=after.mention)
+            if channel is not None:
+                await channel.send(message)
+            else:
+                log("Welcome::on_member_update",
+                    f"ERROR Welcome channel invalid for role {role.name} in guild {role.guild.name}")
+
+        # Get public welcomes
+        sql = "SELECT message FROM welcome_private WHERE role_id=? AND guild_id=? ;"
+        response = database.fetch_one(sql, [role.id, role.guild.id])
+        if response is not None:
+            message = utils.parse_random_string(response[0], member_name=after.mention)
+            await after.send(message)
+
+        # Set member as welcomed for this role
+        sql = "INSERT INTO welcome_user(role_id, member_id, guild_id) VALUES (?, ?, ?) ;"
+        database.execute_order(sql, [role.id, after.id, role.guild.id])
 
 
 def setup(bot: commands.Bot):
