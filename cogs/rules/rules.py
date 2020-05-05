@@ -269,3 +269,4 @@ class Rules(commands.Cog):
       message_warned_content = message_warned_content[:512] + "[...]"
     message.content = f"**Member {message.author} warned**:\n{message.content}\nReaction: {payload.emoji}"
     await self.logger.log('rules_log', author, message, False)
+

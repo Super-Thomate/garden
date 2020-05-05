@@ -94,7 +94,7 @@ class Utip(commands.Cog):
         else:
             await ctx.message.add_reaction('💀')
 
-    @utip.command(name='setlog', aliases=['sl'])
+    @utip.command(name='setlogchannel', aliases=['slc'])
     @commands.guild_only()
     @utils.require(['authorized', 'cog_loaded', 'not_banned'])
     async def set_utip_log(self, ctx: commands.Context, log_channel: discord.TextChannel):

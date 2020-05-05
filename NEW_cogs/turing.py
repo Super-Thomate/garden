@@ -1,11 +1,10 @@
 import asyncio
 import typing
-
 import discord
 from discord.ext import commands
-
 from Utilitary import utils, database
 from Utilitary.logger import log
+import datetime
 
 
 class Turing(commands.Cog):
@@ -21,6 +20,7 @@ class Turing(commands.Cog):
         embed = discord.Embed(title=title, description=description)
         embed.set_author(name=author.name, icon_url=author.avatar_url)
         embed.set_footer(text=f"ID: {message.channel.id}-{message.id}", icon_url=message.author.avatar_url)
+        embed.timestamp = datetime.datetime.utcnow()
         if message.guild:
             embed.add_field(name=utils.get_text(guild, "turing_log_message_link"), value=message.jump_url)
 
@@ -57,7 +57,7 @@ class Turing(commands.Cog):
         """
         sent_message = await user.send(message)
         await ctx.message.delete()
-        log_title = utils.get_text(ctx.guild, "turing_reply_log_title").format(f"{user.name}#{user.discriminator}")
+        log_title = utils.get_text(ctx.guild, "turing_reply_log_title").format(user)
         await self.send_logging_embed(log_title, message, sent_message, ctx.guild, ctx.author)
 
     @commands.command(name='editmessage')
@@ -200,7 +200,7 @@ class Turing(commands.Cog):
         log("Turing::on_message", f"Got DM from {message.author}")
         # TODO: Put SUF server ID instead of test server
         guild = self.bot.get_guild(636292952087461888)  # DMs are sent only in SUF server
-        log_title = utils.get_text(guild, "turing_log_direct_message")\
+        log_title = utils.get_text(guild, "turing_log_direct_message") \
             .format(f"{message.author.name}#{message.author.discriminator} [{message.author.id}]")
         await self.send_logging_embed(log_title, message.content, message, guild, message.author)
 

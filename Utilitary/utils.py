@@ -13,9 +13,11 @@ import asyncio
 import re
 from babel.dates import format_datetime, format_timedelta
 import random
+import emoji
 
 load_dotenv(dotenv_path=os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '.env')))
-LANGUAGE_FILE_DIRECTORY = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', os.getenv('LANGUAGE_FILE_PATH')))
+LANGUAGE_FILE_DIRECTORY = os.path.abspath(
+    os.path.join(os.path.dirname(__file__), '..', os.getenv('LANGUAGE_FILE_PATH')))
 log("Utils::_", f"Language files directory : {LANGUAGE_FILE_DIRECTORY}")
 strings: typing.Dict[str, typing.Dict[str, str]]
 
@@ -370,9 +372,8 @@ def parse_random_string(string: str, member_name: str = None) -> str:
     :param string: str | The base string
     :return: str | The parsed string
     """
-    if member_name is None:
-        member_name = ""
-    string = string.replace("$member", member_name)
+    if member_name is not None:
+        string = string.replace("$member", member_name)
     random_parts = re.findall(r"{.*?}", string)
     if len(random_parts) == 0:
         return string
@@ -432,3 +433,18 @@ async def ask_confirmation(ctx: commands.Context, comfirm_key: str, formating: l
         return False
     finally:
         await msg.delete()
+
+
+class EmojiOrUnicodeConverter(commands.EmojiConverter):
+    """
+    Custom discord Converter that try to convert the argument into a discord.Emoji or into an unicode emoji
+    Raises BadArgument and prevent the command from being executed if no emoji is found
+    """
+    async def convert(self, ctx: commands.Context, argument: str) -> typing.Union[discord.Emoji, str]:
+        """
+        Convert and return the argument or raise BadArgument
+        :return: Emoji or str | The converted argument
+        """
+        if argument in emoji.UNICODE_EMOJI:
+            return argument
+        return await commands.EmojiConverter().convert(ctx, argument)

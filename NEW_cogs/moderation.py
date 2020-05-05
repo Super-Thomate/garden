@@ -20,10 +20,14 @@ class Moderation(commands.Cog):
         if limit > 100:
             limit = 100
         await ctx.message.delete()
-        deleted = await ctx.channel.purge(limit=limit, check=lambda m: m.pinned is False)
-        await ctx.send(utils.get_text(ctx.guild, "moderation_message_deleted").format(len(deleted)), delete_after=2.0)
-        log("Moderation::clean_channel",
-            f"Deleted {len(deleted)} messages in channel {ctx.channel} in guild {ctx.guild.name}")
+        try:
+            deleted = await ctx.channel.purge(limit=limit, check=lambda m: m.pinned is False)
+            await ctx.send(utils.get_text(ctx.guild, "moderation_message_deleted").format(len(deleted)),
+                           delete_after=2.0)
+            log("Moderation::clean_channel",
+                f"Deleted {len(deleted)} messages in channel {ctx.channel} in guild {ctx.guild.name}")
+        except discord.NotFound:
+            pass
 
     @clean_channel.command(name='nolimit')
     @commands.guild_only()
@@ -33,10 +37,13 @@ class Moderation(commands.Cog):
         Delete `limit` messages in the channel. The number of deleted messages is not limited
         """
         await ctx.message.delete()
-        deleted = await ctx.channel.purge(limit=limit, check=lambda m: m.pinned is False)
-        await ctx.send(utils.get_text(ctx.guild, "moderation_message_deleted").format(len(deleted)), delete_after=2.0)
-        log("Moderation::clean_channel",
-            f"Deleted {len(deleted)} messages in channel {ctx.channel} in guild {ctx.guild.name}")
+        try:
+            deleted = await ctx.channel.purge(limit=limit, check=lambda m: m.pinned is False)
+            await ctx.send(utils.get_text(ctx.guild, "moderation_message_deleted").format(len(deleted)), delete_after=2.0)
+            log("Moderation::clean_channel",
+                f"Deleted {len(deleted)} messages in channel {ctx.channel} in guild {ctx.guild.name}")
+        except discord.NotFound:
+            pass
 
     @clean_channel.command(name='id')
     @commands.guild_only()
@@ -46,11 +53,14 @@ class Moderation(commands.Cog):
         Delete all the message in channel that were posted after `limit_message` and `limit_message` too
         """
         await ctx.message.delete()
-        deleted = await ctx.channel.purge(after=limit_message.created_at)
-        await limit_message.delete()
-        await ctx.send(utils.get_text(ctx.guild, "moderation_message_deleted").format(len(deleted)), delete_after=2.0)
-        log("Moderation::clean_channel",
-            f"Deleted {len(deleted)} messages in channel {ctx.channel} in guild {ctx.guild.name}")
+        try:
+            deleted = await ctx.channel.purge(after=limit_message.created_at)
+            await limit_message.delete()
+            await ctx.send(utils.get_text(ctx.guild, "moderation_message_deleted").format(len(deleted)), delete_after=2.0)
+            log("Moderation::clean_channel",
+                f"Deleted {len(deleted)} messages in channel {ctx.channel} in guild {ctx.guild.name}")
+        except discord.NotFound:
+            pass
 
     @commands.group(invoke_without_command=True, name='moderation')
     @commands.guild_only()
