@@ -5,10 +5,10 @@ import os
 from dotenv import load_dotenv
 
 
-load_dotenv(dotenv_path=os.path.join(os.path.dirname(__file__), '..', '.env'))
+load_dotenv(dotenv_path=os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '.env')))
 DATABASE_PATH = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', os.getenv('DATABASE_PATH')))
 DATABASE_TABLE_PATH = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', os.getenv('DATABASE_TABLE_PATH')))
-log('database::_', f"Database path -> {DATABASE_PATH}")
+log('Database::_', f"Database path -> {DATABASE_PATH}")
 
 # Special type for SQL functions' parameters
 SqlParameterType = typing.Optional[typing.Union[list, dict, tuple]]
@@ -31,7 +31,7 @@ def fetch_one(sql: str, parameters: SqlParameterType = None) -> typing.Optional[
         line = cursor.fetchone()
         return line
     except Exception as e:
-        log('database::fetch_one', f"{type(e).__name__} - {e} - SQL : `{sql}` - Parameters : `{parameters}`")
+        log('Database::fetch_one', f"{type(e).__name__} - {e} - SQL : `{sql}` - Parameters : `{parameters}`")
         return None
     finally:
         cursor.close()
@@ -55,7 +55,7 @@ def fetch_all(sql: str, parameters: SqlParameterType = None) -> typing.Optional[
         lines = cursor.fetchall()
         return lines if len(lines) != 0 else None
     except Exception as e:
-        log('database::fetch_all', f"{type(e).__name__} - {e} - SQL : `{sql}` - Parameters : `{parameters}`")
+        log('Database::fetch_all', f"{type(e).__name__} - {e} - SQL : `{sql}` - Parameters : `{parameters}`")
         return None
     finally:
         cursor.close()
@@ -79,7 +79,7 @@ def execute_order(sql: str, parameters: SqlParameterType = None) -> bool:
         con.commit()
         return True
     except Exception as e:
-        log('database::execute_order', f"{type(e).__name__} - {e} - SQL : `{sql}` - Parameters : `{parameters}`")
+        log('Database::execute_order', f"{type(e).__name__} - {e} - SQL : `{sql}` - Parameters : `{parameters}`")
         return False
     finally:
         cursor.close()
@@ -97,7 +97,7 @@ def __create_database_table():
     try:
         cursor.executescript(sql_file.read())
     except Exception as e:
-        log('database::create_database_table', f"{type(e).__name__} - {e}")
+        log('Database::create_database_table', f"{type(e).__name__} - {e}")
     finally:
         cursor.close()
         con.close()

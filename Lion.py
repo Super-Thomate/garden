@@ -16,7 +16,8 @@ bot_extensions = ['NEW_cogs.configuration',
                   'NEW_cogs.birthday',
                   'NEW_cogs.moderation',
                   'NEW_cogs.welcome',
-                  'NEW_cogs.turing']
+                  'NEW_cogs.turing',
+                  'NEW_cogs.pwet']
 
 
 @bot.event
@@ -47,4 +48,5 @@ async def on_command_error(ctx: commands.Context, exception: str):
 if __name__ == '__main__':
     for extension in bot_extensions:
         bot.load_extension(extension)
+    utils.init_strings(bot)  # Init the dictionary containing the lang files
     bot.run(os.getenv('BOT_TOKEN'))

@@ -11,13 +11,15 @@ CREATE TABLE IF NOT EXISTS utip_config (mod_channel_id INT, log_channel_id INT, 
 CREATE TABLE IF NOT EXISTS utip_pending (member_id INT NOT NULL, message_id INT NOT NULL, guild_id INT NOT NULL, PRIMARY KEY (message_id, guild_id)) ;
 CREATE TABLE IF NOT EXISTS utip_timer (member_id INT NOT NULL, ends_at INT NOT NULL, guild_id INT NOT NULL, PRIMARY KEY (member_id, guild_id)) ;
 -- BIRTHDAY
-CREATE TABLE IF NOT EXISTS birthday_config (bd_channel_id INT, message TEXT, timing INT, guild_id NOT NULL, PRIMARY KEY (guild_id)) ;
+CREATE TABLE IF NOT EXISTS birthday_config (bd_channel_id INT, message TEXT, timing INT, guild_id INT NOT NULL, PRIMARY KEY (guild_id)) ;
 CREATE TABLE IF NOT EXISTS birthday_user (member_id INT NOT NULL, birthday TEXT NOT NULL, last_year INT, guild_id INT NOT NULL, PRIMARY KEY (guild_id)) ;
 -- TURING
-CREATE TABLE IF NOT EXISTS turing_config (log_channel_id INT NOT NULL, guild_id NOT NULL, PRIMARY KEY (guild_id)) ;
+CREATE TABLE IF NOT EXISTS turing_config (log_channel_id INT NOT NULL, guild_id INT NOT NULL, PRIMARY KEY (guild_id)) ;
 -- WELCOME
-CREATE TABLE IF NOT EXISTS welcome_public (role_id INT NOT NULL, channel_id INT NOT NULL, message TEXT NOT NULL, guild_id NOT NULL, PRIMARY KEY (role_id, guild_id)) ;
-CREATE TABLE IF NOT EXISTS welcome_private (role_id INT NOT NULL, message TEXT NOT NULL, guild_id NOT NULL, PRIMARY KEY (role_id, guild_id)) ;
-CREATE TABLE IF NOT EXISTS welcome_user (role_id INT NOT NULL, member_id INT NOT NULL, guild_id NOT NULL, PRIMARY KEY (role_id, member_id, guild_id)) ;
+CREATE TABLE IF NOT EXISTS welcome_public (role_id INT NOT NULL, channel_id INT NOT NULL, message TEXT NOT NULL, guild_id INT NOT NULL, PRIMARY KEY (role_id, guild_id)) ;
+CREATE TABLE IF NOT EXISTS welcome_private (role_id INT NOT NULL, message TEXT NOT NULL, guild_id INT NOT NULL, PRIMARY KEY (role_id, guild_id)) ;
+CREATE TABLE IF NOT EXISTS welcome_user (role_id INT NOT NULL, member_id INT NOT NULL, guild_id INT NOT NULL, PRIMARY KEY (role_id, member_id, guild_id)) ;
+-- PWET
+CREATE TABLE IF NOT EXISTS pwet_table (emoji_id INT, string TEXT, guild_id INT NOT NULL, PRIMARY KEY (guild_id)) ;
 
 

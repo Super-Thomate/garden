@@ -14,32 +14,29 @@ import re
 from babel.dates import format_datetime, format_timedelta
 import random
 
-load_dotenv(dotenv_path=os.path.join(os.path.dirname(__file__), '..', '.env'))
-LANGUAGE_FILE_DIRECTORY = os.path.join(os.path.dirname(__file__), '..', os.getenv('LANGUAGE_FILE_PATH'))
-strings: typing.Dict[str, typing.Dict[str, str]] = {}
+load_dotenv(dotenv_path=os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '.env')))
+LANGUAGE_FILE_DIRECTORY = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', os.getenv('LANGUAGE_FILE_PATH')))
+log("Utils::_", f"Language files directory : {LANGUAGE_FILE_DIRECTORY}")
+strings: typing.Dict[str, typing.Dict[str, str]]
 
 
-def __init_strings():
+def init_strings(bot: commands.Bot):
     """
     Initiate the `strings` global dict which contains the locales for multiple languages
     """
     global strings
-    sql = "SELECT language_code FROM config_lang ;"
-    response = database.fetch_all(sql)
-    if response is None:
-        return
-    for data in response:
-        code: str = data[0]
-        file_path = LANGUAGE_FILE_DIRECTORY + code + ".json"
+    strings = {}
+    config_cog = bot.get_cog('Configuration')
+    langs = config_cog.AVAILABLE_LANGUAGES
+    for lang_code in langs:
+        file_path = f"{LANGUAGE_FILE_DIRECTORY}/{lang_code}.json"
         try:
             with open(file_path, 'r') as file:
-                strings[code] = json.load(file)
+                strings[lang_code] = json.load(file)
+            log("Utils::init_strings", f"Number of keys for '{lang_code}.json' : {len(strings[lang_code])}")
         except FileNotFoundError:
-            log('utils::__init_strings', f"File {file_path} not found !!")
+            log('Utils::init_strings', f"File {file_path} not found !!")
             continue
-
-
-__init_strings()
 
 
 def get_text(guild: discord.Guild, key: str) -> str:
@@ -54,12 +51,12 @@ def get_text(guild: discord.Guild, key: str) -> str:
     response = database.fetch_one(sql, [guild.id])
     language_code = response[0] if response else 'en'
     if response is None:
-        log('utils::get_text', f"language_code is not set for guild {guild.name} ({guild.id}) !! "
+        log('Utils::get_text', f"language_code is not set for guild {guild.name} !! "
                                f"English set by default")
     try:
         return strings[language_code][key]
     except KeyError:
-        log('utils::get_text', f"KeyError for {key} in language {language_code} !!!")
+        log('Utils::get_text', f"KeyError for {key} in language {language_code} !!!")
         return f"**KeyError** for `{key}` in language `{language_code}`\nShow this message to a moderator"
 
 
@@ -418,9 +415,12 @@ async def ask_confirmation(ctx: commands.Context, comfirm_key: str, formating: l
     msg = await ctx.send(confirm_message)
     await msg.add_reaction('✅')
     await msg.add_reaction('❌')
+
+    def check(r: discord.Reaction, u: discord.User):
+        return r.message == msg and u == ctx.author and str(r.emoji) in ('✅', '❌')
+
     try:
-        reaction, _ = await ctx.bot.wait_for('reaction_add', timeout=60.0,
-                                             check=lambda r, u: str(r.emoji) in ('✅', '❌') and u == ctx.author)
+        reaction, _ = await ctx.bot.wait_for('reaction_add', timeout=60.0, check=check)
         if str(reaction.emoji) == '❌':
             await ctx.send(get_text(ctx.guild, "misc_cancel"), delete_after=2.0)
             return False

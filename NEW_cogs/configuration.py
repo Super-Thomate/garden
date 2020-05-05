@@ -128,7 +128,7 @@ class Configuration(commands.Cog):
         sql = "SELECT role_id FROM config_role WHERE permission=1 AND guild_id=? ;"
         response = database.fetch_all(sql, [ctx.guild.id])
         roles = " ".join([role.mention for role in filter(None, [ctx.guild.get_role(value[0]) for value in response])])\
-            if response else "🌀"
+            if response else utils.get_text(ctx.guild, "misc_not_set")
         embed.add_field(name=utils.get_text(ctx.guild, "configuration_role"), value=roles)
 
         await ctx.send(embed=embed)

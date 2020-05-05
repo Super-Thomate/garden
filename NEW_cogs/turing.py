@@ -49,7 +49,7 @@ class Turing(commands.Cog):
 
     @commands.command(name='answer', aliases=['reply'])
     @commands.guild_only()
-    @utils.require(['developer', 'authorized', 'cog_loaded', 'not_banned'])
+    @utils.require(['developer'])
     async def turing_reply(self, ctx: commands.Context, user: discord.User, *, message: str):
         """
         Answer to user `user` DMs by sending the message `messsage`
@@ -201,7 +201,7 @@ class Turing(commands.Cog):
         # TODO: Put SUF server ID instead of test server
         guild = self.bot.get_guild(636292952087461888)  # DMs are sent only in SUF server
         log_title = utils.get_text(guild, "turing_log_direct_message")\
-            .format(f"{message.author.name}#{message.author.discriminator}")
+            .format(f"{message.author.name}#{message.author.discriminator} [{message.author.id}]")
         await self.send_logging_embed(log_title, message.content, message, guild, message.author)
 
 

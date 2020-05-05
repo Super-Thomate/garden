@@ -67,6 +67,28 @@ class Loader(commands.Cog):
             await ctx.send(utils.get_text(ctx.guild, "misc_error_occured").format(type(e).__name__, e))
             await ctx.message.add_reaction('❌')
 
+    @loader.command(name='coglist')
+    @commands.guild_only()
+    @utils.require(['developer'])
+    async def list_cog_bot(self, ctx: commands.Context):
+        """
+        List the cogs loaded for the bot. Need developer privileges
+        """
+        cog_list = ""
+        for cog in self.bot.cogs.keys():
+            cog_list += f"- **{cog}**\n"
+        await ctx.send(cog_list)
+
+    @loader.command(name='reloadlocale', aliases=['rlc'])
+    @commands.guild_only()
+    @utils.require(['developer'])
+    async def reload_locale(self, ctx: commands.Context):
+        """
+        Reload the dictionnary containing the bot locale's
+        """
+        utils.init_strings(self.bot)
+        await ctx.message.add_reaction('✅')
+
     @loader.command(name='load')
     @commands.guild_only()
     @utils.require(['authorized', 'not_banned'])
@@ -152,11 +174,11 @@ class Loader(commands.Cog):
                               description=utils.get_text(ctx.guild, "loader_help_description"))
         embed.set_author(name=ctx.guild.name, icon_url=ctx.guild.icon_url)
         embed.set_footer(text=self.bot.user.name, icon_url=self.bot.user.avatar_url)
-        embed.add_field(name=utils.get_text(ctx.guild, "misc_developer_command"),
-                        value=utils.get_text(ctx.guild, "loader_help_developer_command").format(ctx.prefix),
-                        inline=False)
         embed.add_field(name=utils.get_text(ctx.guild, "misc_admin_command"),
                         value=utils.get_text(ctx.guild, "loader_help_admin_command").format(ctx.prefix),
+                        inline=False)
+        embed.add_field(name=utils.get_text(ctx.guild, "misc_developer_command"),
+                        value=utils.get_text(ctx.guild, "loader_help_developer_command").format(ctx.prefix),
                         inline=False)
         await ctx.send(embed=embed)
 
