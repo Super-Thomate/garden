@@ -276,7 +276,7 @@ class Utip(commands.Cog):
         """
         now = int(datetime.datetime.now().timestamp())
         for guild in self.bot.guilds:
-            if not utils.is_loaded(self.qualified_name.lower(), guild):
+            if not utils.is_loaded(self.qualified_name.lower(), guild, self.bot):
                 continue
             sql = "SELECT role_id FROM utip_config WHERE guild_id=? ;"
             response = database.fetch_one(sql, [guild.id])

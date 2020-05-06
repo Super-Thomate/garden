@@ -118,7 +118,7 @@ class Rules(commands.Cog):
     async def on_raw_reaction_add(self, payload: discord.RawReactionActionEvent):
         guild = self.bot.get_guild(payload.guild_id)
         author = guild.get_member(payload.user_id)
-        if not utils.is_loaded(self.qualified_name.lower(), guild) \
+        if not utils.is_loaded(self.qualified_name.lower(), guild, self.bot) \
                 or not utils.is_authorized(author) \
                 or author.bot \
                 or not payload.guild_id:

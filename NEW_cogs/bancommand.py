@@ -311,7 +311,7 @@ class Bancommand(commands.Cog):
     @tasks.loop(hours=1.0)
     async def delete_obsolete_bans(self):
         for guild in self.bot.guilds:
-            if not utils.is_loaded(self.qualified_name.lower(), guild):
+            if not utils.is_loaded(self.qualified_name.lower(), guild, self.bot):
                 continue
             log("Bancommand::delete_obsolete_bans", f"Deleting obsolete bans in guild {guild.name}")
             now = int(datetime.datetime.now().timestamp())

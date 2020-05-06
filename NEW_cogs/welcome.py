@@ -158,7 +158,7 @@ class Welcome(commands.Cog):
         guild = after.guild
         if len(before.roles) >= len(after.roles):
             return  # Member didn't get a new role
-        if not utils.is_loaded(self.qualified_name.lower(), guild):
+        if not utils.is_loaded(self.qualified_name.lower(), guild, self.bot):
             return
         # Python trick to get the role that was obtained
         role = list((set(before.roles) | set(after.roles)) - (set(before.roles) & set(after.roles)))[0]

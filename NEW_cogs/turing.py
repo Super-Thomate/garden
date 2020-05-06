@@ -49,7 +49,7 @@ class Turing(commands.Cog):
 
     @commands.command(name='answer', aliases=['reply'])
     @commands.guild_only()
-    @utils.require(['developer'])
+    @utils.require(['developer', 'cog_loaded'])
     async def turing_reply(self, ctx: commands.Context, user: discord.User, *, message: str):
         """
         Answer to user `user` DMs by sending the message `messsage`

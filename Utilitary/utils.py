@@ -80,7 +80,7 @@ def require(required: typing.List[str]):
         async def wrapped(*args, **kwargs):
             ctx: commands.Context = args[1]
             if 'cog_loaded' in required:
-                if not is_loaded(ctx.cog.qualified_name.lower(), ctx.guild):
+                if not is_loaded(ctx.cog.qualified_name.lower(), ctx.guild, ctx.bot):
                     await ctx.send(get_text(ctx.guild, "misc_not_loaded")
                                    .format(ctx.command, ctx.cog.qualified_name.lower()))
                     await ctx.message.add_reaction('❌')
@@ -107,15 +107,18 @@ def require(required: typing.List[str]):
     return decorator
 
 
-def is_loaded(cog_name: str, guild: discord.Guild) -> bool:
+def is_loaded(cog_name: str, guild: discord.Guild, bot: commands.Bot) -> bool:
     """
     Return wether a cog is loaded in a guild
 
     :param cog_name: str | The name of the cog
     :param guild: Guild | The current guild
+    :param bot: Bot | The running bot
     :return: True if the cog is loaded in the guild, else False
     """
-    if cog_name in ('configuration', 'loader'):  # Same value as Loader.DEFAULT_COGS
+    loader_cog = bot.get_cog('Loader')
+    default_cogs = loader_cog.DEFAULT_COGS
+    if cog_name in default_cogs:
         return True
     sql = "SELECT status FROM config_cog WHERE cog_name=? AND guild_id=? ;"
     response = database.fetch_one(sql, [cog_name, guild.id])

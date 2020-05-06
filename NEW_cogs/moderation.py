@@ -105,7 +105,7 @@ class Moderation(commands.Cog):
             return
         if message.author.bot is True:
             return
-        if not utils.is_loaded(self.qualified_name.lower(), message.guild):
+        if not utils.is_loaded(self.qualified_name.lower(), message.guild, self.bot):
             return
         if len(message.content) > 5 and message.content.isupper():
             await message.add_reaction(self.get_caps_emoji())
@@ -119,7 +119,7 @@ class Moderation(commands.Cog):
             return
         if before.author.bot is True:
             return
-        if not utils.is_loaded(self.qualified_name.lower(), before.guild):
+        if not utils.is_loaded(self.qualified_name.lower(), before.guild, self.bot):
             return
         emoji = self.get_caps_emoji()
         if len(after.content) > 5 and after.content.isupper():

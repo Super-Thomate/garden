@@ -191,7 +191,7 @@ class Birthday(commands.Cog):
         now = datetime.datetime.now()
         date = now.strftime("%d/%m")
         for guild in self.bot.guilds:
-            if not utils.is_loaded(self.qualified_name.lower(), guild):
+            if not utils.is_loaded(self.qualified_name.lower(), guild, self.bot):
                 continue
             # Get birthday config for guild
             sql = "SELECT bd_channel_id, message, timing FROM birthday_config WHERE guild_id=? ;"
