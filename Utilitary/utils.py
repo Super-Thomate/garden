@@ -438,7 +438,7 @@ async def ask_confirmation(ctx: commands.Context, comfirm_key: str, formating: l
         await msg.delete()
 
 
-class EmojiOrUnicodeConverter(commands.EmojiConverter):
+class EmojiOrUnicodeConverter(commands.Converter):
     """
     Custom discord Converter that try to convert the argument into a discord.Emoji or into an unicode emoji
     Raises BadArgument and prevent the command from being executed if no emoji is found
@@ -451,3 +451,11 @@ class EmojiOrUnicodeConverter(commands.EmojiConverter):
         if argument in emoji.UNICODE_EMOJI:
             return argument
         return await commands.EmojiConverter().convert(ctx, argument)
+
+
+class DelayConverter(commands.Converter):
+    async def convert(self, ctx: commands.Context, argument: str) -> int:
+        delay = parse_time(argument)
+        if not delay:
+            raise commands.BadArgument(get_text(ctx.guild, "misc_delay_invalid"))
+        return delay

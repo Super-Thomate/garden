@@ -141,6 +141,8 @@ class Rules(commands.Cog):
         channel = guild.get_channel(payload.channel_id)
         message = await channel.fetch_message(payload.message_id)
         member = message.author
+        if member.bot is True:
+            return
         await member.send(f"> {message.content}\n{rule_message}")
 
         # Add message as warned
@@ -152,10 +154,10 @@ class Rules(commands.Cog):
         sql = "SELECT log_channel_id FROM rules_config WHERE guild_id=? ;"
         response = database.fetch_one(sql, [guild.id])
         if response is None or response[0] is None:
-            log("Rules::on_raw_reaction_add", f"WARNING Log channel not set for guild {guild.name}")
+            log("Rules::on_raw_reaction_add", f"WARNING Log channel not set for guild {guild} ({guild.id})")
         log_channel = guild.get_channel(response[0])
         if log_channel is None:
-            log("Rules::on_raw_reaction_add", f"ERROR Log channel invalid for guild {guild.name}")
+            log("Rules::on_raw_reaction_add", f"ERROR Log channel invalid for guild {guild} ({guild.id})")
         embed = discord.Embed(title=utils.get_text(guild, "rules_log_title").format(member, payload.emoji),
                               description=message.content)
         embed.set_author(name=author.name, icon_url=author.avatar_url)

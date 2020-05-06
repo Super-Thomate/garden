@@ -220,7 +220,7 @@ class Utip(commands.Cog):
         sql = "INSERT INTO utip_timer(member_id, ends_at, guild_id) VALUES (:member_id, :ends_at, :guild_id) " \
               "ON CONFLICT(member_id, guild_id) DO " \
               "UPDATE SET ends_at=:ends_at WHERE member_id=:member_id AND guild_id=:guild_id ;"
-        ends_at = datetime.datetime.now() + datetime.timedelta(seconds=delay)
+        ends_at = datetime.datetime.utcnow() + datetime.timedelta(seconds=delay)
         ends_at = int(ends_at.timestamp())
         success = database.execute_order(sql, {"member_id": member.id,
                                                "ends_at": ends_at,
@@ -274,7 +274,7 @@ class Utip(commands.Cog):
         """
         Every hour, look for members who's Utip role is outdated, remove it and send them a message in MP
         """
-        now = int(datetime.datetime.now().timestamp())
+        now = int(datetime.datetime.utcnow().timestamp())
         for guild in self.bot.guilds:
             if not utils.is_loaded(self.qualified_name.lower(), guild, self.bot):
                 continue
@@ -282,7 +282,7 @@ class Utip(commands.Cog):
             response = database.fetch_one(sql, [guild.id])
             utip_role = guild.get_role(response[0]) if response else None
             if not response or not utip_role:
-                log("Utip::remove_utip_role_loop", f"WARNING - No Utip role set or invalid role for guild {guild.name}")
+                log("Utip::remove_utip_role_loop", f"WARNING - No Utip role set or invalid role for guild {guild} ({guild.id})")
             sql = "SELECT member_id FROM utip_timer WHERE ends_at<? AND guild_id=? ;"
             response = database.fetch_all(sql, [now, guild.id])
             if response is None:
@@ -291,7 +291,7 @@ class Utip(commands.Cog):
                 member = guild.get_member(line[0])
                 if member is None:
                     continue
-                log("Utip::remove_utip_role_loop", f"Removing utip role for member {member} on guild {guild.name}")
+                log("Utip::remove_utip_role_loop", f"Removing utip role for member {member} on guild {guild} ({guild.id})")
                 await member.remove_roles(utip_role)
                 await member.send(utils.get_text(guild, "utip_lost_role").format(utip_role.name))
             sql = "DELETE FROM utip_timer WHERE ends_at<? AND guild_id=? ;"

@@ -188,7 +188,7 @@ class Birthday(commands.Cog):
         """
         Every minute. Check the timing is right to print birthdays and do so
         """
-        now = datetime.datetime.now()
+        now = datetime.datetime.utcnow()
         date = now.strftime("%d/%m")
         for guild in self.bot.guilds:
             if not utils.is_loaded(self.qualified_name.lower(), guild, self.bot):
@@ -197,13 +197,13 @@ class Birthday(commands.Cog):
             sql = "SELECT bd_channel_id, message, timing FROM birthday_config WHERE guild_id=? ;"
             response = database.fetch_one(sql, [guild.id])
             if not response:
-                log("Birthday::print_birthday_loop", f"WARNING birthday config not set in guild {guild.name}")
+                log("Birthday::print_birthday_loop", f"WARNING birthday config not set in guild {guild} ({guild.id})")
                 continue
             channel_id, message, timing = response
             channel = guild.get_channel(channel_id)
             if channel is None:
                 log("Birthday::print_birthday_loop",
-                    f"WARNING birthday channel not set or invalid in guild {guild.name}")
+                    f"WARNING birthday channel not set or invalid in guild {guild} ({guild.id})")
                 continue
             if timing is not None and now.hour < timing:
                 continue
@@ -220,12 +220,12 @@ class Birthday(commands.Cog):
                 birthday_message = utils.parse_random_string(message, member_name=member.mention) if message \
                     else utils.get_text(guild, "birthday_default_message").format(member.mention)
                 await channel.send(birthday_message)
-                log("Birthday::print_birthday_loop", f"Wishing happy birthday to {member} in guild {guild.name}")
+                log("Birthday::print_birthday_loop", f"Wishing happy birthday to {member} in guild {guild} ({guild.id})")
                 sql = "UPDATE birthday_user SET last_year=? WHERE member_id=? AND guild_id=?"
                 success = database.execute_order(sql, [now.year, member.id, guild.id])
                 if not success:
                     log("Birthday::print_birthday_loop",
-                        f"ERROR trying to update birthday year for member {member} in guild {guild.name}")
+                        f"ERROR trying to update birthday year for member {member} in guild {guild} ({guild.id})")
 
     def cog_unload(self):
         """

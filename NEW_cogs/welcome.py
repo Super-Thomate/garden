@@ -161,7 +161,7 @@ class Welcome(commands.Cog):
         if not utils.is_loaded(self.qualified_name.lower(), guild, self.bot):
             return
         # Python trick to get the role that was obtained
-        role = list((set(before.roles) | set(after.roles)) - (set(before.roles) & set(after.roles)))[0]
+        role = next(list((set(before.roles) | set(after.roles)) - (set(before.roles) & set(after.roles))), None)
 
         # Check if member hasn't already been welcomed for this role
         sql = "SELECT * FROM welcome_user WHERE member_id=? AND role_id=? AND guild_id=? ;"

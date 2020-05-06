@@ -35,7 +35,7 @@ class Bancommand(commands.Cog):
             await ctx.send(utils.get_text(ctx.guild, "misc_delay_invalid"))
             await ctx.message.add_reaction('❌')
             return
-        ends_at = int(datetime.datetime.now().timestamp()) + delay if delay else None
+        ends_at = int(datetime.datetime.utcnow().timestamp()) + delay if delay else None
         sql = "INSERT INTO bancommand_banned_user(command, ends_at, member_id, guild_id) " \
               "VALUES (:command, :ends_at, :member_id, :guild_id)" \
               "ON CONFLICT(command, member_id, guild_id) DO UPDATE SET ends_at=:ends_at " \
@@ -92,7 +92,7 @@ class Bancommand(commands.Cog):
             await ctx.send(utils.get_text(ctx.guild, "misc_delay_invalid"))
             await ctx.message.add_reaction('❌')
             return
-        ends_at = int(datetime.datetime.now().timestamp()) + delay if delay else None
+        ends_at = int(datetime.datetime.utcnow().timestamp()) + delay if delay else None
         sql = "INSERT INTO bancommand_banned_role(command, ends_at, role_id, guild_id) " \
               "VALUES (:command, :ends_at, :role_id, :guild_id)" \
               "ON CONFLICT(command, role_id, guild_id) DO UPDATE SET ends_at=:ends_at " \
@@ -313,8 +313,8 @@ class Bancommand(commands.Cog):
         for guild in self.bot.guilds:
             if not utils.is_loaded(self.qualified_name.lower(), guild, self.bot):
                 continue
-            log("Bancommand::delete_obsolete_bans", f"Deleting obsolete bans in guild {guild.name}")
-            now = int(datetime.datetime.now().timestamp())
+            log("Bancommand::delete_obsolete_bans", f"Deleting obsolete bans in guild {guild} ({guild.id})")
+            now = int(datetime.datetime.utcnow().timestamp())
             sql_user = "DELETE FROM bancommand_banned_user WHERE ends_at<? AND guild_id=? ;"
             database.execute_order(sql_user, [now, guild.id])
             sql_role = "DELETE FROM bancommand_banned_role WHERE ends_at<? AND guild_id=? ;"

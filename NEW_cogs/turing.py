@@ -27,11 +27,11 @@ class Turing(commands.Cog):
         sql = "SELECT log_channel_id FROM turing_config WHERE guild_id=? ;"
         response = database.fetch_one(sql, [guild.id])
         if not response or not response[0]:
-            log("Turing::send_logging_embed", f"WARNING Turing log channel not set for guild {guild.name}")
+            log("Turing::send_logging_embed", f"WARNING Turing log channel not set for guild {guild} ({guild.id})")
             return
         channel = guild.get_channel(response[0])
         if channel is None:
-            log("Turing::send_logging_embed", f"ERROR Turing log channel invalid for guild {guild.name}")
+            log("Turing::send_logging_embed", f"ERROR Turing log channel invalid for guild {guild} ({guild.id})")
             return
         await channel.send(embed=embed)
 
