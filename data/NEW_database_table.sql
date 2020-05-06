@@ -24,6 +24,6 @@ CREATE TABLE IF NOT EXISTS pwet_table (emoji_id INT, emoji_str TEXT, guild_id IN
 -- RULES
 CREATE TABLE IF NOT EXISTS rules_config (log_channel_id INT NOT NULL, guild_id INT NOT NULL, PRIMARY KEY (guild_id)) ;
 CREATE TABLE IF NOT EXISTS rules_table (emoji_id INT, emoji_str TEXT, rule TEXT NOT NULL, guild_id INT NOT NULL, PRIMARY KEY (emoji_id, emoji_str, guild_id)) ;
-CREATE TABLE IF NOT EXISTS rules_warned (message_id INT NOT NULL, guild_id INT NOT NULL, PRIMARY KEY (message_id, guild_id)) ;
+CREATE TABLE IF NOT EXISTS rules_warned (message_id INT NOT NULL, emoji_id INT, emoji_str TEXT, guild_id INT NOT NULL, PRIMARY KEY (message_id, emoji_id, emoji_str, guild_id)) ;
 
 

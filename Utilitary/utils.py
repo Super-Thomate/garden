@@ -37,7 +37,7 @@ def init_strings(bot: commands.Bot):
                 strings[lang_code] = json.load(file)
             log("Utils::init_strings", f"Number of keys for '{lang_code}.json' : {len(strings[lang_code])}")
         except FileNotFoundError:
-            log('Utils::init_strings', f"File {file_path} not found !!")
+            log('Utils::init_strings', f"ERROR File {file_path} not found")
             continue
 
 

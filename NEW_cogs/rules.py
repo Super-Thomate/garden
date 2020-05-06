@@ -30,6 +30,7 @@ class Rules(commands.Cog):
         if rule is None:
             await ctx.send(utils.get_text(ctx.guild, "rules_not_found").format(emoji))
             return
+        await ctx.message.delete()
         await ctx.send(rule)
 
     @rules.command(name='addrule', aliases=['adr'])
@@ -93,8 +94,9 @@ class Rules(commands.Cog):
             emoji_id, emoji_str, rule = line
             emoji = emoji_str or self.bot.get_emoji(emoji_id) or utils.get_text(ctx.guild, "misc_invalid_emoji") \
                 .format(emoji_id)
-            to_send += f"- {emoji} | `{rule}`\n"
-        await ctx.send(to_send)
+            to_send += f"[{emoji}] :\n{rule}\n\n"
+
+        await ctx.send(embed=discord.Embed(title=utils.get_text(ctx.guild, "rules_info_title"), description=to_send))
 
     @rules.command(name='help')
     @commands.guild_only()
@@ -121,15 +123,18 @@ class Rules(commands.Cog):
                 or author.bot \
                 or not payload.guild_id:
             return
+        emoji = payload.emoji.id or str(payload.emoji)
 
         # Check if message hasn't already been warned
-        sql = "SELECT * FROM rules_warned WHERE message_id=? AND guild_id=? ;"
-        response = database.fetch_one(sql, [payload.message_id, guild.id])
+        sql = "SELECT * FROM rules_warned " \
+              "WHERE message_id=:message_id AND (emoji_id=:emoji OR emoji_str=:emoji) AND guild_id=:guild_id ;"
+        response = database.fetch_one(sql, {"message_id": payload.message_id,
+                                            "emoji": emoji,
+                                            "guild_id": payload.guild_id})
         if response is not None:
             return
 
         # Warn user
-        emoji = payload.emoji.id or str(payload.emoji)
         rule_message = self.get_rule_for_emoji(emoji, guild)
         if rule_message is None:
             return
@@ -139,8 +144,9 @@ class Rules(commands.Cog):
         await member.send(f"> {message.content}\n{rule_message}")
 
         # Add message as warned
-        sql = "INSERT INTO rules_warned(message_id, guild_id) VALUES (?, ?)"
-        database.execute_order(sql, [payload.message_id, guild.id])
+        sql = f"INSERT INTO rules_warned(message_id, {'emoji_id' if payload.emoji.id else 'emoji_str'}, guild_id) " \
+              f"VALUES (?, ?, ?) ;"
+        database.execute_order(sql, [payload.message_id, emoji, guild.id])
 
         # Log warning
         sql = "SELECT log_channel_id FROM rules_config WHERE guild_id=? ;"

@@ -10,7 +10,7 @@ class Loader(commands.Cog):
     def __init__(self, bot: commands.Bot):
         self.bot = bot
 
-    @commands.group(invoke_without_command=True)
+    @commands.group(invoke_without_command=True, aliases=['ld'])
     @commands.guild_only()
     @utils.require(['authorized', 'not_banned'])
     async def loader(self, ctx: commands.Context):
