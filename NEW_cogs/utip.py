@@ -167,7 +167,7 @@ class Utip(commands.Cog):
             log_channel = log_channel.mention if log_channel else not_set
             role = ctx.guild.get_role(response[2])
             role = role.mention if role else not_set
-            delay = utils.delay_to_time(response[3], ctx.guild) if response[3] else not_set
+            delay = utils.parse_delay(response[3], ctx.guild) if response[3] else not_set
 
         sql = "SELECT member_id, ends_at FROM utip_timer WHERE guild_id=? ;"
         response = database.fetch_all(sql, [ctx.guild.id])
@@ -178,7 +178,7 @@ class Utip(commands.Cog):
             for line in response:
                 member = ctx.guild.get_member(line[0])
                 member = member.mention if member else f"(Left server) <@{line[0]}>"
-                role_end = utils.timestamp_to_time(line[1], ctx.guild)
+                role_end = utils.parse_timestamp(line[1], ctx.guild)
                 utip_members += f"{member} | _{role_end}_\n"
 
         embed = discord.Embed(title=utils.get_text(ctx.guild, "utip_cog_name"))

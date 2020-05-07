@@ -14,6 +14,7 @@ import re
 from babel.dates import format_datetime, format_timedelta
 import random
 import emoji
+import pytz
 
 load_dotenv(dotenv_path=os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '.env')))
 LANGUAGE_FILE_DIRECTORY = os.path.abspath(
@@ -136,7 +137,7 @@ def member_is_banned_from_command(command: commands.Command, member: discord.Mem
     :param member: Member | The member to be checked
     :return: True if the user is banned from using the command, else False
     """
-    now = int(datetime.datetime.now().timestamp())
+    now = int(datetime.datetime.utcnow().timestamp())
     sql = "SELECT * FROM bancommand_banned_user WHERE member_id=? AND command=? AND ends_at>? AND guild_id=? ;"
     response = database.fetch_one(sql, [member.id, command.name, now, member.guild.id])
     return response is not None
@@ -150,7 +151,7 @@ def member_has_role_banned_from_command(command: commands.Command, member: disco
     :param member: Member | The member to be checked
     :return: True if the user has a role that is banned, else False
     """
-    now = int(datetime.datetime.now().timestamp())
+    now = int(datetime.datetime.utcnow().timestamp())
     sql = "SELECT role_id FROM bancommand_banned_role WHERE command=? AND ends_at>? AND guild_id=? ;"
     response = database.fetch_all(sql, [command.name, now, member.guild.id])
     if response is None:  # No data found -> no banned role
@@ -329,16 +330,16 @@ def delay_to_date(delay: int, guild: discord.Guild) -> str:
     :param guild: Guild | The guild the date will be sent to
     :return: str - A date formatted according to the guild language's locale
     """
-    date = datetime.datetime.now() + datetime.timedelta(seconds=delay)
+    date = datetime.datetime.utcnow() + datetime.timedelta(seconds=delay)
     sql = "SELECT language_code FROM config_lang WHERE guild_id=? ;"
     response = database.fetch_one(sql, [guild.id])
     locale = response[0] if response else 'en'
-    return format_datetime(date, locale=locale) + " (CET)"
+    return format_datetime(date, locale=locale, tzinfo=pytz.UTC) + " (UTC)"
 
 
-def delay_to_time(delay: int, guild: discord.Guild) -> str:
+def parse_delay(delay: int, guild: discord.Guild) -> str:
     """
-    Convert a delay into a time `(example: 2 days)` in the guild's language
+    Convert a delay in seconds into a better suiting format `(example: 2 days)` in the guild's language
 
     :param delay: int | A delay in secoonds
     :param guild: Guild | The guild the time will be sent to
@@ -348,22 +349,23 @@ def delay_to_time(delay: int, guild: discord.Guild) -> str:
     sql = "SELECT language_code FROM config_lang WHERE guild_id=? ;"
     response = database.fetch_one(sql, [guild.id])
     locale = response[0] if response else 'en'
-    return format_timedelta(time, locale=locale)
+    return format_timedelta(time, locale=locale).capitalize()
 
 
-def timestamp_to_time(timestamp: int, guild: discord.Guild) -> str:
+def parse_timestamp(timestamp: int, guild: discord.Guild) -> str:
     """
-    Convert a delay into a time `(example: 2 days)` in the guild's language
+    Convert a timestamp into a delay `(example: 2 days)` in the guild's language
 
     :param timestamp: int | A delay in secoonds
     :param guild: Guild | The guild the time will be sent to
     :return: str | A time formatted according to the guild language's locale
     """
-    time = datetime.datetime.fromtimestamp(timestamp) - datetime.datetime.now()
+    delay = timestamp - datetime.datetime.utcnow().timestamp()
+    delta = datetime.timedelta(seconds=delay)
     sql = "SELECT language_code FROM config_lang WHERE guild_id=? ;"
     response = database.fetch_one(sql, [guild.id])
     locale = response[0] if response else 'en'
-    return format_timedelta(time, locale=locale, add_direction=True)
+    return format_timedelta(delta, locale=locale, add_direction=True).capitalize()
 
 
 def parse_random_string(string: str, member_name: str = None) -> str:

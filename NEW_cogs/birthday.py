@@ -158,7 +158,7 @@ class Birthday(commands.Cog):
         message = f"`{response[1]}`" if response and response[1] \
             else f"`{utils.get_text(ctx.guild, 'birthday_default_message').format('$member')}` (default)"
         timing = response[2] if response and response[2] else None
-        timing = f"`{timing}h (CET)`" if timing else "`12AM (CET)` (default)"
+        timing = f"`{timing}h (UTC)`" if timing else "`12AM (UTC)` (default)"
         embed = discord.Embed(title=utils.get_text(ctx.guild, "birthday_info_title"),
                               description=utils.get_text(ctx.guild, "birthday_info_text")
                               .format(channel, message, timing))
