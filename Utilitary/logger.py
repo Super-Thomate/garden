@@ -8,7 +8,7 @@ def log(source: str, to_log: str, output_file: typing.Optional[str] = None):
 
     :param source: str | Where the log comes from. Expected format: `module::function`
     :param to_log: str | The information to be logged
-    :param output_file: str or None | The file to open where the log
+    :param output_file: Optional[str] | The file to open where the log
     should be written, if none provided write in STDOUT
     """
     log_text = f"[{datetime.utcnow().strftime('%m/%d/%Y %H:%M:%S')} (UTC)] {source} : {to_log}"

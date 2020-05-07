@@ -261,9 +261,8 @@ def parse_time(timecode: str) -> typing.Optional[int]:
     """
     Convert a special string into a delay
 
-    :param timecode: str | A string of the form `XdXhXmXs` where X is an integer. `Example: 2d5h2m`
-    :return: int or None | The timecode parsed into a delay (in seconds)
-        The function returns None if the `timecode` string is invalid
+    :param timecode: Optional[str] | A string of the form `XdXhXmXs` where X is an integer. `Example: 2d5h2m`
+    :return: Optional[int] | The timecode parsed into a delay (in seconds) or None if the `timecode` string is invalid
     """
     data = {"d": 86400,
             "h": 3600,
@@ -408,13 +407,13 @@ def member_has_role(member: discord.Member, role_id: int) -> bool:
     return role in member.roles
 
 
-async def ask_confirmation(ctx: commands.Context, comfirm_key: str, formating: list = None) -> bool:
+async def ask_confirmation(ctx: commands.Context, comfirm_key: str, formating: typing.Optional[list] = None) -> bool:
     """
     Send a confirmation message and wait for the member to add a reaction to confirm action
 
     :param ctx: Context | The context in which the confirmation is asked
     :param comfirm_key: str | The key to be fecthed in the language file. The result will be send as confirm message
-    :param formating: list or None | A list containing the necessary formating for confirmation message
+    :param formating: Optional[list] | A list containing the necessary formating for confirmation message
     :return: True if the member confirmed, False if the member didn't confirm or if the demand timed out (60s)
     """
     if formating is None:

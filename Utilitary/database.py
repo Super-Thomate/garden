@@ -10,17 +10,14 @@ DATABASE_PATH = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', os
 DATABASE_TABLE_PATH = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', os.getenv('DATABASE_TABLE_PATH')))
 log('Database::_', f"Database path -> {DATABASE_PATH}")
 
-# Special type for SQL functions' parameters
-SqlParameterType = typing.Optional[typing.Union[list, dict, tuple]]
 
-
-def fetch_one(sql: str, parameters: SqlParameterType = None) -> typing.Optional[tuple]:
+def fetch_one(sql: str, parameters: typing.Optional[list, dict, tuple]) -> typing.Optional[tuple]:
     """
     Retrieve one row of a table according to an SQL query. Handle parameter substitution
 
     :param sql: str | The SQL query to execute
-    :param parameters: list, dict, tuple or None | The query's parameters
-    :return: tuple or None | A tuple  containing the data or None if no data was found
+    :param parameters: Optional[list, dict, tuple] | The query's parameters
+    :return: Optional[tuple] | A tuple  containing the data or None if no data was found
     """
     if parameters is None:
         parameters = []
@@ -38,13 +35,13 @@ def fetch_one(sql: str, parameters: SqlParameterType = None) -> typing.Optional[
         con.close()
 
 
-def fetch_all(sql: str, parameters: SqlParameterType = None) -> typing.Optional[typing.List[tuple]]:
+def fetch_all(sql: str, parameters: typing.Optional[list, dict, tuple]) -> typing.Optional[typing.List[tuple]]:
     """
     Retrieve all the rows of a table according to an SQL query. Handle parameter substitution
 
     :param sql: str | The SQL query to execute
-    :param parameters: list, dict, tuple or None | The query's parameters
-    :return: List[tuple] or None | A list of tuple containing the data or None if no data was found
+    :param parameters: Optional[list, dict, tuple] | The query's parameters
+    :return: Optional[List[tuple]] | A list of tuple containing the data or None if no data was found
     """
     if parameters is None:
         parameters = []
@@ -62,12 +59,12 @@ def fetch_all(sql: str, parameters: SqlParameterType = None) -> typing.Optional[
         con.close()
 
 
-def execute_order(sql: str, parameters: SqlParameterType = None) -> bool:
+def execute_order(sql: str, parameters: typing.Optional[list, dict, tuple]) -> bool:
     """
     Execute an SQL statement. Handle parameter substitution
 
     :param sql: str | The SQL statement to execute
-    :param parameters: list, dict, tuple or None | The statement's parameters
+    :param parameters: Optional[list, dict, tuple] | The statement's parameters
     :return: bool | True if the order didn't raise any error, else False
     """
     if parameters is None:

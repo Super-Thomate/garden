@@ -18,7 +18,7 @@ class Birthday(commands.Cog):
         Check if `date` is a valid date in the format `day/month`
 
         :param date: str | The date to check
-        :return: str or None | The date in 2-digits format or None if the date is invalid
+        :return: Optional[str] | The date in 2-digits format or None if the date is invalid
         """
         if date in ('29/02', '29/2'):
             return "29/02"
