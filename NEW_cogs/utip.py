@@ -233,19 +233,24 @@ class Utip(commands.Cog):
         """
         Check if the reacted message is a Utip demand and give utip role to member if demand is accepted
         """
-        if payload.user_id == self.bot.user.id:
+        if not payload.guild_id:
             return
         if not str(payload.emoji) in ('👍', '👎'):
             return
+        guild = self.bot.get_guild(payload.guild_id)
+        author = guild.get_member(payload.user_id)
+        if not utils.is_loaded(self.qualified_name.lower(), guild, self.bot) \
+                or author.bot \
+                or not utils.is_authorized(author):
+            return
+
         sql = "SELECT member_id FROM utip_pending WHERE message_id=? AND guild_id=? ;"
         response = database.fetch_one(sql, [payload.message_id, payload.guild_id])
         if response is None:
             return
-        channel = await self.bot.fetch_channel(payload.channel_id)
+        channel = guild.get_channel(payload.channel_id)
         message = await channel.fetch_message(payload.message_id)
-        guild = message.guild
         utip_member = guild.get_member(response[0])
-        moderator = guild.get_member(payload.user_id)
         sql = "SELECT role_id, delay FROM utip_config WHERE guild_id=? ;"
         response = database.fetch_one(sql, [payload.guild_id])
         role = guild.get_role(response[0]) if response else None
@@ -265,7 +270,7 @@ class Utip(commands.Cog):
 
         sql = "DELETE FROM utip_pending WHERE message_id=? AND guild_id=? ;"
         database.execute_order(sql, [payload.message_id, payload.guild_id])
-        embed.set_footer(text=utils.get_text(guild, embed_footer_key).format(moderator))
+        embed.set_footer(text=utils.get_text(guild, embed_footer_key).format(author))
         await message.edit(embed=embed)
         await utip_member.send(demand_answer)
 
@@ -282,7 +287,8 @@ class Utip(commands.Cog):
             response = database.fetch_one(sql, [guild.id])
             utip_role = guild.get_role(response[0]) if response else None
             if not response or not utip_role:
-                log("Utip::remove_utip_role_loop", f"WARNING - No Utip role set or invalid role for guild {guild} ({guild.id})")
+                log("Utip::remove_utip_role_loop",
+                    f"WARNING - No Utip role set or invalid role for guild {guild} ({guild.id})")
             sql = "SELECT member_id FROM utip_timer WHERE ends_at<? AND guild_id=? ;"
             response = database.fetch_all(sql, [now, guild.id])
             if response is None:

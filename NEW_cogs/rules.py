@@ -11,9 +11,10 @@ class Rules(commands.Cog):
         self.bot = bot
 
     @staticmethod
-    def get_rule_for_emoji(emoji: typing.Union[int, str], guild: discord.Guild) -> typing.Optional[str]:
-        sql = "SELECT rule FROM rules_table WHERE (emoji_id=:emoji OR emoji_str=:emoji) AND guild_id=:guild_id ;"
-        response = database.fetch_one(sql, {"emoji": emoji, "guild_id": guild.id})
+    def get_rule_for_emoji(emoji_id: typing.Optional[int], emoji_str: str, guild: discord.Guild)\
+            -> typing.Optional[str]:
+        sql = "SELECT rule FROM rules_table WHERE (emoji_id=? OR emoji_str=?) AND guild_id=? ;"
+        response = database.fetch_one(sql, [emoji_id, emoji_str, guild.id])
         if response is None:
             return None
         return utils.parse_random_string(response[0])
@@ -22,11 +23,8 @@ class Rules(commands.Cog):
     @commands.guild_only()
     @utils.require(['authorized', 'cog_loaded', 'not_banned'])
     async def rules(self, ctx: commands.Context, emoji: utils.EmojiOrUnicodeConverter):
-        if isinstance(emoji, discord.Emoji):
-            rule = self.get_rule_for_emoji(emoji.id, ctx.guild)
-        else:
-            # noinspection PyTypeChecker
-            rule = self.get_rule_for_emoji(emoji, ctx.guild)
+        emoji_id = emoji.id if isinstance(emoji, discord.Emoji) else None
+        rule = self.get_rule_for_emoji(emoji_id, str(emoji), ctx.guild)
         if rule is None:
             await ctx.send(utils.get_text(ctx.guild, "rules_not_found").format(emoji))
             return
@@ -37,16 +35,17 @@ class Rules(commands.Cog):
     @commands.guild_only()
     @utils.require(['authorized', 'cog_loaded', 'not_banned'])
     async def add_rule(self, ctx: commands.Context, emoji: utils.EmojiOrUnicodeConverter, *, rule: str):
-        if isinstance(emoji, discord.Emoji):
-            sql = "INSERT INTO rules_table(emoji_id, rule, guild_id) VALUES (:emoji_id, :rule, :guild_id) " \
-                  "ON CONFLICT(emoji_id, emoji_str, guild_id) DO " \
-                  "UPDATE SET rule=:rule WHERE emoji_id=:emoji_id AND guild_id=:guild_id ;"
-            success = database.execute_order(sql, {"emoji_id": emoji.id, "rule": rule, "guild_id": ctx.guild.id})
-        else:
-            sql = "INSERT INTO rules_table(emoji_str, rule, guild_id) VALUES (:emoji_str, :rule, :guild_id) " \
-                  "ON CONFLICT(emoji_id, emoji_str, guild_id) DO " \
-                  "UPDATE SET rule=:rule WHERE emoji_str=:emoji_str AND guild_id=:guild_id ;"
-            success = database.execute_order(sql, {"emoji_str": emoji, "rule": rule, "guild_id": ctx.guild.id})
+        emoji_id = emoji.id if isinstance(emoji, discord.Emoji) else None
+        sql = "INSERT INTO rules_table(emoji_id, emoji_str, rule, guild_id) " \
+              "VALUES (:emoji_id, :emoji_str, :rule, :guild_id) " \
+              "ON CONFLICT(emoji_str, guild_id) DO " \
+              "UPDATE SET rule=:rule, emoji_str=:emoji_str WHERE " \
+              "(emoji_id=:emoji_id OR emoji_str=:emoji_str) AND guild_id=:guild_id ;"
+
+        success = database.execute_order(sql, {"emoji_id": emoji_id,
+                                               "emoji_str": str(emoji),
+                                               "rule": rule,
+                                               "guild_id": ctx.guild.id})
         if success is True:
             await ctx.message.add_reaction('✅')
         else:
@@ -56,12 +55,9 @@ class Rules(commands.Cog):
     @commands.guild_only()
     @utils.require(['authorized', 'cog_loaded', 'not_banned'])
     async def remove_rule(self, ctx: commands.Context, emoji: utils.EmojiOrUnicodeConverter):
-        if isinstance(emoji, discord.Emoji):
-            sql = "DELETE FROM rules_table WHERE emoji_id=:emoji_id AND guild_id=:guild_id ;"
-            success = database.execute_order(sql, {"emoji_id": emoji.id, "guild_id": ctx.guild.id})
-        else:
-            sql = "DELETE FROM rules_table WHERE emoji_str=:emoji_str AND guild_id=:guild_id ;"
-            success = database.execute_order(sql, {"emoji_str": emoji, "guild_id": ctx.guild.id})
+        emoji_id = emoji.id if isinstance(emoji, discord.Emoji) else None
+        sql = "DELETE FROM rules_table WHERE (emoji_id=? OR emoji_str=?) AND guild_id=? ;"
+        success = database.execute_order(sql, [emoji_id, str(emoji), ctx.guild.id])
         if success is True:
             await ctx.message.add_reaction('✅')
         else:
@@ -92,8 +88,7 @@ class Rules(commands.Cog):
         to_send = ""
         for line in response:
             emoji_id, emoji_str, rule = line
-            emoji = emoji_str or self.bot.get_emoji(emoji_id) or utils.get_text(ctx.guild, "misc_invalid_emoji") \
-                .format(emoji_id)
+            emoji = self.bot.get_emoji(emoji_id) or emoji_str
             to_send += f"[{emoji}] :\n{rule}\n\n"
 
         await ctx.send(embed=discord.Embed(title=utils.get_text(ctx.guild, "rules_info_title"), description=to_send))
@@ -116,26 +111,23 @@ class Rules(commands.Cog):
 
     @commands.Cog.listener()
     async def on_raw_reaction_add(self, payload: discord.RawReactionActionEvent):
+        if not payload.guild_id:
+            return
         guild = self.bot.get_guild(payload.guild_id)
         author = guild.get_member(payload.user_id)
         if not utils.is_loaded(self.qualified_name.lower(), guild, self.bot) \
-                or not utils.is_authorized(author) \
                 or author.bot \
-                or not payload.guild_id:
+                or not utils.is_authorized(author):
             return
-        emoji = payload.emoji.id or str(payload.emoji)
 
         # Check if message hasn't already been warned
-        sql = "SELECT * FROM rules_warned " \
-              "WHERE message_id=:message_id AND (emoji_id=:emoji OR emoji_str=:emoji) AND guild_id=:guild_id ;"
-        response = database.fetch_one(sql, {"message_id": payload.message_id,
-                                            "emoji": emoji,
-                                            "guild_id": payload.guild_id})
+        sql = "SELECT * FROM rules_warned WHERE (emoji_id=? OR emoji_str=?) AND message_id=? AND guild_id=? ;"
+        response = database.fetch_one(sql, [payload.emoji.id, str(payload.emoji), payload.message_id, guild.id])
         if response is not None:
             return
 
         # Warn user
-        rule_message = self.get_rule_for_emoji(emoji, guild)
+        rule_message = self.get_rule_for_emoji(payload.emoji.id, str(payload.emoji), guild)
         if rule_message is None:
             return
         channel = guild.get_channel(payload.channel_id)
@@ -146,18 +138,19 @@ class Rules(commands.Cog):
         await member.send(f"> {message.content}\n{rule_message}")
 
         # Add message as warned
-        sql = f"INSERT INTO rules_warned(message_id, {'emoji_id' if payload.emoji.id else 'emoji_str'}, guild_id) " \
-              f"VALUES (?, ?, ?) ;"
-        database.execute_order(sql, [payload.message_id, emoji, guild.id])
+        sql = f"INSERT INTO rules_warned(message_id, emoji_id, emoji_str, guild_id) VALUES (?, ?, ?, ?) ;"
+        database.execute_order(sql, [payload.message_id, payload.emoji.id, str(payload.emoji), guild.id])
 
         # Log warning
         sql = "SELECT log_channel_id FROM rules_config WHERE guild_id=? ;"
         response = database.fetch_one(sql, [guild.id])
-        if response is None or response[0] is None:
-            log("Rules::on_raw_reaction_add", f"WARNING Log channel not set for guild {guild} ({guild.id})")
+        if response is None:
+            log("Rules::on_raw_reaction_add", f"WARNING Rules log channel not set for guild {guild} ({guild.id})")
+            return
         log_channel = guild.get_channel(response[0])
         if log_channel is None:
             log("Rules::on_raw_reaction_add", f"ERROR Log channel invalid for guild {guild} ({guild.id})")
+            return
         embed = discord.Embed(title=utils.get_text(guild, "rules_log_title").format(member, payload.emoji),
                               description=message.content)
         embed.set_author(name=author.name, icon_url=author.avatar_url)

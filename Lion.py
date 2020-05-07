@@ -18,8 +18,8 @@ bot_extensions = ['NEW_cogs.configuration',
                   'NEW_cogs.welcome',
                   'NEW_cogs.turing',
                   'NEW_cogs.pwet',
-                  'NEW_cogs.rules',
-                  'NEW_cogs.vote']
+                  'NEW_cogs.rules']#,
+                  #'NEW_cogs.vote']
 
 
 @bot.event

@@ -43,20 +43,15 @@ class Pwet(commands.Cog):
     @pwet.command(name='setreaction', aliases=['sr'])
     @commands.guild_only()
     @utils.require(['authorized', 'cog_loaded', 'not_banned'])
-    async def set_emoji(self, ctx: commands.Context, emoji: utils.EmojiOrUnicodeConverter = None):
-        if emoji is None:
-            sql = "UPDATE pwet_table SET emoji_id=NULL, emoji_str=NULL WHERE guild_id=? ;"
-            success = database.execute_order(sql, [ctx.guild.id])
-        elif isinstance(emoji, discord.Emoji):
-            sql = "INSERT INTO pwet_table(emoji_id, guild_id) VALUES (:emoji_id, :guild_id) " \
-                  "ON CONFLICT(guild_id) DO " \
-                  "UPDATE SET emoji_id=:emoji_id, emoji_str=NULL WHERE guild_id=:guild_id ;"
-            success = database.execute_order(sql, {"emoji_id": emoji.id, "guild_id": ctx.guild.id})
-        else:
-            sql = "INSERT INTO pwet_table(emoji_str, guild_id) VALUES (:emoji_str, :guild_id) " \
-                  "ON CONFLICT(guild_id) DO " \
-                  "UPDATE SET emoji_id=NULL, emoji_str=:emoji_str WHERE guild_id=:guild_id ;"
-            success = database.execute_order(sql, {"emoji_str": emoji, "guild_id": ctx.guild.id})
+    async def set_emoji(self, ctx: commands.Context, emoji: utils.EmojiOrUnicodeConverter):
+        emoji_id = emoji.id if isinstance(emoji, discord.Emoji) else None
+        sql = "INSERT INTO pwet_table(emoji_id, emoji_str, guild_id) " \
+              "VALUES (:emoji_id, :emoji_str, :guild_id) " \
+              "ON CONFLICT(guild_id) DO " \
+              "UPDATE SET emoji_id=:emoji_id, emoji_str=:emoji_str WHERE guild_id=:guild_id ;"
+        success = database.execute_order(sql, {"emoji_id": emoji_id,
+                                               "emoji_str": str(emoji),
+                                               "guild_id": ctx.guild.id})
         if success is True:
             await ctx.message.add_reaction('✅')
         else:
@@ -69,9 +64,8 @@ class Pwet(commands.Cog):
         sql = "SELECT emoji_id, emoji_str FROM pwet_table WHERE guild_id=? ;"
         response = database.fetch_one(sql, [ctx.guild.id])
         if response is not None:
-            emoji_id, string = response
-            emoji = string or ctx.guild.get_emoji(emoji_id) or utils.get_text(ctx.guild, "misc_invalid_emoji") \
-                .format(emoji_id)
+            emoji_id, emoji_str = response
+            emoji = ctx.guild.get_emoji(emoji_id) or emoji_str
         else:
             emoji = utils.get_text(ctx.guild, "misc_not_set")
         await ctx.send(utils.get_text(ctx.guild, "pwet_info").format(emoji))
@@ -91,16 +85,18 @@ class Pwet(commands.Cog):
 
     @commands.Cog.listener()
     async def on_raw_reaction_add(self, payload: discord.RawReactionActionEvent):
+        if not payload.guild_id:
+            return
         guild = self.bot.get_guild(payload.guild_id)
         author = guild.get_member(payload.user_id)
         if not utils.is_loaded(self.qualified_name.lower(), guild, self.bot) \
-                or not utils.is_authorized(author) \
                 or author.bot \
-                or not payload.guild_id:
+                or not utils.is_authorized(author):
             return
-        emoji = payload.emoji.id or str(payload.emoji)
-        sql = "SELECT * FROM pwet_table WHERE (emoji_id=:emoji OR emoji_str=:emoji) AND guild_id=:guild_id ;"
-        response = database.fetch_one(sql, {"emoji": emoji, "guild_id": payload.guild_id})
+        sql = "SELECT * FROM pwet_table WHERE (emoji_id=:emoji_id OR emoji_str=:emoji_str) AND guild_id=:guild_id ;"
+        response = database.fetch_one(sql, {"emoji_id": payload.emoji.id,
+                                            "emoji_str": str(payload.emoji),
+                                            "guild_id": payload.guild_id})
         if response is None:
             return
         channel = guild.get_channel(payload.channel_id)

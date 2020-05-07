@@ -9,15 +9,19 @@ import typing
 class Vote(commands.Cog):
     def __init__(self, bot: commands.Bot):
         self.bot = bot
+        self.end_vote_loop.start()
 
     async def update_vote(self, ctx: commands.Context, vote_name: str, guild: discord.Guild):
         sql = "SELECT vote_channel_id, vote_message_id FROM vote_table WHERE vote_name=? AND guild_id=? ;"
         response = database.fetch_one(sql, [vote_name, guild.id])
         if response is None:
             return
+
         message = await commands.MessageConverter().convert(ctx, f"{response[0]}-{response[1]}")
         old_embed = message.embeds[0]
-        new_embed = discord.Embed(title=old_embed.title, description=old_embed.description, color=old_embed.color)
+        new_embed = discord.Embed(title=old_embed.title,
+                                  description=old_embed.description,
+                                  color=old_embed.color)
 
         propositions_dict = self.get_proposition(vote_name, guild)
         if propositions_dict is not None:
@@ -25,7 +29,7 @@ class Vote(commands.Cog):
             for key, value in propositions_dict.items():  # Add reactions that need to be added
                 propositions += f"- [{key}] : {value}\n"
                 await message.add_reaction(key)
-            for reaction in message.reactions:  # Delete reactions that are no longer needed
+            for reaction in message.reactions:  # Purge reactions that are no longer needed
                 if str(reaction) not in propositions_dict.keys():
                     await message.clear_reaction(reaction)
         else:
@@ -46,15 +50,15 @@ class Vote(commands.Cog):
             propositions[str(emoji)] = proposition
         return propositions
 
-    async def end_vote_by_name(self, vote_name: str, guild: discord.Guild):
+    async def end_vote_by_name(self, vote_name: str, guild: discord.Guild) -> bool:
         sql = "SELECT vote_channel_id, vote_message_id, end_role_id, end_channel_id " \
               "FROM vote_table WHERE vote_name=? AND guild_id=? ;"
         response = database.fetch_one(sql, [vote_name, guild.id])
         if response is None:
             log("Vote::end_vote_by_name", f"ERROR Vote {vote_name} not found for guild {guild} ({guild.id})")
-            return
-        vote_channel_id, vote_message_id, end_role_id, end_channel_id = response
+            return False
 
+        vote_channel_id, vote_message_id, end_role_id, end_channel_id = response
         vote_channel = guild.get_channel(vote_channel_id)
         vote_message = await vote_channel.fetch_message(vote_message_id)
         end_channel = guild.get_channel(end_channel_id)
@@ -64,12 +68,18 @@ class Vote(commands.Cog):
         reactions = sorted(vote_message.reactions, key=lambda r: r.count, reverse=True)
         results = ""
         for index, reaction in enumerate(reactions):
-            results += f"**{index}** ({reaction.count}) -> [{reaction}] : {propositions[reaction]}\n"
+            if index == 0:
+                results += utils.get_text(guild, "vote_winner")\
+                    .format(reaction.count, str(reaction), propositions[str(reaction)])
+            else:
+                results += utils.get_text(guild, "vote_results")\
+                    .format(index+1, reaction.count, str(reaction), propositions[str(reaction)])
 
         await end_channel.send(utils.get_text(guild, "vote_ended").format(end_role.mention, vote_name, results))
 
-        sql = "UPDATE vote_table SET ends_at=-1 WHERE vote_message_id=? AND guild_id=? ;"
-        database.execute_order(sql, [vote_message_id, guild.id])
+        sql = "UPDATE vote_table SET ends_at=? WHERE vote_message_id=? AND guild_id=? ;"
+        database.execute_order(sql, [None, vote_message_id, guild.id])
+        return True
 
     @commands.group(invoke_without_command=True)
     @commands.guild_only()
@@ -78,9 +88,10 @@ class Vote(commands.Cog):
                    end_channel: discord.TextChannel, end_role: discord.Role):
 
         # Send vote embed
-        embed = discord.Embed(title=title, description=description, color=discord.Color.green())
+        embed = discord.Embed(title=title, description=description, color=discord.Color.gold())
         embed.add_field(name=utils.get_text(ctx.guild, "vote_field_proposition_title"),
                         value=utils.get_text(ctx.guild, "misc_not_set"))
+        embed.set_footer(text=utils.get_text(ctx.guild, "vote_name").format(name))
         msg = await ctx.send(embed=embed)
 
         # Insert data in DB
@@ -97,25 +108,19 @@ class Vote(commands.Cog):
     @vote.command(name='addproposition', aliases=['ap'])
     @commands.guild_only()
     @utils.require(['authorized', 'cog_loaded', 'not_banned'])
-    async def add_proposition(self, ctx: commands.Context, vote_name: str,
-                              emoji: utils.EmojiOrUnicodeConverter, proposition: str):
-        parameters = {"proposition": proposition, "vote_name": vote_name, "guild_id": ctx.guild.id}
-        if isinstance(emoji, discord.Emoji):
-            sql = "INSERT INTO vote_proposition(emoji_id, proposition, vote_name, guild_id) " \
-                  "VALUES (:emoji_id, :proposition, :vote_name, :guild_id) " \
-                  "ON CONFLICT(emoji_id, emoji_str, vote_name, guild_id) DO " \
-                  "UPDATE SET proposition=:proposition " \
-                  "WHERE emoji_id=:emoji_id AND vote_name=:vote_name AND guild_id=:guild_id ;"
-            parameters['emoji_id'] = emoji.id
-        else:
-            sql = "INSERT INTO vote_proposition(emoji_str, proposition, vote_name, guild_id) " \
-                  "VALUES (:emoji_str, :proposition, :vote_name, :guild_id) " \
-                  "ON CONFLICT(emoji_id, emoji_str, vote_name, guild_id) DO " \
-                  "UPDATE SET proposition=:proposition " \
-                  "WHERE emoji_str=:emoji_str AND vote_name=:vote_name AND guild_id=:guild_id ;"
-            parameters['emoji_str'] = emoji
-
-        success = database.execute_order(sql, parameters)
+    async def add_proposition(self, ctx: commands.Context, vote_name: str, emoji: utils.EmojiOrUnicodeConverter,
+                              *, proposition: str):
+        emoji_id = emoji.id if isinstance(emoji, discord.Emoji) else None
+        sql = "INSERT INTO vote_proposition(emoji_id, emoji_str, proposition, vote_name, guild_id) " \
+              "VALUES (:emoji_id, :emoji_str, :proposition, :vote_name, :guild_id) " \
+              "ON CONFLICT (emoji_str, vote_name, guild_id) DO " \
+              "UPDATE SET proposition=:proposition, emoji_str=:emoji_str " \
+              "WHERE (emoji_id=:emoji_id OR emoji_str=:emoji_str) AND vote_name=:vote_name AND guild_id=:guild_id ;"
+        success = database.execute_order(sql, {"emoji_id": emoji_id,
+                                               "emoji_str": str(emoji),
+                                               "proposition": proposition,
+                                               "vote_name": vote_name,
+                                               "guild_id": ctx.guild.id})
         await self.update_vote(ctx, vote_name, ctx.guild)
         if success is True:
             await ctx.message.add_reaction('✅')
@@ -126,12 +131,9 @@ class Vote(commands.Cog):
     @commands.guild_only()
     @utils.require(['authorized', 'cog_loaded', 'not_banned'])
     async def remove_proposition(self, ctx: commands.Context, vote_name: str, emoji: utils.EmojiOrUnicodeConverter):
-        if isinstance(emoji, discord.Emoji):
-            sql = "DELETE FROM vote_proposition WHERE emoji_id=? AND vote_name=? AND guild_id=? ;"
-            success = database.execute_order(sql, [emoji.id, vote_name, ctx.guild.id])
-        else:
-            sql = "DELETE FROM vote_proposition WHERE emoji_str=? AND vote_name=? AND guild_id=? ;"
-            success = database.execute_order(sql, [emoji, vote_name, ctx.guild.id])
+        emoji_id = emoji.id if isinstance(emoji, discord.Emoji) else None
+        sql = "DELETE FROM vote_proposition WHERE (emoji_id=? OR emoji_str=?) AND vote_name=? AND guild_id=? ;"
+        success = database.execute_order(sql, [emoji_id, str(emoji), vote_name, ctx.guild.id])
         await self.update_vote(ctx, vote_name, ctx.guild)
         if success is True:
             await ctx.message.add_reaction('✅')
@@ -177,7 +179,9 @@ class Vote(commands.Cog):
     @commands.guild_only()
     @utils.require(['authorized', 'cog_loaded', 'not_banned'])
     async def end_vote(self, ctx: commands.Context, vote_name: str):
-        await self.end_vote_by_name(vote_name, ctx.guild)
+        if not await self.end_vote_by_name(vote_name, ctx.guild):
+            await ctx.send(utils.get_text(ctx.guild, "vote_not_found").format(vote_name))
+            return
         await ctx.message.add_reaction('✅')
 
     @vote.command(name='resetvote', aliases=['rv'])
@@ -196,11 +200,11 @@ class Vote(commands.Cog):
 
     @commands.Cog.listener()
     async def on_raw_reaction_add(self, payload: discord.RawReactionActionEvent):
+        if not payload.guild_id:
+            return
         guild = self.bot.get_guild(payload.guild_id)
         author = guild.get_member(payload.user_id)
-        if not utils.is_loaded(self.qualified_name.lower(), guild, self.bot) \
-                or author == self.bot.user \
-                or not payload.guild_id:
+        if not utils.is_loaded(self.qualified_name.lower(), guild, self.bot) or author == self.bot.user:
             return
         sql = "SELECT vote_name FROM vote_table WHERE vote_message_id=? AND guild_id=? ;"
         response = database.fetch_one(sql, [payload.message_id, guild.id])
@@ -213,8 +217,8 @@ class Vote(commands.Cog):
             await message.clear_reaction(payload.emoji)
 
     @tasks.loop(minutes=1.0)
-    async def vote_loop(self):
-        now = datetime.datetime.utcnow().timestamp()
+    async def end_vote_loop(self):
+        now = int(datetime.datetime.utcnow().timestamp())
         for guild in self.bot.guilds:
             if not utils.is_loaded(self.qualified_name.lower(), guild, self.bot):
                 continue
@@ -223,7 +227,15 @@ class Vote(commands.Cog):
             if response is None:
                 continue
             for line in response:
-                await self.end_vote_by_name(line[0], guild)
+                if not await self.end_vote_by_name(line[0], guild):
+                    log("Vote::vote_loop", f"Could not end vote {response[0]} in guild {guild} ({guild.id})")
+
+    def cog_unload(self):
+        """
+        Called when the cog is unloaded.
+        Stop the `end_vote_loop` task
+        """
+        self.end_vote_loop.cancel()
 
 
 def setup(bot: commands.Bot):

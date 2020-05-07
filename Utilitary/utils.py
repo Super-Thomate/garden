@@ -116,6 +116,8 @@ def is_loaded(cog_name: str, guild: discord.Guild, bot: commands.Bot) -> bool:
     :param bot: Bot | The running bot
     :return: True if the cog is loaded in the guild, else False
     """
+    if not guild:
+        return False
     loader_cog = bot.get_cog('Loader')
     default_cogs = loader_cog.DEFAULT_COGS
     if cog_name in default_cogs:
