@@ -98,8 +98,12 @@ class Loader(commands.Cog):
         """
         cog = cog.lower()
         if cog in self.DEFAULT_COGS:
-            await ctx.message.add_reaction('❌')
             await ctx.send(utils.get_text(ctx.guild, "loader_cannot_load_cog").format(cog))
+            await ctx.message.add_reaction('❌')
+            return
+        if cog.capitalize() not in self.bot.cogs.keys():
+            await ctx.send(utils.get_text(ctx.guild, "loader_cog_not_found").format(cog))
+            await ctx.message.add_reaction('❌')
             return
         sql = "INSERT INTO config_cog(cog_name, status, guild_id) VALUES (:cog_name, 1, :guild_id) " \
               "ON CONFLICT(cog_name, guild_id) DO UPDATE SET status=1 WHERE cog_name=:cog_name AND guild_id=:guild_id ;"
@@ -119,8 +123,12 @@ class Loader(commands.Cog):
         """
         cog = cog.lower()
         if cog in self.DEFAULT_COGS:
+            await ctx.send(utils.get_text(ctx.guild, "loader_cannot_load_cog").format(cog))
             await ctx.message.add_reaction('❌')
-            await ctx.send(utils.get_text(ctx.guild, "loader_cannot_unload_cog").format(cog))
+            return
+        if cog.capitalize() not in self.bot.cogs.keys():
+            await ctx.send(utils.get_text(ctx.guild, "loader_cog_not_found").format(cog))
+            await ctx.message.add_reaction('❌')
             return
         sql = "INSERT INTO config_cog(cog_name, status, guild_id) VALUES (:cog_name, 0, :guild_id) " \
               "ON CONFLICT(cog_name, guild_id) DO UPDATE SET status=0 WHERE cog_name=:cog_name AND guild_id=:guild_id ;"

@@ -28,5 +28,10 @@ CREATE TABLE IF NOT EXISTS rules_warned (emoji_id INT, emoji_str TEXT NOT NULL, 
 -- VOTE
 CREATE TABLE IF NOT EXISTS vote_table (vote_channel_id INT NOT NULL, vote_message_id INT NOT NULL, vote_name TEXT NOT NULL, end_role_id INT NOT NULL, end_channel_id INT NOT NULL, ends_at INT, guild_id INT NOT NULL, PRIMARY KEY (vote_name, guild_id)) ;
 CREATE TABLE IF NOT EXISTS vote_proposition (emoji_id INT, emoji_str TEXT NOT NULL, proposition TEXT NOT NULL, vote_name TEXT NOT NULL, guild_id INT NOT NULL, PRIMARY KEY (emoji_str, vote_name, guild_id)) ;
+-- NICKNAME
+CREATE TABLE IF NOT EXISTS nickname_table (nickname_delay INT, warning_nickname TEXT, guild_id INT NOT NULL, PRIMARY KEY(guild_id)) ;
+CREATE TABLE IF NOT EXISTS nickname_user (member_id INT NOT NULL, nickname TEXT NOT NULL, last_change INT, guild_id INT NOT NULL, PRIMARY KEY(member_id, guild_id)) ;
+CREATE TABLE IF NOT EXISTS nickname_warning (member_id INT NOT NULL, warn_at INT, warned BOOLEAN NOT NULL, guild_id INT NOT NULL, PRIMARY KEY(member_id, guild_id)) ;
+
 
 

@@ -228,8 +228,7 @@ class Birthday(commands.Cog):
                         f"ERROR trying to update birthday year for member {member} in guild {guild} ({guild.id})")
 
     def cog_unload(self):
-        """
-        Called when the cog is unloaded.
+        """Called when the cog is unloaded.
         Stop the `print_birthday_loop` task
         """
         self.print_birthday_loop.cancel()

@@ -11,7 +11,7 @@ DATABASE_TABLE_PATH = os.path.abspath(os.path.join(os.path.dirname(__file__), '.
 log('Database::_', f"Database path -> {DATABASE_PATH}")
 
 
-def fetch_one(sql: str, parameters: typing.Optional[list, dict, tuple]) -> typing.Optional[tuple]:
+def fetch_one(sql: str, parameters: typing.Optional[typing.Union[list, dict, tuple]]) -> typing.Optional[tuple]:
     """
     Retrieve one row of a table according to an SQL query. Handle parameter substitution
 
@@ -35,7 +35,8 @@ def fetch_one(sql: str, parameters: typing.Optional[list, dict, tuple]) -> typin
         con.close()
 
 
-def fetch_all(sql: str, parameters: typing.Optional[list, dict, tuple]) -> typing.Optional[typing.List[tuple]]:
+def fetch_all(sql: str, parameters: typing.Optional[typing.Union[list, dict, tuple]]) \
+        -> typing.Optional[typing.List[tuple]]:
     """
     Retrieve all the rows of a table according to an SQL query. Handle parameter substitution
 
@@ -59,7 +60,7 @@ def fetch_all(sql: str, parameters: typing.Optional[list, dict, tuple]) -> typin
         con.close()
 
 
-def execute_order(sql: str, parameters: typing.Optional[list, dict, tuple]) -> bool:
+def execute_order(sql: str, parameters: typing.Optional[typing.Union[list, dict, tuple]]) -> bool:
     """
     Execute an SQL statement. Handle parameter substitution
 
