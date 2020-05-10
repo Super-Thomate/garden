@@ -4,26 +4,51 @@ from Utilitary import database, utils
 from Utilitary.logger import log
 from dotenv import load_dotenv
 import os
+import typing
+
+
+def get_prefix(current_bot: commands.Bot, message: discord.Message) -> typing.List[str]:
+    """Set the prefixes to be looked for in the message according to it's guild.
+
+    This function is to passed to the bot's instance ``command_prefix`` argument.
+
+    Args:
+        current_bot: The bot in it's current state.
+        message: The sent message.
+
+    Returns:
+        list(str): A list containing the prefixes to look for.
+    """
+    if not message.guild:
+        return commands.when_mentioned_or(*['!'])(current_bot, message)
+    sql = "SELECT prefix FROM config_prefix WHERE guild_id=? ;"
+    response = database.fetch_all(sql, [message.guild.id])
+    if response is None:
+        return commands.when_mentioned_or(*['!'])(current_bot, message)
+    prefixes = [prefix[0] for prefix in response]
+    return commands.when_mentioned_or(*prefixes)(current_bot, message)
+
 
 load_dotenv()
-bot = commands.Bot(command_prefix=utils.get_prefix)
+bot = commands.Bot(command_prefix=get_prefix)
 bot.remove_command("help")
-bot_extensions = ['NEW_cogs.configuration',
-                  'NEW_cogs.loader',
-                  'NEW_cogs.bancommand',
-                  'NEW_cogs.utip',
-                  'NEW_cogs.birthday',
-                  'NEW_cogs.moderation',
-                  'NEW_cogs.welcome',
-                  'NEW_cogs.turing',
-                  'NEW_cogs.pwet',
-                  'NEW_cogs.rules',
-                  'NEW_cogs.vote',
-                  'NEW_cogs.nickname']
+bot_extensions = ['cogs.configuration',
+                  'cogs.loader',
+                  'cogs.bancommand',
+                  'cogs.utip',
+                  'cogs.birthday',
+                  'cogs.moderation',
+                  'cogs.welcome',
+                  'cogs.turing',
+                  'cogs.pwet',
+                  'cogs.rules',
+                  'cogs.vote',
+                  'cogs.nickname']
 
 
 @bot.event
 async def on_ready():
+    """Called when the bot is ready. Log the bot's username and ID along with the `discord.py` version."""
     log('Lion::on_ready', f'Discord version : {discord.__version__}')
     log('Lion::on_ready', f'Logged in as {bot.user.name} [{bot.user.id}]')
     await bot.change_presence(activity=discord.Game(name=os.getenv('BOT_ACTIVITY')))
@@ -31,6 +56,7 @@ async def on_ready():
 
 @bot.event
 async def on_command_error(ctx: commands.Context, exception: str):
+    """Default callback of command's errors. Send the exception in the context's channel and log it."""
     log('Lion::on_command_error',
         f"EXCEPTION : `{exception}` ON COMMAND : `{ctx.message.content}`")
     if ctx.command:

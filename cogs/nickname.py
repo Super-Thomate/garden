@@ -54,7 +54,7 @@ class Nickname(commands.Cog):
         if last_change is None or now > last_change + delay:
             return True, None
         else:
-            return False, utils.parse_timestamp(last_change + delay, member.guild)
+            return False, utils.timestamp_to_string(last_change + delay, member.guild)
 
     @commands.group(invoke_without_command=True)
     @commands.guild_only()
@@ -101,7 +101,7 @@ class Nickname(commands.Cog):
     @nickname.command(name='setdelay', aliases=['sd'])
     @commands.guild_only()
     @utils.require(['authorized', 'not_banned', 'cog_loaded'])
-    async def set_delay(self, ctx: commands.Context, delay: utils.DelayConverter):
+    async def set_delay(self, ctx: commands.Context, delay: utils.DurationConverter):
         """Set the delay before a member can change nickname again"""
         sql = "INSERT INTO nickname_table(nickname_delay, guild_id) VALUES (:delay, :guild_id) " \
               "ON CONFLICT(guild_id) DO " \
@@ -151,7 +151,7 @@ class Nickname(commands.Cog):
         if not response:
             delay = warn_nick = not_set
         else:
-            delay = utils.parse_delay(response[0], ctx.guild) if response[0] else not_set
+            delay = utils.duration_to_string(response[0], ctx.guild) if response[0] else not_set
             warn_nick = response[1] or utils.get_text(ctx.guild, "nickname_warned_nickname") + ' (default)'
         await ctx.send(utils.get_text(ctx.guild, "nickname_info").format(delay, warn_nick))
 

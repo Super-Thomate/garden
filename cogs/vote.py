@@ -210,7 +210,7 @@ class Vote(commands.Cog):
     @vote.command(name='setvoteend', aliases=['sve'])
     @commands.guild_only()
     @utils.require(['authorized', 'cog_loaded', 'not_banned'])
-    async def set_vote_end(self, ctx: commands.Context, vote_name: VoteConverter, delay: utils.DelayConverter):
+    async def set_vote_end(self, ctx: commands.Context, vote_name: VoteConverter, delay: utils.DurationConverter):
         """
         Set the delay of the vote (exemple: `2d5h`)
         """
@@ -299,7 +299,7 @@ class Vote(commands.Cog):
             end_role = ctx.guild.get_role(end_role_id)
             end_role = end_role.mention if end_role else utils.get_text(ctx.guild, "misc_role_invalid") \
                 .format(end_role_id)
-            ends_at = utils.parse_timestamp(ends_at, ctx.guild) if ends_at \
+            ends_at = utils.timestamp_to_string(ends_at, ctx.guild) if ends_at \
                 else utils.get_text(ctx.guild, "misc_not_set")
             to_send += f"`{vote_name}` | {end_channel} | {end_role} | {ends_at}\n"
 

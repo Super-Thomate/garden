@@ -17,16 +17,17 @@ import emoji
 import pytz
 
 load_dotenv(dotenv_path=os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '.env')))
-LANGUAGE_FILE_DIRECTORY = os.path.abspath(
-    os.path.join(os.path.dirname(__file__), '..', os.getenv('LANGUAGE_FILE_PATH')))
-log("Utils::_", f"Language files directory : {LANGUAGE_FILE_DIRECTORY}")
+
+LANGUAGE_FILE_DIRECTORY = os.path.abspath(os.path.join(os.path.dirname(__file__), '..',
+                                                       os.getenv('LANGUAGE_FILE_PATH')))
+
+log("Utils", f"Language files directory : {LANGUAGE_FILE_DIRECTORY}")
+
 strings: typing.Dict[str, typing.Dict[str, str]]
 
 
 def init_strings(bot: commands.Bot):
-    """
-    Initiate the `strings` global dict which contains the locales for multiple languages
-    """
+    """Initiate the `strings` global dict which contains the locales for multiple languages."""
     global strings
     strings = {}
     config_cog = bot.get_cog('Configuration')
@@ -43,12 +44,16 @@ def init_strings(bot: commands.Bot):
 
 
 def get_text(guild: discord.Guild, key: str) -> str:
-    """
-    Return the string refering to `key` in the correct language according to the current language setting of the guild
+    """Return the string refering to `key` in the correct language.
 
-    :param guild: Guild | The current guild
-    :param key: str | The key to retrieve the string from
-    :return: str | The string refered by `key` in the language of the guild
+    The language is chosen according to the guild language's configuration.
+
+    Args:
+        guild: The current guild.
+        key: The key to retrieve the string from.
+
+    Returns:
+        str: The string refered by `key` in the guild's chosen language.
     """
     sql = "SELECT language_code FROM config_lang WHERE guild_id=? ;"
     response = database.fetch_one(sql, [guild.id])
@@ -64,16 +69,20 @@ def get_text(guild: discord.Guild, key: str) -> str:
 
 
 def require(required: typing.List[str]):
-    """
-    A decorator used to wrap a command that run a few check before calling said command.
-    The command won't be executed if one of the check fails.
-    Accepted arguments are:
-     - `cog_loaded` to check if the cog is loaded on the guild
-     - `not_banned` to check if the user is not banned from using the command
-     - `authorized` to check if the user has enough permission to use the command
-     - `developer` to check if the user is part of the dev team
+    """A decorator used to wrap a command that run a few check before calling said command.
 
-    :param required: List[str] | A list of string referring to the checks to run.
+    The command won't be executed if one of the check fails.
+    Accepted arguments are::
+        - 'cog_loaded': If the cog is loaded on the guild.
+        - 'not_banned': If the user is not banned from using the command.
+        - 'authorized': If the user has enough permission to use the command.
+        - 'developer': If the user is part of the dev team.
+
+    Args:
+        required: The checks to run
+
+    Returns:
+        The decorated function if the checks are passed, else Nothing
     """
 
     def decorator(f):
@@ -109,13 +118,15 @@ def require(required: typing.List[str]):
 
 
 def is_loaded(cog_name: str, guild: discord.Guild, bot: commands.Bot) -> bool:
-    """
-    Return wether a cog is loaded in a guild
+    """Return wether a cog is loaded in a guild.
 
-    :param cog_name: str | The name of the cog
-    :param guild: Guild | The current guild
-    :param bot: Bot | The running bot
-    :return: True if the cog is loaded in the guild, else False
+    Args:
+        cog_name: The name of the cog.
+        guild: The guild where the command was called.
+        bot: The bot instance.
+
+    Returns:
+        True if the cog is loaded in the guild, else False.
     """
     if not guild:
         return False
@@ -129,13 +140,15 @@ def is_loaded(cog_name: str, guild: discord.Guild, bot: commands.Bot) -> bool:
     return status
 
 
-def member_is_banned_from_command(command: commands.Command, member: discord.Member):
-    """
-    Check if a member is banned from using a command
+def member_is_banned_from_command(command: commands.Command, member: discord.Member) -> bool:
+    """Check if a member is banned from using a command in the member's guild.
 
-    :param command: Command | The command to be checked
-    :param member: Member | The member to be checked
-    :return: True if the user is banned from using the command, else False
+    Args:
+        command: The command.
+        member: The member.
+
+    Returns:
+        True if the user is banned from using the command, else False.
     """
     now = int(datetime.datetime.utcnow().timestamp())
     sql = "SELECT * FROM bancommand_banned_user WHERE member_id=? AND command=? AND ends_at>? AND guild_id=? ;"
@@ -143,13 +156,15 @@ def member_is_banned_from_command(command: commands.Command, member: discord.Mem
     return response is not None
 
 
-def member_has_role_banned_from_command(command: commands.Command, member: discord.Member):
-    """
-    Check if a member has a role that is banned from using a command
+def member_has_role_banned_from_command(command: commands.Command, member: discord.Member) -> bool:
+    """Check if a member has a role that is banned from using a command.
 
-    :param command: Command | The command to be checked
-    :param member: Member | The member to be checked
-    :return: True if the user has a role that is banned, else False
+    Args:
+        command: The command.
+        member: The member.
+
+    Returns:
+        True if the user has a role that is banned, else False.
     """
     now = int(datetime.datetime.utcnow().timestamp())
     sql = "SELECT role_id FROM bancommand_banned_role WHERE command=? AND ends_at>? AND guild_id=? ;"
@@ -164,12 +179,14 @@ def member_has_role_banned_from_command(command: commands.Command, member: disco
 
 
 def is_banned_from_command(command: commands.Command, member: discord.Member) -> bool:
-    """
-    Check wether a member is banned from using a command or has a role that is banned from using a command
+    """Check wether a member is banned from using a command or has a role that is banned from using a command.
 
-    :param command: Command | The command to be checked
-    :param member: Member | The member to be checked
-    :return: True if the user can't use the command, else False
+    Args:
+        command: The command.
+        member: The member.
+
+    Returns:
+        True if the user can't use the command, else False.
     """
     if is_admin(member):
         return False
@@ -181,11 +198,13 @@ def is_banned_from_command(command: commands.Command, member: discord.Member) ->
 
 
 def is_authorized(member: discord.Member) -> bool:
-    """
-    Check if a member has enough permissions to use a command
+    """Check if a member has enough permissions to use a command.
 
-    :param member: Member | The member to be checked
-    :return: True if the member is authorized, else False
+    Args:
+        member: The member.
+
+    Returns:
+        True if the member is authorized, else False.
     """
     if member.guild.id == 494812563016777729:  # Test server bypasses
         return True
@@ -195,22 +214,27 @@ def is_authorized(member: discord.Member) -> bool:
 
 
 def is_admin(member: discord.Member) -> bool:
-    """
-    Check if a member is an administrator of the guild
+    """Check if a member is an administrator in it's guild.
 
-    :param member: Member | The member to be checked
-    :return: True if the member is an administrator, else False
+    Args:
+        member: The member to be checked.
+
+    Returns:
+        True if the member is an administrator, else False.
     """
     return member.guild_permissions.administrator
 
 
 def is_allowed(member: discord.Member) -> bool:
-    """
-    Check wether a member has a role that is considered as a `moderator` role
-    and thus is allowed to use moderator commands
+    """Check wether a member has a role that is considered a *moderator* role.
 
-    :param member: Member | The member to be checked
-    :return: True if the user is allowed to use moderator commands, else False
+    *moderator* roles are allowed to use *admins* commands.
+
+    Args:
+        member: The member to be checked.
+
+    Returns:
+        True if has a *moderator* role, else False.
     """
     moderator_roles = get_moderator_role_id(member.guild)
     for role in member.roles:
@@ -220,10 +244,13 @@ def is_allowed(member: discord.Member) -> bool:
 
 
 def get_moderator_role_id(guild: discord.Guild) -> typing.List[int]:
-    """
-    Retrieve the ID of the roles that are considered as `moderator` roles
-    :param guild: Guild | The guild to retrieve the roles from
-    :return: List[int] | A list of the `moderator` roles' ID
+    """Retrieve the ID of the roles that are considered as *moderator* roles.
+
+    Args:
+        guild: The guild to retrieve the *moderator* roles from.
+
+    Returns:
+        The *moderator* roles' IDs
     """
     sql = "SELECT role_id FROM config_role WHERE permission=? AND guild_id=? ;"
     response = database.fetch_all(sql, [1, guild.id])
@@ -232,46 +259,40 @@ def get_moderator_role_id(guild: discord.Guild) -> typing.List[int]:
     return [value[0] for value in response]
 
 
-def get_prefix(bot: commands.Bot, message: discord.Message):
-    """
-    Used when creating the bot instance.
-    Return the prefixes to watch according to the guild where the message comes from.
-    By default, the prefix is `!` on any guild
-    """
-    if not message.guild:
-        return commands.when_mentioned_or(*['!'])(bot, message)
-    sql = "SELECT prefix FROM config_prefix WHERE guild_id=? ;"
-    response = database.fetch_all(sql, [message.guild.id])
-    if response is None:
-        return commands.when_mentioned_or(*['!'])(bot, message)
-    prefixes = [prefix[0] for prefix in response]
-    return commands.when_mentioned_or(*prefixes)(bot, message)
-
-
 def is_developer(member: discord.Member) -> bool:
-    """
-    Check if the member is part of the dev team.
-    :param member: Member | The member to check
-    :return: True if the member is a developer, else False
+    """Check if the member is part of the developer team.
+
+    For now, these members are 'Thomate', 'Shampu', 'Tatlin' and 'Galtea'.
+
+    Args:
+        member: The member to check.
+
+    Returns:
+        True if the member is in the developer team, else False
     """
     return member.id in (103907580723617792, 232733740084887553, 70528117403295744, 154337017294094336)
 
 
-def parse_time(timecode: str) -> typing.Optional[int]:
-    """
-    Convert a special string into a delay
+def parse_time_string(time_string: str) -> typing.Optional[int]:
+    """Parse a `time_string` into it's integer equivalent.
 
-    :param timecode: Optional[str] | A string of the form `XdXhXmXs` where X is an integer. `Example: 2d5h2m`
-    :return: Optional[int] | The timecode parsed into a delay (in seconds) or None if the `timecode` string is invalid
+    A `time_string` is a string in the ``time string`` format **XdXhXmXs**
+    (example: '2d5h25m12s'), not all units are required.
+
+    Args:
+        time_string: The time string.
+
+    Returns:
+        The `time_string` converted in seconds or None if `time_string` is invalid.
+
+    Raises:
+        AttributeError: if `time_string` is not in the correct format.
     """
-    data = {"d": 86400,
-            "h": 3600,
-            "m": 60,
-            "s": 1}
-    if not re.fullmatch(r"(\d+[dhms])+", timecode, flags=re.IGNORECASE):
-        return None
+    data = {'d': 86400, 'h': 3600, 'm': 60, 's': 1}
+    if not re.fullmatch(r"(\d+[dhms])+", time_string, flags=re.IGNORECASE):
+        raise AttributeError
     total = 0
-    tokens = list(filter(None, re.split(r"(\d+[dhms])", timecode, flags=re.IGNORECASE)))
+    tokens = list(filter(None, re.split(r"(\d+[dhms])", time_string, flags=re.IGNORECASE)))
     for token in tokens:
         value, unit = tuple(filter(None, re.split(r"(\d+)", token, flags=re.IGNORECASE)))
         value = int(value)
@@ -281,83 +302,106 @@ def parse_time(timecode: str) -> typing.Optional[int]:
 
 
 def get_bot_commands(bot: commands.Bot) -> typing.List[str]:
-    """
-    Return a list containing every Group and command and their respective aliases of the bot
+    """Return a list containing every Group and command along with their respective aliases.
 
-    :param bot: Bot | The bot instance
-    :return: List[str] | A list of the bot's Groups, commands and aliases
+    Args:
+        bot: The bot instance.
+
+    Returns:
+        A list containing the bot's commands, groups and aliases.
     """
     all_command = []
     for bot_command in bot.walk_commands():
         all_command.append(bot_command.name)
         all_command.extend(bot_command.aliases)
-    return list(set(all_command))
+    return list(set(all_command))  # Casting to set() to remove any duplicated values
 
 
-async def delete_messages(messages: typing.List[discord.Message], delay: int = 0):
-    """
-    Delete the message in `messages` with a user defined delay (default 2s)
+async def delete_messages(messages: typing.List[discord.Message], delay: float = 0):
+    """Singlely delete every message in `messages` after `delay`.
 
-    :param messages: List[Message] - The messages to delete
-    :param delay: int | The delay in seconds to wait before deleting the messages (default 2s)
+    Args:
+        messages: The messages to delete.
+        delay: The delay after which every message will effectively be deleted.
     """
     for message in messages:
-        await message.delete(delay=delay)
+        try:
+            await message.delete(delay=delay)
+        except discord.NotFound:
+            continue
 
 
 async def is_image_url(url: str) -> bool:
-    """
-    Non-blocking request to check if an url links to an image
+    """Checl if `url` is leading to an image.
 
-    :param url: str | The url to check
-    :return: bool | True if the url is valid and links to an image, else False
+    Images are file which header's 'Content-Type' section is ('png', 'jpeg', 'jpg', 'gif').
+
+    Args:
+        url: The url.
+
+    Returns:
+        True if the url is valid and links to an image, else False.
     """
     async with aiohttp.ClientSession() as cs:
         try:
             async with cs.get(url) as response:
                 return response.headers['Content-Type'] in ("image/png", "image/jpeg", "image/jpg", "image/gif")
-        except Exception as e:
-            log("Utils::is_url_image", f"{type(e).__name__} - {e}")
+        except aiohttp.InvalidURL:
             return False
 
 
-def delay_to_date(delay: int, guild: discord.Guild) -> str:
-    """
-    Convert a delay into a date in the guild's language
+def duration_to_date(duration: int, guild: discord.Guild) -> str:
+    """Convert a duration (in seconds) into the a **UTC** date in the guild's language.
 
-    :param delay: int | A delay in secoonds
-    :param guild: Guild | The guild the date will be sent to
-    :return: str - A date formatted according to the guild language's locale
+    Examples:
+        If we are 'May 4th 17:00 2020'. Giving a duration of 3600 seconds will display 'May 4th 18:00 2020'.
+        The date format change according to the guild configuration's language.
+        In a French guild, the date will be displayed in French.
+
+    Args:
+        duration: A duration in seconds.
+        guild: The guild the date will be sent to.
+
+    Returns:
+        A date in the guild's language.
     """
-    date = datetime.datetime.utcnow() + datetime.timedelta(seconds=delay)
+    date = datetime.datetime.utcnow() + datetime.timedelta(seconds=duration)
     sql = "SELECT language_code FROM config_lang WHERE guild_id=? ;"
     response = database.fetch_one(sql, [guild.id])
     locale = response[0] if response else 'en'
     return format_datetime(date, locale=locale, tzinfo=pytz.UTC) + " (UTC)"
 
 
-def parse_delay(delay: int, guild: discord.Guild) -> str:
-    """
-    Convert a delay in seconds into a better suiting format `(example: 2 days)` in the guild's language
+def duration_to_string(duration: int, guild: discord.Guild) -> str:
+    """Convert a duration (in seconds) into a string.
 
-    :param delay: int | A delay in secoonds
-    :param guild: Guild | The guild the time will be sent to
-    :return: str - A time formatted according to the guild language's locale
+    Examples:
+        Giving a duration of 3300 seconds will return '55 minutes'.
+        The returned string changes according to the guild configuration's language.
+
+    Args:
+        duration: A delay in seconds.
+        guild: The guild the time will be sent to.
+
+    Returns:
+        The duration formated as a string in the guild's language.
     """
-    time = datetime.timedelta(seconds=delay)
+    time = datetime.timedelta(seconds=duration)
     sql = "SELECT language_code FROM config_lang WHERE guild_id=? ;"
     response = database.fetch_one(sql, [guild.id])
     locale = response[0] if response else 'en'
     return format_timedelta(time, locale=locale).capitalize()
 
 
-def parse_timestamp(timestamp: int, guild: discord.Guild) -> str:
-    """
-    Convert a timestamp into a delay `(example: 2 days)` in the guild's language
+def timestamp_to_string(timestamp: int, guild: discord.Guild) -> str:
+    """Convert a timestamp into a string in the guild's language.
 
-    :param timestamp: int | A delay in secoonds
-    :param guild: Guild | The guild the time will be sent to
-    :return: str | A time formatted according to the guild language's locale
+    Args:
+        timestamp: A timestamp.
+        guild: The guild the time will be sent to.
+
+    Returns:
+        The timestamp converted into a string of how much time is elapsed since or remanining for this timestamp.
     """
     delay = timestamp - datetime.datetime.utcnow().timestamp()
     delta = datetime.timedelta(seconds=delay)
@@ -368,15 +412,20 @@ def parse_timestamp(timestamp: int, guild: discord.Guild) -> str:
 
 
 def parse_random_string(string: str, member_name: str = None) -> str:
-    """
-    Parse a "random" string into a normal string.
-    A string is considered "random" when it contains one or more `{A|B}` patterns
-    where A and B are 2 choices that will be exclusively chosen.
+    """Parse a string the standard random format into a normal string.
 
-    Example : `Hello {A|B}` will randomly return `Hello A` or `Hello B`
+    The standard random format look for '{A|B|C}' patterns and return exclusively one of the value enclosed by '|'.
+    It also replace any occurence of '$member' by `member_name`.
 
-    :param string: str | The base string
-    :return: str | The parsed string
+    Examples:
+        Giving '{A|B|C}$member' will return either ('A', 'B' or 'C') + '`member_name`'.
+
+    Args:
+        string: The string to parse.
+        member_name: What to replace '$member' with.
+
+    Returns:
+        The parsed string.
     """
     if member_name is not None:
         string = string.replace("$member", member_name)
@@ -393,12 +442,14 @@ def parse_random_string(string: str, member_name: str = None) -> str:
 
 
 def member_has_role(member: discord.Member, role_id: int) -> bool:
-    """
-    Check wether `member` has the role `role`
+    """Check if `member` has the role identified by `role_id`.
 
-    :param member: Member | The memeber to check roles from
-    :param role_id: int | The id of the role to check
-    :return: bool | True if the member has the role, else False
+    Args:
+        member: The member.
+        role_id: The id of the role to check.
+
+    Returns:
+        True if the member has the role, else False.
     """
     role = member.guild.get_role(role_id)
     if not role:
@@ -408,13 +459,18 @@ def member_has_role(member: discord.Member, role_id: int) -> bool:
 
 
 async def ask_confirmation(ctx: commands.Context, comfirm_key: str, formating: typing.Optional[list] = None) -> bool:
-    """
-    Send a confirmation message and wait for the member to add a reaction to confirm action
+    """Send a confirmation message and wait for the member to add a reaction to confirm action.
 
-    :param ctx: Context | The context in which the confirmation is asked
-    :param comfirm_key: str | The key to be fecthed in the language file. The result will be send as confirm message
-    :param formating: Optional[list] | A list containing the necessary formating for confirmation message
-    :return: True if the member confirmed, False if the member didn't confirm or if the demand timed out (60s)
+    The confirmation message will be sent in the context's channel and will wait for the member
+    that called the command to react to confirm the action.
+
+    Args:
+        ctx: The context of the called command.
+        comfirm_key: The key to be passed to ``get_text()`` to get the confirmation message's body.
+        formating: A list that will be passed to ``format()`` to format the confirmation message's body.
+
+    Returns:
+        True if the member confirmed, False if the member didn't confirm or if the demand timed out (after 60s)
     """
     if formating is None:
         formating = []
@@ -442,23 +498,31 @@ async def ask_confirmation(ctx: commands.Context, comfirm_key: str, formating: t
 
 
 class EmojiOrUnicodeConverter(commands.Converter):
-    """
-    Custom discord Converter that try to convert the argument into a discord.Emoji or into an unicode emoji
-    Raises BadArgument and prevent the command from being executed if no emoji is found
+    """Custom ``discord.Converter`` that try to convert the argument into a discord.Emoji or into an unicode emoji.
+
+    Returns:
+        Union[str, Emoji]: A ``discord.Emoji`` or a string.
+
+    Raises:
+        BadArgument: if the argument can't be converted to an emoji.
     """
     async def convert(self, ctx: commands.Context, argument: str) -> typing.Union[discord.Emoji, str]:
-        """
-        Convert and return the argument or raise BadArgument
-        :return: Emoji or str | The converted argument
-        """
         if argument in emoji.UNICODE_EMOJI:
             return argument
         return await commands.EmojiConverter().convert(ctx, argument)
 
 
-class DelayConverter(commands.Converter):
+class DurationConverter(commands.Converter):
+    """Custom ``discord.Converter`` that try to convert the argument in a duration.
+
+    The converter expect a string in the ``time string`` format **XdXhXmXs**
+    (example: '2d5h25m12s'), not all units are required.
+
+    Raises:
+        BadArgument: if the argument can't be converted to an duration.
+    """
     async def convert(self, ctx: commands.Context, argument: str) -> int:
-        delay = parse_time(argument)
-        if not delay:
+        try:
+            return parse_time_string(argument)
+        except commands.BadArgument:
             raise commands.BadArgument(get_text(ctx.guild, "misc_delay_invalid"))
-        return delay

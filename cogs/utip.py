@@ -22,6 +22,7 @@ class Utip(commands.Cog):
         if ctx.subcommand_passed is not None and utils.is_authorized(ctx.author):
             await ctx.send(utils.get_text(ctx.guild, "birthday_subcommands").format(ctx.prefix))
             return
+
         # Check if all the field are set and that the demands channel is valid
         sql = "SELECT mod_channel_id, log_channel_id, role_id, delay FROM utip_config WHERE guild_id=? ;"
         response = database.fetch_one(sql, [ctx.guild.id])
@@ -29,6 +30,7 @@ class Utip(commands.Cog):
             await ctx.send(utils.get_text(ctx.guild, "utip_field_not_set"))
             await ctx.message.add_reaction('❌')
             return
+
         mod_channel_id, log_channel_id, role_id, delay = response
         mod_channel = ctx.guild.get_channel(mod_channel_id)
         role = ctx.guild.get_role(role_id)
@@ -48,6 +50,7 @@ class Utip(commands.Cog):
             await ctx.send(utils.get_text(ctx.guild, "utip_timeout"), delete_after=5.0)
             await utils.delete_messages([ctx.message, ask_message])
             return
+
         is_url_valid = await utils.is_image_url(member_answer.content)
         is_attachment = len(member_answer.attachments) > 0
         if is_attachment is False and is_url_valid is False:
@@ -74,7 +77,7 @@ class Utip(commands.Cog):
         if success is not True:
             await ctx.message.add_reaction('💀')
 
-        await utils.delete_messages([ctx.message, ask_message, member_answer], delay=5)
+        await utils.delete_messages([ctx.message, ask_message, member_answer], delay=5.0)
         await log_channel.send(
             embed=discord.Embed(title="UTIP DEMAND", description=f"{ctx.author.mention} : {image_url}"))
 
@@ -133,7 +136,7 @@ class Utip(commands.Cog):
         """
         Set the delay before the utip role is be removed
         """
-        timestamp = utils.parse_time(delay)
+        timestamp = utils.parse_time_string(delay)
         if timestamp is None:
             await ctx.send(utils.get_text(ctx.guild, "misc_delay_invalid"))
             await ctx.message.add_reaction('❌')
@@ -167,7 +170,7 @@ class Utip(commands.Cog):
             log_channel = log_channel.mention if log_channel else not_set
             role = ctx.guild.get_role(response[2])
             role = role.mention if role else not_set
-            delay = utils.parse_delay(response[3], ctx.guild) if response[3] else not_set
+            delay = utils.duration_to_string(response[3], ctx.guild) if response[3] else not_set
 
         sql = "SELECT member_id, ends_at FROM utip_timer WHERE guild_id=? ;"
         response = database.fetch_all(sql, [ctx.guild.id])
@@ -178,7 +181,7 @@ class Utip(commands.Cog):
             for line in response:
                 member = ctx.guild.get_member(line[0])
                 member = member.mention if member else f"(Left server) <@{line[0]}>"
-                role_end = utils.parse_timestamp(line[1], ctx.guild)
+                role_end = utils.timestamp_to_string(line[1], ctx.guild)
                 utip_members += f"{member} | _{role_end}_\n"
 
         embed = discord.Embed(title=utils.get_text(ctx.guild, "utip_cog_name"))
@@ -263,7 +266,7 @@ class Utip(commands.Cog):
             await self.give_utip_role(utip_member, role, delay)
             embed_footer_key = "utip_demand_accepted"
             demand_answer = utils.get_text(guild, "utip_demand_accepted_message") \
-                .format(role.name, utils.delay_to_date(delay, guild))
+                .format(role.name, utils.duration_to_date(delay, guild))
         else:
             embed_footer_key = "utip_demand_refused"
             demand_answer = utils.get_text(guild, "utip_demand_refused_message")

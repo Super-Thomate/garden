@@ -53,13 +53,13 @@ class Birthday(commands.Cog):
                                                     timeout=60.0)
         except asyncio.TimeoutError:
             await ctx.send(utils.get_text(ctx.guild, "utip_timeout"), delete_after=5.0)
-            await utils.delete_messages([ctx.message, ask_message], delay=5)
+            await utils.delete_messages([ctx.message, ask_message], delay=5.0)
             return
         # Check if date is valid
         date = self.validate_date(member_answer.content)
         if date is None:
             await ctx.send(utils.get_text(ctx.guild, "birthday_format_invalid"), delete_after=5.0)
-            await utils.delete_messages([ctx.message, member_answer, ask_message], delay=5)
+            await utils.delete_messages([ctx.message, member_answer, ask_message], delay=5.0)
             return
         # Insert birthday in database
         sql = "INSERT INTO birthday_user(member_id, birthday, guild_id) VALUES (?, ?, ?) ;"
@@ -72,7 +72,7 @@ class Birthday(commands.Cog):
             await ctx.message.add_reaction('✅')
             await ctx.send(utils.get_text(ctx.guild, "birthday_registered")
                            .format(ctx.author.mention), delete_after=5.0)
-            await utils.delete_messages([ctx.message, ask_message, member_answer], delay=5)
+            await utils.delete_messages([ctx.message, ask_message, member_answer], delay=5.0)
 
     @birthday.command(name='setchannel', aliases=['sc'])
     @commands.guild_only()
