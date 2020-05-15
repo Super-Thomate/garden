@@ -1,9 +1,11 @@
+import datetime
+import typing
+
 import discord
 from discord.ext import commands
-from Utilitary.logger import log
+
 from Utilitary import database, utils
-import typing
-import datetime
+from Utilitary.logger import log
 
 
 class Rules(commands.Cog):
@@ -11,15 +13,18 @@ class Rules(commands.Cog):
         self.bot = bot
 
     @staticmethod
-    def get_rule_for_emoji(emoji_id: typing.Optional[int], emoji_str: str, guild: discord.Guild)\
+    def get_rule_for_emoji(emoji_id: typing.Optional[int], emoji_str: str, guild: discord.Guild) \
             -> typing.Optional[str]:
         """
-        Retrieve the rule linked to the emoji `emoji`
+        Retrieve the rule linked to the emoji `emoji`.
 
-        :param emoji_id: Optional[int] | The id of the emoji if it has one
-        :param emoji_str: str | The visual representation of the emoji
-        :param guild: Guild | The guild where it happens
-        :return: Optional[str] | The rule if it was found, else None
+        Args:
+            emoji_id: The id of the emoji if it has one. Optional if the emoji is unicode.
+            emoji_str: The visual representation of the emoji.
+            guild: The guild where it happens.
+
+        Returns:
+            Optional[str] | The rule if found, else None
         """
         sql = "SELECT rule FROM rules_table WHERE (emoji_id=? OR emoji_str=?) AND guild_id=? ;"
         response = database.fetch_one(sql, [emoji_id, emoji_str, guild.id])
@@ -31,9 +36,7 @@ class Rules(commands.Cog):
     @commands.guild_only()
     @utils.require(['authorized', 'cog_loaded', 'not_banned'])
     async def rules(self, ctx: commands.Context, emoji: utils.EmojiOrUnicodeConverter):
-        """
-        Send the rule linked to `emoji` in the current channel
-        """
+        """Send the rule linked to `emoji` in the current channel."""
         emoji_id = emoji.id if isinstance(emoji, discord.Emoji) else None
         rule = self.get_rule_for_emoji(emoji_id, str(emoji), ctx.guild)
         if rule is None:
@@ -46,9 +49,7 @@ class Rules(commands.Cog):
     @commands.guild_only()
     @utils.require(['authorized', 'cog_loaded', 'not_banned'])
     async def add_rule(self, ctx: commands.Context, emoji: utils.EmojiOrUnicodeConverter, *, rule: str):
-        """
-        Add a new rule with `rule` as body and `emoji` as emoji
-        """
+        """Add a new rule with `rule` as body and `emoji` as emoji."""
         emoji_id = emoji.id if isinstance(emoji, discord.Emoji) else None
         sql = "INSERT INTO rules_table(emoji_id, emoji_str, rule, guild_id) " \
               "VALUES (:emoji_id, :emoji_str, :rule, :guild_id) " \
@@ -69,9 +70,7 @@ class Rules(commands.Cog):
     @commands.guild_only()
     @utils.require(['authorized', 'cog_loaded', 'not_banned'])
     async def remove_rule(self, ctx: commands.Context, emoji: utils.EmojiOrUnicodeConverter):
-        """
-        Remove the rule linked to `emoji`
-        """
+        """Remove the rule linked to `emoji`."""
         emoji_id = emoji.id if isinstance(emoji, discord.Emoji) else None
         sql = "DELETE FROM rules_table WHERE (emoji_id=? OR emoji_str=?) AND guild_id=? ;"
         success = database.execute_order(sql, [emoji_id, str(emoji), ctx.guild.id])
@@ -84,9 +83,7 @@ class Rules(commands.Cog):
     @commands.guild_only()
     @utils.require(['authorized', 'cog_loaded', 'not_banned'])
     async def set_log_channel(self, ctx: commands.Context, channel: discord.TextChannel):
-        """
-        Set the channel where the warning will be logged
-        """
+        """Set the channel where the warning will be logged."""
         sql = "INSERT INTO rules_config(log_channel_id, guild_id) VALUES (:channel_id, :guild_id) " \
               "ON CONFLICT(guild_id) DO " \
               "UPDATE SET log_channel_id=:channel_id WHERE guild_id=:guild_id ;"
@@ -100,9 +97,7 @@ class Rules(commands.Cog):
     @commands.guild_only()
     @utils.require(['authorized', 'cog_loaded', 'not_banned'])
     async def info(self, ctx: commands.Context):
-        """
-        Display the rules and their emoji
-        """
+        """Display the rules and their emoji."""
         sql = "SELECT emoji_id, emoji_str, rule FROM rules_table WHERE guild_id=? ;"
         response = database.fetch_all(sql, [ctx.guild.id])
         if response is None:
@@ -120,9 +115,7 @@ class Rules(commands.Cog):
     @commands.guild_only()
     @utils.require(['authorized', 'cog_loaded', 'not_banned'])
     async def help(self, ctx: commands.Context):
-        """
-        Display the help for the `rules` cog
-        """
+        """Display the help for the `rules` cog."""
         embed = discord.Embed(title=utils.get_text(ctx.guild, "rules_cog_name"),
                               description=utils.get_text(ctx.guild, "rules_help_description"))
         embed.set_author(name=ctx.guild.name, icon_url=ctx.guild.icon_url)
@@ -134,9 +127,10 @@ class Rules(commands.Cog):
 
     @commands.Cog.listener()
     async def on_raw_reaction_add(self, payload: discord.RawReactionActionEvent):
-        """
-        When a reaction is added, checks if the reaction is linked to a rule
-        and if the person who reacted is a moderator then send the rule linked to the reaction in DM
+        """Whenever a reaction is added to a message.
+
+        Checks if the reaction is linked to a rule and if the person who reacted is a moderator
+        then send the rule linked to the reaction in DM.
         """
         if not payload.guild_id:
             return

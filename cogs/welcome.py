@@ -1,8 +1,10 @@
+import typing
+
 import discord
 from discord.ext import commands
-from Utilitary.logger import log
+
 from Utilitary import utils, database
-import typing
+from Utilitary.logger import log
 
 
 class Welcome(commands.Cog):
@@ -13,9 +15,7 @@ class Welcome(commands.Cog):
     @commands.guild_only()
     @utils.require(['authorize', 'cog_loaded', 'not_banned'])
     async def welcome(self, ctx: commands.Context):
-        """
-        Print the valid subcommands for the cog
-        """
+        """Print the valid subcommands for the cog."""
         await ctx.send(utils.get_text(ctx.guild, "welcome_subcommands"))
 
     @welcome.command(name='addwelcome', aliases=['awc'])
@@ -23,9 +23,7 @@ class Welcome(commands.Cog):
     @utils.require(['authorize', 'cog_loaded', 'not_banned'])
     async def add_welcome(self, ctx: commands.Context, role: discord.Role,
                           channel: typing.Optional[discord.TextChannel], *, message: str):
-        """
-        Add a public welcome for `role` in `channel` with `message`
-        """
+        """Add a public welcome for `role` in `channel` with `message`."""
         if channel is None:  # Add a private welcome
             sql = "INSERT INTO welcome_private(role_id, message, guild_id) " \
                   "VALUES (:role_id, :message, :guild_id) " \
@@ -50,9 +48,7 @@ class Welcome(commands.Cog):
     @commands.guild_only()
     @utils.require(['authorize', 'cog_loaded', 'not_banned'])
     async def remove_welcome(self, ctx: commands.Context, role: discord.Role):
-        """
-        Remove the public and private welcome for `role`
-        """
+        """Remove the public and private welcome for `role`."""
         sql = "DELETE FROM welcome_public WHERE role_id=? AND guild_id=? ;"
         success = database.execute_order(sql, [role.id, ctx.guild.id])
         sql2 = "DELETE FROM welcome_private WHERE role_id=? AND guild_id=? ;"
@@ -67,8 +63,8 @@ class Welcome(commands.Cog):
     @utils.require(['authorize', 'cog_loaded', 'not_banned'])
     async def reset_welcome(self, ctx: commands.Context, member: typing.Optional[discord.Member],
                             role: typing.Optional[discord.Role]):
-        """
-        Reset the welcome for `member` with `role`. If one of `role` and `member` isn't provided, the reset is wider
+        """Reset the welcome for `member` with `role`.
+        If one of `role` and `member` isn't provided, the reset is wider.
         """
         if member is None and role is None:
             await ctx.send(utils.get_text(ctx.guild, "welcome_reset_parameters").format(ctx.prefix))
@@ -96,9 +92,7 @@ class Welcome(commands.Cog):
     @commands.guild_only()
     @utils.require(['authorize', 'cog_loaded', 'not_banned'])
     async def info(self, ctx: commands.Context):
-        """
-        Display the public and private welcome roles, channels and messages
-        """
+        """Display the public and private welcome roles, channels and messages."""
         # Get public welcomes
         sql = "SELECT role_id, channel_id, message FROM welcome_public WHERE guild_id=? ORDER BY role_id ;"
         public_welcome = ""
@@ -137,9 +131,7 @@ class Welcome(commands.Cog):
     @commands.guild_only()
     @utils.require(['authorize', 'cog_loaded', 'not_banned'])
     async def help(self, ctx: commands.Context):
-        """
-        Display the help for the `welcome` cog
-        """
+        """Display the help for the `welcome` cog."""
         embed = discord.Embed(title=utils.get_text(ctx.guild, "welcome_cog_name"),
                               description=utils.get_text(ctx.guild, "welcome_help_description").format(ctx.prefix))
         embed.set_author(name=ctx.guild.name, icon_url=ctx.guild.icon_url)
@@ -151,9 +143,8 @@ class Welcome(commands.Cog):
 
     @commands.Cog.listener()
     async def on_member_update(self, before: discord.Member, after: discord.Member):
-        """
-        Check if the member obtained a role that need to be welcomed
-        then check if the member has not already been welcomed for this role then welcome the user
+        """Check if the member obtained a role that need to be welcomed then check if the member has not already been
+        welcomed for this role then welcome the user.
         """
         guild = after.guild
         if len(before.roles) >= len(after.roles):

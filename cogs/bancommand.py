@@ -1,8 +1,10 @@
+import datetime
+
 import discord
 from discord.ext import commands, tasks
+
 from Utilitary import database, utils
 from Utilitary.logger import log
-import datetime
 
 
 class Bancommand(commands.Cog):
@@ -14,18 +16,14 @@ class Bancommand(commands.Cog):
     @commands.guild_only()
     @utils.require(['cog_loaded', 'authorized', 'not_banned'])
     async def bancommand(self, ctx: commands.Context):
-        """
-        Display the availables sub-commands for the cog
-        """
+        """Display the availables sub-commands for the cog."""
         await ctx.send(utils.get_text(ctx.guild, "bancommand_subcommands").format(ctx.prefix))
 
     @bancommand.command(name='bancommanduser', aliases=['bcu'])
     @commands.guild_only()
     @utils.require(['cog_loaded', 'authorized', 'not_banned'])
     async def ban_command_user(self, ctx: commands.Context, command: str, member: discord.Member, time: str = None):
-        """
-        Ban the member `member` from the command `command` for `time` time
-        """
+        """Ban the member `member` from the command `command` for `time` time."""
         if command not in utils.get_bot_commands(self.bot):
             await ctx.send(utils.get_text(ctx.guild, "bancommand_command_not_found").format(command))
             await ctx.message.add_reaction('❌')
@@ -59,9 +57,7 @@ class Bancommand(commands.Cog):
     @commands.guild_only()
     @utils.require(['cog_loaded', 'authorized', 'not_banned'])
     async def unban_command_user(self, ctx: commands.Context, command: str, member: discord.Member):
-        """
-        Unban the member `member` from the command `command`
-        """
+        """Unban the member `member` from using the command `command`."""
         if command not in utils.get_bot_commands(self.bot):
             await ctx.send(utils.get_text(ctx.guild, "bancommand_command_not_found").format(command))
             await ctx.message.add_reaction('❌')
@@ -80,9 +76,7 @@ class Bancommand(commands.Cog):
     @commands.guild_only()
     @utils.require(['cog_loaded', 'authorized', 'not_banned'])
     async def ban_command_role(self, ctx: commands.Context, command: str, role: discord.Role, time: str = None):
-        """
-        Ban the role `role` from the command `command` for `time` time
-        """
+        """Ban the role `role` from the command `command` for `time` time."""
         if command not in utils.get_bot_commands(self.bot):
             await ctx.send(utils.get_text(ctx.guild, "bancommand_command_not_found").format(command))
             await ctx.message.add_reaction('❌')
@@ -116,9 +110,7 @@ class Bancommand(commands.Cog):
     @commands.guild_only()
     @utils.require(['cog_loaded', 'authorized', 'not_banned'])
     async def unban_command_role(self, ctx: commands.Context, command: str, role: discord.Role):
-        """
-        Unban the role `role` from the command `command`
-        """
+        """Unban the role `role` from the command `command`."""
         if command not in utils.get_bot_commands(self.bot):
             await ctx.send(utils.get_text(ctx.guild, "bancommand_command_not_found").format(command))
             await ctx.message.add_reaction('❌')
@@ -137,9 +129,7 @@ class Bancommand(commands.Cog):
     @commands.guild_only()
     @utils.require(['cog_loaded', 'authorized', 'not_banned'])
     async def display_user_info(self, ctx: commands.Context):
-        """
-        Display the banned users and the commands they are banned from
-        """
+        """Display the banned users and the commands they are banned from."""
         if ctx.subcommand_passed != 'userinfo':
             await ctx.send(utils.get_text(ctx.guild, "bancommand_userinfo_subcommands").format(ctx.prefix))
             return
@@ -164,9 +154,7 @@ class Bancommand(commands.Cog):
     @commands.guild_only()
     @utils.require(['cog_loaded', 'authorized', 'not_banned'])
     async def display_user_info_by_user(self, ctx: commands.Context, member: discord.Member):
-        """
-        Display the command that the member `member` is banned from
-        """
+        """Display the command that the member `member` is banned from."""
         sql = "SELECT command, ends_at FROM bancommand_banned_user " \
               "WHERE guild_id=? AND member_id=? ORDER BY command ASC ;"
         response = database.fetch_all(sql, [ctx.guild.id, member.id])
@@ -186,9 +174,7 @@ class Bancommand(commands.Cog):
     @commands.guild_only()
     @utils.require(['cog_loaded', 'authorized', 'not_banned'])
     async def display_user_info_by_command(self, ctx: commands.Context, command: str):
-        """
-        Display the user banned from the command `command`
-        """
+        """Display the user banned from the command `command`."""
         if command not in utils.get_bot_commands(self.bot):
             await ctx.send(utils.get_text(ctx.guild, "bancommand_command_not_found").format(command))
             await ctx.message.add_reaction('❌')
@@ -215,9 +201,7 @@ class Bancommand(commands.Cog):
     @commands.guild_only()
     @utils.require(['cog_loaded', 'authorized', 'not_banned'])
     async def display_role_info(self, ctx: commands.Context):
-        """
-        Display the banned roles and the command they are banned from
-        """
+        """Display the banned roles and the command they are banned from."""
         if ctx.subcommand_passed != 'roleinfo':
             await ctx.send(utils.get_text(ctx.guild, "bancommand_roleinfo_subcommands").format(ctx.prefix))
             return
@@ -242,9 +226,7 @@ class Bancommand(commands.Cog):
     @commands.guild_only()
     @utils.require(['cog_loaded', 'authorized', 'not_banned'])
     async def display_role_info_by_role(self, ctx: commands.Context, role: discord.Role):
-        """
-        Display the command that the role `role` id banned from
-        """
+        """Display the command that the role `role` id banned from."""
         sql = "SELECT command, ends_at FROM bancommand_banned_role WHERE guild_id=? AND role_id=? " \
               "ORDER BY command ASC ;"
         response = database.fetch_all(sql, [ctx.guild.id, role.id])
@@ -264,9 +246,7 @@ class Bancommand(commands.Cog):
     @commands.guild_only()
     @utils.require(['cog_loaded', 'authorized', 'not_banned'])
     async def display_role_info_by_command(self, ctx: commands.Context, command: str):
-        """
-        Display the role that are banned from the command `command`
-        """
+        """Display the role that are banned from the command `command`."""
         if command not in utils.get_bot_commands(self.bot):
             await ctx.send(utils.get_text(ctx.guild, "bancommand_command_not_found").format(command))
             await ctx.message.add_reaction('❌')
@@ -293,9 +273,7 @@ class Bancommand(commands.Cog):
     @commands.guild_only()
     @utils.require(['cog_loaded', 'authorized', 'not_banned'])
     async def help(self, ctx: commands.Context):
-        """
-        Display the help for the `bancommand` cog
-        """
+        """Display the help for the `bancommand` cog."""
         embed = discord.Embed(title=utils.get_text(ctx.guild, "bancommand_cog_name"),
                               description=utils.get_text(ctx.guild, "bancommand_help_description"))
         embed.set_author(name=ctx.guild.name, icon_url=ctx.guild.icon_url)
@@ -310,6 +288,7 @@ class Bancommand(commands.Cog):
 
     @tasks.loop(hours=1.0)
     async def delete_obsolete_bans(self):
+        """Every hour, delete ended bans from the DB."""
         for guild in self.bot.guilds:
             if not utils.is_loaded(self.qualified_name.lower(), guild, self.bot):
                 continue
@@ -321,6 +300,7 @@ class Bancommand(commands.Cog):
             database.execute_order(sql_role, [now, guild.id])
 
     def cog_unload(self):
+        """Cancel the `delete_obsolete_bans` loop when the cog is unloaded."""
         self.delete_obsolete_bans.cancel()
 
 

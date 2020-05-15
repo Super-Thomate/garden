@@ -1,9 +1,11 @@
-import discord
-from discord.ext import commands, tasks
-from Utilitary.logger import log
-from Utilitary import database, utils
 import datetime
 import typing
+
+import discord
+from discord.ext import commands, tasks
+
+from Utilitary import database, utils
+from Utilitary.logger import log
 
 
 # noinspection PyTypeChecker
@@ -13,6 +15,7 @@ class Vote(commands.Cog):
         self.end_vote_loop.start()
 
     class VoteConverter(commands.Converter):
+        """Custom converter that look for an existing vote and print an error if not found."""
         async def convert(self, ctx: commands.Context, argument: str) -> str:
             if not Vote.vote_exists(argument, ctx.guild):
                 raise commands.BadArgument(f"Vote \"{argument}\" not found")
@@ -21,23 +24,26 @@ class Vote(commands.Cog):
     @staticmethod
     def vote_exists(vote_name: str, guild: discord.Guild) -> bool:
         """
-        Check if a vote with this name exists
+        Check if a vote with this name exists.
 
-        :param vote_name: str | The name of the vote
-        :param guild: Guild | The guild where it happens
-        :return: True if the vote exists, else false
+        Args:
+            vote_name: The name of the vote.
+            guild: The guild where it happens.
+
+        Returns:
+            True if the vote exists, else false.
         """
         sql = "SELECT * FROM vote_table WHERE vote_name=? AND guild_id=? ;"
         response = database.fetch_one(sql, [vote_name, guild.id])
         return response is not None
 
     async def update_vote(self, ctx: commands.Context, vote_name: str, guild: discord.Guild):
-        """
-        Update the vote `vote_name`. Used to add or remove propositions from the vote
+        """Update the vote `vote_name`. Used to add or remove propositions from the vote.
 
-        :param ctx: Context | The context of the command that called the function
-        :param vote_name: str | The name of the vote
-        :param guild: Guild | The guild where it happens
+        Args:
+            ctx: The context of the command that called the function.
+            vote_name: The name of the vote.
+            guild: The guild where it happens.
         """
         sql = "SELECT vote_channel_id, vote_message_id FROM vote_table WHERE vote_name=? AND guild_id=? ;"
         response = database.fetch_one(sql, [vote_name, guild.id])
@@ -66,12 +72,14 @@ class Vote(commands.Cog):
         await message.edit(embed=new_embed)
 
     def get_proposition(self, vote_name: str, guild: discord.Guild) -> typing.Optional[typing.Dict[str, str]]:
-        """
-        Retrieve the propositions of vote `vote_name`
+        """Retrieve the propositions of vote `vote_name`.
 
-        :param vote_name: str | The name of the vote
-        :param guild: Guild | The guild where it happens
-        :return: Dict[str, str] | The propositions with the emojis as keys and the propositions as values
+        Args:
+            vote_name: The name of the vote.
+            guild: The guild where it happens.
+
+        Returns:
+            Dict[str, str]: The propositions with the emojis as keys and the propositions as values.
         """
         sql = "SELECT emoji_id, emoji_str, proposition FROM vote_proposition WHERE vote_name=? AND guild_id=? ;"
         response = database.fetch_all(sql, [vote_name, guild.id])
@@ -85,12 +93,14 @@ class Vote(commands.Cog):
         return propositions
 
     async def end_vote_by_name(self, vote_name: VoteConverter, guild: discord.Guild) -> bool:
-        """
-        Display the results of vote `vote_name` and cancel its delay in the DB
+        """Display the results of vote `vote_name` and cancel its delay in the DB.
 
-        :param vote_name: str | The name of the vote
-        :param guild: Guild | The guild where it happens
-        :return: True if the vote was ended, False if the vote wasn't found
+        Args:
+            vote_name: The name of the vote.
+            guild: The guild where it happens.
+
+        Returns:
+            True if the vote has been ended correctly, False if the vote wasn't found.
         """
         if not self.vote_exists(vote_name, guild):
             log("Vote::end_vote_by_name", f"ERROR Vote {vote_name} not found for guild {guild} ({guild.id})")
@@ -127,9 +137,7 @@ class Vote(commands.Cog):
     @utils.require(['authorized', 'cog_loaded', 'not_banned'])
     async def vote(self, ctx: commands.Context, name: str, title: str, description: str,
                    end_channel: discord.TextChannel, end_role: discord.Role):
-        """
-        Create a new vote
-        """
+        """Create a new vote."""
         # Send vote embed
         embed = discord.Embed(title=title, description=description, color=discord.Color.gold())
         embed.add_field(name=utils.get_text(ctx.guild, "vote_field_proposition_title"),
@@ -152,6 +160,7 @@ class Vote(commands.Cog):
     @commands.guild_only()
     @utils.require(['authorized', 'cog_loaded', 'not_banned'])
     async def delete_vote(self, ctx: commands.Context, vote_name: VoteConverter):
+        """Delete the vote named `vote_name`."""
         sql = "SELECT vote_channel_id, vote_message_id FROM vote_table WHERE vote_name=? AND guild_id=? ;"
         response = database.fetch_one(sql, [vote_name, ctx.guild.id])
         vote_channel_id, vote_message_id = response
@@ -170,9 +179,7 @@ class Vote(commands.Cog):
     @utils.require(['authorized', 'cog_loaded', 'not_banned'])
     async def add_proposition(self, ctx: commands.Context, vote_name: VoteConverter,
                               emoji: utils.EmojiOrUnicodeConverter, *, proposition: str):
-        """
-        Add the proposition `proposition` with emoji `emoji` to the vote
-        """
+        """Add the proposition `proposition` with emoji `emoji` to the vote."""
         emoji_id = emoji.id if isinstance(emoji, discord.Emoji) else None
         sql = "INSERT INTO vote_proposition(emoji_id, emoji_str, proposition, vote_name, guild_id) " \
               "VALUES (:emoji_id, :emoji_str, :proposition, :vote_name, :guild_id) " \
@@ -195,9 +202,7 @@ class Vote(commands.Cog):
     @utils.require(['authorized', 'cog_loaded', 'not_banned'])
     async def remove_proposition(self, ctx: commands.Context, vote_name: VoteConverter,
                                  emoji: utils.EmojiOrUnicodeConverter):
-        """
-        Remove the proposition linked to `emoji` from the vote
-        """
+        """Remove the proposition linked to `emoji` from the vote."""
         emoji_id = emoji.id if isinstance(emoji, discord.Emoji) else None
         sql = "DELETE FROM vote_proposition WHERE (emoji_id=? OR emoji_str=?) AND vote_name=? AND guild_id=? ;"
         success = database.execute_order(sql, [emoji_id, str(emoji), vote_name, ctx.guild.id])
@@ -211,9 +216,7 @@ class Vote(commands.Cog):
     @commands.guild_only()
     @utils.require(['authorized', 'cog_loaded', 'not_banned'])
     async def set_vote_end(self, ctx: commands.Context, vote_name: VoteConverter, delay: utils.DurationConverter):
-        """
-        Set the delay of the vote (exemple: `2d5h`)
-        """
+        """Set the delay of the vote."""
         # noinspection PyTypeChecker
         vote_end = int(datetime.datetime.utcnow().timestamp()) + delay
         sql = "UPDATE vote_table SET ends_at=? WHERE vote_name=? AND guild_id=? ;"
@@ -227,9 +230,7 @@ class Vote(commands.Cog):
     @commands.guild_only()
     @utils.require(['authorized', 'cog_loaded', 'not_banned'])
     async def set_vote_channel(self, ctx: commands.Context, vote_name: VoteConverter, channel: discord.TextChannel):
-        """
-        Set the channel in which the results will be displayed
-        """
+        """Set the channel in which the results will be displayed."""
         sql = "UPDATE vote_table SET end_channel_id=? WHERE vote_name=? AND guild_id=? ;"
         success = database.execute_order(sql, [channel.id, vote_name, ctx.guild.id])
         if success is True:
@@ -241,9 +242,7 @@ class Vote(commands.Cog):
     @commands.guild_only()
     @utils.require(['authorized', 'cog_loaded', 'not_banned'])
     async def set_vote_role(self, ctx: commands.Context, vote_name: VoteConverter, role: discord.Role):
-        """
-        Set the role that will be mentioned when the vote ends
-        """
+        """Set the role that will be mentioned when the vote ends."""
         sql = "UPDATE vote_table SET end_role_id=? WHERE vote_name=? AND guild_id=? ;"
         success = database.execute_order(sql, [role.id, vote_name, ctx.guild.id])
         if success is True:
@@ -255,9 +254,7 @@ class Vote(commands.Cog):
     @commands.guild_only()
     @utils.require(['authorized', 'cog_loaded', 'not_banned'])
     async def end_vote(self, ctx: commands.Context, vote_name: VoteConverter):
-        """
-        Immediatly end vote and display results
-        """
+        """Immediatly end vote and display results."""
         if not await self.end_vote_by_name(vote_name, ctx.guild):
             await ctx.send(utils.get_text(ctx.guild, "vote_not_found").format(vote_name))
             return
@@ -267,9 +264,7 @@ class Vote(commands.Cog):
     @commands.guild_only()
     @utils.require(['authorized', 'cog_loaded', 'not_banned'])
     async def reset_vote(self, ctx: commands.Context, vote_name: VoteConverter):
-        """
-        Reset the vote counts
-        """
+        """Reset the vote counts."""
         sql = "SELECT vote_channel_id, vote_message_id FROM vote_table WHERE vote_name=? AND guild_id=? ;"
         response = database.fetch_one(sql, [vote_name, ctx.guild.id])
         if response is None:
@@ -284,6 +279,7 @@ class Vote(commands.Cog):
     @commands.guild_only()
     @utils.require(['authorized', 'cog_loaded', 'not_banned'])
     async def info(self, ctx: commands.Context):
+        """Display information about the current votes."""
         sql = "SELECT vote_name, end_role_id, end_channel_id, ends_at FROM vote_table WHERE guild_id=? ;"
         response = database.fetch_all(sql, [ctx.guild.id])
         if response is None:
@@ -309,9 +305,7 @@ class Vote(commands.Cog):
     @commands.guild_only()
     @utils.require(['authorized', 'cog_loaded', 'not_banned'])
     async def help(self, ctx: commands.Context):
-        """
-        Display the help for the `rules` cog
-        """
+        """Display the help for the `rules` cog."""
         embed = discord.Embed(title=utils.get_text(ctx.guild, "vote_cog_name"),
                               description=utils.get_text(ctx.guild, "vote_help_description"))
         embed.set_author(name=ctx.guild.name, icon_url=ctx.guild.icon_url)
@@ -326,9 +320,7 @@ class Vote(commands.Cog):
 
     @commands.Cog.listener()
     async def on_raw_reaction_add(self, payload: discord.RawReactionActionEvent):
-        """
-        Stop anyone from adding reactions that are not propositions on a vote message
-        """
+        """Stop anyone from adding reactions that are not propositions on a vote message."""
         if not payload.guild_id:
             return
         guild = self.bot.get_guild(payload.guild_id)
@@ -347,9 +339,7 @@ class Vote(commands.Cog):
 
     @tasks.loop(minutes=1.0)
     async def end_vote_loop(self):
-        """
-        Check if a vote end is reached and print the results
-        """
+        """Check if a vote end is reached and print the results."""
         now = int(datetime.datetime.utcnow().timestamp())
         for guild in self.bot.guilds:
             if not utils.is_loaded(self.qualified_name.lower(), guild, self.bot):
@@ -363,10 +353,7 @@ class Vote(commands.Cog):
                     log("Vote::vote_loop", f"Could not end vote {response[0]} in guild {guild} ({guild.id})")
 
     def cog_unload(self):
-        """
-        Called when the cog is unloaded.
-        Stop the `end_vote_loop` task
-        """
+        """Called when the cog is unloaded. Stop the `end_vote_loop` task."""
         self.end_vote_loop.cancel()
 
 

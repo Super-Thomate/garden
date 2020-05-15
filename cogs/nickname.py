@@ -1,9 +1,11 @@
-import discord
-from discord.ext import commands, tasks
-from Utilitary.logger import log
-from Utilitary import utils, database
 import datetime
 import typing
+
+import discord
+from discord.ext import commands, tasks
+
+from Utilitary import utils, database
+from Utilitary.logger import log
 
 
 class Nickname(commands.Cog):
@@ -13,12 +15,15 @@ class Nickname(commands.Cog):
 
     @staticmethod
     async def rename_member(member: discord.Member, new_nickname: str, hard_rename: bool = False) -> bool:
-        """Rename the member `member`. if `hard_rename` is True, add the renaming in the DB
+        """Rename the member `member`. if `hard_rename` is True, add the renaming in the DB.
 
-        :param member: Member | The member to rename
-        :param new_nickname: str | The member's new nickname
-        :param hard_rename: bool | Wether or not the renaming shall be added to the DB
-        :return: bool | True if the SQL query was successful, else False
+        Args:
+            member: The member to rename.
+            new_nickname: The member's new nickname.
+            hard_rename: Wether or not the renaming shall be added to the DB.
+
+        Returns:
+            True if the SQL query was successful, else False.
         """
         await member.edit(nick=new_nickname)
         if hard_rename is True:
@@ -36,11 +41,15 @@ class Nickname(commands.Cog):
 
     @staticmethod
     def member_can_change_nickname(member: discord.Member) -> typing.Tuple[bool, typing.Optional[str]]:
-        """Check if the member can change their nickname
+        """Check if the member can change their nickname.
 
-        :param member: Member | The member to be checked
-        :return: Tuple[bool, str] | (True, None) if the member can change nickname, (False, delay) if they can't.
-        `delay` is a string showing time left before the member can change nickname again
+        If the member cannot, returns a string (`delay`) showing time left before the member can change nickname again.
+
+        Args:
+            member: The member to be checked.
+
+        Returns:
+            Tuple[bool, str]: (True, None) if the member can change nickname, (False, `delay`) if they can't.
         """
         sql = "SELECT nickname_delay FROM nickname_table WHERE guild_id=? ;"
         response = database.fetch_one(sql, [member.guild.id])
@@ -60,7 +69,7 @@ class Nickname(commands.Cog):
     @commands.guild_only()
     @utils.require(['not_banned', 'cog_loaded'])
     async def nickname(self, ctx: commands.Context, *, nickname: str = None):
-        """Change the member's nickname"""
+        """Change the member's nickname."""
         if nickname is None:
             await ctx.send(utils.get_text(ctx.guild, "nickname_empty"))
             await ctx.message.add_reaction('❌')
@@ -88,7 +97,7 @@ class Nickname(commands.Cog):
     @commands.guild_only()
     @utils.require(['authorized', 'not_banned', 'cog_loaded'])
     async def reset_nickname(self, ctx: commands.Context, member: discord.Member = None):
-        """Reset the nickname delay for the member"""
+        """Reset the nickname delay for the member."""
         if member is None:
             member = ctx.author
         sql = "UPDATE nickname_user SET last_change=? WHERE member_id=? AND guild_id=? ;"
@@ -102,7 +111,7 @@ class Nickname(commands.Cog):
     @commands.guild_only()
     @utils.require(['authorized', 'not_banned', 'cog_loaded'])
     async def set_delay(self, ctx: commands.Context, delay: utils.DurationConverter):
-        """Set the delay before a member can change nickname again"""
+        """Set the delay before a member can change nickname again."""
         sql = "INSERT INTO nickname_table(nickname_delay, guild_id) VALUES (:delay, :guild_id) " \
               "ON CONFLICT(guild_id) DO " \
               "UPDATE SET nickname_delay=:delay WHERE guild_id=:guild_id ;"
@@ -117,7 +126,7 @@ class Nickname(commands.Cog):
     @commands.guild_only()
     @utils.require(['authorized', 'cog_loaded', 'not_banned'])
     async def check_nickname(self, ctx: commands.Context, member: discord.Member = None):
-        """Display the member's nickname if they have one"""
+        """Display the member's nickname if they have one."""
         if member is None:
             member = ctx.author
         if member.nick:
@@ -129,7 +138,7 @@ class Nickname(commands.Cog):
     @commands.guild_only()
     @utils.require(['authorized', 'cog_loaded', 'not_banned'])
     async def set_warn_nickname(self, ctx: commands.Context, *, warn_nick: str):
-        """Set the 'troll' nickames"""
+        """Set the 'troll' nickames."""
         sql = "INSERT INTO nickname_table(warning_nickname, guild_id) VALUES (:warn_nick, :guild_id) " \
               "ON CONFLICT(guild_id) DO " \
               "UPDATE SET warning_nickname=:warn_nick WHERE guild_id=:guild_id ;"
@@ -144,7 +153,7 @@ class Nickname(commands.Cog):
     @commands.guild_only()
     @utils.require(['authorized', 'not_banned', 'cog_loaded'])
     async def info(self, ctx: commands.Context):
-        """Display the delay and the 'troll' nicknames"""
+        """Display the delay and the 'troll' nicknames."""
         sql = "SELECT nickname_delay, warning_nickname FROM nickname_table WHERE guild_id=? ;"
         response = database.fetch_one(sql, [ctx.guild.id])
         not_set = utils.get_text(ctx.guild, "misc_not_set")
@@ -159,7 +168,7 @@ class Nickname(commands.Cog):
     @commands.guild_only()
     @utils.require(['authorized', 'not_banned', 'cog_loaded'])
     async def help(self, ctx: commands.Context):
-        """Display the help for the `nickname` cog"""
+        """Display the help for the `nickname` cog."""
         embed = discord.Embed(title=utils.get_text(ctx.guild, "nickname_cog_name"),
                               description=utils.get_text(ctx.guild, "nickname_help_description").format(ctx.prefix))
         embed.set_author(name=ctx.guild.name, icon_url=ctx.guild.icon_url)
@@ -176,7 +185,7 @@ class Nickname(commands.Cog):
     @commands.guild_only()
     @utils.require(['not_banned', 'cog_loaded'])
     async def next(self, ctx: commands.Context):
-        """Display how much time is left before the member can change nickname again"""
+        """Display how much time is left before the member can change nickname again."""
         member_can_change, until = self.member_can_change_nickname(ctx.author)
         if member_can_change:
             sql = "INSERT INTO nickname_warning(member_id, warn_at, warned, guild_id) " \
@@ -193,7 +202,7 @@ class Nickname(commands.Cog):
 
     @commands.Cog.listener()
     async def on_member_join(self, member: discord.Member):
-        """If a member quit and re-join the guild, re-apply their old nickname"""
+        """If a member quit and re-join the guild, re-apply their old nickname."""
         sql = "SELECT nickname FROM nickname_user WHERE member_id=? AND guild_id=? ;"
         response = database.fetch_one(sql, [member.id, member.guild.id])
         if response is None:
@@ -205,8 +214,9 @@ class Nickname(commands.Cog):
 
     @tasks.loop(minutes=1.0)
     async def check_next(self):
-        """Every minute, check if a member is warned about using abusively the `next` command.
-        If the member has already been warned, hard rename them (can't rename during `delay`) else soft rename them
+        """Every minute, check if a member has to warned about for abusively the `next` command.
+
+        By default, soft-rename the member. If they've already been warned hard rename them.
         """
         now = int(datetime.datetime.utcnow().timestamp())
         for guild in self.bot.guilds:
@@ -245,9 +255,7 @@ class Nickname(commands.Cog):
                                              "guild_id": guild.id})
 
     def cog_unload(self):
-        """Called when the cog is unloaded.
-        Stop the `check_next` task
-        """
+        """Called when the cog is unloaded. Stop the `check_next` task"""
         self.check_next.cancel()
 
 

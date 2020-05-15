@@ -1,10 +1,12 @@
+import asyncio
+import datetime
+import typing
+
 import discord
 from discord.ext import commands, tasks
-import datetime
-from Utilitary.logger import log
+
 from Utilitary import database, utils
-import asyncio
-import typing
+from Utilitary.logger import log
 
 
 class Birthday(commands.Cog):
@@ -14,11 +16,15 @@ class Birthday(commands.Cog):
 
     @staticmethod
     def validate_date(date: str) -> typing.Optional[str]:
-        """
-        Check if `date` is a valid date in the format `day/month`
+        """Check if `date` is a valid date in the format `day/month`
 
-        :param date: str | The date to check
-        :return: Optional[str] | The date in 2-digits format or None if the date is invalid
+        Accepts the format day/month with 1 or 2 digits day and month.
+
+        Args:
+            date: The date to check.
+
+        Returns:
+            Optional[str]: The same date formated with 2 digits day and month or None if the date is invalid.
         """
         if date in ('29/02', '29/2'):
             return "29/02"
@@ -32,9 +38,7 @@ class Birthday(commands.Cog):
     @commands.guild_only()
     @utils.require(['cog_loaded', 'not_banned'])
     async def birthday(self, ctx: commands.Context):
-        """
-        Register a member's birthday in the database. Allow `d/m` format only
-        """
+        """Register a member's birthday in the database. Allow `d/m` format only."""
         if ctx.subcommand_passed is not None and utils.is_authorized(ctx.author):
             await ctx.send(utils.get_text(ctx.guild, "birthday_subcommands").format(ctx.prefix))
             return
@@ -78,9 +82,7 @@ class Birthday(commands.Cog):
     @commands.guild_only()
     @utils.require(['authorized', 'cog_loaded', 'not_banned'])
     async def set_birthday_channel(self, ctx: commands.Context, channel: discord.TextChannel):
-        """
-        Set the channel where the birthdays are displayed
-        """
+        """Set the channel where the birthdays are displayed."""
         sql = "INSERT INTO birthday_config(bd_channel_id, guild_id) VALUES (:bd_channel_id, :guild_id) " \
               "ON CONFLICT(guild_id) DO UPDATE SET bd_channel_id=:bd_channel_id WHERE guild_id=:guild_id ;"
         success = database.execute_order(sql, {"bd_channel_id": channel.id, "guild_id": ctx.guild.id})
@@ -94,9 +96,7 @@ class Birthday(commands.Cog):
     @commands.guild_only()
     @utils.require(['authorized', 'cog_loaded', 'not_banned'])
     async def set_birthday_message(self, ctx: commands.Context, *, message: str):
-        """
-        Set the birthday message
-        """
+        """Set the birthday message."""
         sql = "INSERT INTO birthday_config(message, guild_id) VALUES (:message, :guild_id) " \
               "ON CONFLICT(guild_id) DO UPDATE SET message=:message WHERE guild_id=:guild_id ;"
         success = database.execute_order(sql, {"message": message, "guild_id": ctx.guild.id})
@@ -110,9 +110,7 @@ class Birthday(commands.Cog):
     @commands.guild_only()
     @utils.require(['authorized', 'cog_loaded', 'not_banned'])
     async def set_birthday_timing(self, ctx: commands.Context, timing: int):
-        """
-        Set the birthday timing
-        """
+        """Set the birthday timing."""
         if not 0 <= timing <= 23:
             await ctx.message.add_reaction('❌')
             return
@@ -129,9 +127,7 @@ class Birthday(commands.Cog):
     @commands.guild_only()
     @utils.require(['authorized', 'cog_loaded', 'not_banned'])
     async def reset_birthday(self, ctx: commands.Context, member: discord.Member = None):
-        """
-        Delete a member's birthday from database
-        """
+        """Delete a member's birthday from database."""
         if member is None:
             member = ctx.author
         sql = "DELETE FROM birthday_user WHERE member_id=? AND guild_id=? ;"
@@ -146,9 +142,7 @@ class Birthday(commands.Cog):
     @commands.guild_only()
     @utils.require(['authorized', 'cog_loaded', 'not_banned'])
     async def info(self, ctx: commands.Context):
-        """
-        Display the birthday cog configuration
-        """
+        """Display the birthday cog configuration."""
         sql = "SELECT bd_channel_id, message, timing FROM birthday_config WHERE guild_id=? ;"
         response = database.fetch_one(sql, [ctx.guild.id])
         not_set = utils.get_text(ctx.guild, "misc_not_set")
@@ -168,9 +162,7 @@ class Birthday(commands.Cog):
     @commands.guild_only()
     @utils.require(['authorized', 'cog_loaded', 'not_banned'])
     async def help(self, ctx: commands.Context):
-        """
-        Display the help for the `birthday` cog
-        """
+        """Display the help for the `birthday` cog."""
         embed = discord.Embed(title=utils.get_text(ctx.guild, "birthday_cog_name"),
                               description=utils.get_text(ctx.guild, "birthday_help_description").format(ctx.prefix))
         embed.set_author(name=ctx.guild.name, icon_url=ctx.guild.icon_url)
@@ -185,9 +177,7 @@ class Birthday(commands.Cog):
 
     @tasks.loop(minutes=1.0)
     async def print_birthday_loop(self):
-        """
-        Every minute. Check the timing is right to print birthdays and do so
-        """
+        """Every minute. Check the timing is right to print birthdays and do so."""
         now = datetime.datetime.utcnow()
         date = now.strftime("%d/%m")
         for guild in self.bot.guilds:
@@ -228,9 +218,7 @@ class Birthday(commands.Cog):
                         f"ERROR trying to update birthday year for member {member} in guild {guild} ({guild.id})")
 
     def cog_unload(self):
-        """Called when the cog is unloaded.
-        Stop the `print_birthday_loop` task
-        """
+        """Called when the cog is unloaded. Stop the `print_birthday_loop` task."""
         self.print_birthday_loop.cancel()
 
 

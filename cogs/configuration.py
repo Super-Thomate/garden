@@ -1,5 +1,6 @@
 import discord
 from discord.ext import commands
+
 from Utilitary import database, utils
 from Utilitary.logger import log
 
@@ -14,18 +15,14 @@ class Configuration(commands.Cog):
     @commands.guild_only()
     @utils.require(['authorized', 'not_banned'])
     async def configuration(self, ctx: commands.Context):
-        """
-        Display the availables sub-commands for the cog
-        """
+        """Display the availables sub-commands for the cog."""
         await ctx.send(utils.get_text(ctx.guild, "configuration_subcommands").format(ctx.prefix))
 
     @configuration.command(name='addrolemodo', aliases=['arm'])
     @commands.guild_only()
     @utils.require(['authorized', 'not_banned'])
     async def add_role_modo(self, ctx: commands.Context, role: discord.Role):
-        """
-        Add `role` to moderator roles' list
-        """
+        """Add `role` to moderator roles' list."""
         sql = "INSERT INTO config_role(role_id, permission, guild_id) VALUES (?, ?, ?) ;"
         success = database.execute_order(sql, [role.id, 1, ctx.guild.id])
         if success:
@@ -38,9 +35,7 @@ class Configuration(commands.Cog):
     @commands.guild_only()
     @utils.require(['authorized', 'not_banned'])
     async def remove_role_modo(self, ctx: commands.Context, role: discord.Role):
-        """
-        Remove `role` from the modererator roles' list
-        """
+        """Remove `role` from the modererator roles' list."""
         sql = "DELETE FROM config_role WHERE role_id=? AND guild_id=? ;"
         success = database.execute_order(sql, [role.id, ctx.guild.id])
         if success:
@@ -53,9 +48,7 @@ class Configuration(commands.Cog):
     @commands.guild_only()
     @utils.require(['authorized', 'not_banned'])
     async def add_prefix(self, ctx: commands.Context, prefix: str):
-        """
-        Add `prefix` to the guild prefixes
-        """
+        """Add `prefix` to the guild prefixes."""
         sql = "INSERT INTO config_prefix(prefix, guild_id) VALUES (?, ?) ;"
         success = database.execute_order(sql, [prefix, ctx.guild.id])
         if success:
@@ -68,9 +61,7 @@ class Configuration(commands.Cog):
     @commands.guild_only()
     @utils.require(['authorized', 'not_banned'])
     async def remove_prefix(self, ctx: commands.Context, prefix: str):
-        """
-        Remove `prefix` from the guild's prefixes
-        """
+        """Remove `prefix` from the guild's prefixes."""
         sql = "DELETE FROM config_prefix WHERE prefix=? AND guild_id=? ;"
         success = database.execute_order(sql, [prefix, ctx.guild.id])
         if success:
@@ -83,9 +74,7 @@ class Configuration(commands.Cog):
     @commands.guild_only()
     @utils.require(['authorized', 'not_banned'])
     async def set_language(self, ctx: commands.Context, language_code: str):
-        """
-        Set the guild's language. `language_code` must be in the AVAILABLE_LANGUAGES class attribute
-        """
+        """Set the guild's language. `language_code` must be in the AVAILABLE_LANGUAGES class attribute."""
         language_code = language_code.lower()
         if language_code not in self.AVAILABLE_LANGUAGES:
             await ctx.send(utils.get_text(ctx.guild, "configuration_language_unavailable")
@@ -105,9 +94,7 @@ class Configuration(commands.Cog):
     @commands.guild_only()
     @utils.require(['authorized', 'not_banned'])
     async def display_info(self, ctx: commands.Context):
-        """
-        Display informations about the guild's configuration
-        """
+        """Display informations about the guild's configuration."""
         embed = discord.Embed(title=utils.get_text(ctx.guild, "configuration_cog_name"))
         embed.set_author(name=ctx.guild.name, icon_url=ctx.guild.icon_url)
         embed.set_footer(text=self.bot.user.name, icon_url=self.bot.user.avatar_url)
@@ -137,9 +124,7 @@ class Configuration(commands.Cog):
     @commands.guild_only()
     @utils.require(['not_banned'])
     async def help(self, ctx: commands.Context):
-        """
-        Displays help fot the cog
-        """
+        """Displays help fot the cog."""
         embed = discord.Embed(title=utils.get_text(ctx.guild, "configuration_cog_name"),
                               description=utils.get_text(ctx.guild, "configuration_help_description"))
         embed.set_author(name=ctx.guild.name, icon_url=ctx.guild.icon_url)

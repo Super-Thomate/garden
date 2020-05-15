@@ -1,10 +1,12 @@
-import discord
-from discord.ext import commands
-from Utilitary import database, utils
-from Utilitary.logger import log
-from dotenv import load_dotenv
 import os
 import typing
+
+import discord
+from discord.ext import commands
+from dotenv import load_dotenv
+
+from Utilitary import database, utils
+from Utilitary.logger import log
 
 
 def get_prefix(current_bot: commands.Bot, message: discord.Message) -> typing.List[str]:

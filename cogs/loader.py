@@ -1,5 +1,6 @@
 import discord
 from discord.ext import commands
+
 from Utilitary import database, utils
 from Utilitary.logger import log
 
@@ -14,18 +15,14 @@ class Loader(commands.Cog):
     @commands.guild_only()
     @utils.require(['authorized', 'not_banned'])
     async def loader(self, ctx: commands.Context):
-        """
-        Display the availables sub-commands for the cog
-        """
+        """Display the availables sub-commands for the cog."""
         await ctx.send(utils.get_text(ctx.guild, "loader_subcommands").format(ctx.prefix))
 
     @loader.command(name='cogload')
     @commands.guild_only()
     @utils.require(['developer'])
     async def load_cog_bot(self, ctx: commands.Context, *, cog: str):
-        """
-        Load the cog `cog` for the bot. Need developer privileges
-        """
+        """Load the cog `cog` for the bot. Need developer privileges."""
         cog = cog.lower()
         try:
             self.bot.load_extension(f'NEW_cogs.{cog}')
@@ -39,9 +36,7 @@ class Loader(commands.Cog):
     @commands.guild_only()
     @utils.require(['developer'])
     async def unload_cog_bot(self, ctx: commands.Context, *, cog: str):
-        """
-        Reload the cog `cog` for the bot. Need developer privileges
-        """
+        """Reload the cog `cog` for the bot. Need developer privileges."""
         cog = cog.lower()
         try:
             self.bot.unload_extension(f'NEW_cogs.{cog}')
@@ -55,9 +50,7 @@ class Loader(commands.Cog):
     @commands.guild_only()
     @utils.require(['developer'])
     async def reload_cog_bot(self, ctx: commands.Context, *, cog: str):
-        """
-        Reload the cog `cog` for the bot. Need developer privileges
-        """
+        """Reload the cog `cog` for the bot. Need developer privileges."""
         cog = cog.lower()
         try:
             self.bot.reload_extension(f'NEW_cogs.{cog}')
@@ -71,9 +64,7 @@ class Loader(commands.Cog):
     @commands.guild_only()
     @utils.require(['developer'])
     async def list_cog_bot(self, ctx: commands.Context):
-        """
-        List the cogs loaded for the bot. Need developer privileges
-        """
+        """List the cogs loaded for the bot. Need developer privileges."""
         cog_list = ""
         for cog in self.bot.cogs.keys():
             cog_list += f"- **{cog}**\n"
@@ -83,9 +74,7 @@ class Loader(commands.Cog):
     @commands.guild_only()
     @utils.require(['developer'])
     async def reload_locale(self, ctx: commands.Context):
-        """
-        Reload the dictionnary containing the bot locale's
-        """
+        """Reload the dictionnary containing the bot locale's."""
         utils.init_strings(self.bot)
         await ctx.message.add_reaction('✅')
 
@@ -93,9 +82,7 @@ class Loader(commands.Cog):
     @commands.guild_only()
     @utils.require(['authorized', 'not_banned'])
     async def load_cog_guild(self, ctx: commands.Context, *, cog: str):
-        """
-        Load the cog `cog` for the guild
-        """
+        """Load the cog `cog` for the guild."""
         cog = cog.lower()
         if cog in self.DEFAULT_COGS:
             await ctx.send(utils.get_text(ctx.guild, "loader_cannot_load_cog").format(cog))
@@ -118,9 +105,7 @@ class Loader(commands.Cog):
     @commands.guild_only()
     @utils.require(['authorized', 'not_banned'])
     async def unload_cog_guild(self, ctx: commands.Context, *, cog: str):
-        """
-        Unload the cog `cog` for the guild
-        """
+        """Unload the cog `cog` for the guild."""
         cog = cog.lower()
         if cog in self.DEFAULT_COGS:
             await ctx.send(utils.get_text(ctx.guild, "loader_cannot_load_cog").format(cog))
@@ -143,9 +128,7 @@ class Loader(commands.Cog):
     @commands.guild_only()
     @utils.require(['authorized', 'not_banned'])
     async def unload_all_cog_guild(self, ctx: commands.Context):
-        """
-        Unload all cogs in the guild
-        """
+        """Unload all cogs in the guild."""
         sql = "UPDATE config_cog SET status=0 WHERE guild_id=? ;"
         success = database.execute_order(sql, [ctx.guild.id])
         if success:
@@ -158,9 +141,7 @@ class Loader(commands.Cog):
     @commands.guild_only()
     @utils.require(['authorized', 'not_banned'])
     async def list_cog_guild(self, ctx: commands.Context):
-        """
-        List all loaded cog in the guild
-        """
+        """List all loaded cog in the guild."""
         loaded_cog = ""
         for cog in self.DEFAULT_COGS:
             loaded_cog += f"- **{cog.capitalize()}** (default)\n"
@@ -175,9 +156,7 @@ class Loader(commands.Cog):
     @commands.guild_only()
     @utils.require(['authorized', 'not_banned'])
     async def help(self, ctx: commands.Context):
-        """
-        Displays help fot the cog
-        """
+        """Displays help fot the cog."""
         embed = discord.Embed(title=utils.get_text(ctx.guild, "loader_cog_name"),
                               description=utils.get_text(ctx.guild, "loader_help_description"))
         embed.set_author(name=ctx.guild.name, icon_url=ctx.guild.icon_url)

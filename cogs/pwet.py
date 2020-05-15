@@ -1,8 +1,9 @@
+import re
+
 import discord
 from discord.ext import commands
+
 from Utilitary import database, utils
-import re
-import typing
 
 
 class Pwet(commands.Cog):
@@ -11,8 +12,16 @@ class Pwet(commands.Cog):
 
     @staticmethod
     def create_pwet(string: str, guild: discord.Guild) -> str:
-        """
-        Replace every word in `string` by 'pwet'. Preserve emojis
+        """Replace every word in `string` by 'pwet'.
+
+        The function preserves discord emojis and unicode emojis.
+
+        Args:
+            string: the string to be pweted.
+            guild: the guild where the command was called.
+
+        Returns:
+            The pweted string.
         """
         words = re.split(r"(<:\w+:\d+>|.\uFE0F\u20E3)", string)  # Separate server emojis and special emojis like :one:
         result = []
@@ -36,6 +45,7 @@ class Pwet(commands.Cog):
     @commands.guild_only()
     @utils.require(['authorized', 'cog_loaded', 'not_banned'])
     async def pwet(self, ctx: commands.Context, *, message: str):
+        """Send a pweted version of `message` and delete the message that called the command."""
         await ctx.message.delete()
         pwet_message = self.create_pwet(message, ctx.guild)
         await ctx.send(pwet_message)
@@ -44,6 +54,7 @@ class Pwet(commands.Cog):
     @commands.guild_only()
     @utils.require(['authorized', 'cog_loaded', 'not_banned'])
     async def set_emoji(self, ctx: commands.Context, emoji: utils.EmojiOrUnicodeConverter):
+        """Set the emoji that will trigger a pweting og the reacted message."""
         emoji_id = emoji.id if isinstance(emoji, discord.Emoji) else None
         sql = "INSERT INTO pwet_table(emoji_id, emoji_str, guild_id) " \
               "VALUES (:emoji_id, :emoji_str, :guild_id) " \
@@ -61,6 +72,7 @@ class Pwet(commands.Cog):
     @commands.guild_only()
     @utils.require(['authorized', 'cog_loaded', 'not_banned'])
     async def info(self, ctx: commands.Context):
+        """Show informations about the cog. Here, the emoji that pwets a message"""
         sql = "SELECT emoji_id, emoji_str FROM pwet_table WHERE guild_id=? ;"
         response = database.fetch_one(sql, [ctx.guild.id])
         if response is not None:
@@ -74,6 +86,7 @@ class Pwet(commands.Cog):
     @commands.guild_only()
     @utils.require(['authorized', 'cog_loaded', 'not_banned'])
     async def help(self, ctx: commands.Context):
+        """Display the help for the cog."""
         embed = discord.Embed(title=utils.get_text(ctx.guild, "pwet_cog_name"),
                               description=utils.get_text(ctx.guild, "pwet_help_description").format(ctx.prefix))
         embed.set_author(name=ctx.guild.name, icon_url=ctx.guild.icon_url)
@@ -85,6 +98,11 @@ class Pwet(commands.Cog):
 
     @commands.Cog.listener()
     async def on_raw_reaction_add(self, payload: discord.RawReactionActionEvent):
+        """Called whenever a reaction is added to a message.
+
+        Check if the author of the reaction is a moderator and that they reacted with the `pwet` emoji.
+        If so, pwets the message.
+        """
         if not payload.guild_id:
             return
         guild = self.bot.get_guild(payload.guild_id)

@@ -1,10 +1,12 @@
 import asyncio
+import datetime
 import typing
+
 import discord
 from discord.ext import commands
+
 from Utilitary import utils, database
 from Utilitary.logger import log
-import datetime
 
 
 class Turing(commands.Cog):
@@ -14,8 +16,16 @@ class Turing(commands.Cog):
     @staticmethod
     async def send_logging_embed(title: str, description: str, message: discord.Message,
                                  guild: discord.Guild, author: discord.Member):
-        """
-        Send a logging embed in turing's logging channel
+        """Send a log embed in turing's logging channel.
+
+        The log embed can differ title and description according to what need to be logged.
+
+        Args:
+            title: The title of the embed.
+            description: The description of the embed.
+            message: The message that has to be logged.
+            guild: The guild where it happens.
+            author: The moderator who initiated the action that is logged.
         """
         embed = discord.Embed(title=title, description=description)
         embed.set_author(name=author.name, icon_url=author.avatar_url)
@@ -39,9 +49,7 @@ class Turing(commands.Cog):
     @commands.guild_only()
     @utils.require(['authorized', 'cog_loaded', 'not_banned'])
     async def turing_speak(self, ctx: commands.Context, channel: discord.TextChannel, *, message: str):
-        """
-        Send the message `message` in channel `channel`
-        """
+        """Send the message `message` in channel `channel`."""
         sent_message = await channel.send(message)
         await ctx.message.delete()
         log_title = utils.get_text(ctx.guild, "turing_talk_log_title").format(channel.name)
@@ -51,9 +59,9 @@ class Turing(commands.Cog):
     @commands.guild_only()
     @utils.require(['developer', 'cog_loaded'])
     async def turing_reply(self, ctx: commands.Context, user: discord.User, *, message: str):
-        """
-        Answer to user `user` DMs by sending the message `messsage`
-        For now, this command is developer-only because of unwanted side effects
+        """Answer to user `user` DMs by sending the message `messsage`.
+
+        For now, this command is developer-only because of unwanted side effects.
         """
         sent_message = await user.send(message)
         await ctx.message.delete()
@@ -64,9 +72,9 @@ class Turing(commands.Cog):
     @commands.guild_only()
     @utils.require(['authorized', 'cog_loaded', 'not_banned'])
     async def turing_edit_message(self, ctx: commands.Context, message: discord.Message):
-        """
-        Edit the message `message`, ask the member for the new message content.
-        `message` must be from the bot
+        """Edit the message `message`, ask the member for the new message content.
+
+        `message` must be a message sent by the bot.
         """
         ask_message = await ctx.send(utils.get_text(ctx.guild, "turing_old_message_content").format(message.content))
         old_message_content = message.content
@@ -92,9 +100,7 @@ class Turing(commands.Cog):
     @commands.guild_only()
     @utils.require(['authorized', 'cog_loaded', 'not_banned'])
     async def turing_delete_message(self, ctx: commands.Context, message: discord.Message):
-        """
-        Delete the message `message`
-        """
+        """Delete the message `message`."""
         await message.delete()
         await ctx.message.delete()
         log_title = utils.get_text(ctx.guild, "turing_delete_log_title") \
@@ -106,9 +112,7 @@ class Turing(commands.Cog):
     @utils.require(['authorized', 'cog_loaded', 'not_banned'])
     async def turing_react(self, ctx: commands.Context, message: discord.Message,
                            emoji: typing.Union[discord.Emoji, str]):
-        """
-        Add the emoji `emoji` to the message `message` as reaction
-        """
+        """Make the bot react to `message` with `emoji`."""
         await message.add_reaction(emoji)
         await ctx.message.delete()
         log_title = utils.get_text(ctx.guild, "turing_react_log_title").format(str(emoji))
@@ -119,9 +123,7 @@ class Turing(commands.Cog):
     @utils.require(['authorized', 'cog_loaded', 'not_banned'])
     async def turing_unreact(self, ctx: commands.Context, message: discord.Message,
                              emoji: typing.Union[discord.Emoji, str]):
-        """
-        Remove the bot's `emoji` reaction to the message `message`
-        """
+        """Remove the bot's `emoji` reaction to the message `message`."""
         await message.remove_reaction(emoji, self.bot.user)
         await ctx.message.add_reaction('✅')
         await ctx.message.delete(delay=2.0)
@@ -130,9 +132,7 @@ class Turing(commands.Cog):
     @commands.guild_only()
     @utils.require(['authorized', 'cog_loaded', 'not_banned'])
     async def turing_lion_mute(self, ctx: commands.Context):
-        """
-        Send a message in the current channel faking that Liøn has been muted
-        """
+        """Send a message in the current channel faking that Liøn has been muted."""
         await ctx.send(utils.get_text(ctx.guild, "turing_lion_muted"))
         await ctx.message.add_reaction('✅')
 
@@ -140,9 +140,7 @@ class Turing(commands.Cog):
     @commands.guild_only()
     @utils.require(['authorized', 'cog_loaded', 'not_banned'])
     async def turing_lion_start(self, ctx: commands.Context):
-        """
-        Send a message in the current channel faking that Liøn resumed replying to users
-        """
+        """Send a message in the current channel faking that Liøn resumed talking."""
         await ctx.send(utils.get_text(ctx.guild, "turing_lion_started"))
         await ctx.message.add_reaction('✅')
 
@@ -150,9 +148,7 @@ class Turing(commands.Cog):
     @commands.guild_only()
     @utils.require(['authorized', 'cog_loaded', 'not_banned'])
     async def turing_set_humor(self, ctx: commands.Context, amount: int):
-        """
-        Send a message faking that Liøn humor has been set to `amount` percent
-        """
+        """Send a message faking that Liøn humor has been set to `amount` percent."""
         await ctx.send(utils.get_text(ctx.guild, "turing_set_humor").format(amount))
         await ctx.message.add_reaction('✅')
 
@@ -160,12 +156,14 @@ class Turing(commands.Cog):
     @commands.guild_only()
     @utils.require(['authorized', 'cog_loaded', 'not_banned'])
     async def turing(self, ctx: commands.Context):
+        """Print the subcommands for the cog."""
         await ctx.send(utils.get_text(ctx.guild, "turing_subcommands"))
 
     @turing.command(name='setlogchannel', aliases=['sc'])
     @commands.guild_only()
     @utils.require(['authorized', 'cog_loaded', 'not_banned'])
     async def set_log_channel(self, ctx: commands.Context, channel: discord.TextChannel):
+        """Set the channel where actions will be logged for this cog."""
         sql = "INSERT INTO turing_config(log_channel_id, guild_id) VALUES (:channel_id, :guild_id) " \
               "ON CONFLICT(guild_id) DO " \
               "UPDATE SET log_channel_id=:channel_id WHERE guild_id=:guild_id ;"
@@ -179,6 +177,7 @@ class Turing(commands.Cog):
     @commands.guild_only()
     @utils.require(['authorized', 'cog_loaded', 'not_banned'])
     async def help(self, ctx: commands.Context):
+        """Display the help for the cog."""
         embed = discord.Embed(title=utils.get_text(ctx.guild, "turing_cog_name"),
                               description=utils.get_text(ctx.guild, "turing_help_description").format(ctx.prefix))
         embed.set_author(name=ctx.guild.name, icon_url=ctx.guild.icon_url)
@@ -193,6 +192,7 @@ class Turing(commands.Cog):
 
     @commands.Cog.listener()
     async def on_message(self, message: discord.Message):
+        """When the bot receives a DM send it to the SUF server in turing log's channel."""
         if not isinstance(message.channel, discord.DMChannel):
             return
         if message.author.bot is True:
