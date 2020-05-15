@@ -508,6 +508,7 @@ class EmojiOrUnicodeConverter(commands.Converter):
     Raises:
         BadArgument: if the argument can't be converted to an emoji.
     """
+
     async def convert(self, ctx: commands.Context, argument: str) -> typing.Union[discord.Emoji, str]:
         if argument in emoji.UNICODE_EMOJI:
             return argument
@@ -523,6 +524,7 @@ class DurationConverter(commands.Converter):
     Raises:
         BadArgument: if the argument can't be converted to an duration.
     """
+
     async def convert(self, ctx: commands.Context, argument: str) -> int:
         try:
             return parse_time_string(argument)

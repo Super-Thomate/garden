@@ -16,6 +16,7 @@ class Vote(commands.Cog):
 
     class VoteConverter(commands.Converter):
         """Custom converter that look for an existing vote and print an error if not found."""
+
         async def convert(self, ctx: commands.Context, argument: str) -> str:
             if not Vote.vote_exists(argument, ctx.guild):
                 raise commands.BadArgument(f"Vote \"{argument}\" not found")

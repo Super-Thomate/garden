@@ -287,7 +287,8 @@ class Utip(commands.Cog):
                 member = guild.get_member(line[0])
                 if member is None:
                     continue
-                log("Utip::remove_utip_role_loop", f"Removing utip role for member {member} on guild {guild} ({guild.id})")
+                log("Utip::remove_utip_role_loop",
+                    f"Removing utip role for member {member} on guild {guild} ({guild.id})")
                 await member.remove_roles(utip_role)
                 await member.send(utils.get_text(guild, "utip_lost_role").format(utip_role.name))
             sql = "DELETE FROM utip_timer WHERE ends_at<? AND guild_id=? ;"

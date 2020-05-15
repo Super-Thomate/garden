@@ -210,7 +210,8 @@ class Birthday(commands.Cog):
                 birthday_message = utils.parse_random_string(message, member_name=member.mention) if message \
                     else utils.get_text(guild, "birthday_default_message").format(member.mention)
                 await channel.send(birthday_message)
-                log("Birthday::print_birthday_loop", f"Wishing happy birthday to {member} in guild {guild} ({guild.id})")
+                log("Birthday::print_birthday_loop",
+                    f"Wishing happy birthday to {member} in guild {guild} ({guild.id})")
                 sql = "UPDATE birthday_user SET last_year=? WHERE member_id=? AND guild_id=?"
                 success = database.execute_order(sql, [now.year, member.id, guild.id])
                 if not success:
