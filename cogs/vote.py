@@ -82,14 +82,14 @@ class Vote(commands.Cog):
         Returns:
             Dict[str, str]: The propositions with the emojis as keys and the propositions as values.
         """
-        sql = "SELECT emoji_id, emoji_str, proposition FROM vote_proposition WHERE vote_name=? AND guild_id=? ;"
+        sql = "SELECT emoji_str, proposition FROM vote_proposition WHERE vote_name=? AND guild_id=? ;"
         response = database.fetch_all(sql, [vote_name, guild.id])
         if response is None:
             return None
         propositions = {}
         for line in response:
-            emoji_id, emoji_str, proposition = line
-            emoji = self.bot.get_emoji(emoji_id) or emoji_str
+            emoji_str, proposition = line
+            emoji = self.bot.get_emoji(int(emoji_str)) if emoji_str.isnumeric() else emoji_str
             propositions[str(emoji)] = proposition
         return propositions
 
@@ -181,14 +181,12 @@ class Vote(commands.Cog):
     async def add_proposition(self, ctx: commands.Context, vote_name: VoteConverter,
                               emoji: utils.EmojiOrUnicodeConverter, *, proposition: str):
         """Add the proposition `proposition` with emoji `emoji` to the vote."""
-        emoji_id = emoji.id if isinstance(emoji, discord.Emoji) else None
-        sql = "INSERT INTO vote_proposition(emoji_id, emoji_str, proposition, vote_name, guild_id) " \
-              "VALUES (:emoji_id, :emoji_str, :proposition, :vote_name, :guild_id) " \
+        sql = "INSERT INTO vote_proposition(emoji_str, proposition, vote_name, guild_id) " \
+              "VALUES (:emoji_str, :proposition, :vote_name, :guild_id) " \
               "ON CONFLICT (emoji_str, vote_name, guild_id) DO " \
-              "UPDATE SET proposition=:proposition, emoji_str=:emoji_str " \
-              "WHERE (emoji_id=:emoji_id OR emoji_str=:emoji_str) AND vote_name=:vote_name AND guild_id=:guild_id ;"
-        success = database.execute_order(sql, {"emoji_id": emoji_id,
-                                               "emoji_str": str(emoji),
+              "UPDATE SET proposition=:proposition " \
+              "WHERE emoji_str=:emoji_str AND vote_name=:vote_name AND guild_id=:guild_id ;"
+        success = database.execute_order(sql, {"emoji_str": str(emoji),
                                                "proposition": proposition,
                                                "vote_name": vote_name,
                                                "guild_id": ctx.guild.id})
@@ -204,9 +202,8 @@ class Vote(commands.Cog):
     async def remove_proposition(self, ctx: commands.Context, vote_name: VoteConverter,
                                  emoji: utils.EmojiOrUnicodeConverter):
         """Remove the proposition linked to `emoji` from the vote."""
-        emoji_id = emoji.id if isinstance(emoji, discord.Emoji) else None
-        sql = "DELETE FROM vote_proposition WHERE (emoji_id=? OR emoji_str=?) AND vote_name=? AND guild_id=? ;"
-        success = database.execute_order(sql, [emoji_id, str(emoji), vote_name, ctx.guild.id])
+        sql = "DELETE FROM vote_proposition WHERE emoji_str=? AND vote_name=? AND guild_id=? ;"
+        success = database.execute_order(sql, [str(emoji), vote_name, ctx.guild.id])
         await self.update_vote(ctx, vote_name, ctx.guild)
         if success is True:
             await ctx.message.add_reaction('✅')
@@ -332,7 +329,8 @@ class Vote(commands.Cog):
         response = database.fetch_one(sql, [payload.message_id, guild.id])
         if response is None:
             return
-        proposition_dict = self.get_proposition(response[0], guild)
+        vote_name = response[0]
+        proposition_dict = self.get_proposition(vote_name, guild)
         if str(payload.emoji) not in proposition_dict.keys():
             channel = guild.get_channel(payload.channel_id)
             message = await channel.fetch_message(payload.message_id)

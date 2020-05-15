@@ -55,13 +55,11 @@ class Pwet(commands.Cog):
     @utils.require(['authorized', 'cog_loaded', 'not_banned'])
     async def set_emoji(self, ctx: commands.Context, emoji: utils.EmojiOrUnicodeConverter):
         """Set the emoji that will trigger a pweting og the reacted message."""
-        emoji_id = emoji.id if isinstance(emoji, discord.Emoji) else None
-        sql = "INSERT INTO pwet_table(emoji_id, emoji_str, guild_id) " \
-              "VALUES (:emoji_id, :emoji_str, :guild_id) " \
+        sql = "INSERT INTO pwet_table(emoji_str, guild_id) " \
+              "VALUES (:emoji_str, :guild_id) " \
               "ON CONFLICT(guild_id) DO " \
-              "UPDATE SET emoji_id=:emoji_id, emoji_str=:emoji_str WHERE guild_id=:guild_id ;"
-        success = database.execute_order(sql, {"emoji_id": emoji_id,
-                                               "emoji_str": str(emoji),
+              "UPDATE SET emoji_str=:emoji_str WHERE guild_id=:guild_id ;"
+        success = database.execute_order(sql, {"emoji_str": str(emoji),
                                                "guild_id": ctx.guild.id})
         if success is True:
             await ctx.message.add_reaction('✅')
@@ -73,11 +71,11 @@ class Pwet(commands.Cog):
     @utils.require(['authorized', 'cog_loaded', 'not_banned'])
     async def info(self, ctx: commands.Context):
         """Show informations about the cog. Here, the emoji that pwets a message"""
-        sql = "SELECT emoji_id, emoji_str FROM pwet_table WHERE guild_id=? ;"
+        sql = "SELECT emoji_str FROM pwet_table WHERE guild_id=? ;"
         response = database.fetch_one(sql, [ctx.guild.id])
         if response is not None:
-            emoji_id, emoji_str = response
-            emoji = ctx.guild.get_emoji(emoji_id) or emoji_str
+            emoji_str = response[0]
+            emoji = ctx.guild.get_emoji(int(emoji_str)) if emoji_str.isnumeric() else emoji_str
         else:
             emoji = utils.get_text(ctx.guild, "misc_not_set")
         await ctx.send(utils.get_text(ctx.guild, "pwet_info").format(emoji))
@@ -111,10 +109,8 @@ class Pwet(commands.Cog):
                 or author.bot \
                 or not utils.is_authorized(author):
             return
-        sql = "SELECT * FROM pwet_table WHERE (emoji_id=:emoji_id OR emoji_str=:emoji_str) AND guild_id=:guild_id ;"
-        response = database.fetch_one(sql, {"emoji_id": payload.emoji.id,
-                                            "emoji_str": str(payload.emoji),
-                                            "guild_id": payload.guild_id})
+        sql = "SELECT * FROM pwet_table WHERE emoji_str=? AND guild_id=? ;"
+        response = database.fetch_one(sql, [str(payload.emoji), guild.id])
         if response is None:
             return
         channel = guild.get_channel(payload.channel_id)

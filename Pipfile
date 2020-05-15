@@ -8,8 +8,10 @@ verify_ssl = true
 [packages]
 emoji = "*"
 "discord.py" = "*"
-python-dotenv = "*"
 babel = "*"
 
 [requires]
 python_version = "3.8"
+
+[scripts]
+lion = "python Lion.py"

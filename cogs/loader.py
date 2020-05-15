@@ -6,7 +6,7 @@ from Utilitary.logger import log
 
 
 class Loader(commands.Cog):
-    DEFAULT_COGS = ('configuration', 'loader')
+    DEFAULT_COGS = ('configuration', 'loader', 'help')
 
     def __init__(self, bot: commands.Bot):
         self.bot = bot
@@ -25,7 +25,7 @@ class Loader(commands.Cog):
         """Load the cog `cog` for the bot. Need developer privileges."""
         cog = cog.lower()
         try:
-            self.bot.load_extension(f'NEW_cogs.{cog}')
+            self.bot.load_extension(f'cogs.{cog}')
             await ctx.message.add_reaction('✅')
             log("Loader::load_cog_bot", f"Cog {cog} loaded")
         except Exception as e:
@@ -39,7 +39,7 @@ class Loader(commands.Cog):
         """Reload the cog `cog` for the bot. Need developer privileges."""
         cog = cog.lower()
         try:
-            self.bot.unload_extension(f'NEW_cogs.{cog}')
+            self.bot.unload_extension(f'cogs.{cog}')
             await ctx.message.add_reaction('✅')
             log("Loader::unload_cog_bot", f"Cog {cog} unloaded")
         except Exception as e:
@@ -53,7 +53,7 @@ class Loader(commands.Cog):
         """Reload the cog `cog` for the bot. Need developer privileges."""
         cog = cog.lower()
         try:
-            self.bot.reload_extension(f'NEW_cogs.{cog}')
+            self.bot.reload_extension(f'cogs.{cog}')
             await ctx.message.add_reaction('✅')
             log("Loader::reload_cog_bot", f"Cog {cog} reloaded")
         except Exception as e:

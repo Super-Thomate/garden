@@ -2,11 +2,8 @@ import os
 import sqlite3
 import typing
 
-from dotenv import load_dotenv
-
 from Utilitary.logger import log
 
-load_dotenv(dotenv_path=os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '.env')))
 DATABASE_PATH = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', os.getenv('DATABASE_PATH')))
 DATABASE_TABLE_PATH = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', os.getenv('DATABASE_TABLE_PATH')))
 log('Database::_', f"Database path -> {DATABASE_PATH}")

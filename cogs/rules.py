@@ -13,21 +13,19 @@ class Rules(commands.Cog):
         self.bot = bot
 
     @staticmethod
-    def get_rule_for_emoji(emoji_id: typing.Optional[int], emoji_str: str, guild: discord.Guild) \
-            -> typing.Optional[str]:
+    def get_rule_for_emoji(emoji_str: str, guild: discord.Guild) -> typing.Optional[str]:
         """
         Retrieve the rule linked to the emoji `emoji`.
 
         Args:
-            emoji_id: The id of the emoji if it has one. Optional if the emoji is unicode.
             emoji_str: The visual representation of the emoji.
             guild: The guild where it happens.
 
         Returns:
             Optional[str] | The rule if found, else None
         """
-        sql = "SELECT rule FROM rules_table WHERE (emoji_id=? OR emoji_str=?) AND guild_id=? ;"
-        response = database.fetch_one(sql, [emoji_id, emoji_str, guild.id])
+        sql = "SELECT rule FROM rules_table WHERE emoji_str=? AND guild_id=? ;"
+        response = database.fetch_one(sql, [emoji_str, guild.id])
         if response is None:
             return None
         return utils.parse_random_string(response[0])
@@ -37,8 +35,7 @@ class Rules(commands.Cog):
     @utils.require(['authorized', 'cog_loaded', 'not_banned'])
     async def rules(self, ctx: commands.Context, emoji: utils.EmojiOrUnicodeConverter):
         """Send the rule linked to `emoji` in the current channel."""
-        emoji_id = emoji.id if isinstance(emoji, discord.Emoji) else None
-        rule = self.get_rule_for_emoji(emoji_id, str(emoji), ctx.guild)
+        rule = self.get_rule_for_emoji(str(emoji), ctx.guild)
         if rule is None:
             await ctx.send(utils.get_text(ctx.guild, "rules_not_found").format(emoji))
             return
@@ -51,14 +48,13 @@ class Rules(commands.Cog):
     async def add_rule(self, ctx: commands.Context, emoji: utils.EmojiOrUnicodeConverter, *, rule: str):
         """Add a new rule with `rule` as body and `emoji` as emoji."""
         emoji_id = emoji.id if isinstance(emoji, discord.Emoji) else None
-        sql = "INSERT INTO rules_table(emoji_id, emoji_str, rule, guild_id) " \
-              "VALUES (:emoji_id, :emoji_str, :rule, :guild_id) " \
+        sql = "INSERT INTO rules_table(emoji_str, rule, guild_id) " \
+              "VALUES (:emoji_str, :rule, :guild_id) " \
               "ON CONFLICT(emoji_str, guild_id) DO " \
-              "UPDATE SET rule=:rule, emoji_str=:emoji_str WHERE " \
-              "(emoji_id=:emoji_id OR emoji_str=:emoji_str) AND guild_id=:guild_id ;"
+              "UPDATE SET rule=:rule WHERE " \
+              "emoji_str=:emoji_str AND guild_id=:guild_id ;"
 
-        success = database.execute_order(sql, {"emoji_id": emoji_id,
-                                               "emoji_str": str(emoji),
+        success = database.execute_order(sql, {"emoji_str": str(emoji),
                                                "rule": rule,
                                                "guild_id": ctx.guild.id})
         if success is True:
@@ -71,9 +67,8 @@ class Rules(commands.Cog):
     @utils.require(['authorized', 'cog_loaded', 'not_banned'])
     async def remove_rule(self, ctx: commands.Context, emoji: utils.EmojiOrUnicodeConverter):
         """Remove the rule linked to `emoji`."""
-        emoji_id = emoji.id if isinstance(emoji, discord.Emoji) else None
-        sql = "DELETE FROM rules_table WHERE (emoji_id=? OR emoji_str=?) AND guild_id=? ;"
-        success = database.execute_order(sql, [emoji_id, str(emoji), ctx.guild.id])
+        sql = "DELETE FROM rules_table WHERE emoji_str=? AND guild_id=? ;"
+        success = database.execute_order(sql, [str(emoji), ctx.guild.id])
         if success is True:
             await ctx.message.add_reaction('✅')
         else:
@@ -98,15 +93,15 @@ class Rules(commands.Cog):
     @utils.require(['authorized', 'cog_loaded', 'not_banned'])
     async def info(self, ctx: commands.Context):
         """Display the rules and their emoji."""
-        sql = "SELECT emoji_id, emoji_str, rule FROM rules_table WHERE guild_id=? ;"
+        sql = "SELECT emoji_str, rule FROM rules_table WHERE guild_id=? ;"
         response = database.fetch_all(sql, [ctx.guild.id])
         if response is None:
             await ctx.send(utils.get_text(ctx.guild, "rules_info_empty"))
             return
         to_send = ""
         for line in response:
-            emoji_id, emoji_str, rule = line
-            emoji = self.bot.get_emoji(emoji_id) or emoji_str
+            emoji_str, rule = line
+            emoji = self.bot.get_emoji(int(emoji_str)) if emoji_str.isnumeric() else emoji_str
             to_send += f"[{emoji}] :\n{rule}\n\n"
 
         await ctx.send(embed=discord.Embed(title=utils.get_text(ctx.guild, "rules_info_title"), description=to_send))
@@ -142,13 +137,13 @@ class Rules(commands.Cog):
             return
 
         # Check if message hasn't already been warned
-        sql = "SELECT * FROM rules_warned WHERE (emoji_id=? OR emoji_str=?) AND message_id=? AND guild_id=? ;"
-        response = database.fetch_one(sql, [payload.emoji.id, str(payload.emoji), payload.message_id, guild.id])
+        sql = "SELECT * FROM rules_warned WHERE emoji_str=? AND message_id=? AND guild_id=? ;"
+        response = database.fetch_one(sql, [str(payload.emoji), payload.message_id, guild.id])
         if response is not None:
             return
 
         # Warn user
-        rule_message = self.get_rule_for_emoji(payload.emoji.id, str(payload.emoji), guild)
+        rule_message = self.get_rule_for_emoji(str(payload.emoji), guild)
         if rule_message is None:
             return
         channel = guild.get_channel(payload.channel_id)
@@ -159,8 +154,8 @@ class Rules(commands.Cog):
         await member.send(f"> {message.content}\n{rule_message}")
 
         # Add message as warned
-        sql = f"INSERT INTO rules_warned(message_id, emoji_id, emoji_str, guild_id) VALUES (?, ?, ?, ?) ;"
-        database.execute_order(sql, [payload.message_id, payload.emoji.id, str(payload.emoji), guild.id])
+        sql = f"INSERT INTO rules_warned(message_id, emoji_str, guild_id) VALUES (?, ?, ?) ;"
+        database.execute_order(sql, [payload.message_id, str(payload.emoji), guild.id])
 
         # Log warning
         sql = "SELECT log_channel_id FROM rules_config WHERE guild_id=? ;"

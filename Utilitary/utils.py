@@ -13,12 +13,9 @@ import emoji
 import pytz
 from babel.dates import format_datetime, format_timedelta
 from discord.ext import commands
-from dotenv import load_dotenv
 
 from Utilitary import database
 from Utilitary.logger import log
-
-load_dotenv(dotenv_path=os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '.env')))
 
 LANGUAGE_FILE_DIRECTORY = os.path.abspath(os.path.join(os.path.dirname(__file__), '..',
                                                        os.getenv('LANGUAGE_FILE_PATH')))

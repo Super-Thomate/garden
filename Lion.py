@@ -3,7 +3,6 @@ import typing
 
 import discord
 from discord.ext import commands
-from dotenv import load_dotenv
 
 from Utilitary import database, utils
 from Utilitary.logger import log
@@ -31,7 +30,6 @@ def get_prefix(current_bot: commands.Bot, message: discord.Message) -> typing.Li
     return commands.when_mentioned_or(*prefixes)(current_bot, message)
 
 
-load_dotenv()
 bot = commands.Bot(command_prefix=get_prefix)
 bot.remove_command("help")
 bot_extensions = ['cogs.configuration',
@@ -45,7 +43,8 @@ bot_extensions = ['cogs.configuration',
                   'cogs.pwet',
                   'cogs.rules',
                   'cogs.vote',
-                  'cogs.nickname']
+                  'cogs.nickname',
+                  'cogs.help']
 
 
 @bot.event
