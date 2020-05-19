@@ -124,6 +124,7 @@ class Vote(commands.Cog):
         # vote_type
         select = f"select message_id from vote_message where guild_id='{ctx.guild.id}' and closed=0 and vote_type=?"
         fetched = database.fetch_one_line(select, [message_id_vote_type])
+        logger ("vote::add_proposition", f"fetched {fetched}")
         if not fetched:
           await ctx.send(Utils.get_text(ctx.guild.id, "vote_error_message_not_found"))
           await self.logger.log('vote_log', ctx.author, ctx.message, True)
@@ -131,6 +132,7 @@ class Vote(commands.Cog):
           return
         message_id = fetched[0]
     # Get proposition and handle it
+    logger ("vote::add_proposition", f"message_id {message_id}")
     await self.handle_result(ctx, message_id, "proposition_line", False)
 
   @commands.command(name='editproposition', aliases=['edit', 'editprop', 'ep'])
@@ -388,7 +390,7 @@ class Vote(commands.Cog):
     """
     await self.handle_result(ctx, message_id, "reset_vote", True)
 
-  @Utils.require(required=['authorized'])
+  @Utils.require(required=['cog_loaded'])
   async def handle_result(self, ctx, message_id, handle, permission_needed):
     author = ctx.author
     guild_id = ctx.guild.id
@@ -452,7 +454,7 @@ class Vote(commands.Cog):
     elif handle == "title":
       ask = await ctx.send(Utils.get_text(ctx.guild.id, "vote_ask_vote_title"))
     elif handle == "proposition_line":
-      logger ("proposition_line", "handle proposition_line")
+      logger ("vote::add_proposition", "handle proposition_line")
       if end_proposition or end_edit or vote_closed:
         await ctx.send(Utils.get_text(ctx.guild.id, "vote_proposition_phase_end"))
         return
@@ -564,15 +566,15 @@ class Vote(commands.Cog):
     check = lambda m: m.channel == ctx.channel and m.author == ctx.author
     msg = await self.bot.wait_for('message', check=check)
     if handle == "proposition_line":
-      logger ("proposition_line", "get infos")
+      logger ("vote::add_proposition", "get infos")
       proposition = msg.content
       ask_emoji = await ctx.send(Utils.get_text(ctx.guild.id, "vote_ask_emoji"))
       msg_emoji = await self.bot.wait_for('message', check=check)
       emoji = msg_emoji.content
-      logger ("proposition_line", "test if emoji already exists")
+      logger ("vote::add_proposition", "test if emoji already exists")
       # test if emoji already exists
       select = f"select emoji from vote_propositions where message_id='{message_id}' and emoji='{emoji}' ;"
-      logger ("proposition_line", "select {}".format (select))
+      logger ("vote::add_proposition", "select {}".format (select))
       fetched = database.fetch_one_line(select)
       if fetched:
         err_feedback = await ctx.send(Utils.get_text(ctx.guild.id, "vote_emoji_already_used_add"))
