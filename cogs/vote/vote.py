@@ -452,6 +452,7 @@ class Vote(commands.Cog):
     elif handle == "title":
       ask = await ctx.send(Utils.get_text(ctx.guild.id, "vote_ask_vote_title"))
     elif handle == "proposition_line":
+      logger ("proposition_line", "handle proposition_line")
       if end_proposition or end_edit or vote_closed:
         await ctx.send(Utils.get_text(ctx.guild.id, "vote_proposition_phase_end"))
         return
@@ -563,12 +564,15 @@ class Vote(commands.Cog):
     check = lambda m: m.channel == ctx.channel and m.author == ctx.author
     msg = await self.bot.wait_for('message', check=check)
     if handle == "proposition_line":
+      logger ("proposition_line", "get infos")
       proposition = msg.content
       ask_emoji = await ctx.send(Utils.get_text(ctx.guild.id, "vote_ask_emoji"))
       msg_emoji = await self.bot.wait_for('message', check=check)
       emoji = msg_emoji.content
+      logger ("proposition_line", "test if emoji already exists")
       # test if emoji already exists
       select = f"select emoji from vote_propositions where message_id='{message_id}' and emoji='{emoji}' ;"
+      logger ("proposition_line", "select {}".format (select))
       fetched = database.fetch_one_line(select)
       if fetched:
         err_feedback = await ctx.send(Utils.get_text(ctx.guild.id, "vote_emoji_already_used_add"))
@@ -609,6 +613,7 @@ class Vote(commands.Cog):
             await vote_msg.edit(embed=embed)
       await msg_emoji.delete(delay=0.5)
       await ask_emoji.delete(delay=0.5)
+      logger ("proposition_line", "END")
     elif handle == "description":
       embed.description = msg.content
     elif handle == "title":
