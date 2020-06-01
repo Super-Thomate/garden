@@ -11,6 +11,7 @@ from core import run_task, logger
 DISCORD_CRON_CRONTAB         = {   "vote": "* * * * *"
                                  , "utip": "* * * * *"
                                  , "birthday": "0 * * * *"
+                                 , "rename": "* * * * * *"
                                }
 
 def get_prefix(bot, message):

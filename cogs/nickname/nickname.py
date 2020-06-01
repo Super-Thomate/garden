@@ -1,6 +1,6 @@
 import math
 import time
-from datetime import datetime
+from datetime import datetime, timedelta
 
 import discord
 from discord.ext import commands
@@ -44,11 +44,15 @@ class Nickname(commands.Cog):
         total_seconds = duree
         await self.logger.log('nickname_log', member, message, True)
         await ctx.message.add_reaction('❌')
-        await ctx.channel.send(Utils.get_text(
-          ctx.guild.id,
-          "nickname_changed_recently")
-                               .format(Utils.format_time(total_seconds)))
+        await ctx.channel.send(Utils.get_text(ctx.guild.id, "nickname_changed_recently").format(Utils.format_time(total_seconds)))
         return
+
+    # Remove warn and next limit (spam of command `next` without rename)
+    sql1 = "DELETE FROM nickname_next_limit WHERE member_id=? AND guild_id=? ;"
+    sql2 = "DELETE FROM nickname_next_warn WHERE member_id=? AND guild_id=? ;"
+    database.execute_order(sql1, [member.id, guild_id])
+    database.execute_order(sql2, [member.id, guild_id])
+
     # Change my Nickname
     error = False
     try:
@@ -110,6 +114,17 @@ class Nickname(commands.Cog):
       error = True
     await self.logger.log('nickname_log', ctx.author, ctx.message, error)
 
+  def _add_next_timer(self, member_id: int, guild_id: int):
+    # Auto rename user after X minutes if they havent renamed themselves (see Cron)
+    sql = "SELECT timer FROM nickname_next_timer WHERE guild_id=? ;"
+    response = database.fetch_one_line(sql, [guild_id])
+    timer = response[0] if response else 15
+
+    sql = "INSERT INTO nickname_next_limit VALUES (?, ?, datetime(?)) ;"
+    limit = datetime.now() + timedelta(minutes=timer)
+    database.execute_order(sql, [member_id, guild_id, limit])
+
+
   @commands.command(name='next', aliases=['nextnickname'])
   @Utils.require(required=['not_banned', 'cog_loaded'])
   async def next_nickname(self, ctx):
@@ -127,13 +142,11 @@ class Nickname(commands.Cog):
         nickname_delay = Utils.convert_str_to_time(nickname_delay)
       duree = math.floor((last_timestamp + nickname_delay) - time.time())
       if duree > 0:
-        await ctx.channel.send(Utils.get_text(
-          ctx.guild.id,
-          "nickname_cannot_change")
-                               .format(Utils.format_time(duree)))
+        await member.send(Utils.get_text(ctx.guild.id, "nickname_cannot_change").format(Utils.format_time(duree)))
         error = True
     if not error:
-      await ctx.send(Utils.get_text(ctx.guild.id, "nickname_can_change"))
+      self._add_next_timer(member.id, guild_id)
+      await member.send(Utils.get_text(ctx.guild.id, "nickname_can_change"))
     await self.logger.log('nickname_log', member, ctx.message, error)
 
   @commands.command(name='setnickcd', aliases=['ncd'])
@@ -234,3 +247,40 @@ class Nickname(commands.Cog):
       await ctx.send("{0} a.k.a. {1}".format(str(member), member.nick))
     else:
       await ctx.send("{0} with no nickname".format(str(member)))
+
+  @commands.command(name='settrollnicknames', aliases=['stn'])
+  @Utils.require(required=['authorized', 'not_banned', 'cog_loaded'])
+  async def set_troll_nicknames(self, ctx: commands.Context, *, nicknames: str):
+    nickname_list = [nickname.strip() for nickname in nicknames.split('|')]
+    for name in nickname_list:
+      if name == '' or len(name) >= 32:
+        await ctx.send(Utils.get_text(ctx.guild.id, "nickname_troll_too_long").format(name))
+        return
+
+    to_save = "|".join(nickname_list)
+    sql = "SELECT * FROM nickname_next_troll_nickname WHERE guild_id=? ;"
+    update = database.fetch_one_line(sql, [ctx.guild.id])
+    if not update:
+      sql = "INSERT INTO nickname_next_troll_nickname VALUES (?, ?)"
+    else:
+      sql = "UPDATE nickname_next_troll_nickname SET nicknames=? WHERE guild_id=? ;"
+    database.execute_order(sql, [to_save, ctx.guild.id])
+
+    await ctx.send(Utils.get_text(ctx.guild.id, "nickname_troll_saved"))
+
+  @commands.command(name='setnexttimer', aliases=['snt'])
+  @Utils.require(required=['authorized', 'not_banned', 'cog_loaded'])
+  async def set_troll_nicknames(self, ctx: commands.Context, timer: int):
+    if timer <= 0:
+      await ctx.send(Utils.get_text(ctx.guild.id, "nickname_timer_invalid"))
+      await ctx.message.add_reaction('❌')
+      return
+    sql = "SELECT timer FROM nickname_next_timer WHERE guild_id=? ;"
+    response = database.fetch_one_line(sql, [ctx.guild.id])
+    if response:
+      sql = "UPDATE nickname_next_timer SET timer=? WHERE guild_id=? ;"
+    else:
+      sql = "INSERT INTO nickname_next_timer VALUES (?, ?) ;"
+
+    database.execute_order(sql, [timer, ctx.guild.id])
+    await ctx.message.add_reaction('✅')

@@ -314,6 +314,67 @@ def get_birthday_message (guild: discord.Guild, member: discord.Member) -> str:
   return text.replace("$member", f"{member.mention}")
 
 
+def get_random_nickname(guild_id: int):
+  sql = "SELECT nicknames FROM nickname_next_troll_nickname WHERE guild_id=? ;"
+  response = database.fetch_one_line(sql, [guild_id])
+  return random.choice(response[0].split('|')) if response else None
+
+async def rename_warn_task(bot):
+  try:
+    for guild in bot.guilds:
+      guild_id = guild.id
+      if not Utils.is_loaded("nickname", guild_id):
+        continue
+      sql = "SELECT member_id, timer_limit FROM nickname_next_limit WHERE guild_id=? ;"
+      response = database.fetch_all_line(sql, [guild_id])
+      for data in response:
+        limit = time.mktime(datetime.strptime(data[1], '%Y-%m-%d %H:%M:%S').timetuple())
+        duration = math.floor((limit - time.time()))
+        if duration > 0:
+          continue
+        member = guild.get_member(int(data[0]))
+
+        # Warn user and punish if already warned
+        sql = "SELECT * FROM nickname_next_warn WHERE member_id=? AND guild_id=? ;"
+        response = database.fetch_one_line(sql, [member.id, guild_id])
+
+        # If user has already been warned, hard rename
+        if response:
+          nickname = get_random_nickname(guild_id) or Utils.get_text(guild_id, "nickname_troll_nickname")
+          await member.edit(nick=nickname)
+          # write in db last_time
+          select = f"SELECT * FROM last_nickname WHERE guild_id='{guild_id}' AND member_id='{member.id}'"
+          fetched = database.fetch_one_line(select)
+          if not fetched:
+            sql = f"INSERT INTO last_nickname VALUES ('{member.id}', '{guild_id}', datetime('{datetime.now()}'))"
+          else:
+            sql = f"UPDATE last_nickname SET last_change=datetime('{datetime.now()}') WHERE member_id='{member.id}' AND guild_id='{guild_id}'"
+          database.execute_order(sql, [])
+
+          # write in db current nickanme
+          select = f"SELECT * FROM nickname_current WHERE guild_id='{guild_id}' AND member_id='{member.id}' ;"
+          fetched = database.fetch_one_line(select)
+          if not fetched:
+            sql = f"INSERT INTO nickname_current VALUES ('{member.id}', '{guild_id}', ?) ;"
+          else:
+            sql = f"UPDATE nickname_current SET nickname=? WHERE member_id='{member.id}' AND guild_id='{guild_id}' ;"
+          database.execute_order(sql, [nickname])
+
+        # Soft rename and add a warn
+        else:
+          nickname = Utils.get_text(guild_id, "nickname_troll_nickname")
+          await member.edit(nick=nickname)
+          sql = "INSERT INTO nickname_next_warn VALUES (?, ?) ;"
+          database.execute_order(sql, [member.id, guild_id])
+
+        # Delete limit record
+        sql = "DELETE FROM nickname_next_limit WHERE member_id=? AND guild_id=? ;"
+        database.execute_order(sql, [member.id, guild_id])
+
+  except Exception as e:
+    logger ("_Cron::rename_warn_task", f"rename_warn_task {type(e).__name__} - {e}")
+
+
 async def run_task (bot, task, interval):
   await bot.wait_until_ready()
   cron = CronTab(interval)
@@ -329,5 +390,7 @@ async def run_task (bot, task, interval):
         await utip_task (bot)
       elif task == "birthday":
         await birthday_task (bot)
+      elif task == "rename":
+        await rename_warn_task (bot)
     except:
       logger ("_Cron::run_task", f'I could not perform task `{task}` :(')
