@@ -148,7 +148,7 @@ class Nickname(commands.Cog):
       self._add_next_timer(member.id, guild_id)
       try:
         await member.send(Utils.get_text(guild_id, "nickname_can_change"))
-      except discord.Forbidden:
+      except commands.Forbidden:
         await ctx.send (Utils.get_text (guild_id, "error_user_disabled_PM_2"))
     await self.logger.log('nickname_log', member, ctx.message, error)
 
