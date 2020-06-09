@@ -17,6 +17,7 @@ class Nickname(commands.Cog):
     self.logger = Logs(self.bot)
 
   @commands.command(name='nickname', aliases=['pseudo'])
+  @commands.guild_only()
   @Utils.require(required=['not_banned', 'cog_loaded'])
   async def set_nickname(self, ctx, *, nickname: str = None):
     message = ctx.message
@@ -126,6 +127,7 @@ class Nickname(commands.Cog):
 
 
   @commands.command(name='next', aliases=['nextnickname'])
+  @commands.guild_only()
   @Utils.require(required=['not_banned', 'cog_loaded'])
   async def next_nickname(self, ctx):
     member = ctx.author
@@ -142,14 +144,16 @@ class Nickname(commands.Cog):
         nickname_delay = Utils.convert_str_to_time(nickname_delay)
       duree = math.floor((last_timestamp + nickname_delay) - time.time())
       if duree > 0:
-        await member.send(Utils.get_text(guild_id, "nickname_cannot_change").format(Utils.format_time(duree)))
+        await ctx.send(Utils.get_text(guild_id, "nickname_cannot_change").format(Utils.format_time(duree)),
+                       delete_after=5.0)
         error = True
     if not error:
       self._add_next_timer(member.id, guild_id)
       try:
-        await member.send(Utils.get_text(guild_id, "nickname_can_change"))
-      except commands.Forbidden:
-        await ctx.send (Utils.get_text (guild_id, "error_user_disabled_PM_2"))
+        await ctx.send(Utils.get_text(guild_id, "nickname_can_change"), delete_after=5.0)
+      except discord.Forbidden:
+        await ctx.send (Utils.get_text (guild_id, "error_user_disabled_PM_2"), delete_after=5.0)
+    await ctx.message.delete(delay=5.0)
     await self.logger.log('nickname_log', member, ctx.message, error)
 
   @commands.command(name='setnickcd', aliases=['ncd'])
@@ -273,7 +277,7 @@ class Nickname(commands.Cog):
 
   @commands.command(name='setnexttimer', aliases=['snt'])
   @Utils.require(required=['authorized', 'not_banned', 'cog_loaded'])
-  async def set_troll_nicknames(self, ctx: commands.Context, timer: int):
+  async def set_next_timer(self, ctx: commands.Context, timer: int):
     if timer <= 0:
       await ctx.send(Utils.get_text(ctx.guild.id, "nickname_timer_invalid"))
       await ctx.message.add_reaction('❌')

@@ -49,7 +49,7 @@
   "nickname_new_delay": "Entrez le délai pour un changement de pseudo (JHMS):",
   "nickname_delay": "Le délai pour un changement de pseudo est `{0}`",
   "nickname_help_description": "Gère le changement de surnom (nickname)",
-  "nickname_help_admin_command": "- `resetnickname (rn) <UserID>` - remet à 0 le timer pour l'utilisateur défini\n- `setnickcd (ncd)` - définir le temps entre chaque changement de pseudo (format JHMS)\n- `getnickcd` - afficher le délai entre chaque changement de pseudo\n- `setnicknamelog (snl)` - définir le channel actuel pour les logs des changements de pseudo",
+  "nickname_help_admin_command": "- `resetnickname (rn) <UserID>` - remet à 0 le timer pour l'utilisateur défini\n- `setnickcd (ncd)` - définir le temps entre chaque changement de pseudo (format JHMS)\n- `getnickcd` - afficher le délai entre chaque changement de pseudo\n- `setnicknamelog (snl)` - définir le channel actuel pour les logs des changements de pseudo\n- `settrollnickname (stn) <nicknames>` - définir les pseudos appliqués en cas d'utilisation abusive de la commande `next` (séparer les pseudos par `|`)\n- `setnexttimer (snt)` - définir le temps (en minutes) avant qu'une utilisation abusive de la commande `next` soit punie",
   "nickname_help_user_command": "- `nickname/pseudo <pseudo voulu> ` - définir le pseudo de l'utilisateur pour ce serveur\n- `next ` - montre le temps restant avant le prochain changement disponible\n- `help nickname ` - montre ce message",
   "nickname_help_title": "**NICKNAME COG HELP**",
   "nickname_log_channel": "Les logs pour les pseudos seront affichés ici",
