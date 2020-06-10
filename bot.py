@@ -1,7 +1,9 @@
 import sys
+import asyncio
 
 import discord
 from discord.ext import commands
+
 
 import botconfig
 import database
@@ -13,6 +15,9 @@ DISCORD_CRON_CRONTAB         = {   "vote": "* * * * *"
                                  , "birthday": "0 * * * *"
                                  , "rename": "* * * * * *"
                                }
+
+DISCORD_TASKS                = []
+
 
 def get_prefix(bot, message):
   """A callable Prefix for our bot."""
@@ -114,11 +119,10 @@ async def on_ready():
     for task in DISCORD_CRON_CRONTAB:
       interval               = DISCORD_CRON_CRONTAB [task]
       logger ("bot::on_ready::autobot", "Scheduling {0} with intervall [{1}]".format (task, interval))
-      bot.loop.create_task (run_task (bot, task, interval))
+      DISCORD_TASKS.append  (bot.loop.create_task (run_task (bot, task, interval)))
   except Exception as e:
     logger ("bot::on_ready::autobot", f"{type(e).__name__} - {e}")
     sys.exit(0)
-
 
 @bot.event
 async def on_command_error(ctx: commands.Context, exception):
@@ -130,5 +134,16 @@ async def on_command_error(ctx: commands.Context, exception):
     return
   await ctx.channel.send(exception)
 
+
+@bot.event
+async def on_disconnect ():
+  logger ("bot::on_disconnect", "Called when the client has disconnected from Discord.")
+  for task in DISCORD_TASKS:
+    #logger ("bot::on_disconnect", "Cancel task.")
+    task.cancel ()
+
+#@bot.event
+#async def on_connect ():
+  #logger ("bot::on_connect", "Called when the client has successfully connected to Discord.")
 
 bot.run(botconfig.config['token'])
