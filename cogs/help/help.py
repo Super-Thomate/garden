@@ -22,7 +22,7 @@ class Help(commands.Cog):
       return
     try:
       method = getattr(self, "help_" + cog.lower())
-      embed = method(ctx.guild.id)
+      embed = method(ctx.guild.id, ctx.prefix)
       await ctx.channel.send(content=None, embed=embed)
     except AttributeError as e:
       await ctx.channel.send(Utils.get_text(ctx.guild.id, "error_unknown_cog").format(cog))
@@ -30,7 +30,7 @@ class Help(commands.Cog):
     except Exception as e:
       await ctx.channel.send(Utils.get_text(ctx.guild.id, "error_occured").format(type(e).__name__, e))
 
-  def help_invitation(self, guild_id):
+  def help_invitation(self, guild_id, prefix):
     infos = self.bot.user
     colour = discord.Colour(0)
     colour = colour.from_rgb(176, 255, 176)
@@ -43,7 +43,7 @@ class Help(commands.Cog):
     embed.timestamp = datetime.today()
     return embed
 
-  def help_logs(self, guild_id):
+  def help_logs(self, guild_id, prefix):
     infos = self.bot.user
     colour = discord.Colour(0)
     colour = colour.from_rgb(176, 255, 176)
@@ -56,7 +56,7 @@ class Help(commands.Cog):
     embed.timestamp = datetime.today()
     return embed
 
-  def help_nickname(self, guild_id):
+  def help_nickname(self, guild_id, prefix):
     infos = self.bot.user
     colour = discord.Colour(0)
     colour = colour.from_rgb(176, 255, 176)
@@ -69,7 +69,7 @@ class Help(commands.Cog):
     embed.timestamp = datetime.today()
     return embed
 
-  def help_vote(self, guild_id):
+  def help_vote(self, guild_id, prefix):
     infos = self.bot.user
     colour = discord.Colour(0)
     colour = colour.from_rgb(176, 255, 176)
@@ -88,7 +88,7 @@ class Help(commands.Cog):
     embed.timestamp = datetime.today()
     return embed
 
-  def help_bancommand(self, guild_id):
+  def help_bancommand(self, guild_id, prefix):
     infos = self.bot.user
     colour = discord.Colour(0)
     colour = colour.from_rgb(176, 255, 176)
@@ -112,7 +112,7 @@ class Help(commands.Cog):
     embed.timestamp = datetime.today()
     return embed
 
-  def help_welcome(self, guild_id):
+  def help_welcome(self, guild_id, prefix):
     infos = self.bot.user
     colour = discord.Colour(0)
     colour = colour.from_rgb(176, 255, 176)
@@ -130,7 +130,7 @@ class Help(commands.Cog):
     embed.timestamp = datetime.today()
     return embed
 
-  def help_roledm(self, guild_id):
+  def help_roledm(self, guild_id, prefix):
     infos = self.bot.user
     colour = discord.Colour(0)
     colour = colour.from_rgb(176, 255, 176)
@@ -149,7 +149,7 @@ class Help(commands.Cog):
     embed.timestamp = datetime.today()
     return embed
 
-  def help_utip(self, guild_id):
+  def help_utip(self, guild_id, prefix):
     infos = self.bot.user
     colour = discord.Colour(0)
     colour = colour.from_rgb(176, 255, 176)
@@ -172,7 +172,7 @@ class Help(commands.Cog):
     embed.timestamp = datetime.today()
     return embed
 
-  def help_birthday(self, guild_id):
+  def help_birthday(self, guild_id, prefix):
     infos = self.bot.user
     colour = discord.Colour(0)
     colour = colour.from_rgb(176, 255, 176)
@@ -181,23 +181,23 @@ class Help(commands.Cog):
                     value=Utils.get_text(guild_id, 'help_help_variables'),
                     inline=False)
     embed.add_field(name=Utils.get_text(guild_id, 'help_user_command'),
-                    value=Utils.get_text(guild_id, 'birthday_help_user_command'),
+                    value=Utils.get_text(guild_id, 'birthday_help_user_command').format(prefix),
                     inline=False)
     embed.add_field(name=Utils.get_text(guild_id, 'help_admin_command'),
-                    value=Utils.get_text(guild_id, 'birthday_help_admin_command'),
+                    value=Utils.get_text(guild_id, 'birthday_help_admin_command').format(prefix),
                     inline=False)
     embed.set_author(icon_url=infos.avatar_url, name=str(infos))
     embed.timestamp = datetime.today()
     return embed
 
-  def help_source(self, guild_id):
+  def help_source(self, guild_id, prefix):
     infos = self.bot.user
     colour = discord.Colour(0)
     colour = colour.from_rgb(176, 255, 176)
     embed = discord.Embed(colour=colour, title=Utils.get_text(guild_id, 'source_help_title'))
     embed.description = Utils.get_text(guild_id, 'help_moderator_only')
     embed.add_field(name=Utils.get_text(guild_id, 'help_admin_command')
-                    , value=Utils.get_text(guild_id, 'source_help_admin_command').format('!')
+                    , value=Utils.get_text(guild_id, 'source_help_admin_command').format(prefix)
                     , inline=False
                     )
 
@@ -205,55 +205,55 @@ class Help(commands.Cog):
     embed.timestamp = datetime.today()
     return embed
 
-  def help_rules(self, guild_id):
+  def help_rules(self, guild_id, prefix):
     infos = self.bot.user
     colour = discord.Colour(0)
     colour = colour.from_rgb(176, 255, 176)
     embed = discord.Embed(colour=colour, title=Utils.get_text(guild_id, 'rules_help_title'))
     embed.description = Utils.get_text(guild_id, 'help_moderator_only')
     embed.add_field(name=Utils.get_text(guild_id, "help_variable_title")
-                    , value=Utils.get_text(guild_id, "rules_help_user_command")
+                    , value=Utils.get_text(guild_id, "rules_help_user_command").format(prefix)
                     , inline=False
                     )
     embed.add_field(name=Utils.get_text(guild_id, 'help_admin_command')
-                    , value=Utils.get_text(guild_id, 'rules_help_admin_command').format("!")
+                    , value=Utils.get_text(guild_id, 'rules_help_admin_command').format(prefix)
                     , inline=False
                     )
     embed.set_author(icon_url=infos.avatar_url, name=str(infos))
     embed.timestamp = datetime.today()
     return embed
 
-  def help_pwet(self, guild_id):
+  def help_pwet(self, guild_id, prefix):
     infos = self.bot.user
     colour = discord.Colour(0)
     colour = colour.from_rgb(176, 255, 176)
     embed = discord.Embed(colour=colour, title=Utils.get_text(guild_id, 'pwet_help_title'))
     embed.add_field(name=Utils.get_text(guild_id, 'help_user_command')
-                    , value=Utils.get_text(guild_id, 'pwet_help_user_command').format("!")
+                    , value=Utils.get_text(guild_id, 'pwet_help_user_command').format(prefix)
                     , inline=False
                     )
     embed.set_author(icon_url=infos.avatar_url, name=str(infos))
     embed.timestamp = datetime.today()
     return embed
 
-  def help_timer(self, guild_id):
+  def help_timer(self, guild_id, prefix):
     infos = self.bot.user
     colour = discord.Colour(0)
     colour = colour.from_rgb(176, 255, 176)
     embed = discord.Embed(colour=colour, title=Utils.get_text(guild_id, 'timer_help_title'))
     embed.add_field(name=Utils.get_text(guild_id, 'help_user_command')
-                    , value=Utils.get_text(guild_id, 'timer_help_user_command').format("!")
+                    , value=Utils.get_text(guild_id, 'timer_help_user_command').format(prefix)
                     , inline=False
                     )
     embed.add_field(name=Utils.get_text(guild_id, 'help_admin_command')
-                    , value=Utils.get_text(guild_id, 'timer_help_admin_command').format("!")
+                    , value=Utils.get_text(guild_id, 'timer_help_admin_command').format(prefix)
                     , inline=False
                     )
     embed.set_author(icon_url=infos.avatar_url, name=str(infos))
     embed.timestamp = datetime.today()
     return embed
 
-  def help_configuration (self, guild_id):
+  def help_configuration (self, guild_id, prefix):
     infos = self.bot.user
     colour = discord.Colour(0)
     colour = colour.from_rgb(176, 255, 176)
@@ -270,11 +270,11 @@ class Help(commands.Cog):
     embed.timestamp = datetime.today()
     return embed
 
-  def help_global(self, guild_id):
+  def help_global(self, guild_id, prefix):
     line_cogs = ""
     all_lines = []
     all_cogs = {
-      "Birthday": {"status": 0, "desc": Utils.get_text(guild_id, 'birthday_help_description')}
+        "Birthday": {"status": 0, "desc": Utils.get_text(guild_id, 'birthday_help_description')}
       , "Bancommand": {"status": 0, "desc": Utils.get_text(guild_id, 'bancommand_help_description')}
       , "Configuration": {"status": 0, "desc": Utils.get_text(guild_id, 'config_help_description')}
       , "Gallery": {"status": 0, "desc": Utils.get_text(guild_id, 'gallery_help_description')}
@@ -293,11 +293,10 @@ class Help(commands.Cog):
       , "Utip": {"status": 0, "desc": Utils.get_text(guild_id, 'utip_help_description')}
       , "Vote": {"status": 0, "desc": Utils.get_text(guild_id, 'vote_help_description')}
       , "Welcome": {"status": 0, "desc": Utils.get_text(guild_id, 'welcome_help_description')}
-      , "Source": {"status": 0, "desc": Utils.get_text(guild_id, 'source_help_description')}
       , "Rules": {"status": 0, "desc": Utils.get_text(guild_id, 'rules_help_description')}
     }
     for name in all_cogs.keys():
-      if Utils.is_loaded(name.lower(), guild_id):
+      if Utils.is_loaded(name.lower(), guild_id, prefix):
         all_cogs[name]["status"] = 1
 
     for cog, dicog in all_cogs.items():

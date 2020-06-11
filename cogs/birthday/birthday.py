@@ -172,3 +172,31 @@ class Birthday(commands.Cog):
       await ctx.message.add_reaction('❌')
       return
     await ctx.channel.send(Utils.get_text(ctx.guild.id, 'display_new_message').format(message))
+    
+    
+
+  @commands.command(name='displaybirthdaymessage', aliases=['dbm'])
+  @Utils.require(required=['authorized', 'not_banned', 'cog_loaded'])
+  async def display_birthday_message(self, ctx):
+    guild_id                 = ctx.message.guild.id
+    member                   = ctx.author
+    sql                      = "select message from birthday_message where guild_id=? ;"
+    birthday_message         = database.fetch_one_line(sql, [guild_id])
+    if not birthday_message:
+      await ctx.send ((Utils.get_text(ctx.guild.id, 'birthday_no_message')))
+    else:
+      message                = birthday_message [0]
+      await ctx.send(Utils.get_text(ctx.guild.id, 'birthday_display_message').format(message))
+
+  @commands.command(name='displaybirthdaytime', aliases=['dbt'])
+  @Utils.require(required=['authorized', 'not_banned', 'cog_loaded'])
+  async def display_birthday_time(self, ctx):
+    guild_id                 = ctx.message.guild.id
+    member                   = ctx.author
+    sql                      = "select time from birthday_time where guild_id=? ;"
+    birthday_time            = database.fetch_one_line(sql, [guild_id])
+    if not birthday_time:
+      await ctx.send ((Utils.get_text(ctx.guild.id, 'birthday_no_time')))
+    else:
+      time                   = birthday_time [0]
+      await ctx.send(Utils.get_text(ctx.guild.id, 'birthday_display_time').format(time))
