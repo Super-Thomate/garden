@@ -296,7 +296,7 @@ class Help(commands.Cog):
       , "Rules": {"status": 0, "desc": Utils.get_text(guild_id, 'rules_help_description')}
     }
     for name in all_cogs.keys():
-      if Utils.is_loaded(name.lower(), guild_id, prefix):
+      if Utils.is_loaded(name.lower(), guild_id):
         all_cogs[name]["status"] = 1
 
     for cog, dicog in all_cogs.items():
