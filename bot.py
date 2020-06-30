@@ -141,7 +141,7 @@ async def on_disconnect ():
   for task in DISCORD_TASKS:
     #logger ("bot::on_disconnect", "Cancel task.")
     task.cancel ()
-
+    DISCORD_TASKS.remove (task)
 #@bot.event
 #async def on_connect ():
   #logger ("bot::on_connect", "Called when the client has successfully connected to Discord.")
