@@ -220,7 +220,10 @@ class Gallery(commands.Cog):
           await message.channel.send(Utils.get_text(guild_id, 'error_user_disabled_PM_2'))
           logger ("gallery::token", f" {type(e).__name__} - {e}")
           error = True
-        await self.logger.log('galerie_log', member, message, error)
+        try:
+          await self.logger.log('galerie_log', member, message, error)
+        except Exception as e:
+          logger ("gallery::token", f'{type(e).__name__} - {e}')
         try:
           if error:
             await message.add_reaction('❌')
