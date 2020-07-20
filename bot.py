@@ -39,25 +39,26 @@ def get_prefix(bot, message):
 
 
 # Define all of our cogs
-initial_extensions = ['cogs.loader'
-  , 'cogs.logs'
-  , 'cogs.invitation'
-  , 'cogs.help'
-  , 'cogs.nickname'
-  , 'cogs.welcome'
-  , 'cogs.bancommand'
-  , 'cogs.roledm'
-  , 'cogs.vote'
-  , 'cogs.turing'
-  , 'cogs.moderation'
-  , 'cogs.configuration'
-  , 'cogs.birthday'
-  , 'cogs.gallery'
-  , 'cogs.utip'
-  , 'cogs.rules'
-  , 'cogs.source'
-  , 'cogs.pwet'
-  , 'cogs.timer'
+initial_extensions = [   'cogs.loader'
+                       , 'cogs.logs'
+                       , 'cogs.invitation'
+                       , 'cogs.help'
+                       , 'cogs.nickname'
+                       , 'cogs.welcome'
+                       , 'cogs.bancommand'
+                       , 'cogs.roledm'
+                       , 'cogs.vote'
+                       , 'cogs.turing'
+                       , 'cogs.moderation'
+                       , 'cogs.configuration'
+                       , 'cogs.birthday'
+                       , 'cogs.gallery'
+                       , 'cogs.utip'
+                       , 'cogs.rules'
+                       , 'cogs.source'
+                       , 'cogs.pwet'
+                       , 'cogs.timer'
+                       , 'cogs.event'
                       ]
 
 bot = commands.Bot(command_prefix=get_prefix)
@@ -74,11 +75,12 @@ async def on_guild_join(guild):
   guild_id = guild.id
   # Create default config
   inserts = [
-    "insert into config_prefix (`prefix`, `guild_id`) values ('!', ?) ;"
+      "insert into config_prefix (`prefix`, `guild_id`) values ('!', ?) ;"
     , "insert into config_delay (`delay`, `type_delay`, `guild_id`) values (0, 'nickname', ?) ;"
     , "insert into config_delay (`delay`, `type_delay`, `guild_id`) values (0, 'invite', ?) ;"
     , "insert into config_delay (`delay`, `type_delay`, `guild_id`) values (0, 'utip_role', ?) ;"
     , "insert into config_lang (`language_code`, `guild_id`) values ('en', ?) ;"
+    , "insert into timezone (`tz`, `guild_id`) values ('Europe/London', ?) ;"
   ]
   for insert in inserts:
     database.execute_order(insert, [guild_id])
@@ -93,7 +95,7 @@ async def on_ready():
   len_discord_version        = len (discord_version)
   discord_version            = discord_version + (" " * (len_logged_in_as-len_discord_version))
   dash                       = "----"+("-"*len_logged_in_as)
-  
+
   login                      = (   "{0}\n"
                                    "| {1} |\n"
                                    "{0}\n"

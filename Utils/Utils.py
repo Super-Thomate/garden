@@ -13,8 +13,12 @@ from core.Logger import logger
 import botconfig
 import database
 import emoji
+from datetime import datetime
+from pytz import timezone
+import pytz
+import discord
 
-from discord.ext.commands import BadArgument, EmojiConverter
+from discord.ext.commands import BadArgument, EmojiConverter, TextChannelConverter, RoleConverter, ColourConverter
 from discord.ext import commands
 
 dir_path = os.path.dirname(os.path.realpath(__file__)) + '/'
@@ -478,3 +482,44 @@ def setInterval(timer, task, *args):
 
 def str_bool (boolean: bool):
   return "True" if boolean else "False"
+  
+
+async def get_text_channel (ctx: commands.Context, channel: str):
+  try:
+    converter              = TextChannelConverter ()
+    return await converter.convert (ctx, channel)
+  except BadArgument:
+    raise
+   
+def get_time_delta (guild_id: int):
+  select                     = "select `tz` from `timezone` where guild_id = ? ;"
+  fetched                    = database.fetch_one_line(select, [guild_id])
+  tz                         = "UTC" # default
+  if fetched:
+    # tz exists
+    tz                       = fetched [0]
+    logger ("Utils::get_time_delta", "In db : {}".format (tz))
+  return tz
+  
+
+async def confirm_command (message: discord.Message, status: bool):
+  reaction                   = emojize (':white_check_mark:') if status else emojize (':x:')
+  try:
+    await message.add_reaction (reaction)
+  except Exception as e:
+    logger ("Utils::confirm_command", f"{type(e).__name__} - {e}")
+    
+
+async def get_role (ctx: commands.Context, role: str):
+  try:
+    converter              = RoleConverter ()
+    return await converter.convert (ctx, role)
+  except BadArgument:
+    raise
+
+async def get_colour (ctx: commands.Context, colour: str):
+  try:
+    converter              = ColourConverter ()
+    return await converter.convert (ctx, colour)
+  except BadArgument:
+    raise

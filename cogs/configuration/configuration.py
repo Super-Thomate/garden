@@ -325,3 +325,20 @@ class Configuration(commands.Cog):
       logger ("configuration::set_language", f"{type(e).__name__} - {e}")
     botconfig.__language__[str(guild_id)] = lang_code
     await ctx.send(Utils.get_text(ctx.guild.id, 'language_updated'))
+
+
+  @commands.command(name='settimezone', aliases=['settz', 'timezone', 'tz'])
+  @Utils.require(required=['authorized', 'not_banned'])
+  async def set_tz(self, ctx, tz: str):
+    """
+    insert into timezone (`tz`, `guild_id`) values ('Europe/London', ?) ;
+    """
+    guild_id                 = ctx.guild.id
+    select                   = "select tz from timezone where guild_id = ? ;"
+    already_set              = database.fetch_one_line (select, [guild_id])
+    insert                   = "insert into timezone (tz, guild_id) values (? ,?) ;"
+    if already_set:
+      insert                 = "update timezone set tz = ? where guild_id = ? ;"
+    database.execute_order (insert, [tz, guild_id])
+    botconfig.__tz__  [str (guild_id)] = tz
+    await ctx.send(Utils.get_text(ctx.guild.id, 'tz_updated'))

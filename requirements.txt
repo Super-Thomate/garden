@@ -4,3 +4,4 @@ python-dateutil
 tldextract
 emoji
 crontab
+pytz
