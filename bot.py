@@ -138,10 +138,13 @@ async def on_command_error(ctx: commands.Context, exception):
 @bot.event
 async def on_disconnect ():
   logger ("bot::on_disconnect", "Called when the client has disconnected from Discord.")
+  logger ("bot::on_disconnect", DISCORD_TASKS)
   for task in DISCORD_TASKS:
-    #logger ("bot::on_disconnect", "Cancel task.")
+    logger ("bot::on_disconnect", "Cancel task.")
     task.cancel ()
     DISCORD_TASKS.remove (task)
+  logger ("bot::on_disconnect", DISCORD_TASKS)
+
 #@bot.event
 #async def on_connect ():
   #logger ("bot::on_connect", "Called when the client has successfully connected to Discord.")
