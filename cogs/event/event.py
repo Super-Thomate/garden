@@ -1,3 +1,4 @@
+import json
 import discord
 from discord.ext import commands
 
@@ -69,16 +70,17 @@ class Event (commands.Cog):
     Create an event
     """
     guild_id                 = ctx.guild.id
-    new_event                = {   "event_id": str (uuid.uuid4())
-                                 ,   "author": ctx.author
-                                 ,     "name": "No name"
-                                 ,     "desc": "No description"
-                                 , "datetime": "00/00/0000 00:00:00"
-                                 ,       "tz": "-"
-                                 ,     "role": ""
-                                 ,  "channel": ctx.channel
-                                 ,   "colour": ""
-                                 , "finished": 0
+    new_event                = {     "event_id": str (uuid.uuid4())
+                                 ,     "author": ctx.author
+                                 ,       "name": "No name"
+                                 ,       "desc": "No description"
+                                 ,   "datetime": "00/00/0000 00:00:00"
+                                 ,         "tz": "-"
+                                 ,       "role": ""
+                                 ,    "channel": ctx.channel
+                                 ,     "colour": ""
+                                 ,   "finished": 0
+                                 , "message_id": 0
                                }
     #logger ("event::create", "new_event : {}".format (new_event))
     check                    = lambda m: m.channel == ctx.channel and m.author == ctx.author
@@ -172,8 +174,12 @@ class Event (commands.Cog):
     
     # logger ("event::create", "new_event : {}".format (new_event))
     embed                    = self.event_embed_info (guild_id, new_event)
-    await event_channel.send (embed=embed)
-    return
+    message                  = await event_channel.send (embed=embed)
+    new_event ['message_id'] = message.id
+    # SAVE IN DB
+    order                    = "insert into event (guild_id, owner_id, event_id, finished, event_info) values (?, ?, ?, ?, ?) ;"
+    logger ("event::create::new_event", json.dumps(new_event))
+    # database.execute_order (order, [guild_id, ctx.author.id, new_event ["event_id"], 0, json.dumps(new_event)])
 
   @event.command ()
   async def edit (self, ctx: commands.Context, event_id: str):
@@ -182,6 +188,34 @@ class Event (commands.Cog):
     """
     return
 
+  @event.command ()
+  async def list (self, ctx: commands.Context):
+    """
+    List all event for me
+    """
+    select                   = "select event_info, finished from event where guild_id=? and owner_id=? ;"
+    all_fetched              = database.fetch_all_line (select, [ctx.guild.id, ctx.author.id])
+    result                   = ""
+    logger ("event::list::all_fetched", f"{all_fetched}")
+    for event in all_fetched:
+      event_info             = event [1]
+      event_message          = await event_info ["channel"].fetch_message (event_info ["message_id"]) 
+      result                += "* "+event_info["name"]+(" (finished)" if event[0] else "")+" ("+event_message.jump_url+")\n"
+    logger ("event::list::result", f"{result}")
+    if len(result) :
+      result                 = "```"+result+"```"
+    else:
+      result                 = "0 event"
+    await ctx.send (result)
+    return
+
+  @event.command ()
+  @Utils.require (required = ['authorized'])
+  async def listall (self, ctx: commands.Context):
+    """
+    List all event
+    """
+    return
   def event_embed_info (self, guild_id, event):
     colour                   = event ["colour"]
     embed                    = embed_info (   colour

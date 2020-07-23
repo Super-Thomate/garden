@@ -195,28 +195,23 @@ def create_table():
       
     ### EVENT COG
     cursor.execute('CREATE TABLE IF NOT EXISTS `event` (`guild_id` VARCHAR(256) NOT NULL, '+
-                   '`owner_id` VARCHAR(256) NOT NULL, `event_id` VARCHAR(64) NOT NULL, '+
-                   '`name` VARCHAR(256) NOT NULL, `desc` VARCHAR(1024) NOT NULL, '+
-                   '`date` DATETIME NOT NULL, `finished` TINYINT NOT NULL, '+
-                   'PRIMARY KEY (`guild_id`, `event_id`)) ;'
+                   '`owner_id` VARCHAR(256) NOT NULL, '+
+                   '`event_id` VARCHAR(64) NOT NULL, '+
+                   '`finished` TINYINT NOT NULL, '+
+                   '`event_info` BLOB NOT NULL, '+
+                   'PRIMARY KEY (`event_id`)) ;'
                   )
     cursor.execute('CREATE TABLE IF NOT EXISTS `event_roles` (`guild_id` VARCHAR(256) NOT NULL, '+
                    '`role_id` INTEGER NOT NULL, `event_id` VARCHAR(64) NOT NULL, '+
                    '`invited`TINYINT NOT NULL, '+
-                   'PRIMARY KEY (`guild_id`, `event_id`, `role_id`)) ;'
-                  )
-    cursor.execute('CREATE TABLE IF NOT EXISTS `event_guest` (`guild_id` VARCHAR(256) NOT NULL, '+
-                   '`user_id` INTEGER NOT NULL, `event_id` VARCHAR(64) NOT NULL, '+
-                   '`invited`TINYINT NOT NULL, '+
-                   'PRIMARY KEY (`guild_id`, `event_id`, `user_id`)) ;'
+                   'PRIMARY KEY (`event_id`, `role_id`)) ;'
                   )
     cursor.execute('CREATE TABLE IF NOT EXISTS `event_reminder` (`guild_id` VARCHAR(256) NOT NULL, '+
                    '`event_id` VARCHAR(64) NOT NULL, `order` INTEGER, '+
                    '`date` DATETIME NOT NULL, `where` VARCHAR(64) NOT NULL, '+
                    '`channel_id` INTEGER, '+
-                   'PRIMARY KEY (`guild_id`, `event_id`, `order`)) ;'
+                   'PRIMARY KEY (`event_id`, `order`)) ;'
                   )
-      
     # Save modifications
     cnx.commit()
     cursor.close()

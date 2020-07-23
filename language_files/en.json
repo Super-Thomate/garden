@@ -260,6 +260,6 @@
   "display_new_message": "New message: `{0}`",
   "success": "**`SUCCESS`**",
   "not_loaded": "The command `{0}` could not be executed. Check if  cog `{1}` is loaded.",
-  "troll_nickname": "I can change my nickname"
+  "troll_nickname": "I can change my nickname",
   "none": "None"
 }
