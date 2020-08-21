@@ -212,7 +212,7 @@ class Help(commands.Cog):
     embed = discord.Embed(colour=colour, title=Utils.get_text(guild_id, 'rules_help_title'))
     embed.description = Utils.get_text(guild_id, 'help_moderator_only')
     embed.add_field(name=Utils.get_text(guild_id, "help_variable_title")
-                    , value=Utils.get_text(guild_id, "rules_help_user_command").format(prefix)
+                    , value=Utils.get_text(guild_id, "rules_help_user_command")
                     , inline=False
                     )
     embed.add_field(name=Utils.get_text(guild_id, 'help_admin_command')
