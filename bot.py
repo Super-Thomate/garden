@@ -58,6 +58,7 @@ initial_extensions = ['cogs.loader'
   , 'cogs.rules'
   , 'cogs.source'
   , 'cogs.pwet'
+  , 'cogs.pet'
   , 'cogs.timer'
                       ]
 
