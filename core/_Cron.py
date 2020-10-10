@@ -308,7 +308,7 @@ def get_birthday_message (guild: discord.Guild, member: discord.Member) -> str:
     for part in parts:
       all_rand = part.split("|")
       logger ("_Cron::get_birthday_message", f"all_rand: {all_rand}")
-      current_part = all_rand[random.randint(0, len(all_rand) - 1)]
+      current_part = random.choice(all_rand)
       logger ("_Cron::get_birthday_message", f"current_part: {current_part}")
       text = text + current_part
   return text.replace("$member", f"{member.mention}")
