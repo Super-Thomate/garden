@@ -49,7 +49,48 @@ event edit [event_id] => edit an existing event
 
 check = lambda m: m.channel == ctx.channel and m.author == ctx.author
 """
-emojis                       = ["✔️", "❌"]
+# Emojis Yes, No, Maybe
+emojis                       = ["✔️", "❌", "😕"]
+# Reminders
+reminders                    = [   "On time" # Default 0
+                                 , "10 min"
+                                 , "15 min"
+                                 , "30 min"
+                                 , "45 min"
+                                 , "1h" # Default 5
+                                 , "1h30" 
+                                 , "2h" 
+                                 , "3h" 
+                                 , "4h" 
+                                 , "5h" 
+                                 , "6h" 
+                                 , "12h" 
+                                 , "24h" # Default 13
+                                 , "48h" 
+                                 , "72h" 
+                                 , "96h" 
+                                 , "5d" 
+                                 , "6d" 
+                                 , "1w" # Default 19
+                                 , "2w" # Default 20
+                                 , "3w" 
+                                 , "1m" # Default 22
+                                 , "2m"
+                                 , "3m"
+                                 , "4m"
+                                 , "5m"
+                                 , "6m" # Default 27
+                                 , "8m"
+                                 , "1y"
+                               ]
+reminders_default            = [   0
+                                 , 5
+                                 , 13
+                                 , 19
+                                 , 20
+                                 , 22
+                                 , 27
+                               ]
 class Event (commands.Cog):
   def __init__ (self, bot):
     self.bot                 = bot
@@ -176,10 +217,35 @@ class Event (commands.Cog):
     embed                    = self.event_embed_info (guild_id, new_event)
     message                  = await event_channel.send (embed=embed)
     new_event ['message_id'] = message.id
+    event_info               = {         "name": new_event ["name"]
+                                 ,       "desc": new_event ["desc"]
+                                 ,   "datetime": new_event ["datetime"]
+                                 ,         "tz": new_event ["tz"]
+                                 ,     "colour": new_event ["colour"]
+                               }
     # SAVE IN DB
     order                    = "insert into event (guild_id, owner_id, event_id, finished, event_info) values (?, ?, ?, ?, ?) ;"
-    logger ("event::create::new_event", json.dumps(new_event))
-    # database.execute_order (order, [guild_id, ctx.author.id, new_event ["event_id"], 0, json.dumps(new_event)])
+    logger ("event::create::new_event", json.dumps(event_info))
+    # database.execute_order (order, [guild_id, ctx.author.id, new_event ["event_id"], 0, json.dumps(event_info)])
+    # Save roles
+    order                    = "insert into event_role (guild_id, event_id, role_id) values (?, ?, ?) ;"
+    # database.execute_order (order, [guild_id, new_event ["event_id"], new_event ['role'].id)
+    # Save reminders default
+    """
+    event_reminder
+      guild_id
+      event_id
+      order  -- order of reminder
+      date  -- date to send
+      where  -- DM,CHANNEL,BOTH
+      channel_id -- nullable
+      PRIMARY KEY (guild_id, event_id, order)
+    """
+    ordinal                  = 0
+    for index in reminders_default:
+      order                    = "insert into event_reminder (guild_id, event_id, order, date, where, channel_id) values (?, ?, ?) ;"
+      # database.execute_order (order, [guild_id, new_event ["event_id"], ordinal)
+      ordinal+=1
 
   @event.command ()
   async def edit (self, ctx: commands.Context, event_id: str):
