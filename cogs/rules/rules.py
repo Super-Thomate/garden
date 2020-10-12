@@ -233,6 +233,8 @@ class Rules(commands.Cog):
     if guild is None:
       return
     author = guild.get_member(payload.user_id)
+    if author is None:
+      return
     if (not Utils.is_loaded("rules", payload.guild_id)
             or not Utils.is_authorized(author, payload.guild_id)
             or author.bot
