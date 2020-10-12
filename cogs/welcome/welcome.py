@@ -27,6 +27,7 @@ class Welcome(commands.Cog):
   async def on_member_update(self, before, after):
     # guild id
     guild_id = before.guild.id
+    logger ("welcome::on_member_update", f'guild_id: {guild_id}')
     if not Utils.is_loaded("welcome", guild_id):
       return
     unique_welcome = True  # to put on config later
