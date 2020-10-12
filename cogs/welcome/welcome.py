@@ -27,14 +27,14 @@ class Welcome(commands.Cog):
   async def on_member_update(self, before, after):
     # guild id
     guild_id = before.guild.id
-    logger ("welcome::on_member_update", f'guild_id: {guild_id}')
+    # logger ("welcome::on_member_update", f'guild_id: {guild_id}')
     if not Utils.is_loaded("welcome", guild_id):
       return
     unique_welcome = True  # to put on config later
     # all roles to listen
     select = f"select role_id from welcome_role where guild_id='{guild_id}'"
     fetched = database.fetch_all_line(select)
-    logger ("welcome::on_member_update", f'fetched: {fetched}')
+    #logger ("welcome::on_member_update", f'fetched: {fetched}')
     for line in fetched:
       role_id = int(line[0])
       if (not Utils.has_role(before, role_id)
