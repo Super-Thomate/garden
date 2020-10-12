@@ -56,10 +56,20 @@ def is_authorized(member, guild_id):
   if guild_id == 494812563016777729:
     return True
   # admin can't be blocked
-  if is_admin(member):
-    return True
+  try:
+    if is_admin(member):
+      return True
+  except Exception as e:
+      logger ("Utils::is_authorized", f"{type(e).__name__} - {e}")
+      return False
   # if perm
-  return is_allowed(member, guild_id)
+  try:
+    if is_allowed(member, guild_id):
+      return True
+  except Exception as e:
+      logger ("Utils::is_authorized", f"{type(e).__name__} - {e}")
+      return False
+
 
 
 def is_banned(command, member, guild_id):
