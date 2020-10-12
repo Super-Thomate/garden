@@ -86,7 +86,9 @@ class Pwet(commands.Cog):
     if guild is None:
       return
     author = guild.get_member(payload.user_id)
-    if Utils.is_authorized(author, guild.id):
+    if author is None:
+      return
+    if Utils.is_authorized(author, guild.id): # Utils::is_authorized: AttributeError - 'NoneType' object has no attribute 'guild_permissions'
       sql = "SELECT emoji_text, emoji_id FROM pwet_reaction WHERE guild_id=? ;"
       response = database.fetch_one_line(sql, [guild.id])
       if response is None:
