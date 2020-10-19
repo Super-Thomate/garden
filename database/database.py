@@ -207,10 +207,15 @@ def create_table():
                    'PRIMARY KEY (`event_id`, `role_id`)) ;'
                   )
     cursor.execute('CREATE TABLE IF NOT EXISTS `event_reminder` (`guild_id` VARCHAR(256) NOT NULL, '+
-                   '`event_id` VARCHAR(64) NOT NULL, `order` INTEGER, '+
+                   '`event_id` VARCHAR(64) NOT NULL, '+
                    '`date` DATETIME NOT NULL, `where` VARCHAR(64) NOT NULL, '+
                    '`channel_id` INTEGER, '+
                    'PRIMARY KEY (`event_id`, `order`)) ;'
+                  )
+    cursor.execute('CREATE TABLE IF NOT EXISTS `event_registered` (`guild_id` VARCHAR(256) NOT NULL, '+
+                   '`event_id` VARCHAR(64) NOT NULL, '+
+                   '`user_id` INTEGER, '+
+                   'PRIMARY KEY (`guild_id`, `event_id`, `user_id`)) ;'
                   )
     # Save modifications
     cnx.commit()

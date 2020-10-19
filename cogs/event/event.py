@@ -34,6 +34,11 @@ event_reminder
   where  -- DM,CHANNEL,BOTH
   channel_id -- nullable
   PRIMARY KEY (guild_id, event_id, order)
+event_registered
+  guild_id
+  event_id
+  user_id
+  PRIMARY KEY (guild_id, event_id, user_id)
 
 event config
 event_id
@@ -235,17 +240,14 @@ class Event (commands.Cog):
     event_reminder
       guild_id
       event_id
-      order  -- order of reminder
       date  -- date to send
       where  -- DM,CHANNEL,BOTH
       channel_id -- nullable
       PRIMARY KEY (guild_id, event_id, order)
     """
-    ordinal                  = 0
     for index in reminders_default:
-      order                    = "insert into event_reminder (guild_id, event_id, order, date, where, channel_id) values (?, ?, ?) ;"
-      # database.execute_order (order, [guild_id, new_event ["event_id"], ordinal)
-      ordinal+=1
+      order                    = "insert into event_reminder (guild_id, event_id, date, where, channel_id) values (?, ?, ?, ?, ?) ;"
+      # database.execute_order (order, [guild_id, new_event ["event_id"], "dm", NULL)
 
   @event.command ()
   async def edit (self, ctx: commands.Context, event_id: str):
