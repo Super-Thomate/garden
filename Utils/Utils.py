@@ -404,7 +404,7 @@ def convert_str_to_time(time_string):
   return timestamp
 
 
-def get_text(guild_id: int, text_key: str) -> str:
+def get_text(guild_id: int, text_key: str, module: str = "") -> str:
   language_code = botconfig.__language__[str(guild_id)]
   try:
     return strings[language_code][text_key]
