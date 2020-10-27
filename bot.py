@@ -109,6 +109,7 @@ async def on_ready():
       select = "select language_code from config_lang where guild_id=? ;"
       language_code = database.fetch_one_line(select, [guild.id])
       botconfig.__language__[str(guild.id)] = language_code[0] if language_code else "en"
+    logger ("bot::on_ready", " botconfig.__language__ : {}".format( botconfig.__language__))
   except TypeError as type_err:
     logger ("bot::on_ready", "Error TypeError : {}".format(type_err))
     sys.exit(0)
