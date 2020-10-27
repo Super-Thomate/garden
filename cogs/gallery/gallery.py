@@ -83,7 +83,7 @@ class Gallery(commands.Cog):
   async def set_gallery_message(self, ctx):
     guild_id = ctx.message.guild.id
     member = ctx.author
-    await ctx.send("Entrez le message de gallerie : ")
+    await ctx.send("Entrez le message de galerie : ")
     check = lambda m: m.channel == ctx.channel and m.author == ctx.author
     msg = await self.bot.wait_for('message', check=check)
     message = msg.content
@@ -203,7 +203,13 @@ class Gallery(commands.Cog):
         error = False
         try:
           colour = discord.Colour(0)
-          url = "Votre jeton:\n" + await self.get_galerie_link(guild_id, member)
+          try:
+            url = "Votre jeton:\n" + await self.get_galerie_link(guild_id, member)
+          except Exception as e:
+            logger ("gallery::token", f'get_galerie_link => {type(e).__name__} - {e}')
+            await message.add_reaction('❌')
+            await message.channel.send("Error on get link !")
+            return
           sql = f"select message from galerie_message where guild_id='{guild_id}'"
           galerie_message = database.fetch_one_line(sql)
           if galerie_message:
