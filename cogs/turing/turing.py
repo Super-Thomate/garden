@@ -5,6 +5,8 @@ import Utils
 from ..logs import Logs
 from core import logger
 
+import json
+from datetime import datetime
 
 class Turing(commands.Cog):
   """
@@ -248,3 +250,34 @@ class Turing(commands.Cog):
       logger ("turing::react_to_message", f" {type(e).__name__} - {e}")
       error = True
     await self.logger.log('spy_log', author, ctx.message, error, {"url_to_go": message.jump_url})
+
+
+
+  
+
+  @commands.command(name="embed")
+  @commands.guild_only()
+  @Utils.require(required=['authorized', 'not_banned', 'cog_loaded'])
+  async def set_embed (self, ctx: commands.Context, channel: discord.TextChannel = None):
+    """
+    
+    """
+    try:
+      channel = channel or ctx.channel
+      ask = await ctx.send ("uploader le json: ")
+      check = lambda m: m.channel == ctx.channel and m.author == ctx.author
+      msg = await self.bot.wait_for('message', check=check)
+      await ask.delete(delay=2)
+      message = msg.content
+    except Exception as e:
+      logger ("turing::set embed", f" {type(e).__name__} - {e}")
+    data = json.loads(message)
+    logger ("turing::embed json", data)
+    
+    try:
+      embed = discord.Embed.from_dict(data)
+      await channel.send (content=None, embed=embed)
+    except Exception as e:
+      logger ("turing::set embed", f" {type(e).__name__} - {e}")
+      await ctx.send ("**ERROR** {} - {}".format (type(e).__name__, e))
+    
