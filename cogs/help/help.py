@@ -11,6 +11,14 @@ class Help(commands.Cog):
   def __init__(self, bot):
     self.bot = bot
 
+  @commands.command(name='ping')
+  @Utils.require(required=['not_banned'])
+  async def ping (self, ctx: discord.Context):
+    """
+    PING PONG
+    """
+    await ctx.send ("Pong !")
+    
   @commands.command(name='help')
   @Utils.require(required=['not_banned'])
   async def help(self, ctx, *, cog: str = None):
