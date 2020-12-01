@@ -13,7 +13,7 @@ class Help(commands.Cog):
 
   @commands.command(name='ping')
   @Utils.require(required=['not_banned'])
-  async def ping (self, ctx: discord.Context):
+  async def ping (self, ctx: commands.Context):
     """
     PING PONG
     """
