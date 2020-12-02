@@ -62,7 +62,9 @@ initial_extensions = ['cogs.loader'
   , 'cogs.timer'
                       ]
 
-bot = commands.Bot(command_prefix=get_prefix)
+intents = discord.Intents.default()
+intents.members = True
+bot = commands.Bot(command_prefix=get_prefix, intents=intents)
 bot.remove_command("help")  # we used our own help command
 
 # Here we load our extensions(cogs) listed above in [initial_extensions].
