@@ -176,7 +176,7 @@ class Gallery(commands.Cog):
             embed.timestamp = datetime.utcnow()
             await author.send(content=None, embed=embed)
           except Exception as e:
-            logger ("gallery::token", f" {type(e).__name__} - {e}")
+            logger ("gallery::token 1", f" {type(e).__name__} - {e}")
             error = True
           await self.logger.log_dm('galerie_log', author, message, guild, error)
           try:
@@ -186,7 +186,7 @@ class Gallery(commands.Cog):
               await message.delete(delay=2)
               await message.add_reaction('✅')
           except Exception as e:
-            logger ("gallery::token", f'{type(e).__name__} - {e}')
+            logger ("gallery::token 2", f'{type(e).__name__} - {e}')
     else:
       if not Utils.is_loaded("gallery", message.guild.id):
         return
@@ -206,7 +206,7 @@ class Gallery(commands.Cog):
           try:
             url = "Votre jeton:\n" + await self.get_galerie_link(guild_id, member)
           except Exception as e:
-            logger ("gallery::token", f'get_galerie_link => {type(e).__name__} - {e}')
+            logger ("gallery::token 3", f'get_galerie_link => {type(e).__name__} - {e}')
             await message.add_reaction('❌')
             await message.channel.send("Error on get link !")
             return
@@ -224,12 +224,12 @@ class Gallery(commands.Cog):
           await member.send(content=None, embed=embed)
         except Exception as e:
           await message.channel.send(Utils.get_text(guild_id, 'error_user_disabled_PM_2'))
-          logger ("gallery::token", f" {type(e).__name__} - {e}")
+          logger ("gallery::token 4", f" {type(e).__name__} - {e}")
           error = True
         try:
           await self.logger.log('galerie_log', member, message, error)
         except Exception as e:
-          logger ("gallery::token", f'{type(e).__name__} - {e}')
+          logger ("gallery::token 5", f'{type(e).__name__} - {e}')
         try:
           if error:
             await message.add_reaction('❌')
@@ -237,7 +237,7 @@ class Gallery(commands.Cog):
             await message.delete(delay=2)
             await message.add_reaction('✅')
         except Exception as e:
-          logger ("gallery::token", f'{type(e).__name__} - {e}')
+          logger ("gallery::token 6", f'{type(e).__name__} - {e}')
 
   async def get_galerie_link(self, guild_id, author):
     url = (Utils.token_url(guild_id) or botconfig.config[str(guild_id)]['create_url'][
