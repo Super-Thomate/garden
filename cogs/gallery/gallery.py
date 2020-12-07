@@ -242,7 +242,10 @@ class Gallery(commands.Cog):
   async def get_galerie_link(self, guild_id, author):
     url = (Utils.token_url(guild_id) or botconfig.config[str(guild_id)]['create_url'][
       'gallery']) + urllib.parse.urlencode({'user': author.display_name})  # build the web adress
-    return await self.get_text(url)
+    link = await self.get_text(url)
+    if not len (link):
+      raise Exception('No link found')
+    return link
 
   async def get_text(self, url):
     async with aiohttp.ClientSession() as session:
