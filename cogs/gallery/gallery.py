@@ -250,8 +250,7 @@ class Gallery(commands.Cog):
   async def get_text(self, url):
     async with aiohttp.ClientSession() as session:
       response = await session.get(url)
-      soupObject = BeautifulSoup(await response.text(), "html.parser")
-      return soupObject.p.get_text().replace(";", "")
+      return await response.text()
 
   def is_banned (self, member, guild_id):
    command = "jeton"
