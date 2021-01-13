@@ -189,6 +189,12 @@ def create_table():
       'CREATE TABLE IF NOT EXISTS `timer_end_message` (`end_message` VARCHAR(512) NOT NULL, `guild_id` VARCHAR(256) NOT NULL, PRIMARY KEY (`guild_id`)) ;')
     cursor.execute(
       'CREATE TABLE IF NOT EXISTS `timer_first_emoji` (`emoji` VARCHAR(256) NOT NULL, `guild_id` VARCHAR(256) NOT NULL, PRIMARY KEY (`guild_id`)) ;')
+    ### Highlight COG
+    cursor.execute(
+      'CREATE TABLE IF NOT EXISTS `highlight_channel_listener` (`channel_id` VARCHAR(256) NOT NULL, `guild_id` VARCHAR(256) NOT NULL, PRIMARY KEY (`guild_id`, `channel_id`)) ;')
+    cursor.execute(
+      'CREATE TABLE IF NOT EXISTS `highlight_emoji_channel` (`emoji_id` VARCHAR(64) NOT NULL, `channel_id` VARCHAR(256) NOT NULL, `guild_id` VARCHAR(256) NOT NULL, PRIMARY KEY (`guild_id`, `emoji_id`)) ;'
+    )
     # Save modifications
     cnx.commit()
     cursor.close()

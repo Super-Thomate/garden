@@ -60,6 +60,7 @@ initial_extensions = ['cogs.loader'
   , 'cogs.pwet'
   , 'cogs.pet'
   , 'cogs.timer'
+  , 'cogs.highlight'
                       ]
 
 intents = discord.Intents.default()
