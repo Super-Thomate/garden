@@ -1,5 +1,5 @@
 from discord.ext import commands
-
+import discord
 import Utils
 from ..logs import Logs
 
@@ -36,3 +36,14 @@ class Moderation(commands.Cog):
     ):
       await after.remove_reaction("<:CapsLock:621629196359303168>", self.bot.user)
     return
+
+  @commands.command(name="faqlore", aliases=['faq'])
+  @Utils.require(['authorized', 'not_banned', 'cog_loaded'])
+  async def react_faq_lore(self, ctx: commands.Context, message: discord.Message):
+    reactions = ["🇫", "🇦", "🇶", "🇱", "🇴", "🇷", "🇪", "🇸", "🇹", "🇵"]
+    await ctx.message.delete()
+    try:
+      for reaction in reactions:
+        await message.add_reaction(reaction)
+    except Exception:
+      pass
