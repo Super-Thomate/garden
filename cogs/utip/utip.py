@@ -222,8 +222,6 @@ class Utip(commands.Cog):
       return
     error = False
     try:
-      select = f"select message from acces_message where guild_id='{guild_id}' ;"
-      fetch_utip_message = database.fetch_one_line(select)
       await author.send(Utils.get_text('fr', 'acces_demand_transfered'))
       # ASK MODO
       title = ("Demande d'accès 16+ pour" +
