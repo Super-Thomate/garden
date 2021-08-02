@@ -23,14 +23,14 @@ class Utip(commands.Cog):
     select_channel = f"select channel_id from utip_channel where guild_id='{guild_id}' ;"
     fetched_channel = database.fetch_one_line(select_channel)
     if not fetched_channel:
-      await ctx.send(Utils.get_text('fr', 'error_moderation_channel_unset'))
+      await ctx.send(Utils.get_text(ctx.guild.id,, 'error_moderation_channel_unset'))
       await ctx.message.add_reaction('❌')
       return
     try:
       channel_id = int(fetched_channel[0])
       channel = await self.bot.fetch_channel(channel_id)
     except Exception as e:
-      await ctx.send(Utils.get_text('fr', 'error_moderation_channel').format(type(e).__name__))
+      await ctx.send(Utils.get_text(ctx.guild.id,, 'error_moderation_channel').format(type(e).__name__))
       await ctx.message.add_reaction('❌')
       logger ("utip::utip_send", f"{type(e).__name__} - {e}")
       return
@@ -59,7 +59,7 @@ class Utip(commands.Cog):
       if fetch_utip_message:
         await author.send(fetch_utip_message[0])
       else:
-        await author.send(Utils.get_text('fr', 'utip_demand_transfered'))
+        await author.send(Utils.get_text(ctx.guild.id,, 'utip_demand_transfered'))
       # ASK MODO
       title = ("Demande de rôle pour" +
                f"{str(author)} " +
@@ -209,20 +209,20 @@ class Utip(commands.Cog):
     select_channel = f"select channel_id from utip_channel where guild_id='{guild_id}' ;"
     fetched_channel = database.fetch_one_line(select_channel)
     if not fetched_channel:
-      await ctx.send(Utils.get_text('fr', 'error_moderation_channel_unset'))
+      await ctx.send(Utils.get_text(ctx.guild.id,, 'error_moderation_channel_unset'))
       await ctx.message.add_reaction('❌')
       return
     try:
       channel_id = int(fetched_channel[0])
       channel = await self.bot.fetch_channel(channel_id)
     except Exception as e:
-      await ctx.send(Utils.get_text('fr', 'error_moderation_channel').format(type(e).__name__))
+      await ctx.send(Utils.get_text(ctx.guild.id,, 'error_moderation_channel').format(type(e).__name__))
       await ctx.message.add_reaction('❌')
       logger ("utip::acces_send", f"{type(e).__name__} - {e}")
       return
     error = False
     try:
-      await author.send(Utils.get_text('fr', 'acces_demand_transfered'))
+      await author.send(Utils.get_text(ctx.guild.id,, 'acces_demand_transfered'))
       # ASK MODO
       title = ("Demande d'accès 16+ pour" +
                f"{str(author)} " +
