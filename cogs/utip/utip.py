@@ -222,7 +222,12 @@ class Utip(commands.Cog):
       return
     error = False
     try:
-      await author.send(Utils.get_text(ctx.guild.id, 'acces_demand_transfered'))
+      select = f"select message from utip_message where guild_id='{guild_id}' ;"
+      fetch_utip_message = database.fetch_one_line(select)
+      if fetch_utip_message:
+        await author.send(fetch_utip_message[0])
+      else:
+        await author.send(Utils.get_text(ctx.guild.id, 'acces_demand_transfered'))
       # ASK MODO
       title = ("Demande d'accès 16+ pour " +
                f"{str(author)} [{author.id}]" +
