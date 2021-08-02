@@ -200,6 +200,63 @@ class Utip(commands.Cog):
     else:
       await ctx.message.add_reaction('✅')
 
+  @commands.command(name='cartoon16', aliases=['acces', 'accescartoon16', 'g18ans'])
+  @Utils.require(required=['not_banned', 'cog_loaded'])
+  async def acces_send(self, ctx):
+    guild_id = ctx.message.guild.id
+    author = ctx.author
+    # First get channel, if no channel => big error
+    select_channel = f"select channel_id from utip_channel where guild_id='{guild_id}' ;"
+    fetched_channel = database.fetch_one_line(select_channel)
+    if not fetched_channel:
+      await ctx.send(Utils.get_text('fr', 'error_moderation_channel_unset'))
+      await ctx.message.add_reaction('❌')
+      return
+    try:
+      channel_id = int(fetched_channel[0])
+      channel = await self.bot.fetch_channel(channel_id)
+    except Exception as e:
+      await ctx.send(Utils.get_text('fr', 'error_moderation_channel').format(type(e).__name__))
+      await ctx.message.add_reaction('❌')
+      logger ("utip::acces_send", f"{type(e).__name__} - {e}")
+      return
+    error = False
+    try:
+      select = f"select message from acces_message where guild_id='{guild_id}' ;"
+      fetch_utip_message = database.fetch_one_line(select)
+      await author.send(Utils.get_text('fr', 'acces_demand_transfered'))
+      # ASK MODO
+      title = ("Demande d'accès 16+ pour" +
+               f"{str(author)} " +
+               ""
+               )
+      description = ("Souhaitez-vous donner à " +
+                     f"{author.display_name} " +
+                     "le rôle permettant l'accès au contenu 16+ ?\n" +
+                     "👍 Oui " +
+                     "👎 Non" +
+                     "\n"
+                     )
+      embed = self.create_embed(title, description, author)
+      modo_message = await channel.send(embed=embed)
+      await modo_message.add_reaction("👍")
+      await modo_message.add_reaction("👎")
+      # SET WAIT LIST
+      insert_wait = ("insert into utip_waiting " +
+                     "(`user_id`, `status`, `message_id`, `valid_by`, `valid_at`, `guild_id`) " +
+                     "values " +
+                     f"('{author.id}', 0, '{modo_message.id}', NULL, NULL, '{guild_id}')" +
+                     ";"
+                     )
+      database.execute_order(insert_wait)
+      # DELETE
+      await ctx.message.delete(delay=2)
+    except Exception as e:
+      logger ("utip::utip_send", f"{type(e).__name__} - {e}")
+      error = True
+    await self.logger.log('utip_log', author, ctx.message, error)
+
+
   async def give_role(self, member, role_utip, delay):
     # until = today+3
     try:
@@ -291,9 +348,15 @@ class Utip(commands.Cog):
       await self.give_role(member_selected, role_utip, delay)
       colour = colour.from_rgb(56, 255, 56)
       embed.set_footer(text=f"Accepté par {str(author_selected)}")
+      """
       feedback_message = (":white_check_mark: Demande validée ! " +
                           f"Tu dispose du role de backers pendant **{Utils.format_time(delay)}**." +
                           # ":arrow_right: Ton role prendra fin le **XX/XX/XXX** à **XX:XX**"+
+                          ""
+                          )
+      """
+      feedback_message = (":white_check_mark: Demande validée ! " +
+                          f"Tu disposes du rôle te permettant de voir le contenu 16+ ." +
                           ""
                           )
     else:
