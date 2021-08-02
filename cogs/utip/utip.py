@@ -225,7 +225,7 @@ class Utip(commands.Cog):
       await author.send(Utils.get_text(ctx.guild.id, 'acces_demand_transfered'))
       # ASK MODO
       title = ("Demande d'accès 16+ pour " +
-               f"{str(author)} " +
+               f"{str(author)} {author.id}" +
                ""
                )
       description = ("Souhaitez-vous donner à " +
