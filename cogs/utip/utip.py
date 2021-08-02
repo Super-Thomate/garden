@@ -261,7 +261,9 @@ class Utip(commands.Cog):
     # until = today+3
     try:
       error = False
-      until = math.floor(time.time()) + delay
+      until = 0
+      if not delay == "forever":
+        until = math.floor(time.time()) + delay
       select = ("select   user_id " +
                 " from    utip_timer " +
                 "where " +
@@ -271,22 +273,23 @@ class Utip(commands.Cog):
                 ""
                 )
       fetched = database.fetch_one_line(select)
-      if Utils.has_role(member, role_utip.id) or fetched:
-        sql = ("update utip_timer " +
-               f"set until={until} " +
-               " where " +
-               f"user_id = '{member.id}'" +
-               " and " +
-               f"guild_id = '{member.guild.id}'" +
-               ""
-               )
-      else:
-        sql = ("insert into utip_timer " +
-               "(`until`, `user_id`, `guild_id`)" +
-               "values " +
-               f"({until}, '{member.id}', '{member.guild.id}')" +
-               ""
-               )
+      if until > 0:
+        if Utils.has_role(member, role_utip.id) or fetched:
+          sql = ("update utip_timer " +
+                f"set until={until} " +
+                " where " +
+                f"user_id = '{member.id}'" +
+                " and " +
+                f"guild_id = '{member.guild.id}'" +
+                ""
+                )
+        else:
+          sql = ("insert into utip_timer " +
+                "(`until`, `user_id`, `guild_id`)" +
+                "values " +
+                f"({until}, '{member.id}', '{member.guild.id}')" +
+                ""
+                )
       await member.add_roles(role_utip)
       database.execute_order(sql)
     except Exception as e:
@@ -335,7 +338,7 @@ class Utip(commands.Cog):
                     )
     fetched_delay = database.fetch_one_line(select_delay)
     if not fetched_delay:
-      await channel_selected.send(Utils.get_text(guild_id, "utip_role_undefined"))
+      await channel_selected.send(Utils.get_text(guild_id, "utip_delay_undefined"))
       return
     delay = int(fetched_delay[0])
     embed = message_selected.embeds[0]
@@ -345,7 +348,8 @@ class Utip(commands.Cog):
                         "set status=1 " +
                         f"where message_id='{message_id}' ;"
                         )
-      await self.give_role(member_selected, role_utip, delay)
+      # await self.give_role(member_selected, role_utip, delay)
+      await self.give_role(member_selected, role_utip, "forever")
       colour = colour.from_rgb(56, 255, 56)
       embed.set_footer(text=f"Accepté par {str(author_selected)}")
       """
