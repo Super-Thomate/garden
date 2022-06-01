@@ -288,7 +288,7 @@ class Turing(commands.Cog):
     error = False
     try:
       message = await self.get_message_general(ctx, message_id)
-      date = message.created_at.strftime("%m/%d/%Y, %H:%M:%S")
+      date = message.created_at.strftime("%m/%d/%Y, %H:%M:%S [%z]")
       await ctx.send (f"`Datetime : {date}`")
     except Exception as e:
       logger ("turing::get_message_datetime", f" {type(e).__name__} - {e}")
