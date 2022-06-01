@@ -284,11 +284,10 @@ class Turing(commands.Cog):
 
   @commands.command(name='date')
   @Utils.require(required=['authorized', 'not_banned', 'cog_loaded'])
-  async def get_message_datetime(self, ctx: commands.Context, message: discord.Message):
-    guild_id = ctx.message.guild.id
-    author = ctx.author
+  async def get_message_datetime(self, ctx: commands.Context, message_id: int):
     error = False
     try:
+      message = self.get_message_general(ctx, message_id)
       date = message.created_at.strftime("%m/%d/%Y, %H:%M:%S")
       await ctx.send (f"`Datetime : {date}`")
     except Exception as e:
