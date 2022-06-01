@@ -280,4 +280,18 @@ class Turing(commands.Cog):
     except Exception as e:
       logger ("turing::set embed", f" {type(e).__name__} - {e}")
       await ctx.send ("**ERROR** {} - {}".format (type(e).__name__, e))
-    
+
+
+  @commands.command(name='date')
+  @Utils.require(required=['authorized', 'not_banned', 'cog_loaded'])
+  async def get_message_datetime(self, ctx: commands.Context, message: discord.Message):
+    guild_id = ctx.message.guild.id
+    author = ctx.author
+    error = False
+    try:
+      date = message.created_at.strftime("%m/%d/%Y, %H:%M:%S")
+      await ctx.send (f"`Datetime : {date}`")
+    except Exception as e:
+      logger ("turing::get_message_datetime", f" {type(e).__name__} - {e}")
+      error = True
+    # await self.logger.log('spy_log', author, ctx.message, error)
