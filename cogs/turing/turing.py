@@ -287,7 +287,7 @@ class Turing(commands.Cog):
   async def get_message_datetime(self, ctx: commands.Context, message_id: int):
     error = False
     try:
-      message = self.get_message_general(ctx, message_id)
+      message = await self.get_message_general(ctx, message_id)
       date = message.created_at.strftime("%m/%d/%Y, %H:%M:%S")
       await ctx.send (f"`Datetime : {date}`")
     except Exception as e:
