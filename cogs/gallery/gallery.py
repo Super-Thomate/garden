@@ -162,17 +162,17 @@ class Gallery(commands.Cog):
           try:
             await author.trigger_typing()  # add some tension !!
             colour = discord.Colour(0)
-            url = "Votre jeton:\n" + await self.get_galerie_link(guild_id, author)
-            sql = f"select message from galerie_message where guild_id='{guild_id}'"
-            galerie_message = database.fetch_one_line(sql)
-            if galerie_message:
-              url = url + "\n\n" + galerie_message[0]
+            # url = "Votre jeton:\n" + await self.get_galerie_link(guild_id, author)
+            # sql = f"select message from galerie_message where guild_id='{guild_id}'"
+            # galerie_message = database.fetch_one_line(sql)
+            # if galerie_message:
+            #   url = url + "\n\n" + galerie_message[0]
             colour = colour.from_rgb(170, 117, 79)
             icon_url = "https://cdn.discordapp.com/attachments/494812564086194177/597037745344348172/LotusBlanc.png"
             name = "LotusBlanc"
             embed = discord.Embed(colour=colour)
             embed.set_author(icon_url=icon_url, name=name)
-            embed.description = url
+            embed.description = "Le site AvatarRealms a fermé ses portes ! Plus d'informations sur https://avatar-realms.net"
             embed.timestamp = datetime.utcnow()
             await author.send(content=None, embed=embed)
           except Exception as e:
