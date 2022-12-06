@@ -229,3 +229,20 @@ class Welcome(commands.Cog):
       logger ("welcome::reset_welcomeuser", f'{type(e).__name__} - {e}')
     else:
       await ctx.message.add_reaction('✅')
+
+  @commands.command(name='listwelcomemessage', aliases=['lwm'])
+  @Utils.require(required=['authorized', 'not_banned', 'cog_loaded'])
+  async def list_all_welcome_message(self, ctx, role: discord.Role = None):
+    guild_id = ctx.message.guild.id
+    member = ctx.author
+    if not role:
+      await ctx.message.add_reaction('❌')
+      await ctx.send(Utils.get_text(ctx.guild.id, "error_no_parameter").format('<role>'))
+      return
+    sql = f"select message from welcome_message where guild_id='{guild_id}' and role_id={role.id}; "
+    prev_galerie_message = database.fetch_one_line(sql)
+    if not prev_galerie_message:
+      await ctx.channel.send("Aucun message de défini")
+    else:
+      await ctx.channel.send("Aucun message de défini")
+    # await self.logger.log('welcome_log', ctx.author, ctx.message, error) # no logs
