@@ -286,10 +286,6 @@ class Help(commands.Cog):
     embed.add_field(name=Utils.get_text(guild_id, 'help_variable_title'),
                     value=Utils.get_text(guild_id, 'welcome_help_variables'),
                     inline=False)
-    embed.add_field(name=Utils.get_text(guild_id, 'help_user_command')
-                    , value=Utils.get_text(guild_id, 'welcome_help_admin_command').format(prefix)
-                    , inline=False
-                    )
     embed.add_field(name=Utils.get_text(guild_id, 'help_admin_command')
                     , value=Utils.get_text(guild_id, 'welcome_help_admin_command').format(prefix)
                     , inline=False
