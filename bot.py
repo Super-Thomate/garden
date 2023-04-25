@@ -63,8 +63,9 @@ initial_extensions = ['cogs.loader'
   , 'cogs.highlight'
                       ]
 
-intents = discord.Intents.default()
-intents.members = True
+# intents = discord.Intents.default()
+# intents.members = True
+intents = discord.Intents().all()
 bot = commands.Bot(command_prefix=get_prefix, intents=intents)
 bot.remove_command("help")  # we used our own help command
 
