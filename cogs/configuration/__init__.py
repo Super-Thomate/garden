@@ -1,5 +1,5 @@
 from .configuration import Configuration
 
 
-def setup(bot):
-  bot.add_cog(Configuration(bot))
+async def setup(bot):
+  await bot.add_cog(Configuration(bot))

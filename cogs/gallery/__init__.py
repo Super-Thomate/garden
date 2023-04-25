@@ -8,8 +8,8 @@ except:
   soupAvailable = False
 
 
-def setup(bot):
+async def setup(bot):
   if soupAvailable:
-    bot.add_cog(Gallery(bot))
+    await bot.add_cog(Gallery(bot))
   else:
     raise RuntimeError("You need to run `python3 -m pip install -U beautifulsoup4`")

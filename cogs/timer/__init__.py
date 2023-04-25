@@ -1,5 +1,5 @@
 from .timer import Timer
 
 
-def setup(bot):
-  bot.add_cog(Timer(bot))
+async def setup(bot):
+  await bot.add_cog(Timer(bot))

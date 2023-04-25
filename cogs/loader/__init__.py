@@ -1,5 +1,5 @@
 from .loader import Loader
 
 
-def setup(bot):
-  bot.add_cog(Loader(bot))
+async def setup(bot):
+  await bot.add_cog(Loader(bot))

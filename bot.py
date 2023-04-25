@@ -70,10 +70,13 @@ bot = commands.Bot(command_prefix=get_prefix, intents=intents)
 bot.remove_command("help")  # we used our own help command
 
 # Here we load our extensions(cogs) listed above in [initial_extensions].
-if __name__ == '__main__':
-  for extension in initial_extensions:
-    bot.load_extension(extension)
+# if __name__ == '__main__':
+#   for extension in initial_extensions:
+#     bot.load_extension(extension)
 
+async def load_extensions():
+  for extension in initial_extensions:
+    await bot.load_extension(extension)
 
 @bot.event
 async def on_guild_join(guild):
@@ -154,5 +157,10 @@ async def on_disconnect ():
 #@bot.event
 #async def on_connect ():
   #logger ("bot::on_connect", "Called when the client has successfully connected to Discord.")
+async def main():
+  async with bot:
+    await load_extensions()
+    await bot.start(botconfig.config['token'])
 
-bot.run(botconfig.config['token'])
+asyncio.run(main())
+# bot.run(botconfig.config['token'])

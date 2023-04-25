@@ -1,5 +1,5 @@
 from .roledm import RoleDM
 
 
-def setup(bot):
-  bot.add_cog(RoleDM(bot))
+async def setup(bot):
+  await bot.add_cog(RoleDM(bot))

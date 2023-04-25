@@ -1,5 +1,5 @@
 from .utip import Utip
 
 
-def setup(bot):
-  bot.add_cog(Utip(bot))
+async def setup(bot):
+  await bot.add_cog(Utip(bot))
