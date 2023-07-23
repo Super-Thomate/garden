@@ -47,7 +47,7 @@ class Help(commands.Cog):
     embed.add_field(name="**SUF :**", value=Utils.get_text(guild_id, 'help_invitation_suf'), inline=False)
     embed.add_field(name="**AR :**", value=Utils.get_text(guild_id, 'help_invitation_ar'), inline=False)
     embed.add_field(name="**Général :**", value=Utils.get_text(guild_id, 'help_invitation_general'), inline=False)
-    embed.set_author(icon_url=infos.avatar_url, name=str(infos))
+    # embed.set_author(icon_url=infos.avatar_url, name=str(infos))
     embed.timestamp = datetime.today()
     return embed
 
@@ -60,7 +60,7 @@ class Help(commands.Cog):
     embed.add_field(name="**SUF :**", value=Utils.get_text(guild_id, 'logs_help_suf'), inline=False)
     embed.add_field(name="**AR :**", value=Utils.get_text(guild_id, 'logs_help_ar'), inline=False)
     embed.add_field(name="**Général :**", value=Utils.get_text(guild_id, 'logs_help_admin_command'), inline=False)
-    embed.set_author(icon_url=infos.avatar_url, name=str(infos))
+    # embed.set_author(icon_url=infos.avatar_url, name=str(infos))
     embed.timestamp = datetime.today()
     return embed
 
@@ -73,7 +73,7 @@ class Help(commands.Cog):
                     value=Utils.get_text(guild_id, 'nickname_help_user_command'), inline=False)
     embed.add_field(name=Utils.get_text(guild_id, 'help_admin_command'),
                     value=Utils.get_text(guild_id, 'nickname_help_admin_command'), inline=False)
-    embed.set_author(icon_url=infos.avatar_url, name=str(infos))
+    # embed.set_author(icon_url=infos.avatar_url, name=str(infos))
     embed.timestamp = datetime.today()
     return embed
 
@@ -92,7 +92,7 @@ class Help(commands.Cog):
     embed.add_field(name=Utils.get_text(guild_id, 'help_admin_command_phase')
                     , value=Utils.get_text(guild_id, 'vote_help_admin_command_phase')
                     , inline=False)
-    embed.set_author(icon_url=infos.avatar_url, name=str(infos))
+    # embed.set_author(icon_url=infos.avatar_url, name=str(infos))
     embed.timestamp = datetime.today()
     return embed
 
@@ -116,7 +116,7 @@ class Help(commands.Cog):
                     , value=Utils.get_text(guild_id, 'bancommand_help_admin_command')
                     , inline=False
                     )
-    embed.set_author(icon_url=infos.avatar_url, name=str(infos))
+    # embed.set_author(icon_url=infos.avatar_url, name=str(infos))
     embed.timestamp = datetime.today()
     return embed
 
@@ -134,7 +134,7 @@ class Help(commands.Cog):
                     , value=Utils.get_text(guild_id, 'welcome_help_admin_command')
                     , inline=False
                     )
-    embed.set_author(icon_url=infos.avatar_url, name=str(infos))
+    # embed.set_author(icon_url=infos.avatar_url, name=str(infos))
     embed.timestamp = datetime.today()
     return embed
 
@@ -153,7 +153,7 @@ class Help(commands.Cog):
     embed.add_field(name=Utils.get_text(guild_id, 'help_admin_command')
                     , value=Utils.get_text(guild_id, 'roleDM_help_admin_command')
                     , inline=False)
-    embed.set_author(icon_url=infos.avatar_url, name=str(infos))
+    # embed.set_author(icon_url=infos.avatar_url, name=str(infos))
     embed.timestamp = datetime.today()
     return embed
 
@@ -176,7 +176,7 @@ class Help(commands.Cog):
     embed.add_field(name=Utils.get_text(guild_id, 'help_admin_command')
                     , value=Utils.get_text(guild_id, 'utip_help_admin_command')
                     , inline=False)
-    embed.set_author(icon_url=infos.avatar_url, name=str(infos))
+    # embed.set_author(icon_url=infos.avatar_url, name=str(infos))
     embed.timestamp = datetime.today()
     return embed
 
@@ -194,7 +194,7 @@ class Help(commands.Cog):
     embed.add_field(name=Utils.get_text(guild_id, 'help_admin_command'),
                     value=Utils.get_text(guild_id, 'birthday_help_admin_command').format(prefix),
                     inline=False)
-    embed.set_author(icon_url=infos.avatar_url, name=str(infos))
+    # embed.set_author(icon_url=infos.avatar_url, name=str(infos))
     embed.timestamp = datetime.today()
     return embed
 
@@ -209,7 +209,7 @@ class Help(commands.Cog):
                     , inline=False
                     )
 
-    embed.set_author(icon_url=infos.avatar_url, name=str(infos))
+    # embed.set_author(icon_url=infos.avatar_url, name=str(infos))
     embed.timestamp = datetime.today()
     return embed
 
@@ -227,7 +227,7 @@ class Help(commands.Cog):
                     , value=Utils.get_text(guild_id, 'rules_help_admin_command').format(prefix)
                     , inline=False
                     )
-    embed.set_author(icon_url=infos.avatar_url, name=str(infos))
+    # embed.set_author(icon_url=infos.avatar_url, name=str(infos))
     embed.timestamp = datetime.today()
     return embed
 
@@ -240,7 +240,7 @@ class Help(commands.Cog):
                     , value=Utils.get_text(guild_id, 'pwet_help_user_command').format(prefix)
                     , inline=False
                     )
-    embed.set_author(icon_url=infos.avatar_url, name=str(infos))
+    # embed.set_author(icon_url=infos.avatar_url, name=str(infos))
     embed.timestamp = datetime.today()
     return embed
 
@@ -257,7 +257,7 @@ class Help(commands.Cog):
                     , value=Utils.get_text(guild_id, 'timer_help_admin_command').format(prefix)
                     , inline=False
                     )
-    embed.set_author(icon_url=infos.avatar_url, name=str(infos))
+    # embed.set_author(icon_url=infos.avatar_url, name=str(infos))
     embed.timestamp = datetime.today()
     return embed
 
@@ -274,7 +274,7 @@ class Help(commands.Cog):
                     , value=""
                     , inline=False
                     )
-    embed.set_author(icon_url=infos.avatar_url, name=str(infos))
+    # embed.set_author(icon_url=infos.avatar_url, name=str(infos))
     embed.timestamp = datetime.today()
     return embed
 
@@ -290,7 +290,7 @@ class Help(commands.Cog):
                     , value=Utils.get_text(guild_id, 'welcome_help_admin_command').format(prefix)
                     , inline=False
                     )
-    embed.set_author(icon_url=infos.avatar_url, name=str(infos))
+    # embed.set_author(icon_url=infos.avatar_url, name=str(infos))
     embed.timestamp = datetime.today()
     return embed
 
@@ -344,6 +344,6 @@ class Help(commands.Cog):
       num += 1
       embed.add_field(name=Utils.get_text(guild_id, 'help_global_field_available').format(num, len(all_lines)),
                       value=line_cogs, inline=False)
-    embed.set_author(icon_url=infos.avatar_url, name=str(infos))
+    # embed.set_author(icon_url=infos.avatar_url, name=str(infos))
     embed.timestamp = datetime.today()
     return embed
