@@ -435,7 +435,10 @@ def is_loaded(cog, guild_id):
               )
     try:
       fetched = database.fetch_one_line(select, [str(cog), guild_id])
-      logger ("Utils::is_loaded", f"fetched: {fetched[0]}")
+      if (fetched):
+        logger ("Utils::is_loaded", f"fetched: {fetched[0]}")
+      else:
+        logger ("Utils::is_loaded", f"fetched: null")
     except Exception as e:
       logger ("Utils::is_loaded", f"{type(e).__name__} - {e}")
     # logger ("Utils::is_loaded", f"In fetched for {str(cog)}: {fetched}")
