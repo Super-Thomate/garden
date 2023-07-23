@@ -418,8 +418,11 @@ async def delete_messages(*args):
 
 
 def is_loaded(cog, guild_id):
+  if (cog in ["configuration", "help", "loader", "logs"]):
+    return True
   if (guild_id is None):
     logger ("Utils::is_loaded", "is_loaded({0}, {1})".format(cog, guild_id))
+    return False
   try:
     guild_id = int(guild_id)
     select = ("select   status "
@@ -432,10 +435,11 @@ def is_loaded(cog, guild_id):
               )
     try:
       fetched = database.fetch_one_line(select, [str(cog), guild_id])
+      logger ("Utils::is_loaded", f"fetched: {fetched[0]}")
     except Exception as e:
       logger ("Utils::is_loaded", f"{type(e).__name__} - {e}")
     # logger ("Utils::is_loaded", f"In fetched for {str(cog)}: {fetched}")
-    return (fetched and fetched[0] == 1) or (cog in ["configuration", "help", "loader", "logs"])
+    return (fetched and fetched[0] == 1)
   except Exception as e:
     logger ("Utils::is_loaded", f"{type(e).__name__} - {e}")
     return False
@@ -471,9 +475,8 @@ async def get_emoji (ctx: commands.Context, emoji: str):
     return await converter.convert (ctx, emoji)
   except BadArgument:
     if is_emoji (emoji):
-    	 return emoji
-    else:
-    	 raise
+      return emoji
+    raise
 
 def emojize (character: str):
   return emoji.emojize (character, use_aliases=True)

@@ -249,7 +249,9 @@ async def birthday_task(bot):
     for guild in bot.guilds:
       guild_id = guild.id
       if not Utils.is_loaded("birthday", guild_id):
+        logger("_Cron::birthday_task", f"Birthday not loaded for guild {guild.name}")
         continue
+      logger("_Cron::birthday_task", f"Birthday loaded for guild {guild.name}")
       sql = "SELECT time FROM birthday_time WHERE guild_id=? ;"
       response = database.fetch_one_line(sql, [guild_id])
       if not (response is None or response[0] is None):
