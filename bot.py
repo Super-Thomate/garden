@@ -13,8 +13,8 @@ from core import run_task, logger
 
 DISCORD_CRON_CRONTAB         = {   #"vote": "* * * * *",
                                  #  "utip": "* * * * *",
-                                #  "birthday": "0 * * * *",
-                                  "birthday": "* * * * *",
+                                 "birthday": "0 * * * *",
+                                  # "birthday": "* * * * *",
                                  # "rename": "* * * * * *"
                                }
 
