@@ -275,7 +275,10 @@ async def birthday_task(bot):
       for line in data:
         member_id, guild_id, last_year_wished = line[0], line[1], line[2]
         member = guild.get_member(int(member_id))
-        if not member or current_year == last_year_wished:
+        if not member:
+          logger("_Cron::birthday_task", f"Unknown {member_id} for current guild")
+          continue
+        if current_year == last_year_wished:
           logger("_Cron::birthday_task", f"Birthday already wished this year for member {member}")
           continue
         birthday_message = get_birthday_message(guild, member)
